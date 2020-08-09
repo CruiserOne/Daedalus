@@ -1,0 +1,182 @@
+DS
+// Daedalus Virtual Mazes - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-b: Panel coordinates of upper left corner of 2x2 panel working area
+// c-d: Pixel coordinates of cursor within 2x2 panel working area
+// e: Read swaps
+// f: Write swaps
+// g: Stack location (current)
+// h: Stack location (in max segment)
+// i: Does Maze need initializing?
+// j: Stack swaps so far
+// k: Stack segment (current)
+// l: Stack segment (max)
+// m-n: Panel dimensions of entire Maze
+// o-p: Pixel size of entire Maze
+// q-r: Pixel size of working area
+// s-t: Pixel size of each panel
+// u: Stack segment size in coordinate pairs
+// v: Stack segment size in pixels
+// w: Does stack need adjusting?
+// x-z: Temporary variables
+
+If Gte Version 3300 {Break} Message 'This script requires Daedalus 3.3 or later to run.' Break
+
+EmbedMacro 1 "Help Text"
+@x Dec Div @o 2 @y Dec Div @p 2
+@w Div @s 2 @z Div @t 2
+SetString 0 'Daedalus Virtual Maze generator\n\nF1: Display this help text.\nF2: Start new Maze.\nF3: Create next portion.\nF4: Create next portions until key pressed.\n\nF5: Set number of panels. Current size: @m x @n\nF6: Set panel size. Current size: @w x @z cells, @s x @t pixels\nF7: Set stack size. Current size: @u coordinates, @v pixels\n\nMaze size: @x x @y cells, @o x @p pixels\n\nSwaps: @f write, @e read, @j stack\nStack: segment @k, offset @g current / segment @l, offset @h max'
+Message $0
+
+EmbedMacro 2 "Create New"
+fPauseTimer False ct
+@a 0 @b 0 @c 1 @d 1
+@e 0 @f 0 @g 0 @h 0 @i True @j 0 @k 0 @l 0
+Size @s @t 0 1
+For (y) 0 Dec @n {
+  For (x) 0 Dec @m (
+    sDel
+    If And Equ @x @a Equ @y @b 'Set @c Dec @d Off Set @c @d Off'
+    If Gte @x Dec @m 'nX Dec @s nY 0 nX2 nX nY2 Dec @t c 2ndLine c'
+    If Gte @y Dec @n 'nX 0 nY Dec @t nX2 Dec @s nY2 nY c 2ndLine c'
+    If And Gte @x Dec @m Gte @y Dec @n 'Set Sub @s 3 Sub @t 2 Off'
+    Macro14
+    SaveBitmap $0
+  )
+}
+Size @q @r 0 1 =
+Macro3
+
+EmbedMacro 3 "Next Portion"
+fRedrawWhenBitmapEdited False
+If Not @i {Macro2 Return}
+If And Lt @d Div @t 2 Gt @b 0 {@b Dec @b @d Add @d @t}
+If And Lt @c Div @s 2 Gt @a 0 {@a Dec @a @c Add @c @s}
+If And Gt @d Div Mul @t 3 2 Lt @b Sub @n 2 {@b Inc @b @d Sub @d @t}
+If And Gt @c Div Mul @s 3 2 Lt @a Sub @m 2 {@a Inc @a @c Sub @c @s}
+_ @x @a @y @b Macro14 OpenBitmap $0 _ nX 0 nY 0 aG
+_ @x Inc @a Macro14 OpenBitmap $0 _ nX @s aG
+_ @x @a @y Inc @b Macro14 OpenBitmap $0 _ nX 0 nY @t aG
+_ @x Inc @a Macro14 OpenBitmap $0 _ nX @s aG
+@z 0
+If Lte @b 0 {@z Or @z 1}
+If Lte @a 0 {@z Or @z 2}
+If Gte @b Sub @n 2 {@z Or @z 4}
+If Gte @a Sub @m 2 {@z Or @z 8}
+nX @c nY @d
+@w 0
+SwapMask -2 -3
+VirtualRecurs @z @g
+@c nX @d nY
+@g @y
+If Gte @k @l {@h Max @h @g}
+If Or Lte @g 0 Gte @g @v {
+  @w 1
+  @j Inc @j
+  - _ nX 0 nY 0 nX2 Dec @v nY2 0 ag
+  _ @x @k Macro15 SaveBitmap $0 _
+  nX @v nX2 Add nX2 @v ag
+  _ @x Inc @k Macro15 SaveBitmap $0 _
+  IfElse Lte @g 0
+    (@k Dec @k @g Add @g @u)
+    (@k Inc @k @g Sub @g @u)
+  If Gte @k 0 (
+    _ @x @k Macro15 OpenBitmap $0 _
+    nX 0 aG
+  )
+  If Lte @k @l (
+    _ @x Inc @k Macro15 OpenBitmap $0 _
+    nX @v aG
+  )
+  _ -
+  If Gt @k @l (@l @k @h @g)
+}
+nX @c nY @d
+SwapMask -2 -3
+If Not @w {@e Inc @e}
+If And Gt @z 0 Not @w {@f Inc @f}
+If Gt @z 0 {
+  nX 0 nY 0 nX2 Dec @s nY2 Dec @t ag _ @x @a @y @b Macro14 SaveBitmap $0 _
+  nX @s nX2 Add nX Dec @s ag _ @x Inc @a Macro14 SaveBitmap $0 _
+  nX 0 nY @t nX2 Dec @s nY2 Add nY Dec @t ag _ @x @a @y Inc @b Macro14 SaveBitmap $0 _
+  nX @s nX2 Add nX Dec @s ag _ @x Inc @a Macro14 SaveBitmap $0 _
+}
+nX @c nY @d
+fRedrawWhenBitmapEdited True n
+If Lt @k 0 {
+  @i False fPauseTimer True t
+  fAutorepeatLastCommand False
+}
+
+EmbedMacro 4 "Next Portions"
+If Not @i {Macro2}
+While (And @i Not Event 0) {Macro3}
+
+EmbedMacro 5 "Set Panel Count"
+SetString 0 '@m' SetString 1 '@n'
+GetString2 'Enter horizontal panel count of entire Maze (2-999):' 'Enter vertical panel count of entire Maze (2-999):' 0
+If @z {Return}
+@x Num $0 If Or Lt @x 2 Gt @x 999 {Message 'Bad horizontal size!\nNumber must be between 2-999.' Return}
+@y Num $1 If Or Lt @y 2 Gt @y 999 {Message 'Bad vertical size!\nNumber must be between 2-999.' Return}
+@m @x @n @y
+Macro13
+
+EmbedMacro 6 "Set Panel Size"
+@x Div @s 2 @y Div @t 2
+SetString 0 '@x' SetString 1 '@y'
+GetString2 'Enter horizontal cells per panel (2-20000):' 'Enter vertical cells per panel (2-20000):' 0
+If @z {Return}
+@x Num $0 If Or Lt @x 2 Gt @x 20000 {Message 'Bad horizontal size!\nNumber must be between 2-20000.' Return}
+@y Num $1 If Or Lt @y 2 Gt @y 20000 {Message 'Bad vertical size!\nNumber must be between 2-20000.' Return}
+@s Mul @x 2 @t Mul @y 2
+Macro13
+
+EmbedMacro 7 "Set Stack"
+SetString 0 '@u'
+GetString 'Enter coordinates per stack section (4-100000000):' 0
+If @z {Return}
+@x Num $0 If Or Lt @x 4 Gt @x 100000000 {Message 'Bad section size!\nNumber must be between 4-100000000.' Return}
+@u @x
+Macro13
+
+EmbedMacro 9 "Load Entire"
+Size @s @t 0 1 _
+Size @o @p 0 1
+For (y) 0 Dec @n {
+  For (x) 0 Dec @m (
+    _ Del
+    Macro14
+    OpenBitmap $0
+    _ nX Mul @x @s nY Mul @y @t aG
+  )
+}
+
+EmbedMacro 13 "Initialize"
+@o Mul @m @s @p Mul @n @t
+@v Mul @u 2
+Size Mul @v 2 1 0 1 = \
+@q Mul @s 2 @r Mul @t 2
+@a 0 @b 0
+@i False
+
+EmbedMacro 14 "Get Maze Filename"
+SetStringNum 0 @x 3
+SetStringNum 1 @y 3
+SetString 0 "mz$0$1.bmp"
+
+EmbedMacro 15 "Get Stack Filename"
+SetStringNum 0 @x 5
+SetString 0 "mzs$0.bmp"
+
+ResetProgram
+WindowTitle "- Virtual Mazes" True
+nHorizontalScroll 0 nVerticalScroll 0
+fHideMenu False fHideScrollbars False
+nRepeatDelayInMsec 10
+fDragIsErase False
+@s 64 @t 64
+@m 2 @n 2
+@u 65536
+Macro13 Macro1

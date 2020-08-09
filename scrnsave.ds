@@ -1,0 +1,23 @@
+DS
+// Daedalus Screensaver - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// s: Day/night mode fraction/second
+// t: Day/night current time/total
+// u: Day/night time increment rate (constant)
+
+$1 "" // Password string
+DefineMacro 1 "@z fScreenSaver If Not @z {Break} $0 '' GetString 'Enter password' 0 If @z {Break} @z True IfElse EquStr $0 $1 '@z False' 'Message (Bad password!)'" "Exit Event"
+
+DefineMacro 25 "fRedrawWhenBitmapEdited False @t Add @t @u If Gte @t 1536 {@t 0} @m Div @t 256 @s Mod @t 256 Macro Add 26 @m MoveCloud -1 18000 fRedrawWhenBitmapEdited True" "Inside Event"
+DefineMacro 26 "If Equ @s 0 {kSky Aqua kCloud White kCloud2 Light LtGray kMountain Brown kMountain2 Gray nFogDistance 0 kGround2 -1 nSunMoonY 333}" "Midday"
+DefineMacro 27 "kSky Rgb 0 Sub 255 @s 255 kCloud GrayN Sub 255 Div Mul @s 3 8 kCloud2 GrayN Sub 223 Div Mul @s 3 8 kMountain Rgb Sub 127 Div @s 8 Sub 63 Div @s 16 0 kMountain2 GrayN Sub 127 Div Mul @s 52 256 nFogDistance Sub 5290 Mul @s 20 kGround2 Rgb 0 Sub 128 Div @s 4 0 nSunMoonY Add 333 Div Mul @s 667 256" "Late Day"
+DefineMacro 28 "If Equ @s 0 {fStars True} kSky Rgb 0 0 Sub 255 @s kCloud GrayN Sub 159 Div Mul @s 3 8 kCloud2 GrayN Sub 127 Div Mul @s 3 8 kMountain Rgb Sub 95 Div @s 8 Sub 47 Div @s 16 0 kMountain2 GrayN Sub 75 Div Mul @s 52 256 nStarCount Mul @s 3 nFogDistance Sub 170 Div @s 2 kGround2 Rgb 0 Sub 64 Div @s 4 0 nSunMoonY Sub 1000 Div Mul @s 667 256" "Early Night"
+DefineMacro 29 "If Equ @s 0 {kSky Black kCloud DkGray kCloud2 Dark DkGray kMountain Dark Brown kMountain2 GrayN 23 nStarCount 768 nFogDistance 42 kGround2 Black nSunMoonY 333}" "Midnight"
+DefineMacro 30 "kSky Rgb 0 0 @s nStarCount Mul Sub 255 @s 3 kCloud GrayN Add 64 Div Mul @s 3 8 kCloud2 GrayN Add 32 Div Mul @s 3 8 kMountain Rgb Add 63 Div @s 8 Add 31 Div @s 16 0 kMountain2 GrayN Add 24 Div Mul @s 52 256 nFogDistance Add 42 Div @s 2 kGround2 Rgb 0 Div @s 4 0 nSunMoonY Add 333 Div Mul @s 667 256" "Late Night"
+DefineMacro 31 "If Equ @s 0 {fStars False} kSky Rgb 0 @s 255 kCloud GrayN Add 160 Div Mul @s 3 8 kCloud2 GrayN Add 128 Div Mul @s 3 8 kMountain Rgb Add 95 Div @s 8 Add 47 Div @s 16 0 kMountain2 GrayN Add 76 Div Mul @s 52 256 nFogDistance Add 170 Mul @s 20 kGround2 Rgb 0 Add 64 Div @s 4 0 nSunMoonY Sub 1000 Div Mul @s 667 256" "Early Day"
+
+fRedrawWhenBitmapEdited False ResetProgram Size 32 32 0 1 Turtle "BM0,0R15ND14RNR15D15R15D16L31U16R15DNL14R15" cDel Zoom 8 6 0 2 = cF TextureOverlay TempDelete
+kDot Orange kOverlay Purple kInsideWall Maroon kGround DkGreen fWallsImpassable True nEdgeBehavior 0 rLightFactor 30 nMotionFrames 90 nRotationFrames 90 nOnProgramExit 1 nOnRedrawInside 25 @t 9999 @u 1
+: ] } an CollapseToSet c8 nY -1 fRedrawWhenBitmapEdited True 0 N
