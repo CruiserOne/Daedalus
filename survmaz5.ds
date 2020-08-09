@@ -1,0 +1,263 @@
+DS
+// Survivor Maze game #5 - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-j: Whether blocks #1 through #10 have been hit.
+// k-n: Player colors #1 through #4 (constant)
+// o: Color of back wall (constant)
+// p: Player color index
+// q: Next thing for player to find (ranges from 1-21)
+// u-w: Temporary variables
+// x-y: X and Y coordinates of player during events
+// z: Event return value
+
+// Bitmap usage:
+// -1: Mono = Where walls are, Color = Color of walls
+// -2: Mono = Where floor markings are, Color = Color of floor markings
+// -3: Color = Where blocks are
+// 0: Color = Texture mapping
+// 1: Mono = Where ceiling markings are, Color = Ceiling marking colors
+// 2: Mono = Where variable height walls are, Color = Wall heights
+// 3: Mono = Alternate Maze walls
+// 4: Mono = Alternate Maze floor markings
+// 5: Mono = Alternate Maze variable height walls
+// 6: Color = Alternate Maze texture mapping
+// 7: Mono = Initial texture for start (left), Color = Initial texture mapping
+// 8: Mono = Initial texture for start (right)
+// 9: Mono = Current texture for start (left)
+// 10: Mono = Current texture for start (right)
+// 11: Mono = Texture for blocks (unhit)
+// 12: Mono = Texture for blocks (hit)
+// 13-27: Mono = Textures for inner back walls (15 total)
+// 28-58: Mono = Textures for outer front walls (31 total)
+// 59-61: Mono = Textures for outer back walls (3 total)
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the\nfinal four in "Survivor IX: Vanuatu". Your goal is to navigate the\neight floor vertical Maze, finding and touching ten $x blocks\nin any order, and also touching the start outside the Maze after\neach block. $x was the color $y had. When outside the\nMaze a map of it, and the position of each found and unfound\nblock, can be seen.\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Switch background between day and night.\n\nPress "u" or "d" to climb up or down to next level.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False CopyMask 7 9 CopyMask 8 10 CopyTexture 7 ?: f3D 0 6 SetVars 1 10 '0 0 0 0 0 0 0 0 0 0' @p Rnd 0 3 @q 1 nX 21 nY 7 nZ 16 nDir 0 g cg fShowColorBitmap True For (x) 0 31 {@y Sub Char $10 @x 48 If @y 'SetCA Add 28 @x 1 Sub Mul @y 3 2 Var Add 11 @p'} For (z) 9 12 {CopyTexture @z -1 Del Replace Black Var Add 11 @p 0 CopyTexture -1 @z} ColorDelete fRedrawWhenBitmapEdited True IfElse f3D {Macro12} {Spc} Macro1 fPauseTimer False ct" "Restart Maze"
+DefineMacro 3 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {Macro11} {fStars True nFogDistance 100 kSky Black k3DCeiling kSky kGround Dark kGround kMountain Dark DkGreen kMountain2 Dark Brown kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+
+DefineMacro 4 "If Not f3D {Macro9 @z False Break} @w Get3CE @x Dec @y @z If Or Gt @q 20 Not @w {@z False Break} If Not Odd @q {Message 'You don't need to find a block now.\nYou need to return to the start.' @z False Break} IfElse Var @w {Message 'You've already been to this block.\nYou need to find a block you haven't visited yet.'} {SetVar @w True @q Inc @q Set3X @x Dec @y @z 0 12 @w Div @q 2 Spc Message 'You find a block!\nThis is block #@w. Now return to the start!' @x Sub nX 7 @y Sub Char $10 @x 48 SetCA Add 28 @x 1 Sub Mul @y 3 2 Gray} @z False" "Wall Event"
+DefineMacro 5 "If Gt @q 20 {Break} IfElse Odd @q {@v Div Inc @q 2 MessageInside 'Seeking: Block #@v' -1} {MessageInside 'Seeking: Start' -1} If Not fCellLocation {Break} IfElse f3D {@v Sub 9 Div nZ 2} {@v 1} MessageInside 'Floor: @v' -2" "Inside Event"
+DefineMacro 6 "@u f3D If @u {If Not Get3T @x @y @z 'Macro12' @z False Break} If And Lte @q 20 Or Or Lt @x 1 Gt @x 43 Gt @y 17 {Message 'Jeff Probst says: "Hey, you can't leave the challenge area! You haven't finished the Maze yet."' @z True Break} @z False" "Before Move Event"
+DefineMacro 7 "If Not @u {If GetT @x @y 'Macro12'}" "After Move Event"
+DefineMacro 8 "@z Gt Add Add Add Get3 nX nY Dec nZ Get3 Dec nX nY nZ Get3 nX nY Inc nZ Get3 Inc nX nY nZ 2" "Follow Event"
+
+DefineMacro 9 "If Or Lt @y 7 Gt @q 20 {Break} If Odd @q {@w Div Inc @q 2 Message 'You don't need to be at the start now. You need to go find block #@w.' Break} fRedrawWhenBitmapEdited False @w Add 9 Gt @q 11 @z Div Mod Dec @q 10 2 SwapMask -1 @w @x nX @y nY nX Add 4 Mul @z 8 nY 4 ` nX @x nY @y SwapMask -1 @w fRedrawWhenBitmapEdited True @q Inc @q If Gt @q 20 'Spc Macro10 Break' @w Div Inc @q 2 Spc Message 'You've reached the start! Now go find block #@w.'" "Hit Start"
+DefineMacro 10 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you've found all the blocks and returned to the\nstart! :-) You solved it in @x minutes, @y seconds.\n\nJeff gives you the immunity necklace, meaning you can't be voted\noff the island in Tribal Council. This win guarantees you a spot in\nthe final three, and is a good lift to hopefully finish at the height\nof Survivor: Winning the million dollar prize!'" "Win Game"
+DefineMacro 11 "fStars False nFogDistance 0 kSky Cyan k3DCeiling kSky kGround Rgb 191 175 127 kMountain DkGreen kMountain2 Brown kCloud White kCloud2 -1" "Day Settings"
+DefineMacro 12 "fRedrawWhenBitmapEdited False IfElse f3D {nSkyMark -1 nWallVariable 5} {nSkyMark 1 nWallVariable 2} f3D Not f3D @z kInsideWall kInsideWall k3DWall k3DWall @z SwapMask -1 3 SwapMask -2 4 SwapTexture 0 6 fRedrawWhenBitmapEdited True n" "Swap World"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Survivor Maze Game 5" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True nOnMoveIntoWall 4 nAfterRedrawInside 5 nOnMoveToNewCell 6 nAfterMoveToNewCell 7 nOnFollowToNewCell 8
+kPassage Black kWall White kInsideWall Blend Gray Brown k3DWall Gray fShowDot True fWallsImpassable True fNoCornerHopping True fDragIsErase False fDoDragOnTemp False nEdgeBehavior 0 Macro11 fCellLocation True fSealedEntrances False fMountains True nPeakHeight 30 nCloudCount 6 fSunAndMoon True fNarrowWalls True nInside 2 nCellSize 150 nNarrowCellSize 10 nWallHeight 100 nStepHeight 0 fSky3D True fNoLocation True nTextureWall 0 nWallVariable 5
+SetVars 11 4 "#0F0F0F Orange Yellow Red" SetStrings 1 8 ",Black,Orange,Yellow,Red,Scout,Twila,Chris,Eliza" @o Blend Red Maroon @p Var Add 11 Rnd 0 3
+
+// Block textures
+Size 41 12 0 1 nY 3 nY2 8 For (z) 0 4 {nX Add 3 Mul @z 8 nX2 Add nX 5 2ndBox} cDel CopyMask -1 7 FlipHorizontal CopyMask -1 8 Quo CopyTexture -1 9 CopyTexture -1 10
+Size 39 12 0 1 For (z) 0 3 {nX Add 3 Mul @z 9 nX2 Add nX 5 2ndBlock} cDel CopyMask -1 11 Del For (z) 0 3 {nX Add 3 Mul @z 9 nX2 Add nX 5 2ndBox} cDel CopyMask -1 12 Quo CopyTexture -1 11 CopyTexture -1 12
+
+// Wall textures
+EmbedDB
+DB
+45 3 1
+
+11111111
+7S7T@\@Y
+!#31!#31
+
+cDel nY 0 nY2 2 SizeC 3 3 0 1 Replace Black @o 0 k For (z) 0 14 {nX Mul @z 3 nX2 Add nX 2 ag CopyMask -2 Add 13 @z CopyTexture -1 Add 13 @z}
+Size 3 30 0 1 sDel Turtle "C0BM0,28R2" CopyMask -1 60 sDel Turtle "BM0,28RU7" CopyMask -1 61 FlipHorizontal CopyMask -1 59 SizeC 3 30 0 1 Replace Black @o 0 For (z) 59 61 {CopyTexture -1 @z}
+
+// Maze data (inner)
+EmbedDB
+DB
+45 162 24
+
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+tab{
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+sa{{ba{{
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+
+z{q{
+sa{{ba{{
+z{q{
+
+z{q{
+qah{
+z{q{
+kat{
+z{q{
+iax{
+z{q{
+gaz{a{
+z{q{
+eaz{c{
+z{q{
+eaz{e{
+z{q{
+eaz{e{
+z{q{
+ean{ban{
+z{q{
+
+z{q{
+qa{{{a{{da{{
+r{{a{{{ab{{ar{
+ka{{fa{{{a{{da{{ba{{
+l{{ad{{ab{{ad{{an{
+ia{{fa{{ba{{fa{{ba{{
+p{{ab{{a{{{a{{{ab{{a{{{al{
+ga{{{a{{da{{{a{{da{{{a{{da{{ba{{
+h{{a{{{ab{{ab{{ad{{ah{{ah{
+ea{{ba{{{a{{{a{{ta{{
+f{{ad{{ad{{ab{{ad{{ab{{aj{
+ea{{{a{{da{{fa{{da{{ba{{ba{{{a{{
+f{{a{{{ad{{a{{{ab{{ab{{ab{{a{{{ad{{af{
+ea{{ba{{da{{ba{{{a{{fa{{{a{{ba{{{a{{
+h{{a{{{ab{{ad{{a{{{ab{{ab{{a{{{a{{{a{{{af{
+ea{{da{{fa{{ba{{ba{{da{{ba{{
+z{q{
+
+z{q{
+qa{{{e{{{ybg{m{{
+r{{s{{{sb{{sr{
+ka{{{ydg{j{{{v{{{y{g{c{g{t{{{y{g{t{{
+l{{sd{{sb{{sd{{sn{
+ia{{{k{g{cbg{m{{{i{g{m{{{b{g{dbg{j{{{y{g{t{{
+p{{sb{{s{{{s{{{sb{{s{{{sl{
+ga{{{e{{{ybg{m{{{v{{{y{g{c{g{u{{{s{{{k{g{c{g{u{{{k{g{m{{
+h{{s{{{sb{{sb{{sd{{sh{{sh{
+ea{{{y{g{u{{{v{{{e{{{ibg{nbg{d{g{cbg{dbg{d{g{u{{
+f{{sd{{sd{{sb{{sd{{sb{{sj{
+ea{{{s{{{ybg{u{{{y{g{d{g{c{g{m{{{i{g{d{g{t{{{b{g{m{{{i{g{t{{{e{{
+f{{s{{{sd{{s{{{sb{{sb{{sb{{s{{{sd{{sf{
+ea{{{i{g{j{{{ybg{j{{{i{g{t{{{s{{{y{g{c{g{d{g{u{{{s{{{y{g{m{{{s{{
+h{{s{{{sb{{sd{{s{{{sb{{sb{{s{{{s{{{s{{{sf{
+ea{{{k{g{c{g{u{{{k{g{cbg{t{{{i{g{u{{{k{g{u{{{k{g{c{g{u{{{i{g{u{{
+z{q{
+
+Size3X 45 Size3Y 18 Size3Z 9 Size3W 1 Flip3D 0 2 Replace Orange 13 0 Replace Rgb 255 0 127 14 0 Replace Magenta 15 0 Replace DkCyan 16 0 Replace Red 17 0 Replace Maize 18 0 Replace Maroon 19 0 Replace Purple 20 0 Replace Cyan 21 0 Replace Green 22 0 Replace Blue 23 0 Replace Yellow 24 0 Replace DkBlue 25 0 Replace DkGreen 26 0 Replace Gray 27 0 For (z) 13 27 {Replace @z NWSE 0 0 @z 0 0} ColorPut k Replace White Black 0 = k \
+SetStrings 9 2 ",4556677777788888888877777766553,4010004000308020000000701020001" Flip3D 0 1 For (x) 0 30 {nX Add 7 @x nX2 nX If Not Odd @x 'nX Dec nX nX2 Inc nX2' nY2 143 nY Sub nY2 Mul Sub Char $9 @x 48 2 If Lt Abs Sub @x 15 2 'nY2 Sub nY2 2' ag _ Bias 1 1 2 1 Size SizeX Dec SizeY 0 0 Size 0 -1 1 0 CopyMask -1 Add 28 @x Quo Del Replace Black @o 0 CopyTexture -1 Add 28 @x k _} | =
+Size 2 9 0 1 Set 1 2 On Zoom 22 18 0 2 Size 45 162 0 0 Turtle "C1BM20,147DBR4UBM21,152R2" CopyMask -1 2
+Size 45 3 0 1 sDel Size 45 9 0 0 Zoom 1 18 0 2 CopyMask -1 1 Quo Replace White Gray 0 @z Shade Blend Brown Gray Div Abs rLightFactor -2 SetC 22 145 @z SetC 21 146 @z SetC 22 146 @z SetC 23 146 @z CopyTexture -1 1 k _
+Quo Del Replace Black UD #60 #50 0 SetC 20 148 #60 SetC 24 148 #60 For (z) 21 23 {SetC @z 152 109} \ Del SetC 7 146 1 SetC 19 146 2 SetC 29 146 3 SetC 37 110 4 SetC 13 92 5 SetC 9 74 6 SetC 17 74 7 SetC 33 74 8 SetC 21 38 9 SetC 31 38 10 k - ColorPut k - k ColorOr Replace White #60 0 CopyTexture -1 2 Del ColorOr k - ExtraDelete Replace White 11 0 TempOr CopyTexture -1 0 SetX 23 152 0 9 SetX 21 152 0 10 CopyTexture 0 7
+
+// Maze data (outer)
+EmbedDB
+DB
+45 9 24
+
+adamajacaiageyhseyagaiacajamad
+eaajauaceibg{{{n{{bgeiacauam
+eaajauaceibgbnbgeiacauam
+sa{eba{e
+sa{bba{b
+
+|2
+tabk
+
+CopyMask -1 3 CopyMask -2 4 ColorPut = Del Turtle "BM21,1R2DL2" _ CopyMask -1 5 Replace Red #A00 0 Replace Yellow #900 0 Replace Green #800 0 Replace Cyan #700 0 Replace Blue #600 0 Replace Magenta #500 0 Replace Maroon #400 0 Replace Maize #300 0 Replace DkGreen #200 0 Replace DkCyan UD #60 #50 0 Replace DkBlue #60 0 Replace Purple 109 0 Replace Gray UD #800 #100 0 Replace White UD #800 #300 0 CopyTexture -1 5
+Del CopyTexture -1 0 SetX 23 8 0 9 SetX 21 8 0 10 For (z) 0 30 {SetX Add 7 @z 2 2 Add 28 @z} For (z) 0 2 {SetX Add 21 @z 0 2 Add 59 @z}
+f3D False Macro2

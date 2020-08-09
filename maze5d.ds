@@ -1,0 +1,90 @@
+DS
+// N-Dimensional Mazes - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// b: Cell size of Maze
+// c: 0 = ND-Maze, 1 = Solved ND-Maze, 2 = ND-cube
+// d: Dimensions of Maze
+// e: Whether tracing corner path
+// f: Default rotation rate (constant)
+// k: Whether drawing on color bitmap
+// r: Rainbow timing
+// m-n: Coordinates of center
+// p: Current dimension axis to edit
+// v-z: Temporary variables
+
+// 27-58: Current X and Y pixel offsets for each axis
+// 59-74: Coordinates of dot
+// 75-90: Maximum cell size in each dimension (constant)
+// 101+: X-axis size
+// 102+: Y-axis size
+// 103+: Rotation max angle
+// 104+: Current rotation angle
+// 105+: Rotation increment
+
+If Gte Version 2300 {Break} Message 'This script requires Daedalus 2.3 or later to run.' Break
+
+DefineMacro 1 "@w 1 @x 0 @y 0 @z 0 For (v) 1 @d {@z Add << @z 1 @y @y Add << @y 1 @x @x Add << @x 1 @w @w << @w 1} @u Pow @b @d Macro37" "Show Help"
+DefineMacro 2 "If And Equ @c 2 Not fShowDot {Macro15} @c 0 fRedrawWhenBitmapEdited False Macro22 fRedrawWhenBitmapEdited True n" "New Maze"
+DefineMacro 3 "fRedrawWhenBitmapEdited False Macro18 Macro19 Macro20 fRedrawWhenBitmapEdited True n" "New View"
+DefineMacro 4 "IfElse fAutorepeatLastCommand {N} {Macro12 N}" "Toggle Animate View"
+DefineMacro 5 "If Lte @d 2 {Break} fRedrawWhenBitmapEdited False @k fShowColorBitmap fShowColorBitmap False @d Dec @d _ Size3W @d _ fShowColorBitmap @k Macro18 Macro19 Macro22 fRedrawWhenBitmapEdited True" "Decrease Dimension"
+DefineMacro 6 "If Gte @d 18 {Break} fRedrawWhenBitmapEdited False @k fShowColorBitmap fShowColorBitmap False @d Inc @d @z Var Add 74 @d If Gt @b @z {@b @z Macro21} _ Size3W @d _ fShowColorBitmap @k Macro18 Macro19 Macro22 fRedrawWhenBitmapEdited True" "Increase Dimension"
+DefineMacro 7 "If Lte @b 2 {Break} fRedrawWhenBitmapEdited False @b Dec @b Macro21 Macro22 fRedrawWhenBitmapEdited True" "Decrease Cells"
+DefineMacro 8 "If Gte @b Var Add 74 @d {Break} fRedrawWhenBitmapEdited False @b Inc @b Macro21 Macro22 fRedrawWhenBitmapEdited True" "Increase Cells"
+DefineMacro 9 "fRedrawWhenBitmapEdited False @k fShowColorBitmap fShowColorBitmap False _ CopyMask 0 -1 IfElse Neq @c 1 {If And Equ @c 2 Not fShowDot 'Macro15' @c 1 DeadEndND} {@c 0} _ fShowColorBitmap @k Macro20 fRedrawWhenBitmapEdited True If Neq @c 1 {Break} Message 'This @d dimensional Maze contains @z dead ends.'" "Toggle Solution"
+DefineMacro 10 "fRedrawWhenBitmapEdited False @k fShowColorBitmap fShowColorBitmap False _ IfElse Equ @c 2 {@c 0 CopyMask 0 -1} {@c 2 Del} _ fShowColorBitmap @k Macro20 fRedrawWhenBitmapEdited True If Equ Equ @c 2 fShowDot {Macro15}" "Toggle Cube"
+DefineMacro 11 "fRedrawWhenBitmapEdited False @e Not @e fShowDot2 And Not @e fShowDot Macro20 fRedrawWhenBitmapEdited True If And @e Not fAutorepeatLastCommand {Macro4}" "Toggle Vertex Tracking"
+DefineMacro 12 "fRedrawWhenBitmapEdited False Macro19 Macro20 fRedrawWhenBitmapEdited True" "Single Rotate View"
+
+DefineMacro 13 "fRedrawWhenBitmapEdited False Macro23 Macro20 fRedrawWhenBitmapEdited True n" "Teleport To Start"
+DefineMacro 14 "For (x) 0 Dec @d {@y Mul @x 5 SetVar Add 105 @y Neg Var Add 105 @y} Macro12" "Reverse Direction"
+DefineMacro 15 "fRedrawWhenBitmapEdited False fShowDot Not fShowDot If Not @e {fShowDot2 fShowDot} fRedrawWhenBitmapEdited True Spc @z True" ". Hook"
+DefineMacro 16 "fRedrawWhenBitmapEdited False @z kPassage kPassage kWall kWall @z kBorder kPassage If fShowColorBitmap {Macro20} fRedrawWhenBitmapEdited True Spc @z True" "/ Hook"
+DefineMacro 17 "If Not fShowDot {Macro15 Break} MoveND 59 27 Sub @x @m Sub @y @n nX Add nX @m nY Add nY @n If And @z Not fPauseTimer {fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 Message 'You reach the finish vertex! :-)\nCongratulations, you solved it in @x minutes, @y seconds.'} @z True" "Left Event"
+
+DefineMacro 18 "SizeWindow Del \ k SizeWindow Del \ k @m Div SizeX 2 @n Div SizeY 2 @v Dec Min SizeX SizeY @w @v For (x) 0 Dec @d {@y Mul @x 5 IfElse Lt @x Dec @d '@z Rnd 1 Div @v Dec Sub @d @x @v Sub @v @z' '@z @v' SetVar Add 101 @y @z IfElse Lt @x Dec @d '@z Rnd 1 Div @w Dec Sub @d @x @w Sub @w @z' '@z @w' SetVar Add 102 @y @z @z Add @f Rnd 0 2000 SetVar Add 103 @y @z SetVar Add 104 @y Rnd 0 Dec @z @z Rnd 1 40 If Rnd 0 1 '@z Neg @z' SetVar Add 105 @y @z}" "New Sizes"
+DefineMacro 19 "For (x) 0 Dec @d {@y Mul @x 5 @w Var Add 103 @y @z Var Add 104 @y @z Add @z Var Add 105 @y If Gte @z @w '@z Sub @z @w' If Lt @z 0 '@z Add @z @w' SetVar Add 104 @y @z SetVar Add 27 Mul @x 2 Cos2 Var Add 101 @y Var Add 104 @y @w SetVar Add 28 Mul @x 2 Sin2 Var Add 102 @y Var Add 104 @y @w}" "Animate Sizes"
+DefineMacro 20 "Del DrawND @m @n 59 27 ?: fShowColorBitmap kWall White - IfElse fShowColorBitmap {SetC nX nY Hue @r @r Inc @r} {h} If @e {n} - If Not @e {n}" "Draw Maze"
+DefineMacro 21 "@k fShowColorBitmap fShowColorBitmap False _ Size3X Inc Mul @b 2 Size3Y Size3X Size3Z Dec Mul @b 2 _ fShowColorBitmap @k" "Resize Maze"
+DefineMacro 22 "@k fShowColorBitmap fShowColorBitmap False _ ND CopyMask -1 0 If Equ @c 2 {Del} _ fShowColorBitmap @k Macro23 Macro20" "Create Maze"
+DefineMacro 23 "Del \ For (z) 59 74 {SetVar @z 0} @p 0 ct fPauseTimer False" "Reset Dot"
+DefineMacro 24 "fRedrawWhenBitmapEdited False k Del \ Macro20 fRedrawWhenBitmapEdited True @z True" "k Hook"
+
+DefineMacro 25 "fRedrawWhenBitmapEdited False @k fShowColorBitmap fShowColorBitmap False @c 2 _ Size3W @d _ fShowColorBitmap @k Macro18 Macro19 Macro22 fRedrawWhenBitmapEdited True If fShowDot {Macro15}" "Show Cube"
+DefineMacro 26 "@d 2 Macro25" "2D Cube"
+DefineMacro 27 "@d 3 Macro25" "3D Cube"
+DefineMacro 28 "@d 4 Macro25" "4D Cube"
+DefineMacro 29 "@d 5 Macro25" "5D Cube"
+DefineMacro 30 "@d 6 Macro25" "6D Cube"
+DefineMacro 31 "@d 7 Macro25" "7D Cube"
+DefineMacro 32 "@d 8 Macro25" "8D Cube"
+DefineMacro 33 "@d 9 Macro25" "9D Cube"
+DefineMacro 34 "@d 10 Macro25" "10D Cube"
+DefineMacro 35 "@d 11 Macro25" "11D Cube"
+DefineMacro 36 "@d 12 Macro25" "12D Cube"
+
+DefineMacro 37 {Message 'Welcome to N-Dimensional Mazes!\n\nSolve the Maze by moving the red dot to the finish (green dot)\nalong the lines (i.e. passages) by clicking on vertices adjacent to\nthe red dot. This is a @d dimensional Maze with @b cells per side,\ncontaining @u vertices. A @d dimensional cube contains:\n@w points, @x edges, @y faces, @z solids.\n\nF1: Display this help text.\nF2: Create new @d dimensional Maze.\nF3: View current Maze from different angle.\nF4: Toggle animation of Maze rotating.\n\nF5: Create Maze in lower dimension.\nF6: Create Maze in higher dimension.\nF7: Create easier Maze with fewer cells.\nF8: Create harder Maze with more cells.\n\nF9: Show solution.\nF10: Draw a @d dimensional cube instead of Maze.\nF11: Toggle vertex tracking.\nF12: Rotate Maze slightly.\n\nPress "Ctrl+g" to teleport to start.\nPress "/" to toggle colors.\nPress "a" to toggle axis vs. nearness coloring.\nPress "b" to toggle vertex highlighting.'} "Help Text"
+DefineMacro 38 "nRandomSeed Inc nRandomSeed Macro3" "Random View"
+
+DefineMacro 39 "@p Dec @p If Lt @p 0 {@p Dec @d}" "Decrease axis"
+DefineMacro 40 "@p Inc @p If Gte @p @d {@p 0}" "Increase axis"
+DefineMacro 41 "@z Add 27 Mul @p 2 SetVar @z Dec Var @z fRedrawWhenBitmapEdited False Macro20 fRedrawWhenBitmapEdited True n" "Decrease X"
+DefineMacro 42 "@z Add 27 Mul @p 2 SetVar @z Inc Var @z fRedrawWhenBitmapEdited False Macro20 fRedrawWhenBitmapEdited True n" "Increase X"
+DefineMacro 43 "@z Add 28 Mul @p 2 SetVar @z Dec Var @z fRedrawWhenBitmapEdited False Macro20 fRedrawWhenBitmapEdited True n" "Decrease Y"
+DefineMacro 44 "@z Add 28 Mul @p 2 SetVar @z Inc Var @z fRedrawWhenBitmapEdited False Macro20 fRedrawWhenBitmapEdited True n" "Increase Y"
+
+DefineMacro 45 "@w Mul 420 2 For (x) 0 Dec @d {@y Mul @x 5 SetVar Add 103 @y @w SetVar Add 104 @y Rnd 0 Dec @w @z Inc @x If Rnd 0 1 '@z Neg @z' SetVar Add 105 @y @z}" "Repeatable Sizes"
+// DefineMacro 46 "@a 0 For (g) 1 Mul 420 2 {SetStringNum 0 @a 5 SetString 0 'Dae$0.bmp' SaveBitmap $0 @a Inc @a Macro12}" "Save Sequence"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- N-Dimensional Mazes" True
+nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+nOnLeftClick 17 nOnRightClick 15
+SetVars 75 18 "0 10 10 10 10 10 6 5 4 3 3 2 2 2 2 2 2 2"
+OnCommand (cg) 13 OnCommand (r) 14 OnCommand (.) 15 OnCommand (/) 16 OnCommand (k) 24 OnCommand (JumpL) 39 OnCommand (JumpU) 39 OnCommand (JumpR) 40 OnCommand (JumpD) 40 OnCommand (MoveU) 41 OnCommand (MoveL) 42 OnCommand (MoveD) 43 OnCommand (MoveR) 44
+fShowColorBitmap False nHorizontalPixelValue 1 nVerticalPixelValue 1 nRepeatDelayInMsec 50 fShowDot True fDotIsCircle True fDotShowsArrow False nDotSize 5 fChaseMousePoint False fDragIsErase False fDoDragOnTemp False fShowDot2 fShowDot fNoMouseDrag True kBorder kPassage kDot Red kDot2 Green nInside 0
+@b 2 @c 0 @d 5 @e False @f 10000 @p 0
+Del SizeWindow = \ Size3W @d _ Macro21 _ ND _ Quo = \
+Macro18 Macro19 Macro20 Macro22
+fRedrawWhenBitmapEdited True Macro4 Macro1

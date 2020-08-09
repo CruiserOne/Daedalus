@@ -1,0 +1,226 @@
+DS
+// Survivor Maze game #7 - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-e: Player colors (constant)
+// f-j: Y coordinate of drawbridges (constant)
+// l: Whether blindfolded
+// k: Whether animating clouds
+// p: Player color index
+// q: Next thing for player to find (ranges from 1-12)
+// r: Cloud movement rate (constant)
+// s: Whether player was stopped by water
+// u-w: Temporary variables
+// x-y: X and Y coordinates of player during events
+// z: Event return value
+
+// Bitmap usage:
+// -1: Mono = Where walls are, Color = Color of walls
+// -2: Mono = Where floor markings are, Color = Color of floor markings
+// -3: Color = Trigger indicators
+// 0: Color = Wall texture mapping
+// 1: Mono = Where variable height walls are, Color = Wall heights
+// 2: Mono = Wall backup, Color = Wall height backup
+// 3: Mono = Where block textures are, Color = Block texture pointers
+// 4: Mono = Texture for guidepost text
+// 5: Mono = Texture for bridge text
+// 6: Mono = Texture for key station text
+// 7: Mono = Texture for ladder
+// 8: Mono = Texture for ladder top
+// 9-13: Mono = Textures for key icons
+// 14: Mono = Copied texture for key icon, Color = Copied key icon color
+// 15-19: Color = Key icon colors
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 {@x Inc @p @y Add @x 5 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the\nfinal five in "Survivor XIV: Fiji". Your goal is to navigate the five\npart Maze. Within each section, find the key station, and then exit\nthat Maze section and cross the $x bridge. $x was the\ncolor $y had in Survivor. If one of the guideposts is run\ninto, the directions to the station and the bridge will be displayed.\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Restart Maze blindfolded.\nF4: Put on or remove blindfold.\n\nF5: Switch background between day and night.\nF6: Toggle cloud movement.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False Macro15 @p Rnd 0 4 @q 1 @s False nX 16 nY 4 nZ 0 nDir 2 g cg CopyTexture 2 1 CopyMask 2 -1 CopyMask Add 9 @p 14 CopyTexture Add 15 @p 14 fShowColorBitmap True fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct" "Restart Maze"
+DefineMacro 3 "Macro2 Macro4" "Restart Blind"
+DefineMacro 4 "fRedrawWhenBitmapEdited False @l Not @l IfElse @l {kSky Black kGround Black kCloud Black kCloud2 -1 fMapOverlay False fMountains False fSunAndMoon False fStars False nFogDistance 15 fRedrawWhenBitmapEdited True Spc Message 'You put on a blindfold.'} {Macro15 fRedrawWhenBitmapEdited True Spc Message 'You remove your blindfold.'}" "Blindfold"
+DefineMacro 5 "If @l {Macro4 Break} fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {Macro15} {fStars True nFogDistance 200 kSky Black k3DCeiling kSky kGround Dark Dark kGround kMountain kGround kMountain2 Dark Dark DkGreen kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 6 "If @l {Macro4} @k Not @k If @k {Spc} fAutorepeatLastCommand @k" "Cloud Movement"
+
+DefineMacro 7 "If Or Gt @q 11 Not fWallsImpassable {Break} Message 'Jeff Probst says: "Hey, you can't leave the Maze! You haven't finished it yet."' @z True" "Boundary Event"
+DefineMacro 8 "@z False @w GetCE @x @y If Equ @w Maroon {Macro14 Break} If Gt @q 11 {Break} If Not @w {Break} If Lt @w 127 {Macro16 Break} If Lt @w 250 {Macro12 Break} @w Sub @w 249 If Not Odd @q {Message 'You don't need to find a key now.\nYou need to go to the next drawbridge.' Break} SwitchSgn Sub @w Div Inc @q 2 {Message 'You've already been to this key station.\nYou need to find the next key station.'} {@q Inc @q Message 'You find the next key station!\nYou pick up key #@w. Now go to the next drawbridge!'} {Message 'How did you get here? You shouldn't be at this key station yet.\nSince you're here, you pick up key #@w. Now go to the next drawbridge.' @q Mul @w 2}" "Wall Event"
+DefineMacro 9 "@z False @s False If Or Or Gt nViewHeight 15 Lt nViewHeight 0 Gt @q 11 {Break} If And Equ @q 11 Gte @y 152 {@q Inc @q Macro11 Break} @w GetC @x @y @v GetC nX nY If And Equ @w DkBlue Neq @v DkBlue {@s True nDirectionOffset 0 @z True Break}" "Move Event"
+DefineMacro 10 "If And @k Sgn nInside {MoveCloud -1 @r} If And And Equ GetC nX nY DkBlue Not nViewHeight Not fCellLocation {MessageInside 'You are standing in water!' -2} If Gt @q 11 {Break} @z Div Inc @q 2 IfElse Odd @q {IfElse Lt @q 11 (MessageInside 'Seeking: Key #@z' -1) (MessageInside 'Seeking: Finish' -1)} {MessageInside 'Seeking: Drawbridge #@z' -1} If @s {MessageInside 'Splash! You step in the water and quickly stop yourself.' -2 Break}" "Inside Event"
+
+DefineMacro 11 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you made it through all sections of the Maze! :-)\nYou solved it in @x minutes, @y seconds.\n\nJeff Probst gives you the immunity necklace, meaning you can't\nbe voted off the island in Tribal Council. With this win you find\nyourself in the final four, and in a good position to hopefully do\nthe most a-Maze-ing thing in Survivor: Win the million dollar prize!'" "Win Game"
+DefineMacro 12 "@w Sub @w 244 If Odd @q {Message 'You don't want to be at a bridge yet.\nYou need to pick up a key first.' Break} SwitchSgn Sub @w Div @q 2 {Message 'You've already used a key at this bridge.\nYou need to find the next drawbridge.'} {@v GetC @x @y If Neq @v Var Inc @p (@u Inc @p Message 'This is the drawbridge for another player.\nYou want to use the $u bridge.' Break) Macro13} {Message 'How did you get here? You shouldn't be at this drawbridge yet.\nYou need to find a previous bridge.'}" "Check Drawbridge"
+DefineMacro 13 "@q Inc @q IfElse Lt @q 11 {Message 'You find the next drawbridge!\nYou use key #@w. Now cross and go find the next key!'} {Message 'You find the next drawbridge!\nYou use key #@w. Now cross and go to the finish line to complete the Maze!'} @v nX @w nY ForStep (u) ?: Equ nDir 2 90 10 10 -4 {fRedrawWhenBitmapEdited False nX @x nY Add @y 2 nX2 nX nY2 Add nY 4 SwapTexture -1 1 kWall UD @u Sub @u 10 2ndLine SetC nX nY @u SetC nX2 NY2 @u kWall White SwapTexture -1 1 nX @v nY @w fRedrawWhenBitmapEdited True Spc} @z False" "Lower Drawbridge"
+DefineMacro 14 "If Lte @q 11 {Message 'Jeff Probst says: "Hey, you can't climb this ladder.\nYou have to solve the Maze."' Break} nViewHeight GetH @x @y @z True" "Check Ladder"
+DefineMacro 15 "@l False fStars False fMountains True fSunAndMoon True nFogDistance 0 kSky Cyan k3DCeiling kSky kGround Blend Yellow DkGreen kGround2 -1 kMountain kGround kMountain2 DkGreen kCloud White kCloud2 Light LtGray" "Day Settings"
+DefineMacro 16 "@u Add 13 Div @w 4 @v Add 13 Mod @w 4 @w Add 17 @l Message 'You $w this guidepost.\nThis Maze's key station is: $u\nThis Maze's drawbridge is: $v\n'" "Guidepost"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Survivor Maze Game 7" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+nRepeatDelayInMsec 25 kBorder White kPassage Black kDot Maize fShowDot True fWallsImpassable True fNoCornerHopping False fDragIsErase False fDoDragOnTemp True nEdgeBehavior 0 Macro15 fSealedEntrances False fMountains True nPeakHeight 30 nCloudCount 16 fSunAndMoon True fNarrowWalls True nInside 4 nCellSize 160 nNarrowCellSize 20 nWallHeight 400 nViewHeight 0 nStepHeight 139 nClippingPlane 200 nMotionVelocity 12 nRotationVelocity 5 nUpDownVelocity 20 fFogGround True fMarkColor True fRedrawAfter True nOnMoveOffBitmap 7 nOnMoveIntoWall 8 nOnMoveToNewCell 9 nAfterRedrawInside 10 nTextureWall 0 nWallVariable 1 nTextureBlock 3
+@r 20000 SetVars 1 10 "Red #7F7F00 Orange #007F00 Magenta 22 46 74 106 142" SetStrings 1 18 ",Red,Blue,Orange,Green,Purple,Boo,Earl,Dreamz,Cassandra,Yau Man,GUIDEPOST,USE KEY HERE,NorthWest,SouthWest,SouthEast,NorthEast,look at,feel"
+
+Size 10 3 0 1 Turtle "T1BM2,0DNDR5NUD" Zoom 1 3 0 2 cDel CopyMask -1 7
+Turtle "S4" SetString 0 "T_ _" Size 28 292 0 1 For (y) 0 Dec Len $11 {SetChar 0 2 Char $11 @y nXTurtle 4 nYTurtle Add 4 Mul @y 32 Turtle $0} DoCount 3 {Thicken} cDel CopyMask -1 4
+Size 32 388 0 1 For (y) 0 Dec Len $12 {SetChar 0 2 Char $12 @y nXTurtle 6 nYTurtle Add 4 Mul @y 32 Turtle $0} DoCount 3 {Thicken} cDel CopyMask -1 5
+Size 180 148 0 1 Turtle "BM56,8T_KEY_BM8,40T_STATION_BM8,80T_GET KEY_BM44,112T_HERE_" DoCount 3 {Thicken} cDel CopyMask -1 6
+Size 50 500 0 1 Turtle "S1O1BM49,100OF25UOD25BU`BM49,399OG25DOA25BD`" cDel CopyMask -1 8
+Size 200 200 0 1 Turtle "BM100,20OC80OE80OG80OA80BD40OC40OE40OG40OA40BU`" cDel CopyMask -1 9
+Size 8 8 0 1 Turtle "BM1,2R5DL2D3LU3L2" FlipVertical cDel CopyMask -1 10
+Size 7 7 0 1 Turtle "BM3,3NU2NL2ND2R2" cDel CopyMask -1 11
+Size 7 7 0 1 Turtle "BM1,2R4D2L4U2" cDel CopyMask -1 12
+Size 200 200 0 1 SetString 0 "OC30OE30OG30OA30BD`" SetString 0 "BM100,23$0BM50,107$0BM150,107$0" Turtle $0 FlipVertical cDel CopyMask -1 13
+For (z) 0 4 {CopyMask Add 9 @z -1 Quo Del Replace Black Blend Var Inc @z Dark Var Inc @z 0 CopyTexture -1 Add 15 @z}
+
+EmbedDB
+DB
+31 161 24
+
+aP\_`{sza{s
+bP\_`za{s
+aP\_`{sza{s
+|
+aP\_`{siafjia{s
+aP\_`{sza{s
+|6
+aP\_`lsbals
+aP\_`{sja{sba{sfa{sba{s
+aP\_`{s{afs{abs{a{n{abs{abs{a{s{a{s{a{s
+aP\_`{s{a{sda{sha{s{a{s{a{s{a{s{a{s{a{s
+aP\_`{s{a{s{abs{ahs{a{s{a{s{a{s{a{w{t{w{a{s
+aP\_`{s{a{sba{sha{s{a{sba{s{a{s{{{s{a{s
+aP\_`{s{ads{adsba{s{ads{abs{a{s
+aP\_`{sja{sba{sja{s
+aP\_`lsbals
+aP\_`{sza{s
+aP\_`{sda{uba{dba{vba{eba{sda{s
+aP\_`{sza{s
+aP\_`{sda{uba{dba{vba{eba{sda{s
+aP\_`{sdb{ubb{dbb{vbb{ebb{sdb{s
+|2
+aP\_`{sda{uba{dba{vba{eba{sda{s
+aP\_`{sza{s
+|2
+aP\_`lebale
+aP\_`{eja{eba{eda{eba{e{a{e
+aP\_`{e{ahe{a{e{a{n{a{e{ade{a{e{a{e{a{e
+aP\_`{e{a{eta{e{a{e{a{e
+aP\_`{e{age{ime{a{e{a{e
+aP\_`{eba{eba{e{{{cfa{efa{e{a{e
+aP\_`be{a{e{a{e{aae{iee{a{e{ade{a{e{a{e
+aP\_`{e{a{e{a{e{a{e{a{efa{e{a{e{a{eba{eba{e
+aP\_`{e{a{e{a{e{a{e{a{e{ade{a{e{a{e{a{e{abe{a{n{a{e
+aP\_`{e{a{eba{eba{e{a{eba{e{a{e{a{efa{e
+aP\_`{e{a{e{a{n{ade{a{eba{e{ahe{a{e
+aP\_`{eja{eba{eja{e
+aP\_`lebale
+aP\_`{eza{e
+aP\_`{eda{dba{vba{eba{sba{uda{e
+aP\_`{eza{e
+aP\_`{eda{dba{vba{eba{sba{uda{e
+aP\_`{edb{dbb{vbb{ebb{sbb{udb{e
+|2
+aP\_`{eda{dba{vba{eba{sba{uda{e
+aP\_`{eza{e
+|2
+aP\_`lvbalv
+aP\_`{vja{vba{vfa{v{a{v{a{v
+aP\_`{v{ajv{a{n{afv{a{v{a{v{a{v
+aP\_`{v{a{vpa{vba{v{a{v{a{v
+aP\_`{v{ahv{afv{a{v{abv{a{v{a{v
+aP\_`{vja{vba{v{a{v{a{vda{v{a{v
+aP\_`bv{a{n{ahv{a{v{a{v{a{v{abv{a{v{a{v
+aP\_`{vda{vha{v{a{v{a{vba{v{a{v{a{v
+aP\_`{v{abv{a{v{ahv{a{v{a{v{a{n{a{v{a{v{a{v
+aP\_`{v{a{v{a{v{a{v{a{vna{v{a{v{a{v
+aP\_`{v{a{v{a{v{a{v{a{v{alv{abv{a{v
+aP\_`{v{a{v{a{v{a{v{a{v{a{vha{vfa{v
+aP\_`{v{a{v{a{v{a{v{a{v{a{v{aev{y{m{yev{a{v
+aP\_`{v{a{vba{v{a{v{a{v{a{vda{v{{{vda{v{a{v
+aP\_`{v{adv{abv{a{vba{v{abv{adv{a{v
+aP\_`{vja{vba{vja{v
+aP\_`lvbalv
+aP\_`{vza{v
+aP\_`{vda{vba{eba{sba{uba{dda{v
+aP\_`{vza{v
+aP\_`{vda{vba{eba{sba{uba{dda{v
+aP\_`{vdb{vbb{ebb{sbb{ubb{ddb{v
+|2
+aP\_`{vda{vba{eba{sba{uba{dda{v
+aP\_`{vza{v
+|2
+aP\_`ldbald
+aP\_`{dja{dba{dja{d
+aP\_`{d{afd{abd{a{n{add{add{a{d
+aP\_`{d{a{dda{d{a{dja{dba{d{a{d
+aP\_`{d{a{d{abd{a{d{a{d{ahd{a{d{abd{a{d
+aP\_`{d{a{d{a{d{a{d{a{d{a{d{a{dfa{d{a{dda{d
+aP\_`{d{a{d{a{d{a{d{a{d{a{d{a{d{afd{add{a{d
+aP\_`{d{a{d{a{d{a{d{a{d{a{d{a{d{a{dja{d{a{d
+aP\_`{d{abd{a{d{a{d{a{d{a{d{ald{a{d
+aP\_`{dda{dba{d{a{d{a{dja{d{a{d
+aP\_`{d{add{a{n{a{d{a{d{ajd{a{d{a{d
+aP\_`{dda{dra{d{a{d
+aP\_`dd{add{abd{afd{a{n{a{d{a{d
+aP\_`{dla{dda{dfa{d
+aP\_`{d{abd{afd{add{aad{qcd{a{d
+aP\_`{d{a{d{a{d{a{dda{dda{d{a{d{{{gba{d{a{d
+aP\_`{d{a{d{a{d{a{d{abd{add{a{d{aad{qad{a{d{a{d
+aP\_`{d{a{d{a{d{a{d{a{d{a{dda{d{a{dfa{d{a{d
+aP\_`{d{a{d{a{d{a{d{a{d{a{d{a{dba{d{ahd{a{d
+aP\_`{dba{dda{d{a{dba{dba{dfa{d
+aP\_`ldbald
+aP\_`{dza{d
+aP\_`{dda{eba{sba{uba{dba{vda{d
+aP\_`{dza{d
+aP\_`{dda{eba{sba{uba{dba{vda{d
+aP\_`{ddb{ebb{sbb{ubb{dbb{vdb{d
+|2
+aP\_`{dda{eba{sba{uba{dba{vda{d
+aP\_`{dza{d
+|2
+aP\_`lubalu
+aP\_`{uja{uba{uja{u
+aP\_`{u{afu{abu{a{n{a{u{ahu{a{u
+aP\_`{u{a{uda{uha{ufa{u{a{u
+aP\_`{u{a{u{abu{a{u{ahu{adu{a{u{a{u
+aP\_`{u{a{u{a{u{a{ufa{uda{uba{u{a{u{a{u
+aP\_`{u{a{u{a{u{afu{adu{a{u{a{u{abu{a{u
+aP\_`{u{a{u{a{ula{u{a{u{a{uda{u
+aP\_`{u{a{u{a{u{aju{a{u{a{u{abu{abu
+aP\_`{u{a{u{a{u{a{uja{uda{uba{u
+aP\_`{u{a{u{a{u{a{u{aju{ahu
+aP\_`{u{a{uba{ura{u{a{u
+aP\_`{u{a{u{a{n{anu{a{u{abu{a{u
+aP\_`{ula{uda{u{a{uda{u
+aP\_`{u{aju{adu{a{u{a{u{a{n{abu
+aP\_`{u{a{uha{uda{uba{uda{u
+aP\_`{u{a{u{afu{abu{a{u{ahu{a{u
+aP\_`{u{a{u{a{uja{uha{u{a{u
+aP\_`{u{a{u{aju{ahu{a{u{a{u
+aP\_`{u{a{u{a{uda{ula{u{a{u{a{u
+aP\_`{u{a{u{adu{a{u{aju{a{u{a{u{a{u
+aP\_`{u{a{ufa{u{a{uda{uda{u{a{u{a{u
+aP\_`{u{ahu{a{uba{u{afu{a{x{k{x
+aP\_`{uja{uba{uha{u{{{u
+aP\_`lubalu
+aP\_`{uza{u
+aP\_`{uda{sba{uba{dba{vba{eda{u
+aP\_`{uza{u
+aP\_`{uda{sba{uba{dba{vba{eda{u
+aP\_`{udb{sbb{ubb{dbb{vbb{edb{u
+|2
+aP\_`{uda{sba{uba{dba{vba{eda{u
+aP\_`{uza{u
+|2
+aP\_`{ubatjba{u
+bP\_`za{u
+aP\_`{uza{u
+|6
+
+\ Replace DkBlue Black 0 Replace Maroon Black 0 ColorPut = CopyMask -1 2 sDel _ ExtraDelete k
+| Replace Pink Red 0 Replace Rgb 255 0 127 Red 0 Replace Cyan DkCyan 0 Replace Blue DkCyan 0 Replace Yellow Orange 0 Replace Maize Orange 0 Replace Rgb 127 255 127 Green 0 Replace Green DkGreen 0 Replace Rgb 255 127 255 Magenta 0 Replace Purple Magenta 0 Replace White LtGray 0 =
+| @z 100 Replace Red @z 0 Replace DkCyan @z 0 Replace Orange @z 0 Replace DkGreen @z 0 Replace Magenta @z 0 Replace Gray @z 0 Replace LtGray @z 0 Replace White 90 0 @z 300 Replace Pink @z 0 Replace Cyan @z 0 Replace Yellow @z 0 Replace Rgb 127 255 127 @z 0 Replace Rgb 255 127 255 @z 0 @z UD 300 290 Replace Rgb 255 0 127 @z 0 Replace Blue @z 0 Replace Maize @z 0 Replace Green @z 0 Replace Purple @z 0
+CopyTexture -2 -3 nX 0 nY 0 nX2 0 nY2 Dec SizeY kWall UD 200 190 2ndBlock ForStep (y) 0 160 4 {SetC 0 @y 200} For (y) 0 4 {nX 8 nY Add Var Add 6 @y 3 nX2 24 nY2 Add nY 2 kWall UD 100 90 2ndBlock k _ 2ndBlock _ k} CopyMask -1 1 CopyTexture -1 1 CopyTexture 1 2
+| = Replace Gray Black 0 TempXor Replace Gray 14 0 CopyTexture -1 3 Replace 14 NWSE 4 4 4 4 0 CopyTexture -1 0 SetX 2 1 3 7 SetX 2 153 3 7 SetX 27 17 0 6 SetX 11 37 3 6 SetX 21 69 0 6 SetX 23 99 3 6 SetX 29 139 0 6
+Del SetC 27 17 250 SetC 11 37 251 SetC 21 69 252 SetC 23 99 253 SetC 29 139 254 For (y) 0 4 {For (x) 0 4 "@v Add 8 Mul @x 4 @w Var Add 6 @y SetC @v @w Add 245 @y SetX @v @w -1 5 SetCA 3 @v @w Add 9 Mod Sub Sub 9 @x @y 5"} SetC 2 1 Maroon SetC 2 153 Maroon SetC 16 14 9 SetC 16 34 9 SetC 28 40 8 SetC 6 42 3 SetC 16 58 6 SetC 6 62 7 SetC 24 64 6 SetC 16 86 9 SetC 10 94 11 SetC 26 96 4 SetC 16 118 9 SetC 6 128 14 SetC 26 130 8 \
+SetCA 3 2 1 8 SetCA 3 2 153 8 SetCA 3 27 17 14 SetCA 3 11 37 14 SetCA 3 21 69 14 SetCA 3 23 99 14 SetCA 3 29 139 14
++ Replace Maroon Black 0 TempXor kWall DkBlue For (y) 0 4 {nX 3 nY Add Var Add 6 @y 3 nX2 29 nY2 Add nY 2 2ndBlock} kWall White Replace Black Light Brown 0 _ Replace Black White 0
+@k True fAutoRepeatLastCommand True nAutoRepeat Command "Spc" Macro2

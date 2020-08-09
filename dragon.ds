@@ -1,0 +1,883 @@
+DS
+// Dragonslayer - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+// Documentation for this script: http://www.astrolog.org/labyrnth/daedalus/dragon.htm
+
+// Variable usage:
+// a: Armor class
+// b: Armor worn
+// c: Monster count
+// d: Dexterity
+// e: Dungeon level
+// f: Weapon class
+// g: Weapon wielded
+// h: Hit points
+// i: Generic index
+// j: Inventory size
+// k: Monster kills
+// l: Experience level
+// m: Maximum hit points
+// n: Experience points for next level 
+// o: Number of objects (constant)
+// p: Experience points
+// q: Follow event run
+// r: Amulet worn
+// s: Strength
+// t: Text display count
+// u-z: Temporary variables
+
+// 27-j: Inventory
+// 53: Current wall texture
+// 54-58: Brick level colors (constant)
+// 59-63: Wand temporary variables
+// 64-69: Wand zap colors (constant)
+// 70-73: Object type colors (constant)
+// 76-c: Monster type
+// 101-c: Monster X coordinates
+// 126-c: Monster Y coordinates
+// 151-c: Monster current hit points
+// 176-c: Monster replaced color
+// 201-226: Color of monsters A-Z (constant)
+// 231-256: Level of monsters A-Z (constant)
+// 261-286: Maximum hit points for monsters A-Z (constant)
+// 291-316: Speed of monsters A-Z (constant)
+// 321-346: Strength of monsters A-Z (constant)
+// 351-376: Dexterity of monsters A-Z (constant)
+// 401-o: Object types (constant)
+
+// Bitmap usage:
+// -1: Mono = Where walls are, Color = Color of walls
+// -2: Mono = Where objects are, Color = Color of objects
+// -3: Mono = Where monsters are
+// 0: Mono = Texture overlay color, Color = Wall texture bitmap indexes
+// 1-5: Mono = Texture of Brick, Stone, Crystal, Leaf, Door
+// 6-31: Mono = Texture of monsters A-Z
+// 32-37: Mono = Texture of Weapon, Armor, Amulet, Potion, Scroll, Wand
+// 38: Color = Floor texture bitmap indexes
+// 39: Color = Object lookup
+// 40: Color = Monster lookup
+// 41: Color = Map
+
+// Red: Weapon
+// Green: Armor
+// Pink: Amulet
+// Aqua: Potion
+// Gray: Scroll
+// Purple: Wand
+
+If Lt Version 2400 {Message 'This script requires Daedalus 2.4 or later to run.' Halt}
+
+// Commands
+DefineMacro 1 "MessageAsk $40 1 If Neq @z 1 {Break} MessageAsk '$41$42' 1 If Neq @z 1 {Break} Message $43" "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False @e 1 @f 0 @a 0 @g 0 @b 0 @r 0 @s 3 @d 3 @h 10 @m 10 @l 1 @p 0 @n 10 @k 0 @j Add @l @s @q 0 For (i) 27 46 {SetVar @i 0} nOnMoveOffBitmap 12 nOnMoveIntoWall 13 nOnMoveToNewCell 14 nAfterMoveToNewCell 15 nOnFollowToNewCell 16 nAfterRedrawInside 17 fRedrawAfter True nMoveCount 0 nZ 0 nDir 2 fMountains True fSunAndMoon True IfElse Rnd 0 1 {kSky Cyan kMountain2 Gray kCloud White kCloud2 Light LtGray fStars False} {kSky Black kMountain2 Dark Brown kCloud DkGray kCloud2 Dark kCloud fStars True} Macro29 fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct" "New Game"
+DefineMacro 3 "@x nX @y nY @z nDir Macro40 @z True If Or Not Get3T @x @y nZ Neq Get3CA 39 @x @y nZ Green {Message 'There is no door in front of you.' Break} If Lte @h 0 {Message 'Ghosts can't affect doors.' Break} If Get3 @x @y nZ {@z nZ Macro13 @z True Break} If Get3E @x @y nZ {Message 'There's a monster blocking this doorway.' Break} Set3 @x @y nZ On @t 0 $0 'You close the door.' Macro45 Macro18" "Close Door"
+DefineMacro 4 "If Lte @h 0 {Message 'Ghosts have no reason to pause.' @z True Break} @t 0 Macro18 @z True" "Empty Move"
+DefineMacro 5 "If Lte @h 0 {Message 'Ghosts can't pick up items.' @z True Break} IfElse Get3T nX nY nZ {@v Get3CA 39 nX nY nZ IfElse Neq @v Green (Macro46 If @z 'Break' Set3T nX nY nZ Off Set3C nX nY nZ Gray @z Add 50 And @v 255 @t 0 SetString 0 'You pick up a $z.' Macro45 Macro18) (Message 'You can't pick up doors!')} {Message 'There is nothing here.'} @z True" "Get Object"
+DefineMacro 6 "If Lte @h 0 {Message 'Ghosts have no items to drop.' @z True Break} @t 0 $0 'What do you want to drop?' Macro45 Macro47 nOnRunCommand 49" "Drop Item"
+DefineMacro 7 "@t 0 $0 'You are carrying:' Macro45 Macro47" "Inventory"
+DefineMacro 8 "If Lte @h 0 {Message 'Ghosts have no use for items.' @z True Break} @t 0 $0 'What do you want to use?' Macro45 Macro47 nOnRunCommand 50" "Use Item"
+DefineMacro 9 "fRedrawWhenBitmapEdited False fShowColorBitmap True nInside 0 SwapTexture -1 41 @z nZ nZ 0 fRedrawWhenBitmapEdited True n Message 'You look at your hopefully accurate map of the dungeon.\n\nWhite:\tYou are here\nRed:\tWall of room\nGray:\tPassage or wall\nGreen:\tDoor\nBlue:\tEntrance to level\nBlack:\tPit down to next level' fRedrawWhenBitmapEdited False SwapTexture -1 41 nZ @z i fRedrawWhenBitmapEdited True n" "Show Map"
+DefineMacro 10 "fRedrawWhenBitmapEdited False IfElse Gte nMotionFrames 5 {nMotionFrames 2 nRotationFrames 2 nUpDownFrames 4 Message 'Animation now uses few frames.\nThis should improve speed on slower computers.\nResize the window smaller for additional speed.'} {nMotionFrames 9 nRotationFrames 9 nUpDownFrames 9 Message 'Animation now uses many frames.\nThis should look nicer on faster computers.'} fRedrawWhenBitmapEdited True" "Speed"
+DefineMacro 11 "Macro10" "Speed 2"
+
+// Events
+DefineMacro 12 "@z True IfElse Lte @e 1 {IfElse Gt @h 0 (Message 'Leaving this deadly dungeon would certainly be the safest course\nof action, but then who would slay the Dragon? Nobody ever said\nbeing the hero was easy. ;-)') (@z False)} {Message 'There's nothing but bedrock beyond this point.'}" "Edge Event"
+DefineMacro 13 "If Neq @z nZ {@z False Break} If And Get3T @x @y nZ Gt @h 0 {fRedrawWhenBitmapEdited False Set3 @x @y nZ Off Set3CA 38 @x @y nZ 5 fRedrawWhenBitmapEdited True Spc @t 0 $0 'You open the door.' Macro45 Macro18} @z False" "Wall Event"
+DefineMacro 14 "If Lt @z nZ {IfElse Or Or Lt @e 20 Lte @h 0 Not fPauseTimer (Message 'You jump up, hoping to get back to the previous level,\nbut the hole in the ceiling above you is too high to reach.') (Message 'Whenever you are ready, you can leave the dungeon to share your victory.') @z True Break} If Lte @h 0 {@z False Break} @t 0 If Get3E @x @y nZ {@i Get3CA 40 @x @y nZ @v Var Add 75 @i @z Add 100 @v IfElse Gt Rnd 0 Add @l @d Rnd 0 Var Add 350 @v (@u Max Sub Rnd 0 Add Add @l @s @f Rnd 0 Var Add 230 @v 0 SetString 0 'You hit the $z for @u damage.' Macro45 @z Add 150 @i SetVar @z Sub Var @z @u If Lte Var @z 0 'Macro26') (SetString 0 'You miss the $z.' Macro45) @z True Macro18 Break} @z False fRedrawWhenBitmapEdited False" "Before Move"
+DefineMacro 15 "fRedrawWhenBitmapEdited True If @q {@q False Spc Break} If Not Get3 @x @y Inc @z {nAfterMoveToNewCell 0 d @e Inc @e fRedrawWhenBitmapEdited False nZ 2 Macro29 nZ 1 fRedrawWhenBitmapEdited True n d nAfterMoveToNewCell 15 nMoveCount Sub nMoveCount 2 If Equ Mod @e 5 0 '@z Add 35 Div @e 5 Message $z'} Macro19" "After Move"
+DefineMacro 16 "Macro18 nMoveCount Dec nMoveCount @q Get3 nX nY Inc nZ If Or Gt @t 0 Not @q {@z True Break} If Or Or Or Get3E nX Dec nY nZ Get3E Dec nX nY nZ Get3E nX Inc nY nZ Get3E Inc nX nY nZ {@z True Break} If Lt Add Add Add Get3 nX Dec nY nZ Get3 Dec nX nY nZ Get3 nX Inc nY nZ Get3 Inc nX nY nZ 3 {@z False Break} @z Or Or Or Equ Get3CA 39 nX Dec nY nZ Green Equ Get3CA 39 Dec nX nY nZ Green Equ Get3CA 39 nX Inc nY nZ Green Equ Get3CA 39 Inc nX nY nZ Green" "Follow Event"
+DefineMacro 17 "For (z) 1 @t {MessageInside $z Dec @z} MessageInside 'Level: @e, WC: @f, AC: @a, Str: @s, Dex: @d, HP: @h/@m, Exp: @l/@p, Kill: @k' -1" "On Redraw"
+
+// Gameplay
+DefineMacro 18 "If Lte @h 0 {Break} nMoveCount Inc nMoveCount Macro19" "Monsters Turn"
+DefineMacro 19 "fRedrawWhenBitmapEdited False For (i) 1 @c {@u Var Add 75 @i If Not @u 'Continue' Macro20 If And Not @z Sgn And Var Add 290 Var Add 75 @i 16 'Macro20'} Macro23 fRedrawWhenBitmapEdited True n" "Move Monsters"
+DefineMacro 20 "@x Var Add 100 @i @y Var Add 125 @i If Lte Add Abs Sub @x nX Abs Sub @y nY 1 {Macro22 @z True Break} Macro21 If @z {Break} SwapVar (v) (x) SwapVar (w) (y) Macro34 @x @v @y @w @z Var Add 75 @i Macro33 @z False" "Monster Turn"
+DefineMacro 21 "If Or And Odd nMoveCount Odd Var Add 290 @u And Var Add 290 @u 8 {@z True Break} @v @x @w @y IfElse And Var Add 290 @u 4 {@z Rnd 0 3} {@z Add << Gt Add Sub nX @x Sub nY @y 0 1 Gt Add Sub @x nX Sub nY @y 0 If Gte @z 2 '@z Xor @z 1' If And Var Add 290 @u 2 '@z Xor @z 2'} Macro40 @u @z Macro41 If Not @z {Break} @x @v @y @w @z And Add @u Rnd 1 3 3 Macro40 Macro41" "Move Monster"
+DefineMacro 22 "@v Var Add 75 @i If And Equ @v 4 Equ Rnd 1 4 1 {@z Add 44 Rnd 0 6 SetString 0 (Evil Dragon says: '$z!') Macro45} @z Add 100 @v IfElse Gt Rnd 0 Var Add 350 @v Rnd 0 Add @l @d {@u Max Sub Rnd 0 Var Add 320 @v Rnd 0 Add @l @a 0 @h Sub @h @u SetString 0 'The $z hits for @u damage!'} {SetString 0 'The $z misses.'} Macro45" "Monster Attack"
+DefineMacro 23 "If Get3T nX nY nZ {@v Get3CA 39 nX nY nZ If Neq @v Green (@z Add 50 And @v 255 SetString 0 'There is a $z here.' Macro45)} If Not Mod nMoveCount 5 {@h Min Add Inc @h Mul And Gt @r 0 Equ Var Add 450 And Var Add 26 @r 255 5 Inc >> Var Add 26 @r 8 @m} If Lte @h 0 {Macro24}" "Turn Actions"
+DefineMacro 24 "$0 'You die...' Macro45 If And Gt @r 0 Equ Var Add 450 Var Add 26 @r 6 {SetVar Add 26 @r 0 @r 0 @h @m $0 'But wait, your amulet saves you!' Macro45 Break} Macro25 Message 'You have been killed. You failed to slay the dragon. :-(\nYou died after @w moves, in @x minutes, @y seconds.\nYou are now a ghost. To reincarnate and try again, press F2.' nAfterMoveToNewCell 0" "Lose Game"
+DefineMacro 25 "Spc fPauseTimer True @w nMoveCount @z Timer @x Div @z 60 @y Mod @z 60" "End Game"
+DefineMacro 26 "fRedrawWhenBitmapEdited False @k Inc @k @z Add 100 @v SetString 0 'You kill the $z!' Macro45 @p Add @p Pow Var Add 230 @v 2 While (Gte @p @n) {Macro27} Macro32 fRedrawWhenBitmapEdited True If Equ @v 4 {Macro28}" "Kill Monster"
+DefineMacro 27 "@l Inc @l @j Min Inc @j 20 @m Add @m 5 @h Add @h 5 @n Pow 2 Mod Dec @l 4 If Equ @n 8 {@n Dec @n} @n Mul @n Pow 10 Inc Div Dec @l 4 SetString 0 'Welcome to experience level @l!' Macro45" "Gain Level"
+DefineMacro 28 "$0 'Congratulations, you have finished Dragonslayer!' Macro45 Macro25 Message 'Congratulations, you slayed the Dragon! :-)\nYou won after @w moves, in @x minutes, @y seconds.\n\nYou are hailed as a hero throughout the land. The king makes you\nCaptain of the Guard, and gives you more gold than you know what\nto do with. It's just cool being you!'" "Win Game"
+
+// Dungeon creation and editing
+DefineMacro 29 "@t 0 fShowColorBitmap False f3D True fSealedEntrances Gt @e 1 IfElse And Gt @e 10 Lt @e 20 {IfElse Gt @e 15 'nFogDistance 75 k3DCeiling2 Black kGround2 Black' 'nFogDistance 125 k3DCeiling2 Dark k3DCeiling kGround2 Dark kGround'} {nFogDistance 175 k3DCeiling2 -1 kGround2 -1} AllClear = \ Quo Dungeon ?: Or Equ @e 10 Equ @e 20 1 ?: Equ @e 15 0 10 3 8 ?: Lte @e 1 0 45 Add Mul Lte @e 1 10 Gte @e 20 @x nX @y nY nX 0 nY Mul 32 Gt @e 1 CopyTexture -1 39 CopyTexture -1 40 nX2 31 nY2 Add nY 31 ag Replace Gray LtGray 0 _ SetC @x @y Blue CopyTexture -1 41 + nX @x nY @y g @z ?: And Neq @e 5 Neq @e 20 1 3 Replace Red NWSE @z @z @z @z 0 @z ?: Neq @e 5 2 4 @53 @z Replace LtGray NWSE @z @z @z @z 0 Replace Green NWSE 5 5 5 5 0 CopyTexture -1 0 + Replace Red ?: And Neq @e 5 Neq @e 20 Var Add 54 Mod @e 5 Light Cyan 0 Replace LtGray ?: Neq @e 5 Gray DkGreen 0 Replace Green Light Brown 0 = Macro30 Macro36" "New Dungeon"
+DefineMacro 30 "@c ?: Lt @e 20 ?: Mod @e 5 Add 5 Rnd 0 5 10 1 For (i) 1 @c {Macro44 IfElse Lt @e 20 'Macro35' '@z 4' Macro31}" "Create Monsters"
+DefineMacro 31 "SetVar Add 75 @i @z SetVar Add 150 @i Var Add 260 @z Macro33" "Create Monster"
+DefineMacro 32 "SetVar Add 75 @i 0 Macro34" "Delete Monster"
+DefineMacro 33 "Set3CA 40 @x @y nZ @i SetVar Add 100 @i @x SetVar Add 125 @i @y SetVar Add 175 @i Get3C @x @y nZ Set3E @x @y nZ On Set3C @x @y nZ Var Add 200 @z Set3X @x @y nZ -1 Add 5 @z" "Draw Monster"
+DefineMacro 34 "Set3E @x @y nZ Off Set3C @x @y nZ Var Add 175 Get3CA 40 @x @y nZ Set3X @x @y nZ -1 ?: Get3T @x @y nZ 5 @53" "Undraw Monster"
+DefineMacro 35 "DoWhile (Gt Var Add 230 @z @e) {@z ?: Or Neq @e 15 Odd @i Rnd 1 26 13}" "Pick Monster"
+DefineMacro 36 "CopyTexture -1 38 Del SwapTexture -1 38 @u ?: Lt @e 20 Add 4 Rnd 0 4 0 For (i) 1 @u {Macro44 @v Rnd 1 @o If Equ Var Add 400 @v 6 'Macro39' Macro37}" "Create Objects"
+DefineMacro 37 "Set3T @x @y nZ On Set3CA 39 @x @y nZ @v Set3CT @x @y nZ Var Add 69 Var Add 400 And @v 255 Set3CA 38 @x @y nZ Add 31 Var Add 400 And @v 255" "Place Object"
+DefineMacro 38 "SetVar @y Or << Inc >> Var @y 8 8 And Var @y 255" "Enchant Item"
+DefineMacro 39 "@v Or << Add >> @v 8 5 8 And @v 255" "Charge Item"
+
+// Low level subroutines
+DefineMacro 40 "IfElse Odd @z {@x Add @x Sub @z 2} {@y Add @y Dec @z}" "Move Coordinate"
+DefineMacro 41 "@z Or Or Or Get3 @x @y nZ Get3E @x @y nZ Not Get3 @x @y Inc nZ And Equ @x nX Equ @y nY" "Test Position"
+DefineMacro 42 "Macro41 @z Or @z Get3T @x @y nZ" "Test Position 2"
+DefineMacro 43 "@x nX @y nY @z nDir Macro40 Macro42" "Test Forward"
+DefineMacro 44 "DoWhile (@z) {@x Rnd 1 Sub Size3X 2 @y Rnd 1 Sub Size3Y 2 Macro42}" "Random Position"
+DefineMacro 45 "@t Inc @t @w 0 SetString @t $w" "Append Message"
+
+// Command subroutines
+DefineMacro 46 "For (w) 1 @j {If Not Var Add 26 @w 'Break'} If Gt @w @j {@z True Message 'You can't carry any more items.' Break} @z False SetVar Add 26 @w @v" "Add Inventory"
+DefineMacro 47 "For (i) 1 @j {@v Var Add 26 @i @z Add 50 And @v 255 IfElse Gt @z 50 (SetString 0 '_: $z') (SetString 0 '_: ') SetChar 0 0 Add 64 @i @z 0 @w >> @v 8 If @w (SetString 0 '$z (@wx enchanted)') If Equ @i @g (SetString 0 '$z (wielded)') If Or Equ @i @b Equ @i @r (SetString 0 '$z (worn)') Macro45} Spc" "List Items"
+DefineMacro 48 "nOnRunCommand 0 @t 0 IfElse And Gt @x 64 Lte @x Add 64 @j {@x Sub @x 64 If Not Var Add 26 @x (Message 'You aren't carrying anything in that inventory slot.' @x 0)} {@x 0} @z False" "On Command"
+DefineMacro 49 "Macro48 If Not @x {Spc Break} If Or Equ @x @b Equ @x @r {Message 'You need to take off worn items before dropping them.' Spc Break} If Get3T nX nY nZ {Message 'There is already something here.' Spc Break} If Equ @x @g {Macro 51} fRedrawWhenBitmapEdited False @v Var Add 26 @x SetVar Add 26 @x 0 @x nX @y nY Macro37 @y Add 50 And @v 255 SetString 0 'You drop a $y.' Macro45 fRedrawWhenBitmapEdited True Macro18" "On Drop"
+DefineMacro 50 "Macro48 If Not @x {Spc Break} @v Var Add 26 @x Macro Add 50 Var Add 400 And @v 255 Macro18" "On Use"
+
+// Use Item
+DefineMacro 51 "If @g {@y Var Add 26 @g @f Sub @f Add Var Add 450 And @y 255 >> @y 8 @z Add 50 And @y 255 SetString 0 'You unwield your $z.' Macro45 If Equ @x @g '@g 0 Break'} @f Add @f Add Var Add 450 And @v 255 >> @v 8 @g @x @z Add 50 And @v 255 SetString 0 'You wield a $z.' Macro45" "Use Weapon"
+DefineMacro 52 "IfElse @b {If Neq @x @b (Message 'You need to take off your existing armor before putting new armor on.' Break) @y Var Add 26 @b @a Sub @a Add Var Add 450 And @y 255 >> @y 8 @b 0 @z Add 50 And @y 255 SetString 0 'You take off your $z.'} {@a Add @a Add Var Add 450 And @v 255 >> @v 8 @b @x @z Add 50 And @v 255 SetString 0 'You wear a $z.'} Macro45" "Use Armor"
+DefineMacro 53 "IfElse @r {If Neq @x @r (Message 'You need to take off your existing amulet before putting a new amulet on.' Break) @r 0 @z Add 50 And @v 255 SetString 0 'You remove your $z.' Macro45 Macro Add 71 Var Add 450 And @v 255} {@r @x @z Add 50 And @v 255 SetString 0 'You put on a $z.' Macro45 Macro Add 61 Var Add 450 And @v 255}" "Use Amulet"
+DefineMacro 54 "SetVar Add 26 @x 0 @z Add 50 @v SetString 0 'You drink a $z.' Macro45 Macro Add 91 Var Add 450 @v" "Use Potion"
+DefineMacro 55 "@z Add 50 @v SetString 0 'You read a $z.' Macro45 @w @x @z True Macro Add 101 Var Add 450 @v If @z {SetVar Add 26 @x 0}" "Use Scroll"
+DefineMacro 56 "@z Add 50 And @v 255 If Lte @v 255 {Message 'Your $z has no charges left.' Break} SetString 0 'You zap a $z.' Macro45 @y Add 26 @x SetVar @y Or << Dec >> Var @y 8 8 And Var @y 255 @z False For (i) 1 8 {@x nX @y nY IfElse Odd nDir (@x Add @x Mul Sub nDir 2 @i) (@y Add @y Mul Dec nDir @i) If Or Or Lt @x 0 Gte @x Size3X Or Lt @y 0 Gte @y Size3Y (Break) fRedrawWhenBitmapEdited False @59 @x @60 @y Macro Add 111 Var Add 450 And @v 255 If @z (Break) @x @59 @y @60 @61 Get3E @x @y nZ @62 Get3C @x @y nZ @63 Get3X @x @y nZ 0 Set3E @x @y nZ On Set3C @x @y nZ Var Add 64 Var Add 450 And @v 255 Set3X @x @y nZ -1 37 Spc Set3E @x @y nZ @61 Set3C @x @y nZ @62 Set3X @x @y nZ -1 @63 fRedrawWhenBitmapEdited True Delay 75} Spc" "Use Wand"
+
+// Put On Amulet
+DefineMacro 61 "$0 'This amulet looks nice, but doesn't do anything useful.' Macro45" "Pretty Amulet"
+DefineMacro 62 "@s Add @s Inc >> @v 8" "Strength Amulet"
+DefineMacro 63 "@d Add @d Inc >> @v 8" "Dexterity Amulet"
+DefineMacro 64 "@m Add @m Mul 5 Inc >> @v 8" "Toughness Amulet"
+DefineMacro 65 "@a Add @a Inc >> @v 8" "Protection Amulet"
+DefineMacro 66 "$0 'You are surrounded by a healthy aura.' Macro45" "Regeneration Amulet"
+DefineMacro 67 "$0 'You feel as though your guardian Angel is with you.' Macro45" "Life Saving Amulet"
+
+// Remove Amulet
+DefineMacro 71 "" "Pretty Amulet"
+DefineMacro 72 "@s Sub @s Inc >> @v 8" "Strength Amulet"
+DefineMacro 73 "@d Sub @d Inc >> @v 8" "Dexterity Amulet"
+DefineMacro 74 "@m Sub @m Mul 5 Inc >> @v 8 @h Min @h @m" "Toughness Amulet"
+DefineMacro 75 "@a Sub @a Inc >> @v 8" "Protection Amulet"
+DefineMacro 76 "$0 'Your healthy aura fades.' Macro45" "Regeneration Amulet"
+DefineMacro 77 "$0 'You feel as though you're on your own now.' Macro45" "Life Saving Amulet"
+
+// Enchant Amulet
+DefineMacro 81 "$0 'Your amulet looks nicer, but that's it.' Macro45" "Pretty Amulet"
+DefineMacro 82 "@s Inc @s" "Strength Amulet"
+DefineMacro 83 "@d Inc @d" "Dexterity Amulet"
+DefineMacro 84 "@m Add @m 5" "Toughness Amulet"
+DefineMacro 85 "@a Inc @a" "Protection Amulet"
+DefineMacro 86 "$0 'Your healthy aura intensifies.' Macro45" "Regeneration Amulet"
+DefineMacro 87 "$0 'Enchanting this doesn't have any affect.' Macro45" "Life Saving Amulet"
+
+// Drink Potion
+DefineMacro 91 "@h Min Inc @h @m $0 'The water tastes refreshing.' Macro45" "Water Potion"
+DefineMacro 92 "@h Min Add @h 10 @m $0 'You feel better.' Macro45" "Heal Potion"
+DefineMacro 93 "@h Min Add @h 50 @m $0 'You feel much better!' Macro45" "Extra Heal Potion"
+DefineMacro 94 "@p Max @p @n $0 'You feel more experienced!' Macro45 Macro27" "Gain Level Potion"
+DefineMacro 95 "@m Add @m 5 @h Add @h 5 $0 'You feel tough!' Macro45" "Toughness Potion"
+DefineMacro 96 "@s Inc @s @j Min Inc @j 20 $0 'You feel strong!' Macro45" "Strength Potion"
+DefineMacro 97 "@d Inc @d $0 'You feel agile!' Macro45" "Dexterity Potion"
+
+// Read Scroll
+DefineMacro 101 "Spc Message 'This scroll is nothing more than empty paper.' @z False" "Blank Scroll"
+DefineMacro 102 "If Not @g {Spc Message 'You aren't wielding a weapon.' @z False Break} @f Inc @f @y Add 26 @g Macro38 @y Add 50 And Var @y 255 SetString 0 'Your $y glows!' Macro45" "Weapon Scroll"
+DefineMacro 103 "If Not @b {Spc Message 'You aren't wearing armor.' @z False Break} @a Inc @a @y Add 26 @b Macro38 @y Add 50 And Var @y 255 SetString 0 'Your $y glows!' Macro45" "Armor Scroll"
+DefineMacro 104 "If Not @r {Spc Message 'You aren't wearing an amulet.' @z False Break} @y Add 26 @r @w Add 50 And Var @y 255 SetString 0 'Your $w glows!' Macro45 Macro Add 81 Var Add 450 And Var @y 255 Macro38" "Amulet Scroll"
+DefineMacro 105 "For (i) 1 @j {If Equ Var Add 400 And Var Add 26 @i 255 6 (Break)} If Gt @i @j {Spc Message 'You aren't carrying any wands.' @z False Break} @v Var Add 26 @i Macro39 SetVar Add 26 @i @v @y Add 50 And @v 255 SetString 0 'Your $y glows!' Macro45" "Wand Scroll"
+DefineMacro 106 "fRedrawWhenBitmapEdited False Macro44 nX @x nY @y nDir Rnd 0 3 @x @w $0 'That was a moving experience.' Macro45 @z True fRedrawWhenBitmapEdited True" "Teleport Scroll"
+DefineMacro 107 "Macro43 If @z {Spc Message 'You need to face an unoccupied position if you want a monster to appear there.' @z False Break} fRedrawWhenBitmapEdited False @c Inc @c @i @c Macro35 Macro31 fRedrawWhenBitmapEdited True @x @w @z True" "Monster Scroll"
+DefineMacro 108 "Macro43 If @z {Spc Message 'You need to face an unoccupied position if you want a door to appear there.' @z False Break} fRedrawWhenBitmapEdited False Set3 @x @y nZ On Set3T @x @y nZ On Set3C @x @y nZ Light Brown Set3CT @x @y nZ Light Brown Set3CA 39 @x @y nZ Green Set3X @x @y nZ -1 5 fRedrawWhenBitmapEdited True @x @w $0 'You close the door in the face of adversity.' Macro45 @z True" "Door Scroll"
+
+// Use Wand
+DefineMacro 111 "$0 'Nothing happens. Did you expect more?' Macro45 @z True" "Nothing Wand"
+DefineMacro 112 "If Get3E @x @y nZ {@w Get3CA 40 @x @y nZ @z Add 100 Var Add 75 @w @x Var Add 150 @w @y Var Add 260 Var Add 75 @w @u Var Add 320 Var Add 75 @w @w Var Add 350 Var Add 75 @w SetString 0 'Status of the $z: Str: @u, Dex: @w, HP: @x/@y' Macro45 @x Var 59 @y Var 60} @z Get3 @x @y nZ" "Probing Wand""
+DefineMacro 113 "If Get3E @x @y nZ {@w Get3CA 40 @x @y nZ @u Min 10 Dec Var Add 150 @w @z Add 150 @w SetVar @z Sub Var @z @u @z Add 100 Var Add 75 @w SetString 0 'The wand hits the $z for @u damage.' Macro45} @z Get3 @x @y nZ" "Striking Wand"
+DefineMacro 114 "Set3 @x @y nZ Off @z False" "Digging Wand"
+DefineMacro 115 "If Get3E @x @y nZ {@w Get3CA 40 @x @y nZ Macro34 Macro44 @z Var Add 75 @w SwapVar (w) (i) Macro33 @i @w @x Var 59 @y Var 60} @w Get3CA 39 @x @y nZ If And Get3T @x @y nZ Neq @w Green {Set3T @x @y nZ Off Macro44 @z @v @v @w Macro37 @v @z @x Var 59 @y Var 60} @z Get3 @x @y nZ" "Teleport Wand"
+DefineMacro 116 "@z Get3CA 39 @x @y nZ If And Get3T @x @y nZ Neq @z Green {DoWhile (Or Equ @w And @z 255 Neq Var Add 400 @w Var Add 400 And @z 255) (@w Rnd 1 @o) Set3CA 39 @x @y nZ Or @w And @z 65280} If Get3E @x @y nZ {@z Var Add 75 Get3CA 40 @x @y nZ IfElse Equ @z 4 ($0 'The Dragon eats your polymorph ray and laughs at you!' Macro45 @z True Break) (DoWhile 'Or Equ @w @z Equ @w 4' '@w Rnd 1 26' SetVar Add 75 Get3CA 40 @x @y nZ @w Set3C @x @y nZ Var Add 200 @w Set3X @x @y nZ -1 Add 5 @w)} @z Get3 @x @y nZ" "Polymorph Wand"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Dragonslayer" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+DisableAll Enable 'F1' Enable 'F2' Enable 'F3' Enable 'F4' Enable 'F5' Enable 'F6' Enable 'F7' Enable 'F8' Enable 'F9' Enable 'F10' Enable 'MoveU' Enable 'MoveL' Enable 'MoveR' Enable 'MoveD' Enable 'JumpU' Enable 'JumpL' Enable 'JumpR' Enable 'JumpD' Enable 'MoveUL' Enable 'MoveUR' Enable 'MoveDL' Enable 'MoveDR' Enable 'MoveRaise' Enable 'MoveLower' Enable '?' Enable 'c' Enable 'o' Enable '.' Enable ',' Enable 'i' Enable 'a' Enable 'w' Enable 'W' Enable 'T' Enable 'P' Enable 'R' Enable 'q' Enable 'r' Enable 'z' Enable 't' Enable 'p' Enable 'ca' Enable 'Spc' Enable 'Esc' Enable 'sTab' Enable 'Ent' Enable 'a6'
+OnCommand (?) 1 OnCommand (~) 2 OnCommand (c) 3 OnCommand (o) 3 OnCommand (.) 4 OnCommand (,) 5 OnCommand (d) 6 OnCommand (i) 7 OnCommand (a) 8 OnCommand (w) 8 OnCommand (W) 8 OnCommand (T) 8 OnCommand (P) 8 OnCommand (R) 8 OnCommand (q) 8 OnCommand (r) 8 OnCommand (z) 8 OnCommand (Tab) 9
+fShowDot True nDotSize 0 fWallsImpassable True fMoveByTwo False fDoDragOnTemp False nEdgeBehavior 0 kBorder Black kDot White kGround Blend Blend Brown Gray Gray kLine Gray k3DCeiling LtGray fCompass True fCellLocation False nInside 2 fNarrowWalls False nMotionFrames 9 nRotationFrames 9 nUpDownFrames 9 nCellSize 160 nWallHeight 124 nViewHeight 0 rLightFactor 30 rViewingSpan 5500 fAllowTextureMapping True nSemitransparentWalls 3 fMarkColor True nTextureWall 0 nTextureGround 38
+SetVar 500 0 @54 Blend Red Maroon @55 @54 @56 Blend Orange Brown @57 Blend Maize Gray @58 Blend Brown Gray
+
+// Brick texture
+Size 32 32 0 1 Turtle "S1A0C1BM0,0R15ND14RNR15D15R15D16L31U16R15DNL14R15" Zoom 6 6 0 2 cDel CopyMask -1 1
+
+// Stone texture
+EmbedDB
+DB
+192 192 1
+
+e@Ah@Ad"_c0Q
+e0i0f]c(A
+e'i'f9c$
+|12
+e(i0fYc$
+e(Ah@Ad"Yc$
+e(zpYc$
+|
+e(Aa`h0Qa"Yc$
+e(b?h(AbYc$
+e'b-h$c9c$
+|
+e0b=h$c=c(A
+e@Aa]h$c?c0Q
+v]h$c@r
+|
+b`e]h$c?b@A
+b?e=h$c=b0
+b-e-h$c9b'
+|17
+b-e/h(Ab]b/
+b-e0h0Qa"_b?
+b-e0zp_
+|
+b-e0c(Yc$]e?
+b-e/c$Qc"Ye/
+b-e-c"AdQe'
+|2
+b-e/c$AdQe'
+b-e0c(AdQe'
+b-e0qAdQe'
+|
+b-e0c(AdQe'
+b-e/c$AdQe'
+b-e-c"AdQe'
+|7
+b?e=c"AdQe(
+b`e]c"AdQe(A
+v]c"AdQe(n
+|
+a`f]c"AdQe(A
+a?f=c"AdQe(
+a-f-c"AdQe'
+|7
+a-f-c"Qc"Qe'
+a-f-c"Yc$Qe'
+a-f-c"rQe'
+|
+a-f-c"Yc$Qe'
+a-f-c"Qc"Qe'
+a-f-c"AdQe'
+|6
+a/f?c$AdQe'
+a0f`c(AdQe'
+a0yAdQe'
+|
+a0b"_f(AdQe'
+a/c]f$AdQe'
+a-c9f"AdQe'
+|
+a=c9f"AdYe0
+a]c9f"Ad]e@A
+n]c9f"Adv
+|
+a]c9f"Ad]
+a=c9f"AdY
+a-c9f"AdQ
+|18
+a=c9f"Qc"Y
+a]c9f"Yc$]
+n]c9f"zn
+|
+a]c9f"Y!(Ye0Q
+a=c9f"Q!$Qe(A
+a-c9f"A!"Ae$
+|17
+a?c]f$Q!$Ae$A
+a`b"_f(Y!(Ae$Q
+zqAe$q
+|
+c0Qd"_d(Ae$Q!@A
+c(Ae]d$Ae$A!0
+c$f9d"Ae$a'
+|9
+c$f9d"Qe(A!/
+c$f9d"Ye0Q!?
+c$f9d"v_
+|
+c$f9d"Yc`c?
+c$f9d"Qc?c/
+c$f9d"Ac-c'
+|13
+c(Ae]d$Qc?c0
+c0Qd"_d(Yc`c@A
+
+cDel fNoCornerHopping False fSkipMessageDisplay True SmoothZoom SmoothZoom ? CopyMask -1 2
+
+// Crystal texture
+EmbedDB
+DB
+42 26 1
+
+ao
+aQ!$
+!"Q!$A
+!"A!"A
+!$A!"Q
+!$bQ
+!(bY
+!'b9
+!/b=
+!-b-
+!=b/
+!9b'
+`Yb(`
+|
+!9b'
+!=b/
+!-b-
+!/b=
+!'b9
+!(bY
+!$bQ
+!$A!"Q
+!"A!"A
+!"Q!$A
+aQ!$
+ao
+
+cDel Zoom 6 10 0 2 CopyMask -1 3
+
+// Leaf texture: Based on the leaves.bmp background from Windows 3.1
+EmbedDB
+DB
+200 150 1
+
+a"Ad")9!Ac"%"QA)f%%
+!'$e"-'!Ac"-'!A(f#%
+!+%e"%"QAc")9!A!Ae#-
+"S)e"%!?1c")A!A!1e#)
+/%1e"'!&1c"9A!1!)e#)
+Q(Ae"#!#Qc"2a9!'e#9
+!%f##!$Ac"2a(A"e#1Q
+!(`Ad#$!.=c"Sb=!Qd#2
+!#!]d#"!;Lc"Eb#!)d#R
+!$!PAc#"!V7c"Eb"!%d#C
+a]I`!?a%"BKMd)cA$d#C
+a$IA`Ca%!H61d1c1$Yc$E
+b:a%a9!CKAd1c1=Wc$)
+b+a%!"A!R8j,A-c$)
+b'a)!#aSMj%!9d1
+b#a)!-!"29j#!AdA
+b#a1!9!"YQj$"eA
+b"a1!Ia:Aj"'
+cA!A$%a)lI
+c1!A%#a-lQ
+c9!A9"a=k0A
+c)!BA"A!EkT
+c%"'aA")j(-
+c'"Ya1#+j-1
+b"[c9#&Ai)A
+b'(b(I%k&
+bYc9=)k'
+a"Ab$A!)k%
+a"c'a1k%
+bAb%aAk)
+bAb#aAk1
+bAb#!"l1
+bAb#!"lA
+b1b#!#cYf"
+b1b"!%!(nQf"
+b1b"!(`Y!"Af#
+b)b"d0g#
+b)cAb"Ug%b"Q
+b)cA!0`_%g)!0`_A$
+b%cA!&a%g0`Q!"!#A
+b%c1!&a)i1!'!#9
+b%c1!#A!9cAa1a1!)!#'
+b#c1!#1!9cYa=a1!)!#"
+b#c)!")!IcMa4a)!)!#!Q
+!"A#c)aE"1b-4a1A!)!1!#!)
+##A#c)aE#1b52A!19!)!1!#!'
+$CA#!)a)a3#1bE11!1%!)!1!#!"
+#;A"!/a)a*0`Y!")1)!1$!)!1!#aA
+#%A"!*A!%a)E!(Q#)A'!1!A)!A!#a1
+#)A"!)1!%a%Ga/#)A"!1!9)!A!#a)
+#1A"!)-!%a#:a"U*aA1!%)!A!"a%
+#AY"!)#!%a#)Aa/&a11!#)!A!"a%
+#AE"!)"A%a"!Qa"`a)1!")"a"a#
+$!D"!)!1'bAIb'a)1aI"a"a#
+#!1B!)!=&Qa1Ie)1!"Y"a"a"
+#!12!)!C%/a)Ee%2Q"9"a"bA
+%!1*!-!B%"]!%Ce%_A"-"a"b1
+)!)&!+"!E!$nCe%B!"$"a"b)
+1!)$!*"!5b""e%G!"`Ba"b)
+1!)"!)R!-b"!Ad$)!"!`]!$b%
+A!%a):!%b"!Ad$,A"a$Q&b#
+A!%a1'Ac"!Qe]A"Aa0:b"
+A!%a1$Ac"$)e"!"AbZb"
+a%a1!Ac"-)e#!"1b&cQ
+a%aAe"Q%e#!"1b&c1
+a#aAg%e#!")b#A
+a#aQe0`_e%aIb"A
+a#!")d"Qg%aEcA
+a#!#'d/h%aE
+a$!%"d1h)a#
+a#A'!AcAh)a/
+a#B[!1b$i1!"^
+a%W$`)b%i1!0B
+a%9#(Yb9h"A"]AA
+a&A%!Ya"Ah(!0!AA
+a'!%!%a'i/"Y"A1
+c)!#a9iQ0Y"A)
+c)!"A!'h""Y(CA'
+c1a1!"Eg'0a=A"
+c1a-a=hYa#A!A
+cAa$a+hnA#A!1
+b"cQ!,j?"1!-
+b"c-!2Ai"AQ!#
+b#cQ!29j11!"
+b%b$aAGj1bA
+b)b-aABAi)a?1
+b)bQ!"!19i)!"BQ
+b1a"a"!)'i%!'
+bBQ!#a#!)"BQg#!9
+bB-!-a%!%!?1g#"A
+a""$!Qa)!#!)Ag"'
+a""!Tb)!"!&iY
+a'"!-b1!"!'iA
+!"Y"!$b1!"!-h"
+`_!(aQaAaA1h'hQ
+Aa&A!0aAaAAh9hQ
+]a#A!#!"bBh"Ag'
+(A!"A!"!"b7a)e'h"
+!]aAaA#b9a9e9iQ
+A(A!AaA#b1aIe'
+9!]!Aa1%b1!")e"A
+'!(QAa)%b1!#)e"9
+"a_Aa%)b1!%)e"%
+"a(Wa#)b1!9)fD
+!AaZa#)b1!A)fAA
+!Aa#a")b1$!)fA1
+!1a"bEb1%!)fA/
+!1a2b5b19!)AeA"Q
+!1a1b-b1A!*AeA!0`_
+!)a)f4a+AeAb%
+!)a)f=a6c1!"c%
+!)a)f1a6cQ!"c)
+!%a)i<b")!"c)
+$Sa%i2b")!"c1
+-0a%i2b#)!"cA
+)#A!%iBb%%!#cA
+1"1!$iBb)%!#b"
+8`YaAhBb)#!#b#
+5!(n1g""b1"!%b#
+3cYg""bA!A%b%
+Bl""a"1!A%b)
+Bl#"a#)!1)b)b'
+AAk#"a#(!))b1a"`
+AAk#"a%!Y))bAa/.a1
+!1k%"a%!(]0a"a"S:aA
+!)k%#a)a#+a#a/"]A"
+!)k%#a1a"+a%!(Q"MA'
+!%k%#aAbMa0`Y!"5Q)
+!#k)#!"a&AMfM19
+!#k.[!'a+!Ie?52E
+!"k('!)a)!9d"H]4E
+aAkSYQa%!1d".5M3
+M!Qk02b-!Ad#;IY2
+1!YlWb-"d$SVQI1Q
+aOl\b)"d#/L!*`1
+A!VAj"AAa9#d"$V!')Q
+A!M1j$!1a9%d"![!%%1
+G!Y)j#!-a1%b$!"!/!)%1
+$!I%j%!#aQ)b^A"!'!Q%1
+"QY$j-!"A!Q1a($A!A""!%Q
+!=Q!Ad1c5a9!AAaY'A!A!C!#Q
+!+Q!1d1c3a%!Ba(!.1!Q!;!#A
+!(Q!-d)c_a%"C!$Y!;Q$1!%!"A
+!"1!;c"Eb"b#"(`]!"V9%)!$!"A
+aQ!<c"Eb#b#"c#KI))aQ"
+a-!=c"Sb=b#$c&6:`%a)"
+a#"Ac"2a(Ab##c;K_!]a0`
+a##d"4a9c"#aQ!V8d%#
+a"%d"9A!1c"'!"1"KYd%#
+a"9d")A!Ac"%!/10`e%'
+
+Thicken cDel Zoom 2 3 0 2 CopyMask -1 4
+
+// Door texture
+@y 200 Size @y @y 0 1 For (z) 1 @y {nX Rnd 0 Dec @y nY Rnd 0 Sub @y 11 nX2 nX nY2 Add nY 10 2ndLine} For (z) -1 1 {nX 0 nY Add 90 Mul @z 75 nX2 Add nX 4 nY2 Add nY 20 2ndBlock} nX 171 nY 92 nX2 Add nX 16 nY2 Add nY 16 2ndDisk cDel CopyMask -1 5
+
+// Weapon texture
+EmbedDB
+DB
+95 95 1
+
+
+|4
+"
+"A
+!Q
+!Y
+!=
+!-
+!/
+!(
+!$
+!$A
+!"Q
+aQ
+aY
+a=
+a-
+a/
+a(
+a$A
+a"Q
+bY
+b=
+b-
+b/
+b(
+b$A
+b"Q
+cY
+c=
+c/
+c(
+c$A
+c"Q
+dY
+d=
+d/
+d(
+d$A
+d"Q
+eY
+e=
+e/
+e(
+e$A
+e"Q
+fY
+f=
+f/
+f(
+f$A
+f"Q
+gY
+g=
+g/
+g(
+g$A
+g"Q
+hY
+h=
+h/
+h(
+h$B
+h"TA
+i`
+i?
+i=
+i[#
+h"R(
+h$AO
+h(!=
+h/!]
+h="_)
+h[$H1
+g"R($A
+g$AO"R
+g(!=![
+g/!Y!=
+g="Q!/)
+g9$A!(1
+g9(a$A
+g=/a"R
+g/=b[
+g(Yb=
+g$Qb/%
+l(_
+l$]
+
+|4
+
+= Transpose TempOr FlipHorizontal cDel CopyMask -1 32
+
+// Armor texture
+EmbedDB
+DB
+95 48 1
+
+
+|2
+b$
+b(A
+b0Q
+b=Y
+bY=
+a"Q/
+a$A(
+a(!$A
+a/!"Q
+a=aY
+aYa=
+!"Qa/
+!$Aa(
+!(b(
+!/b/
+!-b=
+!-bY
+!-a"Q
+!-a$A
+!-a(
+!-a0uY
+|
+!-k9
+|9
+!0Yj9
+!0_j9
+a0j9
+a$Ai9
+a"Qi9
+bYi9
+b9i9
+b=i9
+b-i9
+|4
+
+= Size 95 95 0 0 FlipVertical TempOr RotateRight cDel CopyMask -1 33
+
+// Amulet texture
+EmbedDB
+DB
+95 48 1
+
+
+|6
+d(`_
+doQ
+c$]!$]
+c0Aa@A
+b"_b(Y
+b(Yc_
+b0d0A
+b=d$Q
+bYeY
+a"Qe=
+a(Ae0
+a0f(A
+a=f"Q
+a9gQ
+aYgY
+!"Qg=
+!$Ag/
+!(h(
+!/h$A
+!-h"A
+!=h"Q
+!9iQ
+|
+!YiY
+!Qi9
+"Qi=
+"Ai-
+$Ai/
+$h1!'a)
+$h)!'a1
+(h%!(aA
+'h#!$!"
+'h"!$!#
+'iA$!%
+'j@Y
+'j`]
+'i"Q/
+'i$A(
+/i(!$A
+-i/!"Q
+-i=aY
+
+= Size 95 95 0 0 FlipVertical TempOr RotateRight cDel CopyMask -1 34
+
+// Potion texture
+EmbedDB
+DB
+95 25 1
+
+jY
+inY
+h$`P_
+h0A!0A
+h?a$Y
+hYb]
+g$Qb/
+g(Ab(A
+g'9b$A
+g/%b"Q
+$f=#cY
+$AeY"c=
+$QeQ"c-
+#Yd"Q"c/
+#=d"A#c'
+#/d$A%c(
+#(d$!9c$
+#$Ac(!%c$A
+#"q_!#c"A
+#!q_!"c"A
+#g"c"A
+|
+#g#c"A
+#g%c"A
+#g9c"A
+
+Size 0 23 1 0 = Size 95 95 0 0 FlipVertical TempOr RotateRight cDel CopyMask -1 35
+
+// Scroll texture
+EmbedDB
+DB
+95 48 1
+
+
+|5
+!$xQ
+!0x]
+!@Yj_
+!=Yj/
+!Y=j(
+!Q-j$
+|
+"Q/j$A
+|
+"Q-j$
+|
+"Y=j(
+"]Yj/
+"`Yj_
+"Px]
+"DxQ
+"Aj9
+|3
+"A!tQ!9
+"Aj9
+|5
+"A!tQ!9
+"Aj9
+|5
+"A!tQ!9
+"Aj9
+|5
+"A!tQ!9
+
+= Size 95 95 0 0 FlipVertical TempOr cDel CopyMask -1 36
+
+// Wand texture
+EmbedDB
+DB
+95 95 1
+
+
+|8
+!%
+!#
+!"
+aA
+a1
+a)
+a%
+a#
+a"
+bA
+b1
+b)
+
+|3
+c1
+cY
+b"]
+b$_
+b(`
+b(`A
+b$`Q
+b"`Y
+0n!`]
+c@_
+c0`
+c(`A
+c$`Q
+c"`Y
+d`]
+d@_
+d0`
+d(_
+b"!$]
+b#!"Y
+b%aY
+b)a=
+b1a/
+bAa(
+a"a%$A
+a#a%"Q
+a%a%!Y
+a)a%!=
+a1a%!/
+aAa%!(
+d%!$A
+d%!"Q
+d%aY
+d%a=
+d%a/
+d%a(
+d%a$A
+d%a"Q
+d%bY
+d%b=
+h/
+h(
+h$A
+h"Q
+iY
+i=
+i/
+i(
+i$A
+i"Q
+jY
+j=
+j/
+j(
+j$A
+j"Q
+kY
+k=
+k/
+k(
+k$A
+k"Q
+lY%
+l=/
+l/=
+l(Y
+l$Q
+l"A
+
+
+= Transpose TempOr FlipHorizontal cDel CopyMask -1 37
+
+// Monster data
+SetStrings 101 26 ",T_GIANT ANT_,T_BAT_,T_CYCLOPS_,T_EVIL DRAGON_,T_ELEMENTAL_,T_FUNGUS_,T_GNOME_,T_HOBGOBLIN_,T_IMP_,T_JACKAL_,T_KOBOLD_,T_LEPRECHAUN_,T_MINOTAUR_,T_NYMPH_,T_ORC_,T_PUDDING_,T_QUANTUM VORTEX_,T_RAT_,T_GIANT SPIDER_,T_TROLL_,T_DARK UNICORN_,T_VAMPIRE_,T_GIANT WORM_,T_XANTHIAN_,T_YETI_,T_ZOMBIE_"
+SetVars 201 26 "#0000bf DkGray #ff007f Red Cyan Maize Yellow Orange #003fff #00bfbf #00bf00 DkGreen Brown Blue DkBlue Green Purple Brown LtGray Gray DkGray Maroon Brown Magenta DkCyan #3f7f7f"
+//               A B  C   D  E F  G  H  I J  K  L  M  N  O  P  Q R  S  T  U  V  W  X  Y  Z
+SetVars 231 26  "4 2 11  20 14 1  3  5  2 1  2  5 10  4  2  7 13 1  3  8 16 15 12 16  9  6" // Level
+SetVars 261 26 "15 8 50 200  5 1 20 40 20 6 10 10 50  8 15 40  1 2 15 30 50 40 80 30 40 20" // Hit points
+SetVars 291 26  "0 0  0  16  4 8  1  0  1 0  1 20  0  0  0  1  5 3  1  1  2 16  5  1  1  1" // Speed (1: Slow, 2: Flee, 4: Random, 8: Still, 16: Fast)
+SetVars 321 26 "10 5 20  30 35 1  8 10  2 4  6  4 20  1  5 20 50 2  8 15 20 25 30 25 20 15" // Strength
+SetVars 351 26  "8 5 15  30 20 2  8 10 10 4  6 20 15 20  5  5 15 3 10 10 25 20  5 25 10  5" // Dexterity
+Size 170 190 0 1 Turtle "T1" @y 0 $0 'T___' For (i) 1 26 {Del @x Add 100 @i SetChar 0 2 Add 64 @i Turtle "S24BM36,29" Turtle $y Thicken2 7 nXTurtle Sub 86 Mul Sub Len $x 3 6 nYTurtle 4 Turtle "S2" Turtle $x Thicken cDel CopyMask -1 Add 5 @i}
+SetStrings 101 26 ",Giant Ant,Bat,Cyclops,Evil Dragon,Elemental,Fungus,Gnome,Hobgoblin,Imp,Jackal,Kobold,Leprechaun,Minotaur,Nymph,Orc,Pudding,Quantum Vortex,Rat,Giant Spider,Troll,Dark Unicorn,Vampire,Giant Worm,Xanthian,Yeti,Zombie"
+
+// Item data
+@o 50 SetStrings 51 @o ",Twig,Stick,Knife,Dagger,Club,Short Sword,Sword,Battle Axe,Spiked Mace,Longsword,Sword Named Excalibur,Shirt,Jacket,Leather Armor,Studded Leather Armor,Ring Mail,Chain Mail,Scale Mail,Splint Mail,Banded Mail,Plate Mail,Dragon Scale Mail,Pretty Amulet,Strength Amulet,Dexterity Amulet,Toughness Amulet,Protection Amulet,Regeneration Amulet,Life Saving Amulet,Potion of Water,Potion of Healing,Potion of Extra Healing,Potion of Gain Level,Potion of Constitution,Potion of Strength,Potion of Dexterity,Blank Scroll,Scroll of Enchant Weapon,Scroll of Enchant Armor,Scroll of Enchant Amulet,Scroll of Charge Wand,Scroll of Teleportation,Scroll of Create Monster,Scroll of Create Door,Wand of Nothing,Wand of Probing,Wand of Striking,Wand of Digging,Wand of Teleportation,Wand of Polymorph"
+SetVars 401 @o "1 1 1 1 1 1 1 1 1 1 1  2 2 2 2 2 2 2 2 2 2 2  3 3 3 3 3 3 3 4 4 4 4 4 4 4 5 5 5 5 5 5 5 5 6 6 6 6 6 6"
+SetVars 451 @o "0 1 2 3 4 5 6 7 8 9 10 0 1 2 3 4 5 6 7 8 9 10 0 1 2 3 4 5 6 0 1 2 3 4 5 6 0 1 2 3 4 5 6 7 0 1 2 3 4 5"
+SetVars 70 6 "Red Green #bfbfff Cyan LtGray Purple"
+SetVars 64 6 "Black Yellow Red Brown Blue Magenta"
+
+// String tables
+SetStrings 36 4 {;You enter a building with crystal walls, surrounded by an enchanted underground jungle.;You enter a giant arena. Uh oh, it looks like you're the gladiator today!;You enter a dark Maze. I wonder what type of monster dwells in this Labyrinth?;You enter another large arena. Everything is eerily quiet, until a\ndeep voice booms:\n\n"Greetings human, I've been expecting you! I hope you're ready\nto die, because that's what you'll be doing shortly!"}
+SetStrings 44 7 ";Drop your weapon and maybe, just maybe, I'll let you live;Your puny armor is no match for my foot long claws and razor sharp teeth;You aren't a challenge for a Rat much less a challenge to me;I've eaten five adventurers so far today. I think I'll make it a six-pack;Don't worry, I like humans - with ketchup;After I eat you I shall use your bones as a toothpick;I think I shall paint the walls red, using your blood"
+SetString 40 {Welcome to Dragonslayer!\n\nAn evil dragon has been terrorizing the countryside. Many brave\nknights have died in their quest to slay it. Now it's your turn, and\nyou boldly enter the dungeon where the dragon's lair is said to be.\n\nF1: Redisplay this help text (shortcut key: "?")\nF2: Restart game (shortcut: "~")\nF3: Close a door (to open a door just move into it; shortcut: "c")\nF4: Pause and give monsters an extra move (shortcut: ".")\nF5: Pick up something (shortcut: ",")\nF6: Drop something from your inventory (shortcut: "d")\nF7: List your inventory (shortcut: "i")\nF8: Use something in inventory (shortcuts: "a", "q", "r", "w", "z")\nF9: View map of current dungeon level (shortcut: "Tab")\nF10: Toggle animation speed.\n\nSelect OK for more help, or Cancel to start playing.}
+SetString 41 "Explore the dungeon in search of the dragon. Use the arrow keys\nto move or rotate. You can press Shift+Up to run down a passage\nto the next point of interest. Each level contains a pit in the floor\nleading down to the next Maze. The dragon is at the very bottom,\nsomewhere below level 10. On the way, you'll find equipment and\nmagic items. Unfortunately due to kingdom budget cuts you don't\nstart with any equipment, so will have to acquire it as you go. The\ndungeon also contains many other monsters, all of which want you\ndead. To fight a monster, just move into it.\n\n"
+SetString 42 "Item types and their colors when seen as squares on the ground:\n\nRed:\tWeapon\t(wield to do more damage to monsters)\nGreen:\tArmor\t(wear to reduce damage monsters do to you)\nPink:\tAmulet\t(wear to magically enhance yourself)\nBlue:\tPotion\t(drink to enhance your physical attributes)\nGray:\tScroll\t(read for some magical effect)\nPurple:\tWand\t(zap to affect things in front of you)\n\nSelect OK for more help, or Cancel to start playing."
+SetString 43 "Dragonslayer is a turned based game, in which only after you\nmove or take an action will the monsters do likewise. Messages\ndescribing the result of each of your moves are displayed at the\ntop of the screen, such as how much damage you do to monsters or vice-versa. At the bottom of the screen is the status line,\nwhich contains the following:\n\nLevel:\tDungeon level. Monsters get tougher deeper down.\nWC:\tWeapon class. Affects damage you do when you hit.\nAC:\tArmor class. Reduces damage monsters do to you.\nStr:\tStrength. Affects your carrying capacity and damage.\nDex:\tDexterity. Affects how likely you hit or be hit by things.\nHP:\tHit points. Current and maximum. If falls to 0 you die!\nExp:\tExperience. Your experience level and total experience.\nKill:\tBragging rights. Count of monsters you've vanquished.\n\nGood luck! You'll need it. ;-)"
+
+Size 64 96 0 1 Size3X 32 Size3Y 32 Size3Z 5 Size3W 2 Macro2

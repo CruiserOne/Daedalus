@@ -1,0 +1,5207 @@
+DS
+// The Hunger Games Simulation - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+// Inspired by "The Hunger Games" series, as seen in the novels by Suzanne Collins and the movies by Lionsgate Films
+// Documentation for this script: http://www.astrolog.org/labyrnth/daedalus/hunger.htm
+
+// Variable usage:
+// a: Game activity status (0=active, 1=player dead, 2=winner determined, 3=player won)
+// b: Mode to wait until something happens (0-1)
+// c: Temporary coordinate
+// d: Text display count (0+)
+// e: Text emphasis flag (0=black, 1=gray, 2=yellow, 3=red, 4+ prefix, 8+ postfix)
+// f: Food of current tribute (0-500)
+// g: Wielded weapon or worn item index (0-9, or -1 for none)
+// h: Hit points of target tribute (0-13 normally)
+// i-j: Generic indexes
+// k-l: Effective objects
+// m-n: X and Y coordinates of tribute
+// o: Current object
+// p: Turns passed (0=opening gong)
+// q: User tribute index (-1-25 normally)
+// r: Current tribute (-1-25 normally)
+// s: Tributes left in game (0-24 normally, not counting mutts)
+// t: Target tribute
+// u: Selected action
+// v: Input parameter
+// w: Temporary variable
+// x-y: X and Y coordinates
+// z: Event return value
+
+// Custom variables (settings):
+// 27 [SA]: Atmosphere of arena (0-6, 7=random pair, 8=random solid, 9=random)
+// 28 [SB]: Background sky of arena (0-3, 4=random non-night)
+// 29 [SC]: Cornucopia space size (0-3)
+// 30 [SD]: District total count (1-13)
+// 31 [SE]: Edge of arena (0-4, 5=random edge, 6=random)
+// 32 [SF]: Forest presence (0-3)
+// 33 [SG]: Glass blocks (0=solid, 1,2,4,8=transparent, 16,32,64,128=random)
+// 34 [SH]: Hilliness of arena (0-7, 8=bowl, 9=random)
+// 35 [SI]: Items in cornucopia (0-5)
+// 36 [SJ]: Initial object in inventory (0=none, 30=random)
+// 37 [SK]: Initial countdown (0+)
+// 38 [SL]: Lake presence (0-6)
+// 39 [SM]: Mountain presence (0-5)
+// 40 [SN]: Noise listen radius (0+)
+// 41 [SO]: Order of launch tubes (0-5, 6=random)
+// 42 [SP]: Plains presence (0-4)
+// 43 [SQ]: Quell of arena (0-3, 4=random shape, 5=random)
+// 44 [SR]: Random seed of arena (0=random)
+// 45 [SS]: Size radius of arena (10-2048, 0=random)
+// 46 [ST]: Tree density (0-100, 101-200=random, 1000+=2nd atmosphere)
+// 47 [SU]: Launch tube radius (0+)
+// 48 [SV]: River presence (0-3)
+// 49 [SW]: Wasp Tracker Jacker percentage (0-100)
+// 50 [SX]: Feast item given (0=none, 33=random)
+// 51 [SY]: Your tributes per District (1-255)
+// 52 [SZ]: Maze presence (0-3, 4=random width, 5+=city)
+
+// Custom variables (more settings):
+// 53 [Sa]: Object availability in Cornucopia
+// 54 [Sb]: Object availability nearby Cornucopia
+// 55 [Sc]: Object availability out in wild
+// 56 [Sd]: Object availability as sponsor gift
+// 57 [Se]: Object availability at random Feast
+// 58 [Sf]: Max food (0=random)
+// 59 [Sg]: Feast turn frequency
+// 60 [Sh]: Max hitpoints (0=random)
+// 61 [Si]: Inventory size (0=random)
+// 62 [Sj]: Hill frequency (0-11, 12=random)
+// 63 [Sk]: Probability of stepping off platform early
+// 64 [Sl]: Sponsor/Feast final turn (0=never)
+// 65 [Sm]: Number of mutts (256+=per district)
+// 66 [Sn]: Number of mutts to remain withheld (256+=all)
+// 67 [So]: Turn to release remaining mutts
+// 68 [Sp]: Feast turn preparation time (0=none)
+// 69 [Sq]: Difficulty mode (0=everything, 1=no cheat commands, 2=no tribute messages, 3=no status line)
+// 70 [Sr]: Ranged weapon distance
+// 71 [Ss]: Tribute name and style (0=unchanged, 1=empty, 2=50th, 3=74th, 4=75th, 5=random names)
+// 72 [St]: Percentage of set Net traps on ground
+// 73 [Su]: Day period length
+// 74 [Sv]: Daylight extra length
+// 75 [Sw]: Percentage of tracker jacker wasp nests on ground
+// 76 [Sx]: Number of feast items given (0=random)
+// 77 [Sy]: Chosen tribute for next game (DDYYY)
+// 78 [Sz]: Finale beginning turn (0=never)
+
+// Custom variables (still more settings):
+// 79 [!, SCont]: Whether continue game even after victor determined (0=no, 1=yes)
+// 80 [@, SPeace]: Whether tributes can maintain no enemies (0=no, 1=yes)
+// 81 [#, SHover]: Whether invisible hovercraft remove corpses so no item drops (0=no, 1=yes)
+// 82 [$, SCorn]: Whether things lit up at night (0=nothing, 1=cornucopia, 2=launch tubes, 4,8=random)
+// 83 [%, SAlly]: Percentage of computer offering alliance (0-100)
+// 84 [^, STrap]: Percentage of computer not noticing trap (0-100)
+// 85 [&, SMist]: Mist distance (0=none)
+// 86 [*, SDeep]: Distance before deep water (256+=never)
+// 87 [(, SMuttH]: Mutt health (0=same as tributes)
+// 88 [), SMuttT]: Height of Mutts in inches
+// 89 [-, SMuttR]: Whether dead tributes rise as Mutts if possible (0=no, 1=yes)
+// 90 [_, SMuttD]: Release mutts equal to number of dead tributes (0=no, 1=yes)
+// 91 [=, SMuttS]: Mutts can swim (0=no, 1=yes)
+// 92 [+, SMuttC]: Mutts can climb (0=no, 1=yes)
+
+// Custom variables (colors):
+// 100+14 [KDist]: Colors of the 13 Districts + mutts (constant)
+// 114+4 [KMsg]: Text colors (constant)
+// 118 [KTube]: Launch tube color (constant)
+// 119 [KCorn]: Cornucopia color (constant)
+// 120 [KMaze]: Maze color (constant)
+// 101 [KMist]: Mist color (constant)
+// 102+6 [KSky]: Day/night transition colors for sky (constant)
+// 128+6 [KGrd]: Day/night transition colors for ground (constant)
+// 134+6 [KMtn]: Day/night transition colors for mountains (constant)
+// 140+6 [KCld]: Day/night transition colors for clouds (constant)
+// 146+6 [KFog]: Day/night transition distance and colors for fog (constant)
+
+// Custom variables (internal)
+// 152 [Dists]: Max number of Districts possible (constant)
+// 153 [Dist]: Number of Districts playing (SD)
+// 154 [Per]: Number of tributes per District (SY)
+// 155 [Trib]: Number of tributes total (1-255)
+// 156 [Live]: Number of tributes + mutts total (1-255)
+// 157 [Tmp]: Landscape temperature (SA)
+// 158 [Sky]: Day/night setting (SB, -1-1)
+// 159 [Edge]: Forcefield setting (SE)
+// 160 [Hill]: Arena hilliness (SH)
+// 161 [Ord]: Order of launch tubes (SO)
+// 162 [Quel]: Quell arena (SQ)
+// 163 [Rad]: Arena radius (SR)
+// 164 [Tube]: Launch tube radius (SU)
+// 165 [Food]: Max food (Sf)
+// 166 [HpMax]: Max hitpoints (Sh)
+// 167 [Inv]: Inventory size (Si)
+// 168 [Day]: Day period length (Su)
+// 169 [Corn]: Whether things lit up at night (SCorn)
+// 170 [Land]: Specific arena type (SLand)
+// 171 [SLand]: Arena type (-1=unchanged, 0+=specific)
+// 172 [SAmmo]: Animate ammunition (0=yes, 1=no, 2=interrupted)
+// 173 [SMove]: Animate movement steps (0=none)
+// 174 [SAid]: Hitpoints healed via First-Aid Kit
+// 175 [SBerry]: Food gained via Berries
+// 176 [SBread]: Food gained via Bread
+// 177 [SFish]: Food gained via Fish
+// 178 [SStarv]: Food regained when starving (1+)
+// 179 [SAllow]: Whether you accept alliance proposals (-1=reject, 0=prompt, 1=accept)
+// 180 [SLead]: Whether you ask to be leader (-1=no, 0=toggle, 1=yes)
+// 181 [Item]: Audience item (0=random)
+// 182 [File]: Log file handle (0=Null)
+// 183 [Custom]: Custom arena bitmap file handle (0=Null)
+// 184 [Auto]: Animation setting copy (0-1)
+// 185 [Wipe]: Was everybody killed at once?
+// 186 [Line]: Index into line buffer (0-9)
+// 187 [Txture]: Whether detailed texture bitmaps exist (0=no, 1=yes)
+// 188+5 [JDcc JDnc JDow JDsg JDfe]: Default object availabilities
+
+// Custom variables (tables)
+// 200+50 [JDmg]: Weapon damage of the 33 objects (constant)
+// 250+50 [JUse]: Weapon usages of the 33 objects (constant)
+// 300+50 [JDst]: District favored weapon of the 33 objects (constant)
+// 350+50 [JMat]: Material of the 33 objects (constant)
+// 400+50 [JCol]: Colors of the 33 objects (constant)
+// 450+50 [JAcc]: Availability of the 33 objects in Cornucopia (constant)
+// 500+50 [JAnc]: Availability of the 33 objects nearby Cornucopia (constant)
+// 550+50 [JAow]: Availability of the 33 objects out in wild (constant)
+// 600+50 [JAsg]: Availability of the 33 objects as sponsor gift (constant)
+// 650+50 [JAfe]: Availability of the 33 objects at random Feast (constant)
+// 900+300 [PXY]: X and Y positions of the 24 tributes + 2 mutts
+// 1200+300 [PZ]: Elevation of the 24 tributes + 2 mutts
+// 1500+300 [PHP]: Hit points of the 24 tributes + 2 mutts
+// 1800+300 [PFood]: Food of the 24 tributes + 2 mutts
+// 2100+300 [PKill]: Kills of the 24 tributes + 2 mutts
+// 2400+300 [PWield]: Wielded weapon inventory index of the 24 tributes + 2 mutts
+// 2700+300 [PWear]: Worn item inventory index of the 24 tributes + 2 mutts
+// 3000+300 [PNet]: Netting of the 24 tributes + 2 mutts
+// 3300+300 [PDest]: X and Y destination of the 24 tributes + 2 mutts
+// 3600+300 [PWasp]: Wasp poison of the 24 tributes + 2 mutts
+// 3900+300 [PLead]: Leadership score of the 24 tributes + 2 mutts
+// 4200+300 [PBody]: Body of the 24 tributes + 2 mutts
+// 4500+300 [PDead]: Fallen movie position of the 24 tributes
+// 4800+300 [PTall]: Height of the 24 tributes in inches
+// 5100+1200 [Log]: Death log (tributes left, turn, victim, killed by)
+
+// Bitmap usage:
+// -1: Mono = Where objects are, Color = Color of objects
+// -2: Mono = Scratch, Color = Color of ground marking
+// -3: Mono = Where semitransparency is, Color = Tributes and items
+// 0 [TWall]: Color = Block side textures
+// 1 [TVar]: Mono = Where variable height walls are, Color = Actual height of walls
+// 2 [TElev]: Color = Ground elevation
+// 3 [TFloor]: Color = Ground surface textures
+// 4 [TBlock]: Color = Block top/bottom textures
+// 5 [TSide]: Color = Ground side textures
+// 6 [TLit]: Mono = Where cells lit
+// 7 [BInv]: Color = Inventory grid (x=tribute, y=slot)
+// 8 [BAlly]: Color = Alliance grid (x=tribute, y=hatred) 0=self, 1-50=partner, 51-100=ally, 101-150=neutral, 151-200=enemy, 201-255=fighting
+// 9 [BWater]: Mono = Where water is
+// 10 [MWasp]: Color = Tracker Jacker nest texture (constant)
+// 11 [MTrap]: Color = Net trap texture (constant)
+// 12 [MFire]: Mono = Firewall side mask (constant)
+// 13 [MFire2]: Mono = Firewall top mask (constant)
+// 14 [MTree]: Mono = Tree trunk mask (constant)
+// 15 [MTree2]: Mono = Tree top mask (constant)
+// 16 [MCact]: Mono = Cactus trunk mask (constant)
+// 17 [MCact2]: Mono = Cactus top mask (constant)
+// 18 [MRock]: Mono = Mountain wall mask (constant)
+// 19 [MRock2]: Mono = Mountain top mask (constant)
+// 20 [MBrick]: Mono = Brick wall mask (constant)
+// 21 [MBrick2]: Mono = Brick wall top mask (constant)
+// 22 [MTube]: Mono = Platform wall masks (constant)
+// 23 [MTube2]: Mono = Platform top mask (constant)
+// 24 [MTube3]: Mono = Platform open top mask (constant)
+// 25+4 [MFoot]: Mono = Footprint masks (constant)
+// 29+4 [MFoot2]: Mono = Possible footprint masks (constant)
+// 33+4 [MFoot3]: Mono = Possible footprint masks (constant)
+// 37+4 [MPaw]: Mono = Pawprint masks (constant)
+// 41+4 [MPaw2]: Mono = Possible pawprint masks (constant)
+// 45+4 [MPaw3]: Mono = Possible pawprint masks (constant)
+// 49 [MNet]: Mono = Tribute net mask part (constant)
+// 50 [BNet]: Mono = User net mask part (constant)
+// 51+25 [BNum]: Mono = Number mask parts of the 25 numbers (constant)
+// 76+21 [BBody]: Mono = Body mask parts of the mutt + 2 genders (constant)
+// 97+3 [BCopy]: Mono = Temp copy of arena for map, Color = Temp copy of arena for map
+// 100 [BDirt]: Mono = Arena cornucopia circle area
+// 101 [BTrans]: Mono = Arena object transparency
+// 102 [BBlock]: Mono = Arena blocks
+// 103 [BFloor]: Color = Arena floor colors
+// 104 [BDist]: Color = District arena
+// 105 [BInit]: Color = Custom arena (constant)
+// 106+15 [MPic]: Color = Loaded picture textures of environment (constant)
+// 200+50 [BObj]: Mono = Object masks of the 33 objects (constant)
+// 250+50 [BObj2]: Mono = Small object masks of the 33 objects (constant)
+// 300+50 [MObj]: Color = Object textures of the 33 objects (constant)
+// 350+50 [MObj2]: Color = Loaded picture textures of the 33 objects (constant)
+// 400+300 [MTrib]: Mono = Tribute masks of the 24 tributes + 2 mutts
+
+// Custom variable prefixes:
+// A: Macro (audience command)
+// B: Bitmap (general)
+// F: Macro (function for user command)
+// I: Macro (initialize arena)
+// J: Object index
+// K: Color
+// M: Bitmap (texture that gets displayed)
+// O: Macro (object selection)
+// P: Person i.e. tribute array
+// S: Setting
+// T: Bitmap (texture indexes)
+// V: Macro (event)
+// Z: String
+
+// Custom texture bitmaps:
+// _tree.bmp, _tree2.bmp: Tree side and top
+// _cactus.bmp, _cactus2.bmp: Cactus side and top
+// _rock.bmp, _rock2.bmp: Mountain side and top
+// _brick.bmp, _brick2.bmp: Brick wall side and top
+// _tube.bmp, _tube2.bmp, _tube3.bmp: Launch platform side, top (closed), and top (open)
+// _wasp.bmp: Wasp nest
+// _trap.bmp: Net trap
+
+// Custom item bitmaps:
+// Arrow.bmp                Axe.bmp         Berries.bmp            Blowgun.bmp
+// Blowtorch.bmp            Body Armor.bmp  Bow.bmp                Bread.bmp
+// Brick.bmp                Bullet.bmp      Club.bmp               Dart.bmp
+// First-Aid Kit.bmp        Fish.bmp        Grenade.bmp            Gun.bmp
+// Helmet.bmp               Knife.bmp       Landmine (Active).bmp  Landmine.bmp
+// Mace.bmp                 Mutt Teeth.bmp  Net.bmp                Nightlock Berries.bmp
+// Nightvision Goggles.bmp  Parachute.bmp   Pick.bmp               Rock.bmp
+// Slingshot.bmp            Spear.bmp       Sword.bmp              Trident.bmp
+
+// Custom sounds:
+// announce.wav - Feast announcement
+// anthem.wav   - Fallen movie starts
+// cannon.wav   - Tribute dies
+// chimes.wav   - Player receives sponsor gift parachute
+// choke.wav    - Player can't swim, or tribute eats Nightlock
+// die_fem.wav  - Female player dies
+// die_male.wav - Male player dies
+// die_mutt.wav - Mutt dies
+// firewall.wav - Firewall starts, or player killed in firewall
+// gong.wav     - Opening gong
+// hit_fem.wav  - Female player takes damage
+// hit_male.wav - Male player takes damage
+// hit_mutt.wav - Mutt player takes damage
+// landmine.wav - Landmine detonates
+// mutts.wav    - Extra mutts released into arena
+// victor.wav   - Trumpets when victor determined
+// wasps.wav    - Wasp nest falls to ground, or player stung
+// was_bad.wav  - Player entrapped in Net or breaks alliance
+// was_good.wav - Player given item or enters alliance
+// water.wav    - Player moves or falls into water
+// zap.wav      - Player takes damage from forcefield
+
+// ///////////////////// //
+// Script initialization //
+// ///////////////////// //
+
+If Lt Version 3300 {Message 'This script requires Daedalus 3.3 or later to run.' Halt}
+
+Spc fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- The Hunger Games" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+
+SetString 0 "1 FHelp FStart FPause FInv FGet FDrop FUse FThrow FChat FGive FRot FPick FHelp2 FArena FWait FAuto FDig FSort FFire FSky FDeath FTable FMap FChange FMove FAsk FAlly FBehave FName FDist FRnd FSet FPrev FFeel FSound FPict FUp FDown FLookU FLookD FSpc FLeft FRight FUp2 FDown2 FLookU2 FLookD2 FMap2 FMap3 FHome FExit FExit2 AInv AGet ADrop AUse AThrow AChat AGive ADig ASort AFire AAsk AAlly VEdge VWall VMove VMoved VInside VScreen VMouse " // Macros 1
+
+AppendString 0 "Msg Name GetXY SetXY Wrap SqIn SqOut FndSq PutObj DelObj GetObj Drop DelInv View Draw Wield Wear Ouch UpdHp Hit UHit THit NetOn Net NetHlp SavBmp Hunger Sponsor Sponsor2 Feast Fire Mutt Movie Movie2 Anger Enemy Ally Seek Boom Mine Wasp Trap Burn Dig Hole Wall Tree Incin Fall Falls Sting Anim Sink Rise Unrise Map List Table Parse Set Reset Namer Next MsgEnd Moves Move Death Done Escape LogOn LogOff Log1K Hard Use Throw Boing Ammo Prop Break Lead AddInv LstInv SelInv ODrop OUse OThrow OGive Give " // Macros 2
+
+AppendString 0 "UseWear Use1 Use2 Use3 Use4 Use5 Use6 Use7 Use8 Use9 Use10 Use11 Act1 Act2 Act3 Act4 Act5 Act6 Act7 Act8 Act9 Act10 Act11 Act12 Act13 Day0 Day1 Day2 Day3 Day4 Day5 Day6 IArena IElev ITemp IGrass ITrees IMtn IRidge IMaze IWater IElev2 IRiver IQuell IHalf IBlob IEdge ITrans ICorn ICorn2 ITrap IObj IObj2 ITable IVar ITube IOrd ISeek ITrib IMutt ISky IText ICust ITall " // Macros 3
+
+AppendString 0 "0 TWall TVar TElev TFloor TBlock TSide TLit BInv BAlly BWater MWasp MTrap MFire MFire2 MTree MTree2 MCact MCact2 MRock MRock2 MBrick MBrick2 MTube MTube2 MTube3 MFoot +4 MFoot2 +4 MFoot3 +4 MPaw +4 MPaw2 +4 MPaw3 +4 MNet BNet BNum +25 BBody +21 BCopy +3 BDirt BTrans BBlock BFloor BDist BInit MPic 200 BObj +50 BObj2 +50 MObj +50 MObj2 +50 MTrib +300 " // Bitmaps
+
+AppendString 0 "27 SA SB SC SD SE SF SG SH SI SJ SK SL SM SN SO SP SQ SR SS ST SU SV SW SX SY SZ Sa Sb Sc Sd Se Sf Sg Sh Si Sj Sk Sl Sm Sn So Sp Sq Sr Ss St Su Sv Sw Sx Sy Sz SCont SPeace SHover SCorn SAlly STrap SMist SDeep SMuttH SMuttT SMuttR SMuttD SMuttS SMuttC 100 KDist +14 KMsg +4 KTube KCorn KMaze KMist KSky +6 KGrd +6 KMtn +6 KCld +6 KFog +6 Dists Dist Per Trib Live Tmp Sky Edge Hill Ord Quel Rad Tube Food HpMax Inv Day Corn Land SLand SAmmo SMove SAid SBerry SBread SFish SStarv SAllow SLead Item File Custom Auto Wipe Line Txture JDcc JDnc JDow JDsg JDfe 200 JDmg +50 JUse +50 JDst +50 JMat +50 JCol +50 JAcc +50 JAnc +50 JAow +50 JAsg +50 JAfe 900 PXY +300 PZ +300 PHP +300 PFood +300 PKill +300 PWield +300 PWear +300 PNet +300 PDest +300 PWasp +300 PLead +300 PBody +300 PDead +300 PTall +300 Log " // Variables
+
+AppendString 0 "3 ZX ZY ZSex +2 ZDist +14 ZNum +26 ZHair +20 ZCorn +2 ZVerb +7 ZDeath +13 ZMName +15 ZSet ZSet2 ZArena ZArenas +19 ZTree +2 ZThe +4 ZAlly ZNameA +2 ZBody +2 ZTall ZNameB +162 ZName +255 ZText ZLine +12 ZHelp1 ZHelp2 ZHelp3 ZHelp4 ZHelp5 ZChat11 +5 ZChat12 +5 ZChat13 +5 ZChat21 +5 ZChat22 +5 ZChat23 +5 ZChat31 +5 ZChat32 +5 ZChat33 +5 ZChatM +5 ZGive +9 ZGiveM +9 ZAsk +10 ZObj +50 ZObjA +50 ZHit +50 ZHits +50 ZIcoJ +50 ZItem ZMsg " // Strings
+
+AppendString 0 "0 JFst JRck JDrt JArr JBul JGre JNet JClb JBlt JBrk JPck JMut JKnf JMce JSpr JAxe JSwd JTri JSlg JBlw JBow JGun JBry JNlk JBrd JFsh JAid JGog JHel JArm JPar JLm0 JLm1 JMax 17 JDif" // Objects
+
+DefineConst $0 If @z {Message 'Initialization failed!' Halt}
+
+// ///////////// //
+// Main commands //
+// ///////////// //
+
+EmbedMacro %FHelp "Help Text"
+If fDontAutostartInfinite {@z True Return}
+IfElse Gte @q 0
+  {@v Add @q 300 *Name @z Div @q @Per If Gte @z @Dist (@z @Dists)}
+  {$0 'Audience' @z @Dists}
+@z Add %ZDist @z MessageAsk $ZHelp1 1 If Neq @z 1 {@z True Return}
+@x @Trib @y @Dist MessageAsk $ZHelp2 1 If Neq @z 1 {@z True Return}
+Message $ZHelp3
+@z True
+
+EmbedMacro %FStart "Restart Game"
+DoWait {
+  fRedrawWhenBitmapEdited False
+  IfElse @SR (nRandomSeed @SR) (nRandomSeed Rnd 0 Dec << 1 30)
+  *LogOn ResetInside *Set
+  @Rad ?: @SS Min Max @SS 10 2048 Rnd 25 125
+  @Tmp ?: Lt @SA 7 @SA ?: Equ @SA 7 Inc Mul Rnd 0 2 2 ?: Equ @SA 8 Mul Rnd 0 3 2 Rnd 0 6
+  @Sky ?: Lt @SB 2 @SB ?: Lt @SB 4 -1 Rnd 0 1
+  @Dist Min Max @SD 1 13
+  @Edge ?: Lt @SE 5 @SE Rnd 0 Add 3 Gt @SE 5
+  @Hill ?: Lt @SH 9 @SH Rnd 0 7
+  @Ord ?: Lt @SO 6 @SO Rnd 0 5
+  @Quel ?: Lt @SQ 4 @SQ Rnd 0 Add 1 Gt @SQ 4
+  @Tube Min Max @SU 0 @Rad  @Per Min Max @SY 1 Div 255 @Dist
+  @Trib Mul @Dist @Per
+  @Food ?: @Sf @Sf Mul Rnd 1 10 100
+  @HpMax ?: @Sh @Sh Rnd 1 20
+  @Inv ?: @Si Min @Si 26 Rnd 3 20
+  @Day Max @Su 2
+  @Live Min Add @Trib ?: Gt @Sm 255 @Per @Sm 255
+  @Corn Or ?: And @SCorn 4 Rnd 0 1 And @SCorn 1 ?: And @SCorn 8 << Rnd 0 1 1 And @SCorn 2
+  @Wipe False
+  @Line 0 SetStrings %ZLine 12 ','
+  *IArena
+  k @z 0
+  IfElse Gte @Sky 0 '*Day1' '*Day4'
+  cg *Rise n
+}
+*FHelp
+fPauseTimer False ct
+*Moves
+@z True
+
+EmbedMacro %FPause "User Wait"
+If And @a 2 {
+  SwitchSgn ?: Lt @q 0 -1 Neq @a 2
+    ($0 'hopefully enjoyed them. ;-)')
+    ($0 'are the victor! :-)')
+    ($0 'were killed along the way. :-(')
+  Message 'The Hunger Games have finished.\nYou $0'
+  @z True Return
+}
+@d 0 @v True *Next
+@z True
+
+EmbedMacro %FInv "Inventory"
+@z True
+If Lt @q 0 {*AInv Return}
+If And @a 1 {Message 'Dead tributes have no inventory.' Return}
+@d 0 $0 'You are carrying:' *Msg
+@t @q *LstInv
+@z True
+
+EmbedMacro %FGet "Get Object"
+@z True
+If Lt @q 0 {*AGet Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't pick up items.') (Message 'Victors have no need to pick up items.')
+  Return
+}
+If Gt Sub Var Add %PZ @q GetM nX nY 32 {Message 'You're too high to reach the ground.' Return}
+@o RgbG GetCE nX nY
+If Not @o {Message 'There is nothing here.' Return}
+@w GetCA %BInv @q Var Add %PWield @q
+If And And And And And Equ And 127 @o %JFsh GetA %BWater nX nY Neq Inc Div @q @Per 4 Neq @w %JNet Neq @w %JSpr Neq @w %JTri
+  {Message 'Fish are too hard to catch unless you're wielding a Net, Spear, or Trident.' Return}
+*GetObj If @z {@v False *Next}
+@z True
+
+EmbedMacro %FDrop "Drop Item"
+@z True
+If Lt @q 0 {*ADrop Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes have nothing to drop.') (Message 'Victors have no need to drop items.')
+  Return
+}
+@d 0 $0 'What do you want to drop?' *Msg
+@t @q *LstInv
+@Auto fAutorepeatLastCommand fAutorepeatLastCommand False nOnRunCommand %ODrop
+@z True
+
+EmbedMacro %FUse "Use Item"
+@z True
+If Lt @q 0 {*AUse Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes have nothing to use.') (Message 'Victors have no need to use items.')
+  Return
+}
+@d 0 $0 'What do you want to use?' *Msg
+@t @q *LstInv
+@Auto fAutorepeatLastCommand fAutorepeatLastCommand False nOnRunCommand %OUse
+@z True
+
+EmbedMacro %FThrow "Throw Item"
+@z True
+If Lt @q 0 {*AThrow Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes have nothing to throw.') (Message 'Victors have no need to throw items.')
+  Return
+}
+If Var Add %PNet @q {Message 'You can't throw while entangled in a net.' Return}
+@d 0 $0 'What do you want to throw?' *Msg
+@t @q *LstInv
+@Auto fAutorepeatLastCommand fAutorepeatLastCommand False nOnRunCommand %OThrow
+@z True
+
+EmbedMacro %FChat "Chat"
+@z True
+If Lt @q 0 {*AChat Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't talk.') (Message 'Victors have no need to chat.')
+  Return
+}
+@x nX @y nY
+@z Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @z 49 @v Sub Char $ZY @z 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to talk with in that direction.' Return}
+If Gt @i @Sr {Message 'That tribute is too far away to talk with.' Return}
+@t Sub 255 @t
+@v Add @t 300 *Name
+@w Add %ZObjA GetCA %BInv @t Var Add %PWield @t
+SetString 1 '\n\nYou notice $0 is wielding a$w.'
+@w Var Add %PWear @t
+If Gte @w 0 {@w Add %ZObjA GetCA %BInv @t @w SetString 1 '$1 You notice $0 is wearing a$w.'}
+@v Add @t 600 *Name
+@w Min Div Add GetCA %BAlly @t @q 49 50 4
+If Gte @w 3 {fRedrawWhenBitmapEdited False SetCA %BAlly @q @t Max GetCA %BAlly @q @t 101 fRedrawWhenBitmapEdited True}
+IfElse Lt @t @Trib {
+  @i Char $ZAlly Div @t @Per
+  @i Add Gte @i 48 Gte @i 97
+  @j Div Mul
+    Mul Var Add %PHP @q Var Add %JDmg GetCA %BInv @q Var Add %PWield @q
+    100
+    Mul Var Add %PHP @t Var Add %JDmg GetCA %BInv @t Var Add %PWield @t
+  @j Add Gt @j 50 Gte @j 200
+  @w Add Add Add %ZChat11 Mul @i 15 Mul @j 5 @w
+  SetString 0 ($0 says: '$w'$1)
+} {
+  @w Add %ZChatM @w
+  SetString 0 '$0 $w$1'
+}
+Message $0
+
+EmbedMacro %FGive "Give Item"
+@z True
+If Lt @q 0 {*AGive Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't give anything.') (Message 'Victors have no need to give anything.')
+  Return
+}
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@x Add nX Sub Char $ZX @w 49 @y Add nY Sub Char $ZY @w 49 *Wrap
+@w RgbR GetCE @x @y
+If Not @w {Message 'There is nobody to give anything to in that space.' Return}
+If Gt Abs Sub Var Add %PZ @q Var Add %PZ Sub 255 @w 64 {Message 'You can't reach that tribute to give them something.' Return}
+@d 0 $0 'What do you want to give?' *Msg
+@t @q *LstInv @t @w
+@Auto fAutorepeatLastCommand fAutorepeatLastCommand False nOnRunCommand %OGive
+@z True
+
+EmbedMacro %FRot "Set Rotation"
+@x nRotationVelocity @y @SMove @w nClippingPlane
+SetString 0 '@x' SetString 1 '@y' SetString 2 '@w'
+GetString3
+  'Enter rotation step rate in degrees (1, 3, 5, 15, or 45):'
+  'Enter animation frames per step (0-14):'
+  'Enter visual clipping distance in squares (50-10000):' 0
+If @z {Return}
+@z True
+@x Num $0 If And And And And Neq @x 1 Neq @x 3 Neq @x 5 Neq @x 15 Neq @x 45 {Message 'Bad rotation step rate!\nNumber must be 1, 3, 5, 15, or 45.' Return}
+@y Num $1 If Or Lt @y 0 Gt @y 14 {Message 'Bad animation frames!\nNumber must be between 0-14.' Return}
+@w Num $2 If Or Lt @w 50 Gt @w 10000 {Message 'Bad clipping distance!\nNumber must be between 50-10000.' Return}
+nRotationVelocity @x @SMove @y nClippingPlane @w
+If Neq Mod nDirectionOffset 45 0 'nDirectionOffset 0'
+
+EmbedMacro %FPick "Choose Tribute"
+@x Div @Sy 1000 @y Mod @Sy 1000
+SetString 0 '@x' SetString 1 '@y'
+GetString2 'Enter District to play next game (1-15, or 0 for random):' 'Enter gender to play (1=Girl, 2=Boy, or 0 for random):' 0
+If @z {Return}
+@z True
+@x Num $0 If Or Lt @x 0 Gt @x 15 {Message 'Bad district!\nNumber must be between 0-15.' Return}
+@y Num $1 If Or Lt @y 0 Gt @y @Per {@z @Per Message 'Bad gender!\nNumber must be between 0-@z.' Return}
+@Sy Add Mul @x 1000 @y
+
+// ///////////////// //
+// Advanced commands //
+// ///////////////// //
+
+EmbedMacro %FHelp2 "Advanced Help"
+MessageAsk $ZHelp4 1
+If Neq @z 1 {@z True Return}
+Message $ZHelp5
+@z True
+
+EmbedMacro %FArena "Set Size"
+@x Mul @SS 2 SetString 0 '@x'
+$1 '_' SetChar 1 0 ?: Gte @SLand 0 Char $ZArena @SLand 0
+GetString2 'Enter arena size to restart with (20-4096, 0=Random):' 'Enter arena type (FMDPSZQCI 273XUB45, 0=Random):' 0
+If @z {Return}
+@z True
+@x Num $0 If And Or Lt @x 20 Gt @x 4096 Neq @x 0 {Message 'Bad arena size!\nNumber must be 0 or between 20-4096.' Return}
+@z Len $1 If Gt @z 1 {Message 'Bad arena type!\nString must be 0-1 characters long.' Return}
+@y ?: @z InChar $ZArena Char $1 0 -1
+If And Lt @y 0 Equ Len $1 1 {@w %ZArena Message 'Bad arena type!\nString must be blank or one of the characters: $w' Return}
+@SS Div @x 2 @SLand @y
+*FStart
+@z True
+
+EmbedMacro %FWait "Wait Until"
+@b Gt @s 1
+If And @b Not nInside {i}
+*FPause
+@z True
+
+EmbedMacro %FAuto "Wait Continuous"
+If And @a 2 {*FPause Return}
+IfElse fAutorepeatLastCommand {N} {Macro3 N}
+@z True
+
+EmbedMacro %FDig "Dig"
+@z True
+If Lt @q 0 {*ADig Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't dig.') (Message 'Victors have no need to dig.')
+  Return
+}
+If Gt Var Add %PZ @q GetM nX nY {Message 'You're too high to reach the ground.' Return}
+@g GetCA %BInv @q Var Add %PWield @q
+@o RgbG GetCE nX nY
+@w Var Add %JMat And @o 127
+If Equ @g %JNet {fRedrawWhenBitmapEdited False *Trap Return}
+If Equ @g %JBlt {*Burn Return}
+If And Gt @o 0 Neq @w 1 {Message 'You can't dig here because there's something on the ground not made of stone.' Return}
+If GetA %BWater nX nY {Message 'You can't dig in water.' Return}
+If Equ GetCA %TSide nX nY UD %MTube %MTube {Message 'Launch platforms are too hard to dig.' Return}
+If Neq @g %JPck {Message 'You can't dig without wielding a Pick.' Return}
+@d 0
+IfElse And Neq Inc Div @q @Per 12 Gt Rnd 1 4 1
+  {$0 'You attempt to dig up something...'}
+  {fRedrawWhenBitmapEdited False @x nX @y nY *Dig}
+*Msg
+@v False *Next
+@z True
+
+EmbedMacro %FSort "Sort Inventory"
+@z True
+If Lt @q 0 {*ASort Return}
+fRedrawWhenBitmapEdited False
+@g Var Add %PWield @q
+@o ?: Gte @g 0 GetCA %BInv @q @g -1
+@g Var Add %PWear @q
+@k ?: Gte @g 0 GetCA %BInv @q @g -1
+For (i) 0 Sub @Inv 2 {
+  ForStep (j) @i 0 -1 (
+    @x GetCA %BInv @q @j @y GetCA %BInv @q Inc @j
+    If Lt @x @y 'SetCA %BInv @q @j @y SetCA %BInv @q Inc @j @x'
+  )
+}
+If Gt @o 0 {
+  ForStep (i) Dec @Inv 0 -1 (
+    If Equ GetCA %BInv @q @i @o 'SetVar Add %PWield @q @i'
+  )
+}
+If Gt @k 0 {
+  ForStep (i) Dec @Inv 0 -1 (
+    If Equ GetCA %BInv @q @i @k 'SetVar Add %PWear @q @i'
+  )
+}
+fRedrawWhenBitmapEdited True
+*FInv
+
+EmbedMacro %FFire "Fire Launcher"
+@z True
+If Lt @q 0 {*AFire Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't launch ammo.') (Message 'Victors have no need to launch ammo.')
+  Return
+}
+@z True
+@g Var Add %PWield @q
+If Lt @g 0 {Message 'You aren't wielding anything.' Return}
+@o GetCA %BInv @q @g
+If Not And Var Add %JUse @o 8 {Message 'You aren't wielding a launcher.' Return}
+If Var Add %PNet @q {Message 'You can't launch while entangled in a net.' Return}
+ForStep (i) Dec @Inv 0 -1 {
+  If Equ GetCA %BInv @q @i Sub @o %JDif 'Break'
+}
+@z Not And Var Add %JUse @o 16
+If And Lt @i 0 @z {Message 'You don't have any ammo for your launcher.' Return}
+IfElse @z {@x Add 65 @i} {@i Neg Sub @o %JDif}
+*OThrow
+@z True
+
+EmbedMacro %FSky "Day and Night"
+If *Hard {Return}
+If And And Gte @q 0 Neq @SB 1 Not And @a 2 {Message 'Tributes can't change the time of day in this arena.' @z True Return}
+fRedrawWhenBitmapEdited False
+@Sky ?: @Sky Neg @Sky ?: fStars 1 -1
+@z 0
+@g Inc Div @q @Per
+@g And And And
+  Neq GetCA %BInv @q Var Add %PWear @q %JGog
+  Lte @g @Dist
+  Neq @g 13
+  Or Gt @q -1 Neq @Item %JGog
+IfElse Gte @Sky 0 {*Day1} {*Day4}
+fRainbow And And Gte @a 2 Not fStars Not @SMist
+fRedrawWhenBitmapEdited True Spc
+@z True
+
+EmbedMacro %FDeath "Show Deaths"
+If *Hard {Return}
+If Not @Log {Message 'No deaths yet.' @z True Break}
+@k ?: Lte @Per 2 28 20
+ForStep (j) 0 Dec @Log @k {
+  *List
+  If Gte Add @j @k @Log (Message $1 Break)
+  MessageAsk $1 1
+  If Neq @z 1 'Break'
+}
+@z True
+
+EmbedMacro %FTable "Show Status"
+If *Hard {Return}
+@k 30
+ForStep (j) 0 Dec @Live @k {
+  *Table
+  If Gte Add @j @k @Live (Message $1 Break)
+  MessageAsk $1 1
+  If Neq @z 1 'Break'
+}
+@z True
+
+EmbedMacro %FMap "Show Map"
+If *Hard {Return}
+fRedrawWhenBitmapEdited False
+@v False *SavBmp
+k _ - _ TempOr _ - _
+CopyTexture %TBlock -1 ColorAnd
+Replace %MRock2 GrayN 19 0
+Replace %MBrick2 Rgb 39 0 0 0
+Replace %MFire2 Dark Blend Orange Brown 0
+CopyMask %BWater -1 ColorOr Replace White Rgb 0 21 31 0
+_ CopyTexture %BCopy -1
+@z kDot kDot @KCorn ColorDotXor kDot @z
+ColorPut cDel k _ ColorOr Replace White Dark @KCorn 0
+@v -100 *Map
+If nInside {i} n
+Message 'Arena tribute map...\n\nGold: Cornucopia\nGray, maroon: Mountains, walls\nDark cyan: Water\nOther: Tributes'
+@v True *SavBmp
+i fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FChange "Change Tribute"
+IfElse Gte @q 0 {
+  @x ?: Lt @q @Trib Inc Div @q @Per Inc @Dists
+  @y ?: Lt @q @Trib Inc Mod @q @Per Inc Sub @q @Trib
+} {
+  @x 15 @y 1
+} SetString 0 '@x' SetString 1 '@y'
+GetString2 'Enter District to change to (0-13, 14=Mutt, 15=Audience):' 'Enter gender to change to (1=Girl, 2=Boy, 0=Random):' 0
+If @z {Return}
+@x Num $0 If Or Lt @x 0 Gt @x 15 {Message 'Bad district!\nNumber must be between 0-15.' @z True Return}
+@y Num $1 If Or Lt @y 0 Gt @y @Per {Message 'Bad gender!\nNumber must be between 0-2.' @z True Return}
+fRedrawWhenBitmapEdited False
+@w Min
+  ?: Lt @x 15
+    Add Mul
+      Dec ?: @x Min @x Inc @Dist Rnd 1 @Dist
+      @Per
+      ?: @y Dec @y Rnd 0 Dec @Per
+    -1
+  Dec @Live
+If Gt Var Add %PHP @q 0 {
+  @v @q *GetXY
+  Set @x @y True SetE @x @y True
+  @z Var Add %PZ @v
+  SetCA %TVar @x @y UD Add Var Add %PTall @q @z Max @z GetM @x @y
+}
+@v @w *GetXY
+Set @x @y False SetE @x @y False
+nX @x nY @y
+nHorizontalOffset 0 nVerticalOffset 0
+@q @w
+@a Or And @a 2 Lt Var Add %PHP @q 1
+fGlancingBlows Gt @a 0
+*ITrib
+@d 0
+fRedrawWhenBitmapEdited True n
+@v True *Next
+@z True
+
+// //////////////////////// //
+// Advanced commands part 2 //
+// //////////////////////// //
+
+EmbedMacro %FMove "Move Only"
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@x Add nX Sub Char $ZX @w 49 @y Add nY Sub Char $ZY @w 49 *Wrap
+@t RgbR GetCE @x @y
+If Or Not @t Gt @a 0 {@z False Return}
+@t Sub 255 @t
+@v Add @t 300 *Name
+If Not Var Add %PNet @t {Message 'You stop to avoid hitting $0.' @z True Return}
+fRedrawWhenBitmapEdited False
+@d 0 *NetHlp
+*Next
+@z True
+
+EmbedMacro %FAsk "Ask Tribute"
+@z True
+If Lt @q 0 {*AAsk Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't ask.') (Message 'Victors have no need to ask.')
+  Return
+}
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to ask in that direction.' Return}
+If Gt @i @Sr {Message 'That tribute is too far away to ask.' Return}
+@t Sub 255 @t
+@v Add @t 600 *Name
+@w Min Div Add GetCA %BAlly @t @q 49 50 4
+If Lt @w 3 {SetVar Add %PDest @t UD nX nY}
+IfElse Lt @t @Trib {
+  IfElse And And Lt @w 3 Lt Abs Sub nX @x 2 Lt Abs Sub nY @y 2
+    (*Lead)
+    (@w Add Add %ZAsk @w Mul 5 Gt Var Add %PLead @q Var Add %PLead @t)
+  SetString 0 ($0 says: '$w')
+} {
+  @w Add %ZChatM @w SetString 0 '$0 $w'
+}
+@d 0 *Msg
+*Next
+@z True
+
+EmbedMacro %FAlly "Propose Alliance"
+@z True
+If Lt @q 0 {*AAlly Return}
+If @a {
+  IfElse And @a 1 (Message 'Dead tributes can't ally.') (Message 'Victors have no need to ally.')
+  Return
+}
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to propose in that direction.' Return}
+If Gt @i @Sr {Message 'That tribute is too far away to propose.' Return}
+@t Sub 255 @t
+If Gte @t @Trib {Message 'Mutts can't understand complex speech.' Return}
+@v Add @t 600 *Name
+@w GetCA %BAlly @t @q
+SwitchSgn Add Neg Lte @w 100 Gt @w 150
+  {fRedrawWhenBitmapEdited False *Break fRedrawWhenBitmapEdited True If @z 'Return'}
+  {fRedrawWhenBitmapEdited False *Prop fRedrawWhenBitmapEdited True}
+  {SetString 0 ($0 says: 'You're my enemy! There's no way I'd ever ally with you!')}
+@d 0 *Msg
+*Next
+@z True
+
+EmbedMacro %FBehave "Set behavior"
+@x @SAllow SetString 0 '@x'
+@y @SLead SetString 1 '@y'
+@z nStereoWidth SetString 2 '@z'
+GetString3
+  'Accept alliances? -1=Decline, 0=Prompt, 1=Accept:'
+  'Declare leadership? -1=No, 0=Toggle, 1=Yes:'
+  'Stereoscopic 3D display? 0=No, 1-50=Eye separation:' 0
+If @z {Return}
+@SAllow Sgn Num $0
+@SLead Sgn Num $1
+nStereoWidth Min Num $2 Div nCellSize 2
+@z True
+
+EmbedMacro %FName "Name Tribute"
+IfElse Gte @q 0
+  {@x Add %ZName @q SetString 0 $x @y Var Add %PBody @q SetString 1 '@y' @z Var Add %PTall @q SetString 2 '@z'}
+  {$0 '' $1 '' $2 ''}
+GetString3
+  'Enter name of tribute (? or 74 or 75 names all):'
+  'Enter hair style of tribute (0-9, ?, 74 or 75 sets all):'
+  'Enter height of tribute (? or 74th sets all):' 0
+If @z {Return}
+@z True
+IfElse NeqStr $1 '?' {@y Num $1} {@y Rnd 0 9}
+If And Or Lt @y 0 Gt @y 9 Or Lt @y 74 Gt @y 75
+  {Message 'Bad hair style!\nNumber must be between 0-9 or 74-75.' Return}
+IfElse NeqStr $2 '?' {@v Num $2} {@v 0}
+If And And And Or Lt @v 24 Gt @v 96 Lt InChar $2 (?) 0 Lt InChar $2 32 0 Len $2
+  {Message 'Bad height!\nNumber must be between 24-96.' Return}
+fRedrawWhenBitmapEdited False
+If EquStr $0 '74' {$0 $ZNameA}
+If EquStr $0 '75' {@w Inc %ZNameA $0 $w}
+If EquStr $0 '?' {*Namer}
+IfElse Gte InChar $0 (,) 0
+  {SetString 0 ',$0' SetStrings %ZName 255 $0}
+  {If And Gte @q 0 NeqStr $0 '?' (SetString @x $0)}
+If Gte @y 74 {@w Add %ZBody Sub @y 74 $1 $w}
+IfElse Gte InChar $1 32 0 {
+  IfElse Gte InChar $1 (?) 0
+    (For 't' 0 Dec @Trib 'SetVar Add %PBody @t Rnd 0 9')
+    (SetVars %PBody 255 $1)
+  For (t) 0 Dec @Trib '*IText'
+} {
+  SetVar Add %PBody @q @y @t @q
+  *IText
+}
+If EquStr $2 '74th' {$2 $ZTall}
+IfElse Gte InChar $2 32 0 {
+  IfElse Lt InChar $2 (?) 0 (
+    SetVars %PTall 255 $2
+    For 't' 0 255 "@v Var Add %PTall @t *ITall"
+  ) (
+    For 't' 0 Dec @Live '@v 0 *ITall'
+  )
+} {
+  If Len $2 (@t @q *ITall)
+}
+fRedrawWhenBitmapEdited True Spc
+
+EmbedMacro %FDist "Set Districts"
+@x @Dist @y @Per @w ?: Lt @Sm 256 @Sm -1
+SetString 0 '@x' SetString 1 '@y' SetString 2 '@w'
+GetString3
+  'Enter number of Districts (1-13):'
+  'Enter tributes per District (1-255):'
+  'Enter number of Mutts (-1=same as tributes per District):' 0
+If @z {Return}
+@z True
+@x Num $0 If Or Lt @x 1 Gt @x 13 {Message 'Bad district count!\nNumber must be between 1-13.' Return}
+@y Num $1 If Or Lt @y 1 Gt @y 255 {Message 'Bad tributes per District count!\nNumber must be between 1-255.' Return}
+@w Num $2 If Or Lt @w -1 Gt @w 255 {Message 'Bad Mutt count!\nNumber must be between -1-255.' Return}
+@z Add Mul @x @y ?: Lt @w 0 @y @w
+If Gt @z 255 {Message '@x Districts x @y tributes per District + @w Mutts = @z total.\nTotal number must be 1-255.' @z True Return}
+@SD @x @SY @y @Sm ?: Gte @w 0 @w 999
+*Reset *FStart
+@z True
+
+EmbedMacro %FRnd "Random Seed"
+$0 ''
+For (i) 0 Dec Len $ZSet {
+  @w Char $ZSet @i
+  @z Var Add %SA Sub @w 65
+  SetString 1 '_@z' SetChar 1 0 @w
+  SetString 0 '$0$1'
+}
+$1 $0
+@z @SR SetString 0 '@z'
+GetString2 'Enter random number seed for arena (0 for random):' 'Enter arena details for new games (ACEFHLMPQTVZ):' 0
+If @z {Return}
+@SR Num $0
+*Parse *Reset
+@z True
+
+EmbedMacro %FSet "Change Settings"
+$1 ''
+For (i) 0 Dec Len $ZSet2 {
+  @z Var Add %SA @i
+  SetString 0 '_@z' SetChar 0 0 Char $ZSet2 @i
+  SetString 1 '$1$0'
+}
+$0 ''
+GetString2 'Enter changes to arena settings for future games:' 'Arena settings for future games:' 0
+If @z {Return}
+*Parse $1 $0 *Parse
+*Reset
+@z True
+
+EmbedMacro %FPrev "Previous Messages"
+$0 ''
+For (i) 0 11 {
+  @z Add %ZLine Mod Add @Line @i 12
+  If Not Len $z 'Continue'
+  IfElse Len $0 (SetString 0 '$0\n$z') ($0 $z)
+}
+Message $0
+@z True
+
+EmbedMacro %FFeel "Show Alliance"
+If *Hard {Return}
+fRedrawWhenBitmapEdited False
+SwapTexture -1 %BAlly
+If nInside {i}
+@x nX @y nY
+@z ?: Lt @q 0 @Live @q
+nX @z nY @z
+n Message 'Current Alliances...\n\nColumns: Who's tribute angry at.\nRows: Who's angry at tribute.\n\nDarker red: Friendlier, Lighter red: Angrier\nPurple: Dead, Gray: Killed by'
+nX @x nY @y
+SwapTexture -1 %BAlly
+i fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FSound "Toggle Sounds"
+fAllowSoundPlaying Not fAllowSoundPlaying
+IfElse fAllowSoundPlaying
+  {Sound 'hunger\was_good.wav' Message 'Sound enabled!'}
+  {Message 'Sound disabled.'}
+@z True
+
+EmbedMacro %FPict "Toggle Texture Pictures"
+IfElse @Txture {
+  fRedrawWhenBitmapEdited False
+  For (i) 0 14 (SwapTexture Add %MPic @i Add %MWasp @i SwapMask Add %MPic @i Add %MWasp @i)
+  For (i) 1 Dec %JMax (SwapTexture Add %MObj @i Add %MObj2 @i SwapMask Add %MObj @i Add %MObj2 @i)
+  fRedrawWhenBitmapEdited True Spc
+} {
+  Message 'No textures installed.'
+}
+@z True
+
+// ////////////// //
+// Other commands //
+// ////////////// //
+
+EmbedMacro %FUp "Climb Up"
+@z True
+If @a {
+  fRedrawWhenBitmapEdited False
+  u
+  @v GetM nX nY *View nViewHeight Max nViewHeight @v
+  fRedrawWhenBitmapEdited True Spc
+  Return
+}
+@w Max Max Max Max Max Max Max
+  Mul Get nX Dec nY UdU GetCA %TVar nX Dec nY
+  Mul Get Dec nX nY UdU GetCA %TVar Dec nX nY
+  Mul Get nX Inc nY UdU GetCA %TVar nX Inc nY
+  Mul Get Inc nX nY UdU GetCA %TVar Inc nX nY
+  GetCA %TElev nX Dec nY
+  GetCA %TElev Dec nX nY
+  GetCA %TElev nX Inc nY
+  GetCA %TElev Inc nX nY
+If Not @w {Message 'You aren't next to anything climbable.' Return}
+@z Var Add %PZ @q
+If Lt @w Add @z Div Mul Var Add %PTall @q 3 2 {Message 'You've climbed as high as you can.' @z True Return}
+If @SMove {
+  For (i) 1 @SMove (
+    @v Add @z Div Mul @i Var Add %PTall @q Inc @SMove
+    *View nViewHeight @v Spc
+  )
+}
+@v Add @z Var Add %PTall @q
+SetVar Add %PZ @q @v
+*View nViewHeight @v
+@d 0 $0 'You climb upward...' *Msg
+@v False *Next
+@z True
+
+EmbedMacro %FDown "Climb Down"
+@z True
+If @a {fRedrawWhenBitmapEdited False d @v GetM nX nY *View nViewHeight Max nViewHeight @v fRedrawWhenBitmapEdited True Spc Return}
+@w GetM nX nY
+@v Var Add %PZ @q
+If Lte @v @w {If Equ GetCA %TSide nX nY UD %MTube %MTube (*Escape Return) Message 'You're already on the ground.' Return}
+@z @v
+If @SMove {
+  For (i) 1 @SMove (
+    @v Sub @z Div Mul @i Var Add %PTall @q Inc @SMove
+    If Lt @v @w 'Break'
+    *View nViewHeight @v Spc
+  )
+}
+@v Max Sub @z Var Add %PTall @q @w
+SetVar Add %PZ @q @v
+*View nViewHeight @v
+@d 0 $0 'You climb downward...' *Msg
+@t @r *Sink *Boom
+@v False *Next
+@z True
+
+EmbedMacro %FLookU "Look Down"
+@z True
+If Lte nHorizon -7000 {Return}
+nHorizon Max Sub nHorizon 500 -7000
+
+EmbedMacro %FLookD "Look Up"
+@z True
+If Gte nHorizon 7000 {Return}
+nHorizon Min Add nHorizon 500 7000
+
+EmbedMacro %FSpc "Show Status"
+@d 0 *MsgEnd
+nHorizon 0
+@z True
+
+EmbedMacro %FLeft "Rotate Left"
+@z False
+If Or Not @SMove Gt @a 0 {Return}
+@w nDirectionOffset
+For (i) 1 @SMove {nDirectionOffset Add @w Div Mul @i nRotationVelocity Inc @SMove}
+fRedrawWhenBitmapEdited False nDirectionOffset @w fRedrawWhenBitmapEdited True
+
+EmbedMacro %FRight "Rotate Right"
+@z False
+If Or Not @SMove Gt @a 0 {Return}
+@w nDirectionOffset
+For (i) 1 @SMove {nDirectionOffset Sub @w Div Mul @i nRotationVelocity Inc @SMove}
+fRedrawWhenBitmapEdited False nDirectionOffset @w fRedrawWhenBitmapEdited True
+
+EmbedMacro %FUp2 "Teleport Up"
+@z True
+If Not @a {Return}
+nViewHeight Add nViewHeight Mul nUpDownVelocity 10
+
+EmbedMacro %FDown2 "Teleport Down"
+@z True
+If Not @a {Return}
+@v GetM nX nY *View
+nViewHeight Max Sub nViewHeight Mul nUpDownVelocity 10 @v
+
+EmbedMacro %FLookU2 "Look Down"
+@z True
+If Lte nHorizon -7000 {Return}
+nHorizon Max Sub nHorizon 10 -7000
+
+EmbedMacro %FLookD2 "Look Up"
+@z True
+If Gte nHorizon 7000 {Return}
+nHorizon Min Add nHorizon 10 7000
+
+EmbedMacro %FMap2 "Show Map 2"
+If *Hard {Return}
+fRedrawWhenBitmapEdited False
+@v False *SavBmp
+@v 0 *Map
+If nInside {i} n
+Message 'Arena picture map...'
+@v True *SavBmp
+i fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FMap3 "Show Map 3"
+If *Hard {Return}
+fRedrawWhenBitmapEdited False
+@v False *SavBmp
+k _ - _ TempOr _ - _
+CopyTexture %TBlock -1 ColorAnd
+Replace %MTree2 Rgb 0 79 0 0
+Replace %MCact2 Rgb 0 95 0 0
+Replace %MWasp Rgb 0 111 0 0
+Replace %MRock2 GrayN 39 0
+Replace %MBrick2 Rgb 79 0 0 0
+Replace %MFire2 Blend Orange Brown 0
+CopyMask %BWater -1 ColorOr Replace White Rgb 0 43 63 0
+_ CopyTexture %BCopy -1
+@z kDot kDot @KCorn ColorDotXor kDot @z
+ColorPut cDel k _ ColorOr Replace White @KCorn 0
+@v -70 *Map
+If nInside {i} n
+Message 'Arena topographic map...\n\nGold: Cornucopia\nDark green, gray, maroon: Trees, mountains, walls\nDark cyan, brown: Water, traps\nDark reds, blues, yellows: Weapons, consumables, items\nOther: Tributes'
+@v True *SavBmp
+i fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FHome "Teleport Home"
+If Not @a {Message 'This command is unavailable while playing the Games.' @z True Return}
+@z False
+
+EmbedMacro %FExit "Exit Program"
+MessageAsk 'Do you want to exit the program?' 1
+If Gt @z 0 {@z False Return}
+@z True
+
+EmbedMacro %FExit2 "Exit Program"
+Esc
+
+// ///////////////// //
+// Audience commands //
+// ///////////////// //
+
+EmbedMacro %AInv "Audience Inventory"
+$0 ''
+If @Item {@o Add %ZObj @Item $0 $o}
+GetString 'Enter item to drop or sponsor:' 0
+If @z {Return}
+@z True
+For (o) 1 Dec %JMax {
+  @w Add %ZObj @o
+  If Or EquStrI $0 $w And Equ Len $0 1 Equ Char $0 0 Char $ZItem @o 'Break'
+}
+If Gte @o %JMax {@Item 0 Return}
+@Item @o
+
+EmbedMacro %AGet "Audience Get"
+@o RgbG GetCE nX nY
+If Not @o {Message 'There is nothing below you.' Return}
+@x nX @y nY *DelObj
+@o Add %ZObjA And 127 @o
+SetString 0 'You remove a$o from the arena.'
+@d 0 *Msg Spc
+
+EmbedMacro %ADrop "Audience Drop"
+@o ?: @Item @Item Rnd 1 Dec %JMax
+@x nX @y nY @v 1
+*FndSq *PutObj
+@o Add %ZObjA @o
+SetString 0 'You place a$o in the arena.'
+@d 0 *Msg Spc
+
+EmbedMacro %AUse "Audience Use"
+For (t) @Trib Dec @Live {
+  If Lte Var Add %PHP @t 0 (Break)
+}
+If Gte @t @Live {Message 'All possible Mutts are already in the arena.' Return}
+fRedrawWhenBitmapEdited False
+@x nX @y nY *IMutt
+@v Add @t 600 *Name
+SetString 0 'You release $0 in the arena.'
+@d 0 *Msg
+fRedrawWhenBitmapEdited True Spc
+
+EmbedMacro %AThrow "Audience Throw"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  If Get @x @y (Break)
+}
+If Gt @i 50 {Message 'There is nothing to throw away in that direction.' Return}
+fRedrawWhenBitmapEdited False
+@t RgbR GetCE @x @y
+SetString 0 'You throw away something from the arena.'
+@d 0 *Msg
+IfElse @t
+  {@t Sub 255 @t @h 0 *UpdHp @v 12 *Death}
+  {Set @x @y Off SetE @x @y Off}
+fRedrawWhenBitmapEdited True Spc
+
+EmbedMacro %AChat "Audience Chat"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to scan in that direction.' Return}
+@t Sub 255 @t
+@w Var Add %PDest @t
+@i UdU @w @j UdD @w
+@v Add @t 600 *Name
+@z Var Add %PTall @t @v Div @z 12 @w Mod @z 12
+@k Var Add %PLead @t
+SetString 0 '$0 is @v ft. @w in. (@z in. total). Leadership: @k. Coordinates: x=@x, y=@y. Heading towards: x=@i, y=@j.'
+@d 0 *Msg Spc
+
+EmbedMacro %AGive "Audience Sponsor"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to sponsor in that direction.' Return} @t Sub 255 @t
+If GetCA %BInv @t Dec @Inv {@v Add @t 600 *Name Message '$0 can't receive a sponsor gift because their inventory is full.' Return}
+@d 0 @o @Item *Sponsor2
+
+EmbedMacro %ADig "Audience Dig"
+If GetA %BWater nX nY {Message 'You can't dig in water.' Return}
+@w Equ GetCA %TSide nX nY UD %MTube %MTube
+If And @w Gt RgbG GetCE nX nY 0 {Message 'Launch tubes with items on them can't be reopened.' Return}
+@d 0
+@x nX @y nY *DelObj
+IfElse @w
+  {SetCA %TFloor nX nY %MTube3 $0 'You reopen the launch tube here.'}
+  {*Dig}
+*Msg Spc
+
+EmbedMacro %ASort "Audience Sort"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to show the inventory for in that direction.' Return}
+@t Sub 255 @t
+@v Add @t 600 *Name
+SetString 0 '$0 is carrying:' @d 0 *Msg
+*LstInv
+
+EmbedMacro %AFire "Audience Fire"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to damage in that direction.' Return}
+fRedrawWhenBitmapEdited False
+@t Sub 255 @t
+@h Dec Var Add %PHP @t *UpdHp
+@v Add @t 300 *Name
+SetString 0 'You damage $0: @h health left!' @d 0 *Msg
+@v 11 *Death
+fRedrawWhenBitmapEdited True Spc
+
+EmbedMacro %AAsk "Audience Ask"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to influence in that direction.' Return}
+@t Sub 255 @t
+@x Min Max nX 0 Dec SizeX @y Min Max nY 0 Dec SizeY
+SetVar Add %PDest @t UD @x @y
+@v Add @t 300 *Name
+SetString 0 'You send a subliminal message for $0 to travel in your direction.' @d 0 *Msg
+Spc
+
+EmbedMacro %AAlly "Audience Propose"
+@x nX @y nY
+@w Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+@u Sub Char $ZX @w 49 @v Sub Char $ZY @w 49
+For (i) 1 50 {
+  @x Add @x @u @y Add @y @v *Wrap
+  @t RgbR GetCE @x @y
+  If @t (Break)
+  If Get @x @y (@i 50)
+}
+If Gt @i 50 {Message 'There is nobody to list in that direction.' Return}
+@t Sub 255 @t
+$1 'From Me\tTo Me\tName\n' $2 '_'
+For (i) 0 Dec @Live {
+  If Lt Var Add %PHP @i 1 'Continue'
+  @x GetCA %BAlly @t @i @y GetCA %BAlly @i @t
+  @v Add 900 @i *Name
+  SetChar 2 0 ?: Lte @x 50 80 ?: Lte @x 100 65 ?: Lte @x 150 78 69
+  SetString 1 '$1$2 @x\t'
+  SetChar 2 0 ?: Lte @y 50 80 ?: Lte @y 100 65 ?: Lte @y 150 78 69
+  SetString 1 '$1$2 @y\t$0\n'
+}
+Message $1
+
+// ////// //
+// Events //
+// ////// //
+
+EmbedMacro %VEdge "Edge Event"
+If @a {@z False Return}
+If Equ Inc Div @q @Per 5 {
+  MessageAsk 'There is an invisible forcefield there.\nAre you sure you want to zap yourself on it?' 1
+  If Neq @z 1 (@z True Return)
+}
+fRedrawWhenBitmapEdited False
+@t @q
+@h Var Add %PHP @t
+@w Rnd 1 5
+@h Sub @h @w *UpdHp
+SetString 0 'ZZZT! You bounce off an invisible forcefield, and take @w damage!' @d 0 @e 3 *Msg
+Sound 'hunger\zap.wav'
+@v 3 *Death
+@v False *Next
+@z True
+
+EmbedMacro %VWall "Wall Event"
+If @a {@z False Return}
+If Var Add %PNet @q {@d 0 *Net @v False *Next @z False Return}
+@o GetCA %BInv @q Var Add %PWield @q
+@t RgbR GetCE @x @y
+If @t {
+  IfElse Lte Abs Sub Var Add %PZ @q Var Add %PZ Sub 255 @t 64
+    (fRedrawWhenBitmapEdited False @d 0 *UHit @v False *Next)
+    (Message 'You can't reach that tribute to hit them.')
+  @z False Return
+}
+@w GetC @x @y
+IfElse Or Equ @w @KCorn Equ @w @KMaze {*Wall} {*Tree}
+If @z {@z False Return}
+@v False *Next
+@z False
+
+EmbedMacro %VMove "On Move"
+If Not Or Neq @a 0 Not Var Add %PNet @q {
+  @d 0 *Net
+  @v False *Next
+  @z True Return
+}
+@z False
+If @a {
+  fRedrawWhenBitmapEdited False
+  @v GetM @x @y *View nViewHeight Max nViewHeight @v
+}
+
+EmbedMacro %VMoved "After Move"
+If @a {fRedrawWhenBitmapEdited True Return}
+fRedrawWhenBitmapEdited False
+@m @x @n @y
+@v @q *GetXY *SqOut
+@w GetM @m @n
+If Lt Sub Var Add %PZ @q 32 @w {SetVar Add %PZ @q @w}
+If @SMove {
+  If Not GetA %BWater @m @n (@v Var Add %PZ @q *View nViewHeight @v)
+  nX @x nY @y
+  nHorizontalOffset 0 nVerticalOffset 0
+  @k Sub @m @x @l Sub @n @y
+  If Gt Abs @k 1 (@k Neg Sgn @k) If Gt Abs @l 1 (@l Neg Sgn @l)
+  For (i) 1 @SMove (
+    nHorizontalOffset Add nHorizontalOffset Mul Div 100 Inc @SMove @k
+    nVerticalOffset Add nVerticalOffset Mul Div 100 Inc @SMove @l
+    Spc
+  )
+  nX @m nY @n
+}
+@x @m @y @n
+@v @q *SetXY
+nHorizontalOffset 0 nVerticalOffset 0 nHorizon 0
+@t @q *Incin
+If Not @z {@i nDir *SqIn}
+If Not fAutorepeatLastCommand {If Neq @h Var Add %PHP @q (*UpdHp) SetVar Add %PFood @q @f}
+@d 0
+*Fall *Boom
+@v Var Add %PZ @q *View nViewHeight @v
+@v False *Next
+
+EmbedMacro %VInside "Inside Text"
+Local 'fhivwxyz'
+If Gt @d 0 {@b 0}
+For (i) 1 Min @d Sub Div nWindowVerticalSize 16 ?: fCompass 3 1 {
+  @w And Sub Char $ZText @i 48 3
+  @z Var Add %KMsg @w
+  IfElse Neq @w 1
+    (kWall @z kPassage Black)
+    (kWall White kPassage @z)
+  @z Add %ZMsg @i
+  MessageInside $z Dec @i
+}
+kWall White kPassage Black
+If fCellLocation {
+  @x nX @y nY
+  @z Div Add Div Mul Sub nViewHeight nGround 64 120 64 64
+  MessageInside 'x=@x, y=@y, z=@z' -2
+}
+IfElse Lt @q 0 {
+  $0 'Audience'
+} {
+  @v @q *Name
+  @h Var Add %PHP @q
+  IfElse Gt @h 0 (
+    @f Var Add %PFood @q
+    SetString 1 ', Health: @h'
+    If Neq @HpMax 10 "@w @HpMax SetString 1 '$1/@w'"
+    SetString 1 '$1, Food: @f'
+    If Neq @Food 500 "@w @Food SetString 1 '$1/@w'"
+  ) (
+    SetString 1 '\s(DEAD)'
+  )
+  @z Var Add %PKill @q
+  SetString 0 '$0$1, Kills: @z'
+}
+IfElse Or Or Lt @Sq 3 Gt @a 0 Lt @q 0
+  {SetString 1 '@s/'}
+  {$1 ''}
+@w @Trib
+SetString 0 'You: $0, Tributes: $1@w, Turn: @p ('
+@z Add Mul @Day 6 @Sv
+@x Max 1 Inc Div Add Max @p 0 @Day @z
+@y Mod Add Max @p 0 @Day @z
+IfElse Or Gt @Sky 0 And Gte @Sky 0 Lte @y Add Mul @Day 3 @Sv {$1 'Day'} {$1 'Night'}
+MessageInside '$0$1 @x)' -1
+
+EmbedMacro %VScreen "Inside Bitmap"
+If Var Add %PNet @q {
+  SwapMask -1 %BNet
+  SwapTexture -4 -1 ColorAnd SwapTexture -4 -1
+  SwapMask -1 %BNet
+}
+If Var Add %PWasp @q {
+  SwapTexture -4 -1
+  kDot Rgb Rnd 0 255 Rnd 0 255 Rnd 0 255 ColorDotXor
+  FlipHorizontal
+  SwapTexture -4 -1
+}
+
+EmbedMacro %VMouse "Mouse Click"
+If Not nInside {@v GetM @x @y *View nViewHeight Max nViewHeight @v}
+@z False
+
+// ///////////////////// //
+// Low level subroutines //
+// ///////////////////// //
+
+EmbedMacro %Msg "Append Message"
+Local 'z'
+If And
+  Equ And @e 3 1
+  Gt Max Abs Sub @x nX Abs Sub @y nY @SN
+  {@e 0 Return}
+IfElse And Gte @e 8 Gte Sub Char $ZText @d 48 4
+  {@z Add %ZMsg @d SetString Add %ZMsg @d '$z $0' @Line Dec @Line}
+  {@d Inc @d SetString Add %ZMsg @d $0}
+@z Add %ZMsg @d SetString Add %ZLine Mod @Line 12 '@p: $z' @Line Inc @Line
+@e And @e 7
+SetChar %ZText @d Add 48 @e
+@z @e @e 0
+If Or Gte @z 4 Not nInfiniteFile {Return}
+If Not fDontAutostartInfinite {@File FileOpen 'hglog.txt' 2}
+If Not @File {Return}
+FileWrite @File @p
+FileWrite @File ': '
+@z Add %ZMsg @d
+FileWrite @File $z
+FileWrite @File '\n'
+If Not fDontAutostartInfinite {FileClose @File @File 0}
+
+EmbedMacro %Name "Get Name"
+Local 'ijklwz'
+@k Div @v 300 @v Mod @v 300
+@l Add %ZThe Mul @k ?: Lt @v @Trib Lte @Per 2 Lt Sub @Live @Trib 2
+@i Add %ZName @v @j Len $i If Gte @v @Trib {
+  If @j (SetString 0 '$i (Mutt)' Return)
+  SetString 0 '$lMutt'
+  If Gt Sub @Live @Trib 1 (
+    @z Inc Sub @v @Trib
+    SetString 0 '$0 #@z'
+  )
+  Return
+}
+@w Inc Div @v @Per
+@z Add %ZSex Odd @v
+IfElse @j {
+  SetString 0 '$i (@w_)'
+  SetChar 0 Sub Len $0 2 Char $z 0
+} {
+  IfElse Gt @k 2
+    (SetString 0 'D@w $z')
+    (SetString 0 '$lDistrict @w $z')
+  If Gt @Per 2
+    (@z Inc Div Mod @v @Per 2 SetString 0 '$0 #@z')
+}
+
+EmbedMacro %GetXY "Get XY"
+@x Var Add %PXY @v
+@y UdD @x
+@x UdU @x
+
+EmbedMacro %SetXY "Set XY"
+SetVar Add %PXY @v UD @x @y
+
+EmbedMacro %Wrap "Wrap XY"
+If Lt @Edge 4 {Return}
+@x Mod Add @x SizeX SizeX
+@y Mod Add @y SizeY SizeY
+
+EmbedMacro %SqIn "Enter Square"
+Local 'z'
+If Lt Var Add %PHP @v 1 {Return}
+Set @x @y True SetE @x @y True
+@z Div @v @Per
+If Gte @z @Dist {@z @Dists}
+SetC @x @y Var Add %KDist @z
+@z GetCE @x @y
+SetCE @x @y Rgb Sub 255 @v RgbG @z RgbB @z
+@z Add %MTrib @v
+SetX @x @y -2 @z
+SetCA %TBlock @x @y UD @z @z
+@z Var Add %PZ @v
+SetCA %TVar @x @y UD Add Var Add %PTall @v @z Max @z GetM @x @y
+If Or Gt @z GetM @x @y GetA %BWater @x @y {Return}
+@z GetCA %TFloor @x @y
+If Or Not @z And Gte @z %MFoot Lt @z Add %MPaw3 4 {
+  @z GetCT @x @y
+  SetCA %TFloor @x @y Add Add
+    ?: Lt @v @Trib %MFoot %MPaw
+    @i
+    Mul 4 Or Neq RgbG @z RgbB @z Lt RgbB @z 128
+}
+
+EmbedMacro %SqOut "Leave Square"
+Local 'z'
+@z GetCE @x @y
+SetCE @x @y Rgb 0 RgbG @z RgbB @z
+If Equ GetCA %TBlock @x @y %MFire2 {Return}
+Set @x @y False SetE @x @y False
+SetC @x @y GetCT @x @y
+SetX @x @y -2 0
+
+EmbedMacro %FndSq "Find Square"
+Local 'ikmnwz'
+@m @x @n @y @i 0 @k 0 @w 0 @z 0
+While (Or Or Or Or Lt @x 0 Gte @x SizeX Lt @y 0 Gte @y SizeY
+  ?: Not Odd @v
+  Or Get @x @y And Gt @v 0 GetA %BWater @x @y
+  Or Neq RgbG GetCE @x @y 0 And Get @x @y Not RgbR GetCE @x @y) {
+  IfElse Odd @w
+    (@x Add @x Sub @w 2)
+    (@y Add @y Dec @w)
+  @i Inc @i
+  If Gt @i Div @k 2
+    (@i 0 @k Inc @k @w And Inc @w 3)
+  @z Inc @z
+  If Gt @z 10000
+    (@x @m @y @n Break)
+}
+If And Gt @z 10000 fErrorCheckPixelOperations {
+  fErrorCheckPixelOperations False
+  Message 'Error: No type @v space from @m, @n!'
+}
+
+EmbedMacro %PutObj "Place Object"
+Local 'z'
+@z GetCE @x @y
+SetCE @x @y Rgb RgbR @z Add 128 @o RgbB @z
+SetCA %TFloor @x @y Add %MObj @o
+
+EmbedMacro %DelObj "Remove Object"
+Local 'z'
+@z GetCE @x @y
+SetCE @x @y Rgb RgbR @z 0 RgbB @z
+SetCA %TFloor @x @y Mul %MTube2 Equ GetCA %TSide @x @y UD %MTube %MTube
+
+EmbedMacro %GetObj "Get Object"
+@o And 127 @o
+@v @r *AddInv
+If Not @z {Return}
+@v @r *GetXY
+*DelObj
+@o Add %ZObjA @o
+IfElse Equ @r @q {
+  @d 0
+  SetString 0 'You pick up a$o.'
+} {
+  @v Add @r 600 *Name
+  SetString 0 '$0 picks up a$o.' @e 1
+}
+*Msg
+@z True
+
+EmbedMacro %Drop "Drop Item"
+@o GetCA %BInv @r @i
+If Equ @i Var Add %PWield @r
+  {IfElse Equ @r @q (*Use) (Local 'it' @i -1 @t @r *Wield)}
+If Equ @i Var Add %PWear @r
+  {IfElse Equ @r @q (*Use) (Local 'it' @i -1 @t @r *Wear)}
+SetCA %BInv @r @i 0
+@z Add %ZObjA @o
+IfElse Equ @r @q {
+  SetString 0 'You drop a$z.'
+} {
+  @v Add @r 600 *Name
+  SetString 0 '$0 drops a$z.' @e 1
+}
+*Msg
+@v @r *GetXY
+@w And RgbG GetCE @x @y 127
+If Neq @w %JLm1
+  {@v 1 *FndSq *PutObj Return}
+If Lte Var Add %PZ @r GetM @x @y {
+  If Equ @r @q ($0 'The falling object detonates a landmine...' *Msg)
+  @t @r *Boom
+  Return
+}
+IfElse Neq @o %JLm1
+  {$0 'KABLAM! A landmine explosion echoes across the arena!'}
+  {$0 'KABLAM!!! A double landmine explosion booms across the arena!' Sound 'hunger\landmine.wav'}
+@e 2 *Msg
+*DelObj
+IfElse Neq GetCA %TSide @x @y UD %MTube %MTube {
+  *Hole
+  If Equ @o %JLm1 (*Hole *Hole)
+} {
+  IfElse Neq @o %JLm1
+    ($0 'The launch tube shakes from the landmine, but the explosion wasn't strong enough to harm it...')
+    (SetCA %TFloor @x @y %MTube3 $0 'The launch tube is blown open by the landmines! A shaft leads downward...')
+  *Msg
+}
+Sound 'hunger\landmine.wav'
+
+EmbedMacro %DelInv "Remove Inventory"
+SetVar Add %PWield @t -1
+SetVar Add %PWear @t -1
+For (i) 0 Dec @Inv {SetCA %BInv @t @i 0}
+
+EmbedMacro %View "Eye Level"
+@v Max
+  Add Div Mul Add @v Sub Var Add %PTall @q 64 120 64 nGround
+  Inc Div nWallHeight -2
+
+EmbedMacro %Draw "Draw Number"
+Local 'z'
+If Lte @v 25 {
+  nTurtleS Div nTurtleS 2
+  @z Add %ZNum @v
+  Turtle $z
+  nTurtleS Mul nTurtleS 2
+  Return
+}
+SetChar 0 2 35
+Turtle $0
+
+EmbedMacro %Wield "Wield Weapon"
+Local 'oxyz'
+@o GetCA %BInv @t @i
+@z Add %MTrib @t
+SwapMask -1 @z
+CopyMask Add %BObj @o -2
+@x nX @y nY
+nX 42 nY 89
+fShowColorBitmap False aG
+If Var Add %PNet @t {CopyMask %MNet -2 TempAnd}
+k nX @x nY @y
+SwapMask -1 @z
+SetVar Add %PWield @t @i
+
+EmbedMacro %Wear "Wear Item"
+Local 'owxyz'
+@o GetCA %BInv @t @i
+@z Add %MTrib @t
+SwapMask -1 @z
+CopyMask Add %BObj2 @o -2
+@x nX @y nY
+@w ?: Lt @t @Trib Mul Odd @t 5 -9
+nX Add 61 @w nY ?: Lt @t @Trib 200 196
+fShowColorBitmap False 2ndPut
+nX Sub 133 @w 2ndPut
+If Gte @t @Trib {CopyMask %BBody -2 TempAnd}
+If Var Add %PNet @t {CopyMask %MNet -2 TempAnd}
+k nX @x nY @y
+SwapMask -1 @z
+SetVar Add %PWear @t @i
+
+EmbedMacro %Ouch "Hit Sound"
+SwitchSgn ?: Gte @t @Trib -1 Odd @t
+  (Sound 'hunger\hit_mutt.wav')
+  (Sound 'hunger\hit_fem.wav')
+  (Sound 'hunger\hit_male.wav')
+
+EmbedMacro %UpdHp "Update Health"
+Local 'xyz'
+SetVar Add %PHP @t @h
+If Lt @h 1 {Return}
+@z Add %MTrib @t
+SwapMask -1 @z
+CopyMask Add %BNum Dec Min Var Add %PHP @t 25 -2
+@x nX @y nY
+nX 117 nY 96
+fShowColorBitmap False aG
+If Var Add %PNet @t {CopyMask %MNet -2 TempAnd}
+k nX @x nY @y
+SwapMask -1 @z
+
+EmbedMacro %Hit "Tribute Hit"
+Local 'gxyz'
+If And Var Add %JUse @o 8 {@o %JFst}
+@k @o
+If And
+  Neq And Var Add %JUse @k 4 0
+  Equ GetCA %BInv @r Var Add %PWield @r Add @k %JDif
+  {@k Add @k %JDif}
+@w Rnd 0 Var Add %JDmg @k
+@z Div @r @Per
+If Gte @z @Dist {@z @Dists}
+If Equ Inc @z Var Add %JDst @k {@w Inc @w}
+If Equ Inc Div @t @Per 8 (@w Max Sub @w Rnd 0 1 0)
+@z GetCA %BInv @t Var Add %PWear @t
+If Or Equ @z %JHel Equ @z %JArm (@w Max Sub @w Rnd 0 Div Var Add %JDmg @z 2 0)
+@h Var Add %PHP @t
+IfElse Neq @k %JNet
+  {@h Sub @h @w *UpdHp}
+  {@w Or Equ Inc Div @r @Per 4 Rnd 0 1}
+*Anger
+SetCA %BAlly @t @r Add GetCA %BAlly @t @r Inc @w
+SwapVar (r) (t) *Anger SwapVar (r) (t)
+
+EmbedMacro %UHit "You Hit Tribute"
+@t Sub 255 @t
+If And Neq @t @q Or Lte GetCA %BAlly @q @t 100 Lte GetCA %BAlly @t @q 100 {
+  @v Add @t 300 *Name
+  SetString 0 'You break your alliance, and attack $0!'
+  @e 2 *Msg
+  Sound 'hunger\was_bad.wav'
+}
+IfElse Neq @t @q
+  {@v Add @t 300 *Name}
+  {$0 'yourself' @e 3}
+*Hit
+If And Equ @k %JNet Gt @w 0 {
+  SetString 0 'You entangle $0 with your Net!'
+  *Msg *NetOn
+  Return
+}
+@z Add %ZHit @o
+IfElse @w {
+  IfElse Neq @r @t
+    (SetString 0 'You $z $0 for @w damage: @h health left!')
+    (SetString 0 'OUCH! You $z $0 for @w damage! You have @h health left!')
+} {
+  SetString 0 'You try to $z $0, but miss!'
+}
+*Msg
+If And Equ @t @r Gt @w 0 {*Ouch}
+@v 0 *Death
+
+EmbedMacro %THit "Tribute Hit Tribute"
+@t Sub 255 @t
+If And Lte GetCA %BAlly @t @r 100 Lt @e 8 {
+  @v Add @r 600 *Name
+  $1 $0
+  IfElse Neq @t @q (
+    @v Add @t 300 *Name
+    SetString 0 '$1 breaks their alliance, and attacks $0!' @e 1
+  ) (
+    SetString 0 'HEY! $1 breaks their alliance, and attacks you!' @e 3
+  )
+  *Msg
+}
+*Hit
+@v Add @r 600 *Name
+If And Equ @k %JNet Gt @w 0 {
+  IfElse Neq @t @q (
+    $1 $0
+    @v Add @t 300 *Name
+    SetString 0 '$1 entangles $0 with their Net!' @e 1
+  ) (
+    SetString 0 'ACK! $0 entangles you with their Net!' @e 3
+  )
+  *Msg *NetOn
+  If Equ @t @q (Sound 'hunger\was_bad.wav')
+  Return
+}
+If Gte @e 8 {@i Add %ZObjA @o SetString 0 'A$i' @e And @e -8}
+@i Add %ZHit @o
+@j Add %ZHits @o
+IfElse Neq @t @q {
+  $1 $0
+  @v Add @t 300 *Name
+  SwitchSgn ?: And Gte @e 8 Not @w -1 @w
+    (SetString 0 '$1 nearly $j $0, but misses!')
+    (SetString 0 '$1 tries to $i $0, but misses!')
+    (SetString 0 '$1 $j $0 for @w damage: @h health left!')
+  @e Or @e 1
+} {
+  SwitchSgn ?: And Gte @e 8 Not @w -1 @w
+    (SetString 0 '$0 nearly $j you, but misses!' @e Or @e 2)
+    (SetString 0 '$0 tries to $i you, but misses!' @e Or @e 2)
+    (SetString 0 'OUCH! $0 $j you for @w damage! You have @h health left!' @e Or @e 3)
+}
+*Msg
+If And Equ @t @q Gt @w 0 {*Ouch}
+@v 0 *Death
+
+EmbedMacro %NetOn "Net On"
+Local 'ghiot'
+SetVar Add %PNet @t Add Var Add %PNet @t 20
+@h Var Add %PHP @t *UpdHp
+If False {@i Var Add %PWield @t *Wield}
+If False {@i Var Add %PWear @t *Wear}
+@g Var Add %PWield @r
+If Neq GetCA %BInv @r @g %JNet {Return}
+If And Var Add %JUse %JNet 16 {
+  SetCA %BInv @r @g 0
+  @i -1 @t @r *Wield
+}
+
+EmbedMacro %Net "Net Struggle"
+Local 'ovw'
+@w Var Add %PNet @r
+If Not @w {@z False Return}
+@o GetCA %BInv @r Var Add %PWield @r
+If Or Gt And Var Add %JUse @o 8 0 Equ @o %JNet {@o %JFst}
+@w Max Sub @w Add Var Add %JDmg @o Equ Var Add %JDst @o Inc Div @r @Per 0
+SetVar Add %PNet @r @w
+@v Add @r 600 *Name
+IfElse @w {
+  IfElse Equ @r @q
+    (SetString 0 'You struggle to break free of the net: @w ropes left.')
+    (SetString 0 '$0 struggles to break free of the net: @w ropes left.' @e 1)
+} {
+  @t @r
+  $2 $0 *IText $0 $2 fShowColorBitmap True
+  IfElse Equ @r @q
+    ($0 'You break free of the net!')
+    (SetString 0 '$0 breaks free of the net!' @e 1)
+}
+*Msg
+@z True
+
+EmbedMacro %NetHlp "Net Free"
+IfElse Equ @t @q
+  ($1 'you')
+  (@v Add @t 300 *Name $1 $0)
+@v Add @r 600 *Name
+IfElse Or Equ Inc Div @r @Per 4 Rnd 0 1 {
+  SetVar Add %PNet @t 0
+  SetCA %BAlly @t @r Max Min Sub GetCA %BAlly @t @r 50 100 0
+  SetCA %BAlly @r @t Min GetCA %BAlly @r @t 100
+  $2 $0 *IText $0 $2 fShowColorBitmap True
+  IfElse Equ @r @q
+    (SetString 0 'You free $1 from the Net. They are very grateful to you!')
+    (SetString 0 '$0 frees $1 from the Net!' @e Add 1 Equ @t @q)
+} {
+  IfElse Equ @r @q
+    (SetString 0 'You try to free $1 from the Net.')
+    (SetString 0 '$0 tries to free $1 from the Net.' @e 1)
+}
+*Msg
+
+EmbedMacro %SavBmp "Save Bitmaps"
+Local 'wxyz'
+For (w) 0 2 {
+  @x Dec Neg @w
+  @y Add %BCopy @w
+  If @v (SwapVar 'x' 'y')
+  IfElse Not @v
+    (CopyTexture @x @y CopyMask @x @y)
+    (SwapTexture @x @y SwapMask @x @y)
+}
+
+// ////////////////////// //
+// High level subroutines //
+// ////////////////////// //
+
+EmbedMacro %Hunger "Apply Hunger"
+If Or Lt Var Add %PHP @r 1 And Gte @r @Trib Neq @r @q {Return}
+@f Var Add %PFood @r
+@f Dec @f
+SetVar Add %PFood @r @f
+If Gt @f 0 {Return}
+@h Var Add %PHP @r
+@h Dec @h
+@t @r *UpdHp
+IfElse Gt @h 0
+  {$1 'feeds on itself to survive' @f Add @f @SStarv}
+  {$1 'collapses from hunger'}
+SetVar Add %PFood @r @f
+IfElse Equ @r @q
+  {SetString 0 'Your emaciated body $1, taking 1 damage!' @e 3}
+  {@v Add @r 600 *Name SetString 0 '$0's emaciated body $1, taking 1 damage!' @e 1}
+*Msg
+If Equ @r @q {*Ouch}
+@v 1 *Death
+
+EmbedMacro %Sponsor "Check Sponsor"
+If Or Lt @p 100 And Gt @p @Sl Gt @Sl 0 {Return}
+If Or Or Lt Var Add %PHP @r 1 Gte @r @Trib Gt Rnd 0 ?: Gte @r @Per 1000 750 Var Add %PKill @r {Return}
+For (i) 0 Dec @Inv {
+  If Not GetCA %BInv @r @i (
+    @t @r @o 0
+    *Sponsor2 Return
+  )
+}
+
+EmbedMacro %Sponsor2 "Receive Sponsor"
+If Not @o {
+  SwitchSgn ?: Lt Var Add %PHP @t @HpMax -1 Gte Var Add %PFood @t @Food
+    (@o %JAid)
+    (@o ?: Rnd 0 1 %JBry %JBrd)
+    (DoWhile 'Not Var Add %JAsg @o' '@o Rnd 1 Dec %JMax')
+}
+@v @t *AddInv
+IfElse Equ @t @q
+  {@z Add %ZObjA @o SetString 0 'A sponsor parachute lands for you! It contains a$z.' @e 2}
+  {@v Add @t 300 *Name SetString 0 'A sponsor parachute lands for $0.' @e 1}
+*Msg
+If Equ @t @q {Sound 'hunger\chimes.wav'}
+@v @t *GetXY @v 1 *FndSq
+@m @x @n @y
+@v @t *GetXY @v 0 *FndSq
+@o %JPar
+If And Not @SAmmo Gt nInside 0 {
+  fRedrawWhenBitmapEdited False
+  Set @x @y On SetE @x @y On @k GetC @x @y
+  SetC @x @y Var Add %JCol @o
+  @z Add %BObj @o
+  SetX @x @y -2 @z   SetCA %TBlock @x @y UD @z @z
+  @w Var Add %PZ @t
+  @z Min Add @w 512 4032
+  While (Gte @z @w) (
+    SetCA %TVar @x @y UD Add @z 63 @z
+    Spc Delay 1
+    @z Sub @z 64
+  )
+  Set @x @y Off SetE @x @y Off SetC @x @y @k
+  Spc
+}
+@x @m @y @n
+*PutObj
+
+EmbedMacro %Feast "Feast"
+If Or Or Not @SX And Gt @p @Sl Gt @Sl 0 Lte @p 0 {Return}
+@z @Sp
+If And Gt @z 0 Equ Mod @p @Sg Sub @Sg @z {
+  SetString 0 'ANNOUNCEMENT: Attention tributes, there will be a feast at the Cornucopia in @z turns!'
+  @e 2 *Msg
+  Sound 'hunger\announce.wav'
+  For (i) 0 Dec @Trib (
+    @z Char $ZAlly Div @i @Per
+    If Not And Gte @z 48 Or Gte @z 97 Rnd 0 1 'SetVar Add %PDest @i UD @Rad @Rad'
+  )
+  Return
+}
+If Mod @p @Sg {Return}
+$0 'ANNOUNCEMENT: Attention tributes, let the feast begin!'
+@e 2 *Msg
+For (i) 1 ?: @Sx Min @Sx 1000 Rnd 1 18 {
+  IfElse Lt @SX %JMax
+    (@o @SX)
+    (DoWhile 'Not Var Add %JAfe @o' '@o Rnd 1 Dec %JMax')
+  @x @Rad @y @Rad
+  @v 1 *FndSq *PutObj
+}
+Sound 'hunger\announce.wav'
+
+EmbedMacro %Fire "Firewall"
+If Lte @Sz 0 {Return}
+@z Sub @p @Sz
+If Or Lt @z 0 Gt @z Mul Dec Sub @Rad @Tube 2 {Return}
+If Not @z {
+  If Not @Corn (k CopyMask -1 %TLit Del SwapMask -1 %TLit k)
+  SetString 0 'You feel the arena is getting unnaturally warm...' @e 2 *Msg
+  Sound 'hunger\firewall.wav'
+  Return
+}
+If Not Odd @z {Return}
+@z Div @z 2
+fShowColorBitmap False
+= Del
+@x nX @y nY @m nX2 @n nY2
+nX @z nY @z nX2 Sub Dec SizeX @z nY2 Sub Dec SizeY @z
+2ndBox
+nX @x nY @y nX2 @m nY2 @n
+Hunger -1
+TempOr k
+For (t) 0 Dec @Live {*Incin}
+
+EmbedMacro %Mutt "Add Mutts"
+If Or Lte @Sn 0 Neq @p @So {Return}
+$0 'You hear distant howling in the arena...'
+@e 2 *Msg
+@w Max Sub @Live @Sn @Trib
+For (t) @w ?: @SMuttD Min Dec @Live Add @w Dec Sub @Trib @s Dec @Live {
+  @x Mul Odd @t Dec SizeX
+  @y Mul Mul Gt And @t 2 0 Dec SizeY Gt @Quel 0
+  *IMutt
+}
+Sound 'hunger\mutts.wav'
+
+EmbedMacro %Movie "Fallen Check"
+If Lte @p 0 {Return}
+fRainbow False
+If Lt nRainbow 0 {nRainbow Neg nRainbow}
+@m Add Mul @Day 6 @Sv
+@n Mod @p @m
+@o Sub @n Add Mul @Day 3 @Sv
+If Lt @o 0 {Return}
+If Not @o {*Movie2}
+@o Dec @o
+If Gte @o @PDead {Return}
+IfElse Gte @o 0 {
+  @w Var Add %PDead Inc @o
+  IfElse Or Lt @Sq 2 Gt @a 0
+    (@v Add 600 @w *Name)
+    ($0 'A tribute')
+  SetString 0 'The Capitol anthem plays... $0's portrait appears in the sky.'
+} {
+  $0 'The Capitol anthem begins to play...'
+}
+@e 2 *Msg
+fRainbow True
+If Gte nRainbow 0 {nRainbow Neg nRainbow}
+CopyMask -1 %BCopy SwapTexture -1 -5
+fShowColorBitmap False
+IfElse Gte @o 0 {
+  CopyMask Add %BBody Inc Add Mul Odd @w 10 Var Add %PBody @w -1
+  Turtle 'BM192,36`' cDel
+  Size 222 117 0 0 = Size 222 210 0 1
+  Turtle 'BM0,132S4T_DISTRICT_'
+  nXTurtle Add nXTurtle 11
+  $0 'T___' @v Inc Div @w @Per *Draw
+  Thicken2 4 TempOr
+  @z 109
+  Size @z 0 1 0 Size Add SizeX @z SizeY 0 0
+  Quo
+  Replace White Var Add %KDist Div @w @Per 0
+} {
+  Size 222 96 0 1
+  Turtle 'S4BM78,4T_THE_BM42,36T_FALLEN_'
+  Thicken2 4
+  Quo
+}
+SwapTexture -1 -5 CopyMask %BCopy -1
+If Lt @o 0 {Sound 'hunger\anthem.wav'}
+
+EmbedMacro %Movie2 "Fallen List"
+@x 0
+@y Add %Log Mul Max Dec @Log 0 4
+ForStep (j) @y %Log -4 {
+  If Lt Var Add @j 2 Sub @p @m 'Break'
+  @w Var Add @j 3
+  If Lt @w @Trib (
+    @x Inc @x
+    SetVar Add %PDead @x @w
+  )
+}
+SetVar %PDead @x
+For (i) 0 Sub @PDead 2 {
+  ForStep (j) @i 0 -1 (
+    @x Var Add %PDead Inc @j
+    @y Var Add %PDead Add @j 2
+    If Gt @x @y 'SwapVar Add %PDead Inc @j Add %PDead Add @j 2'
+  )
+}
+
+EmbedMacro %Anger "Anger Tribute"
+Local 'iw'
+@w GetCA %BAlly @t @r
+If Gte @w 200 {Return}
+SetCA %BAlly @t @r 200
+If Gt @w 100 {
+  For (i) 0 Dec @Live (
+    If And And Neq @i @t Lte GetCA %BAlly @i @t 100 Gt GetCA %BAlly @i @r 100
+      'SetCA %BAlly @i @r 200'
+  )
+  Return
+}
+If Gt @w 50 {
+  For (i) 0 Dec @Live (
+    If And And Neq @i @t Lte GetCA %BAlly @i @t 50 Gt GetCA %BAlly @i @r 50
+      'SetCA %BAlly @i @r 200'
+  )
+}
+
+EmbedMacro %Enemy "Ensure Enemy"
+Local 'ijkwz'
+If @SPeace {Break}
+For (i) 0 Dec @Trib {
+  If Lt Var Add %PHP @i 1 'Continue'
+  @w -1 @k 0
+  For (j) 0 Dec @Trib (
+    If Lt Var Add %PHP @j 1 'Continue'
+    @z GetCA %BAlly @i @j
+    If Gt @z 100 'Break'
+    If Or Gt @z @w And Gte @z @w Rnd 0 1 '@w @z @k @j'
+  )
+  If Gte @j @Trib (
+    If GetCA %BAlly @i @k 'SetCA %BAlly @i @k 150'
+  )
+}
+
+EmbedMacro %Ally "Make Alliance"
+SetCA %BAlly @r @t Min GetCA %BAlly @r @t 100
+SetCA %BAlly @t @r Min GetCA %BAlly @t @r 100
+For (i) 0 Dec @Live {
+  If Or Equ @i @r And Neq @i @t Gt GetCA %BAlly @i @t 100 'Continue'
+  If And Lte GetCA %BAlly @i @r 150 Lte GetCA %BAlly @r @i 150 (
+    SetCA %BAlly @i @r Min GetCA %BAlly @i @r 100
+    SetCA %BAlly @r @i Min GetCA %BAlly @r @i 100
+  )
+}
+
+EmbedMacro %Seek "Later Coordinates"
+@m Var Add %PDest @r @n UdD @m @m UdU @m
+@v @r *GetXY
+If Or Neq @x @m Neq @y @n {Return}
+@x Min Max Add @m Sub Rnd 0 Dec SizeX Div SizeX 2 0 Dec SizeX
+@y Min Max Add @n Sub Rnd 0 Dec SizeY Div SizeY 2 0 Dec SizeY
+@v 0 *FndSq
+SetVar Add %PDest @r UD @x @y
+
+EmbedMacro %Boom "Check Landmine"
+Local 'ivwxyz'
+If Lt Var Add %PHP @t 1 {Return}
+@v @t *GetXY
+If Gt Var Add %PZ @t GetM @x @y {Return}
+*Wasp
+If And Neq And 127 RgbG GetCE @x @y %JLm1 Not *Mine {Return}
+*Hole
+SetVar Add %PZ @t GetM @x @y
+@w Rnd 13 26
+IfElse Equ @t @q {
+  IfElse Gte @p 0
+    (SetString 0 'KABLAM! You step on a landmine, and blow yourself up for @w damage!')
+    (SetString 0 'KABLAM! You step off your platform early, and get blown up for @w damage!')
+  @e 3
+} {
+  @v Add @t 600 *Name
+  IfElse Gte @p 0
+    (SetString 0 'KABLAM! $0 steps on a landmine, and blows themselves up for @w damage!')
+    (SetString 0 'KABLAM! $0 steps off their platform early, and gets blown up for @w damage!')
+}
+*Msg
+Sound 'hunger\landmine.wav'
+If Equ @t @q {@z 100 *Anim}
+*DelObj
+@h Sub Var Add %PHP @t @w
+If Lt @h 1 {*DelInv}
+*UpdHp
+@v 5 *Death
+
+EmbedMacro %Mine "Initial Mine"
+Local 'imn'
+@z False
+If Gte @p 0 {Return}
+If Equ GetCA %TSide @x @y UD %MTube %MTube {Return}
+If Equ Or GetCT @x @y #000f1f Brown {Return}
+For (i) 0 7 {
+  @m Add @x Sub Char $ZX @i 49 @n Add @y Sub Char $ZY @i 49
+  If Equ GetCA %TSide @m @n UD %MTube %MTube 'Break'
+}
+@z Lt @i 8
+
+EmbedMacro %Wasp "Tracker Jacker"
+Local 'hvw'
+@w GetCA %TFloor @x @y
+If Equ @w %MTrap {
+  SetCA %TFloor @x @y 0
+  IfElse Equ @t @q
+    ($0 'ACK! You are entangled in a Net trap!' @e 3)
+    (@v Add @t 600 *Name SetString 0 '$0 is entangled in a Net trap!' @e 1)
+  *Msg *NetOn
+  If Equ @t @q (Sound 'hunger\was_bad.wav')
+  Return
+}
+If And Neq @w %MWasp Not And Get @x @y Equ GetCA %TBlock @x @y %MWasp {Return}
+@w Rnd 1 3
+@h Sub Var Add %PHP @t @w
+*UpdHp
+IfElse Equ @t @q
+  {SetString 0 'EEK! You are stung by Tracker Jacker wasps for @w damage: @h health left!' @e 3}
+  {@v Add @t 600 *Name SetString 0 '$0 gets stung by Tracker Jacker wasps for @w damage: @h health left!' @e 1}
+*Msg
+If Equ @t @q {Sound 'hunger\wasps.wav'}
+SetVar Add %PWasp @t Add Var Add %PWasp @t Inc Mul @w 25
+@v 9 *Death
+
+EmbedMacro %Trap "Set Trap"
+IfElse Equ @r @q
+  {If @o (Message 'You can't set a trap here because there's something on the ground.' Return) @d 0}
+  {@v Add @r 600 *Name @e 1}
+IfElse And Neq Inc Div @r @Per 4 Gt Rnd 1 4 1 {
+  IfElse Equ @r @q
+    ($0 'You attempt to set a Net trap...')
+    (SetString 0 '$0 attempts to set a Net trap...')
+} {
+  SetCA %BInv @r Var Add %PWield @r 0
+  @i -1 @t @r *Wield
+  @v @r *GetXY
+  SetCA %TFloor @x @y %MTrap
+  IfElse Equ @r @q
+    ($0 'You set a Net trap. Step carefully!')
+    (SetString 0 '$0 sets a Net trap. Beware!')
+}
+*Msg
+@v False *Next
+@z True
+
+EmbedMacro %Burn "Burn Item"
+If And Gt @o 0 Equ @w 1 {Message 'You can't burn here because there's something on the ground made of stone.' Return}
+If GetA %BWater nX nY {Message 'You can't burn in water.' Return}
+If Equ GetCA %TSide nX nY UD %MTube %MTube {Message 'Launch platforms are too hard to burn.' Return}
+If Not @o {Message 'There's nothing on the ground to burn.' Return}
+@d 0
+IfElse And Neq Inc Div @q @Per 12 Gt Rnd 1 4 1
+  {$0 'You attempt to burn away something...'}
+  {fRedrawWhenBitmapEdited False @x nX @y nY *Dig}
+*Msg
+@v False *Next
+@z True
+
+EmbedMacro %Dig "Dig Ground"
+Local 'imnowxyz'
+@o RgbG GetCE @x @y
+If @o {
+  @o And @o 127
+  SwitchSgn Sub Var Add %JMat @o 2 ($1 'chip') ($1 'burn') ($1 'melt')
+  *DelObj
+  @o Add %ZObjA @o
+  IfElse Equ @r @q
+    (SetString 0 'You $1 away a$o...')
+    (@v Add @r 600 *Name SetString 0 '$0 $1s away a$o...')
+  Return
+}
+For (i) 0 7 {
+  @m Add @x Sub Char $ZX @i 49 @n Add @y Sub Char $ZY @i 49
+  If Equ GetCA %TSide @m @n UD %MTube %MTube 'Break'
+}
+@w Equ Or GetCT @x @y #000f1f Brown
+*Hole
+@z GetM @x @y
+SetVar Add %PZ @r @z
+If Equ @r @q {@v @z *View nViewHeight @v}
+If Lte @z 0 {
+  IfElse Equ @r @q
+    ($0 'You dig down to water...')
+    (@v Add @r 600 *Name SetString 0 '$0 digs down to water...')
+  Return
+}
+@o ?: Or Gt @i 7 @w %JRck %JLm0
+*PutObj
+IfElse Equ @r @q
+  {$0 'You dig up something...'}
+  {@v Add @r 600 *Name SetString 0 '$0 digs up something...'}
+
+EmbedMacro %Hole "Make Hole"
+Local 'wz'
+@w GetM @x @y
+If And Lte @w 0 GetA %BWater @x @y {Return}
+If Equ GetCA %TSide @x @y UD %MTube %MTube {Return}
+@w Max Sub @w 5 0
+IfElse @w
+  {@z And Or Rnd 0 White #003060 Brown}
+  {SetA %BWater @x @y On @z Rgb 0 Rnd 119 135 Rnd 183 199}
+SetCT @x @y @z
+SetCA %TElev @x @y @w
+
+EmbedMacro %Wall "Touch Wall"
+@w Equ @w @KCorn
+If Neq @o ?: @w %JBlt %JPck {
+  IfElse @w
+    (Message 'You touch the smooth walls of the Cornucopia.')
+    (Message 'You feel like you're talking to a brick wall.')
+  @z True Return
+}
+@d 0
+@z False
+If And Neq Inc Div @r @Per ?: @w 13 2 Gt Rnd 1 4 1 {
+  IfElse @w
+    ($0 'You attempt to melt the Cornucopia.')
+    (SetString 0 'You attempt to dismantle the wall.')
+  *Msg Return
+}
+fRedrawWhenBitmapEdited False
+Set @x @y Off SetE @x @y Off
+SetCA %TVar @x @y 0
+@o ?: @w %JSpr %JBrk
+*PutObj
+IfElse Equ @r @q {
+  IfElse @w
+    ($0 'You melt down part of the Cornucopia!')
+    (SetString 0 'You dismantle the wall!')
+} {
+  @v Add @r 600 *Name
+  IfElse @w
+    (SetString 0 '$0 melts down part of the Cornucopia.')
+    (SetString 0 '$0 dismantles a wall.')
+}
+*Msg *Falls
+@z False
+
+EmbedMacro %Tree "Touch Tree"
+@w Neq RgbG @w RgbB @w
+@l Equ GetCA %TBlock @x @y %MWasp
+IfElse @l
+  {SetString 0 '\sYou hear an angry buzzing sound coming from it!'}
+  {$0 ''}
+If ?: @w And Neq @o %JAxe Neq @o %JBlt Neq @o %JPck {
+  fRedrawWhenBitmapEdited False
+  @z True
+  @k ?: Neq GetCA %TWall @x @y UD %MCact %MCact Neg @w 1
+  SwitchSgn @k (
+    If @l "Sound 'hunger\wasps.wav'"
+    Message 'You hug a tree.$0'
+    If And @l Lt Abs Sub UdU GetCA %TVar @x @y Var Add %PZ @q Var Add %PTall @q
+      '@d 0 @t @q *Wasp @z False'
+  ) (
+    Message 'You pet a rock.'
+  ) (
+    @t @q
+    @h Dec Var Add %PHP @t
+    *UpdHp
+    SetString 0 'OW! You poke yourself on a cactus for 1 damage!$0'
+    @d 0 @e 3 *Msg
+    *Ouch
+    @v 8 *Death
+    @v False *Next
+    @z False
+  )
+  Return
+}
+@d 0 @z False
+@k Add %ZTree Equ GetCA %TBlock @x @y %MCact2
+If And @w Equ @o %JBlt {@w 2}
+If And Neq Inc Div @r @Per ?: Not @w 2 ?: Equ @w 1 7 13 Gt Rnd 1 4 1 {
+  SwitchSgn Dec @w
+    ($0 'You attempt to chip away the mountain.')
+    (SetString 0 'You attempt to chop down the $k.$0')
+    (SetString 0 'You attempt to burn down the $k.$0')
+  *Msg Return
+}
+fRedrawWhenBitmapEdited False
+Set @x @y Off SetE @x @y Off
+SetCA %TVar @x @y 0
+If And Not @l Lt @w 2
+  {@o ?: @w %JClb %JBrk *PutObj}
+IfElse Equ @r @q {
+  SwitchSgn Dec @w
+    ($0 'You make a chip off the old block!')
+    (SetString 0 'You chop down the $k!')
+    (SetString 0 'You burn down the $k!')
+} {
+  @v Add @r 600 *Name
+  SwitchSgn Dec @w
+    (SetString 0 '$0 chips away some mountain.')
+    (SetString 0 '$0 chops down a $k.')
+    (SetString 0 '$0 burns down a $k.')
+}
+*Msg *Falls
+If And @l Lt @w 2 {*Sting}
+@z False
+
+EmbedMacro %Incin "Check Firewall"
+@z False
+If Lt Var Add %PHP @t 1 {Return}
+@v @t *GetXY
+If Neq GetCA %TBlock @x @y %MFire2 {Return}
+@h 0 *UpdHp
+IfElse Equ @t @q
+  {SetString 0 'ARGH! You are incinerated by a wall of flaming lava!' @e 3}
+  {@v Add @t 600 *Name SetString 0 '$0 is incinerated by a wall of flaming lava!' @e 1}
+*Msg
+If Equ @t @q {Sound 'hunger\firewall.wav'}
+@v 10 *Death
+@z True
+
+EmbedMacro %Fall "Check Fall"
+Local 'ijklmnvwxyz'
+If Lt Var Add %PHP @t 1 {Return}
+@v @t *GetXY
+@w Var Add %PZ @t
+@k GetM @x @y
+If Lte @w @k {*Sink Return}
+@m @x @n @y
+For (i) 0 3 {
+  @j Mul @i 2
+  @x Add @m Sub Char $ZX @j 49 @y Add @n Sub Char $ZY @j 49 *Wrap
+  If And Get @x @y Gte UdU GetCA %TVar @x @y Add @w 32 'Return'
+}
+@z 0
+For (i) 0 3 {
+  @j Mul @i 2
+  @x Add @m Sub Char $ZX @j 49 @y Add @n Sub Char $ZY @j 49 *Wrap
+  @z Max @z GetM @x @y
+}
+@x @m @y @n
+If And Equ GetCA %BInv @t Var Add %PWear @t %JPar Gte Sub @w @k 64 {@k Sub @w 64}
+@w Sub @w @k
+@l Lte @w 64
+@w ?: And Neq Inc Div @t @Per 11 Lt @z Add @w @k
+  Max Dec Div @w 64 0
+  0
+If And Equ @t @q Not @l {@z 0 *Anim}
+SetVar Add %PZ @t @k
+@v @t @i nDir *SqIn
+If @l {
+  If Lte @k GetM @x @y (*Sink Return)
+  IfElse Equ @t @q
+    ($0 'You float down using your parachute.')
+    (@v Add @t 600 *Name SetString 0 '$0 floats down using a parachute.' @e 1)
+  *Msg
+  Return
+}
+If GetA %BWater @x @y {
+  IfElse Equ @t @q
+    ($0 'You dive down into the water.')
+    (@v Add @t 600 *Name SetString 0 '$0 dives down into the water.' @e 1)
+  *Msg *Sink
+  Return
+}
+@h Sub Var Add %PHP @t @w
+*UpdHp
+IfElse Equ @t @q {
+  IfElse Gt @w 0
+    (SetString 0 'AAAH! You fall down to the ground, and take @w damage!' @e 3)
+    ($0 'You jump down to the ground.')
+} {
+  @v Add @t 600 *Name
+  IfElse Gt @w 0
+    (SetString 0 '$0 falls down to the ground, and takes @w damage.')
+    (SetString 0 '$0 jumps down to the ground.')
+  @e 1
+}
+*Msg
+If And Equ @t @q Gt @w 0 {*Ouch}
+@v 6 *Death
+
+EmbedMacro %Falls "All Fall"
+For (i) 0 Dec @Live {
+  @t ?: Lt @i @r
+    @i
+    ?: Neq @i Dec @Live Inc @i @r
+  *Fall *Boom
+}
+
+EmbedMacro %Sting "Nest Fall"
+*DelObj
+SetCA %TFloor @x @y %MWasp
+$0 'A Tracker Jacker wasp nest falls down to the ground!'
+*Msg
+@w GetM @x @y
+For (i) 0 7 {
+  @m Add @x Sub Char $ZX @i 49 @n Add @y Sub Char $ZY @i 49
+  @t RgbR GetCE @m @n
+  If Lte @t 0 'Continue'
+  @t Sub 255 @t
+  If Lt Abs Sub Var Add %PZ @t @w 128 '*Wasp'
+}
+
+EmbedMacro %Anim "Animate Fall"
+Local 'vwz'
+@v GetM nX nY *View
+@w @v
+DoWhile (Gt nViewHeight @w) {
+  nViewHeight Max Add nViewHeight @z @w
+  Spc Delay 1
+  @z Sub @z 2
+}
+
+EmbedMacro %Sink "Water Wade"
+Local 'vwxyz'
+@v @t *GetXY
+@z Var Add %PZ @t
+@w Mul GetA %BWater @x @y RgbB GetCT @x @y
+IfElse @w {
+  If Lte @z 0 (SetVar Add %PZ @t Div Mul ?: Gt @w 170 -20 -40 Var Add %PTall @t 64)
+} {
+  If Lt @z 0 (SetVar Add %PZ @t 0)
+}
+If And And And And Gt @w 0 Lte @w 170 Neq Inc Div @t @Per 4 Or Lt @t @Trib Not @SMuttS Neq GetCA %BInv @t Var Add %PWield @t %JClb {
+  @h Dec Var Add %PHP @t
+  *UpdHp
+  IfElse Equ @t @q
+    ($0 'You can't swim without holding a floatation device! You swallow water for 1 damage.' @e 3)
+    (@v Add @t 600 *Name SetString 0 '$0 can't swim and swallows water for 1 damage.' @e 1)
+  *Msg
+  Spc If Equ @t @q (Sound 'hunger\choke.wav')
+  @v 7 *Death
+}
+If Equ @t @q {
+  @v Var Add %PZ @q
+  *View nViewHeight @v
+}
+
+EmbedMacro %Rise "Up Tube"
+Local 'ivwxy'
+If Or Or Lt @q 0 @SAmmo Not nInside {Return}
+fRedrawWhenBitmapEdited False
+ForStep (i) 2 64 2 {
+  For (v) 0 Dec @Trib (
+    *GetXY
+    @w GetM @x @y
+    SetCA %TVar @x @y UD Add @w @i @w
+  )
+  If Lt @q @Trib (
+    @v Sub @w Sub 64 Add 8 Div Mul @i 56 64
+    *View nViewHeight @v
+  )
+  Spc Delay 1
+} fRedrawWhenBitmapEdited True
+
+EmbedMacro %Unrise "Down Tube"
+Local 'ivw'
+If @SAmmo {Return}
+@v @q *GetXY
+@w GetM @x @y
+ForStep (i) 64 2 -2 {
+  @v Sub @w Sub 64 Add 8 Div Mul @i 56 64
+  *View nViewHeight @v
+  Spc Delay 1
+}
+@v @w
+*View nViewHeight @v
+
+EmbedMacro %Map "Map Items"
+If Gt @v -100 {
+  _ CopyTexture %TFloor -1
+  For (i) %MFoot Add %MPaw3 3 (Replace @i Black 0)
+  ColorPut cDel k
+  _ ColorAnd TempOr _
+  SizeC Add %MObj %JMax 1 0 1
+  SetC %MTube2 0 ?: @v Dark DkGray @KTube
+  @z ?: @v Dark Dark Orange Orange SetC %MWasp 0 @z SetC %MTrap 0 @z
+  For (i) 1 Dec %JMax (SetC Add %MObj @i 0 Shade Var Add %JCol @i @v)
+  _ Palette
+}
+For (i) 0 Dec @Live {
+  If Gt Var Add %PHP @i 0 (
+    @v @i *GetXY
+    @z Div @i @Per
+    If Gte @z @Dist '@z @Dists'
+    SetC @x @y Var Add %KDist @z
+  )
+}
+
+EmbedMacro %List "Death List"
+Local 'ivwxyz'
+IfElse Gte @j 0
+  {$1 'Tributes\tTurn\tVictim\t\tKilled by\n'}
+  {$1 '' @j Neg @j}
+For (i) @j Min Add @j Dec @k Dec @Log {
+  @w Add %Log Mul @i 4
+  @x Var Inc @w @y Var Add @w 2
+  @v Add 900 Var Add @w 3 *Name
+  For (z) 1 Sub 15 Len $0 (SetString 0 '$0 ')
+  SetString 0 '@x\t@y\t$0\t'
+  AppendString 1 $0
+  @v Var Add @w 4
+  IfElse Gte @v 0
+    (@v Add 900 @v *Name)
+    (@z Sub %ZDeath @v $0 $z)
+  SetString 0 '$0\n'
+  AppendString 1 $0
+}
+
+EmbedMacro %Table "Create Status"
+Local 'ivwxyz'
+IfElse Gte @j 0
+  {$1 'Name\t\tHealth\tFood\tKills\n'}
+  {$1 '' @j Neg @j}
+For (i) @j Min Add @j Dec @k Dec @Live {
+  @v Add 900 @i *Name
+  For (z) 1 Sub 15 Len $0 (SetString 0 '$0 ')
+  @x Var Add %PHP @i
+  IfElse Gt @x 0
+    (SetString 0 '$0\t@x')
+    (SetString 0 '$0\t(DEAD)')
+  @y Var Add %PFood @i
+  @z Var Add %PKill @i
+  SetString 0 '$0\t@y\t@z\n'
+  AppendString 1 $0
+}
+
+EmbedMacro %Parse "Raw Settings"
+@i 0
+While (True) {
+  @k Char $1 @i
+  If Lt @k 0 'Return'
+  @j InChar $ZSet2 @k
+  If Lt @j 0
+    (Message 'Bad character @k at position @i!\n$1' Return)
+  @l 0
+  While (True) (
+    @i Inc @i
+    @w Sub Char $1 @i 48
+    If Or Lt @w 0 Gt @w 9 'Break'
+    @l Add Mul @l 10 @w
+  )
+  SetVar Add %SA @j @l
+  If Equ @k 41 (For 'j' @Trib Dec @Live 'SetVar Add %PTall @j @l')
+  @j InChar 'abcde' @k
+  If Lt @j 0 'Continue'
+  @k Var Add %Sa Sub @k 97
+  If Not @k (@k Var Add %JDcc @j)
+  @z Add %JAcc Mul @j 50
+  For (j) 0 31 (SetVar Add @z Inc @j Mul Neq And @k << 1 @j 0 11)  
+}
+
+EmbedMacro %Set "Arena Setting"
+@Land @SLand
+If Lt @SLand 0 {Return}
+@z Sub Len $ZArena 2
+@w ?: Lt @SLand @z @SLand ?: Equ @SLand @z Rnd 0 8 Rnd 0 Sub @z 2
+@Land @w
+@Custom Equ @Land 12
+@z Add %ZArenas @w
+$1 $z
+*Parse
+
+EmbedMacro %Reset "Setting Adjust"
+If Gte @SLand Sub Len $ZArena 2 {@SLand -1 Return}
+@j Add %ZArenas @SLand
+@i 0
+While (True) {
+  @k Char $j @i
+  If Lt @k 0 'Return'
+  If And Or Lt @k 65 Gt @k 90 Or Lt @k 97 Gt @k 122 'Return'
+  @l 0
+  While (True) (
+    @i Inc @i
+    @w Sub Char $j @i 48
+    If Or Lt @w 0 Gt @w 9 'Break'
+    @l Add Mul @l 10 @w
+  )
+  If Neq Var Add %SA Sub @k ?: Lt @k 97 65 71 @l (@SLand -1 Return)
+}
+
+EmbedMacro %Namer "Random Names"
+$2 'AEGKMQSW'
+For (i) 0 Dec @Dist {
+  For (j) 0 1 (
+    @k Rnd 0 5 @l Sub Char $2 Rnd 0 7 64
+    For 'w' 0 Dec Div Add @Per Not @j 2
+      '@z Add Add Add %ZNameB Mul 12 @i Mul 6 @j @k
+      SetString Add Add Add %ZName Mul @i @Per @j Mul @w 2 $z
+      @k Mod Add @k @l 6'
+  )
+}
+@k Rnd 0 5 @l Sub Char $2 Rnd 0 7 64
+For (i) @Trib Dec @Live {
+  @z Add Add %ZNameB Mul 12 @Dists @k
+  SetString Add %ZName @i $z
+  @k Mod Add @k @l 6
+}
+
+// //////// //
+// Gameplay //
+// //////// //
+
+EmbedMacro %Next "User Done"
+@Wipe Lt @s 1
+If And Not @v fAutorepeatLastCommand {
+  *MsgEnd *Done
+  Spc Return
+}
+fRedrawWhenBitmapEdited False
+@SAmmo Odd @SAmmo
+*Moves
+
+EmbedMacro %MsgEnd "Last Message"
+If @a {Return}
+If And Lt @p 0 Equ @p Neg @SK {$0 'BEWARE! Don't step off your platform yet!' @e 2 *Msg}
+@w Mul GetA %BWater nX nY RgbB GetCT nX nY
+If And Gt @w 0 Lt Var Add %PZ @q 0 {
+  IfElse Gt @w 170
+    ($0 'Splish! You are wading in shallow water.')
+    ($0 'Splash! You are swimming in deep water.')
+  *Msg
+  Sound 'hunger\water.wav'
+}
+@w RgbG GetCE nX nY
+If And Gt @w 0 Gte @q 0 {
+  @w Add %ZObjA And 127 @w
+  SetString 0 'There is a$w here.'
+  *Msg
+}
+@w Var Add %PWasp @q
+If @w {
+  IfElse Equ @w 1 ($0 '') ($0 's')
+  SetString 0 'You are hallucinating from Tracker Jacker wasp venom: @w turn$0 remaining.'
+  *Msg
+}
+
+EmbedMacro %Moves "Move All"
+fRedrawWhenBitmapEdited False
+@r Inc @r
+If Gte @r @Live {
+  @r -1
+  @p Inc @p
+  MoveCloud -1 30000
+  *Day0 *Feast *Fire *Mutt *Movie
+}
+If And Not @p Lt @r 0 {
+  $0 'BONG! The gong sounds, go!'
+  @e 2 *Msg
+  Sound 'hunger\gong.wav'
+}
+If Gt @p 0 {@v @r *GetXY *Hunger *Sponsor *Seek}
+@w Var Add %PWasp @r
+If @w {SetVar Add %PWasp @r Dec @w}
+IfElse Neq @r @q {
+  *Move
+} {
+  *MsgEnd *Done
+  @f Var Add %PFood @q
+  fRedrawWhenBitmapEdited True n
+  If And @b Not nInside (@d 0)
+}
+If And Equ @r @q Not @b {Return}
+Restart
+
+EmbedMacro %Move "Move Computer"
+If Lt Var Add %PHP @r 1 {Return}
+@z 0
+Hunger UD @r ?: Not Odd @SB Max Div nFogDistance 12 1 0
+If And Lt @z 0 fErrorCheckPixelOperations {
+  fErrorCheckPixelOperations False
+  Message 'Error: AI condition @z'
+}
+If @z {
+  @u @z
+  @z @y
+  @i ?: Equ @u 3 @y @x
+  @v @r *GetXY
+  Macro Add %Act1 Dec @u
+}
+
+EmbedMacro %Death "Check Death"
+Local 'ikovxyz'
+If Gt @h 0 {Return}
+@k @v
+If Equ @t @q {@z 0 *Anim}
+SetVar Add %PWield @t -1 SetVar Add %PWear @t -1
+For (i) 0 Dec @Inv {
+  @o GetCA %BInv @t @i
+  If Not @o 'Continue'
+  SetCA %BInv @t @i 0
+  If Not @SHover (
+    @v @t *GetXY
+    @v 1 *FndSq *PutObj
+  )
+}
+@v @t *GetXY
+*SqOut
+IfElse Neq @r @t
+  {@z Add %PKill @r SetVar @z Inc Var @z}
+  {If Not @k '@k 4'}
+@v Add @t 600 *Name
+IfElse Lt @t @Trib {
+  If And Gt @Sq 1 Not @a ($0 'A tribute')
+  @s Dec @s
+  SetString 0 'BOOM! A cannon fires... $0 has died!'
+} {
+  If And Gt @Sq 1 Not @a ($0 'A mutt')
+  SetString 0 'YIP! $0 has died! So much for genetic engineering.'
+}
+@e Add 2 Equ @t @q
+*Msg
+Spc IfElse Lt @t @Trib {Sound 'hunger\cannon.wav'} {Sound 'hunger\die_mutt.wav'}
+For (i) 0 Dec @Live {
+  @x GetCA %BAlly @t @i
+  @y RgbR @x
+  SetCA %BAlly @t @i Or @x Rgb 0 ?: Neq @i @r 0 @y @y
+  @x GetCA %BAlly @i @t
+  @y RgbR @x
+  SetCA %BAlly @i @t Or @x Rgb 0 0 @y
+}
+*Enemy
+@z Add %Log Mul @Log 4
+SetVar Inc @z @s
+SetVar Add @z 2 @p
+SetVar Add @z 3 @t
+SetVar Add @z 4 ?: @k Neg @k @r
+@Log Inc @Log
+If Not And Lt @t @Trib @SMuttR {Return}
+@v @t *GetXY
+For (t) @Trib Dec @Live {
+  If Lte Var Add %PHP @t 0 (Break)
+}
+If Gte @t @Live {Return}
+*IMutt
+@v Add 600 @v *Name
+SetString 0 '$0 rises from the dead as a mutt!' *Msg
+
+EmbedMacro %Done "Finish Game"
+@h Var Add %PHP @q
+If And Lt @h 1 Not @a {
+  @a 1
+  fGlancingBlows True fNoSubmerge False
+  If Gte @q 0 (
+    Spc
+    SwitchSgn ?: Gte @q @Trib -1 Odd @q "" "Sound 'hunger\die_fem.wav'" "Sound 'hunger\die_male.wav'"
+    Message 'You are dead and no longer part of the Hunger Games! :-(\nNumber of tributes finishing better: @s\n\nF1: Display help text (shortcut: "?")\nF2: Start new game.\nF3: Let the other tributes still alive take a turn (shortcut: ".")'
+  )
+}
+If Or Or Gt @s 1 Gt And @a 2 0 @SCont {Return}
+fRainbow And Not fStars Not @SMist
+IfElse @s
+  {$0 'Trumpets blare and cheering plays over the loudspeakers...' Sound 'hunger\victor.wav'}
+  {$0 'An eerie silence spreads over the arena. The Gamemakers are speechless...'}
+*Msg
+IfElse @s {
+  For (v) 0 Dec @Trib (If Gt Var Add %PHP @v 0 'Break')
+  @v Add @v 300 *Name
+  SetString 0 'Congratulations to $0, the victor of the Hunger Games!'
+} {
+  $0 'There are no tributes alive, and therefore there will be no victor!'
+}
+@e 2 *Msg
+Spc
+*LogOff
+@b 0 fPauseTimer True fAutorepeatLastCommand False
+If fDontAutostartInfinite {
+  *FStart
+  If fDontAutostartInfinite (*FAuto)
+  Return
+}
+If And Gt @h 0 Lt @q @Trib {
+  @a 2
+  fGlancingBlows True
+  @z Timer @x Div @z 60 @y Mod @z 60
+  Message 'You are the sole tribute left alive!\nCongratulations, you are the victor of the Hunger Games! :-)\nYou won in @x minutes, @y seconds of real time.'
+  Return
+}
+@a 3
+If @s {
+  IfElse And Gte @q 0 Lt @q @Trib
+    (Message 'One tribute left, we have a victor!\nUnfortunately the victor wasn't you. :-(')
+    (Message 'One tribute left, we have a victor!\nHopefully these games were entertaining for you. ;-)')
+  Return
+}
+IfElse @Wipe
+  {Message 'With all tributes dead and no victor, people are angry at the\tCapitol. By eliminating all remaining tributes at the same time,\tyou've shown the Capitol you won't be a piece in their games.\nA rebellion is starting! :-)'}
+  {Message 'With all tributes dead and no victor, people are annoyed at the\tCapitol. However, your contribution to making this happen wasn't\nrebellious enough to cause any uprising.'}
+
+EmbedMacro %Escape "Down Tube"
+If Neq GetCA %TFloor nX nY %MTube3 {Message 'This launch tube is closed.' Return}
+@d 0
+*Unrise
+IfElse Lt @q @Trib {
+  Message 'You climb back down the open launch tube! The audience and\nGamemakers are both incredibly surprised you escaped the arena!\nUnfortunately, waiting Peacekeeper guards immediately execute\nyou. :-(\n\nHowever, your act of open rebellion and escape from Capitol\ncontrol has inspired an uprising across the country. You are the\nsymbol of the rebellion: The Mockingjay! :-)'
+  @t @q *DelInv
+  @h 0 *UpdHp
+  @v 11 *Death
+} {
+  fRedrawWhenBitmapEdited False
+  @t @q @h Max Var Add %PHP @t @HpMax *UpdHp
+  SetVar Add %PFood @q Max Var Add %PFood @q @Food
+  SetVar Add %PWasp @q 0
+  fRedrawWhenBitmapEdited True Spc
+  Message 'You leap down the open launch tube!\nThe Gamemakers heal you then return you to the arena.'
+}
+@v False *Next
+@z True
+
+EmbedMacro %LogOn "Initialize Log"
+nCurrentGeneration Inc nCurrentGeneration
+If fDontAutostartInfinite {@SR Inc @SR}
+If And Gt nCurrentGeneration nNewFileCutoff fDontAutostartInfinite {
+  fDontAutostartInfinite False
+  nInfiniteFile 0
+  fAutorepeatLastCommand False
+}
+If Not nInfiniteFile {Return}
+@File FileOpen 'hglog.txt' 2
+If Not @File {Return}
+@x nCurrentGeneration
+@y Mul @SS 2
+@z nRandomSeed
+IfElse Gt @SLand 0
+  {$1 '_' SetChar 1 0 Char $ZArena @SLand}
+  {$1 ''}
+SetString 0 'Game #@x: Size @y, Arena $1, Seed @z\n'
+FileWrite @File $0
+If Not fDontAutostartInfinite {FileClose @File @File 0}
+
+EmbedMacro %LogOff "Finalize Log"
+If Not nInfiniteFile {Return}
+If Not fDontAutostartInfinite {@File FileOpen 'hglog.txt' 2}
+If Not @File {Return}
+FileWrite @File '\n'
+@k 15
+ForStep (j) 0 Dec @Live @k {@j Neg @j *Table FileWrite @File $1}
+FileWrite @File '\n'
+ForStep (j) 0 Dec @Log @k {@j Neg @j *List FileWrite @File $1}
+FileWrite @File '\n'
+FileClose @File
+@File 0
+
+EmbedMacro %Log1K "Log 1000"
+nCurrentGeneration 0
+nNewfileCutoff 1000
+nInfiniteFile 1
+fDontAutostartInfinite True
+nRepeatDelayInMsec 0
+fAllowSoundPlaying False
+rMeteorRate 0
+@SN 9999
+@SR 1
+@Sy 15000
+
+// /////////////////// //
+// Command subroutines //
+// /////////////////// //
+
+EmbedMacro %Hard "Check Difficulty"
+@z And And Gt @Sq 0 Gte @q 0 Not @a
+If @z {Message 'This command is unavailable in hard mode.'}
+
+EmbedMacro %Use "Use Item"
+Local 'w'
+If Not Var Add %JUse @o {
+  @x nX @y nY
+  Macro Add %Use1 Sub @o %JBry
+  Return
+}
+@w Add %ZObjA @o
+If Equ @i Var Add %PWield @q {
+  Local 'it'
+  SetString 0 'You unwield a$w. You will attack barehanded now.'
+  *Msg
+  @i -1 @t @r *Wield
+  @z False Return
+}
+@z And Var Add %JUse @o 7
+If Not Odd @z {
+  @z Add %ZVerb @z
+  Message 'You can't wield a$w. You can only $z it.'
+  @z True Return
+}
+@z Div @q @Per
+If Gte @z @Dist {@z @Dists}
+IfElse Equ Inc @z Var Add %JDst @o
+  {SetString 1 '\sThat's your district's favored weapon!'}
+  {$1 ''}
+SetString 0 'You wield a$w.$1'
+*Msg
+@t @r *Wield
+@z False
+
+EmbedMacro %Throw "Throw Weapon"
+Local 'cijklmntuvwxy'
+SetCA %BInv @r @i 0
+@c UD @x @y
+@j Var Add %PZ @r
+@k @j @t 0
+For (l) 0 1 {
+  @x UdU @c @y UdD @c
+  @m @x @n @y
+  @u Sub Char $ZX @z 49 @v Sub Char $ZY @z 49
+  For (i) 1 @Sr (
+    @x Add @x @u @y Add @y @v *Wrap
+    If Or Lt @x 0 Gte @x SizeX '@u Neg @u @x Add @x @u *Boing'
+    If Or Lt @y 0 Gte @y SizeY '@v Neg @v @y Add @y @v *Boing'
+    If Or Get @x @y Gt RgbR GetCE @x @y 0
+      '@t RgbR GetCE @x @y
+      @k ?: @t Var Add %PZ Sub 255 @t @j
+      Break'
+    If @l '*Ammo'
+    @m @x @n @y
+  )
+  @w @i
+}
+IfElse Neq @t 0 {
+  IfElse Equ @r @q
+    (*UHit)
+    (@e 9 *THit)
+} {
+  @x @m @y @n
+}
+If Not And Var Add %JUse @o 16 {
+  @w GetCE @x @y
+  If Or Neq And RgbG @w 127 %JLm1 Gt RgbR @w 0 (@v 1 *FndSq *PutObj Return)
+  $0 'The thrown object detonates a landmine...' *Msg
+  $0 'KABLAM! A landmine explosion echoes across the arena!' @e 2 *Msg
+  *DelObj
+  IfElse Neq GetCA %TSide @x @y UD %MTube %MTube
+    (*Hole)
+    ($0 'The launch tube shakes from the landmine but remains intact...' *Msg)
+}
+If Not @SAmmo {Spc}
+
+EmbedMacro %Boing "Throw Bounce"
+If Not @l {Return}
+Local 'z'
+@z Add %ZObj @o
+SetString 0 'The $z bounces off a forcefield!'
+*Msg
+
+EmbedMacro %Ammo "Show Ammo"
+Local 'lmnz'
+If Or Not nInside And And Gt @SAmmo 0 Neq @r @q Neq Sub 255 @t @q {Return}
+If And Or Neq @r @q Neq @Edge 4 Or Or Or And Equ nDir 0 Lt nY @y And Equ nDir 1 Lt nX @x And Equ nDir 2 Gt nY @y And Equ nDir 3 Gt nX @x {Return}
+If Gt Max Abs Sub @x nX Abs Sub @y nY 100 {Return}
+@l GetE @x @y
+@m GetC @x @y
+@n GetX @x @y 0
+SetE @x @y On
+SetC @x @y Var Add %JCol @o
+@z Add %BObj @o SetX @x @y -2 @z
+SetCA %TBlock @x @y UD @z @z
+@z Max Add @j Div Mul Sub @k @j @i @w GetM @x @y
+SetCA %TVar @x @y UD Add 64 @z Max @z 0
+Spc
+SetE @x @y @l
+SetC @x @y @m
+SetX @x @y -2 @n
+Delay ?: Equ @r @q 75 ?: Lte Max Abs Sub @x nX Abs Sub @y nY 8 25 5
+If And Not @SAmmo Event 0 {@SAmmo 2}
+
+EmbedMacro %Prop "Propose Alliance"
+@j Div Mul Mul
+  Var Add %PHP @q
+  Var Add %JDmg GetCA %BInv @q Var Add %PWield @q
+  100 Mul
+  Var Add %PHP @t
+  Var Add %JDmg GetCA %BInv @t Var Add %PWield @t
+If Lt @j 50 {SetString 0 ($0 says: 'No, you're too weak for me to ally with.') Return}
+If Gt @j 200 {SetString 0 ($0 says: 'Yes, I'll definitely ally with you!') *Ally Return}
+@z Rnd -1 1
+If And Gte Char $ZAlly Div @t @Per 97 Lt @z 0 {@z 0}
+SwitchSgn @z
+  {SetString 0 ($0 says: 'No way! I'll never ally with a loser like you!') *Anger}
+  {SetString 0 ($0 says: 'No, sorry. I don't want to ally with you at this time.')}
+  {SetString 0 ($0 says: 'Yes, I suppose I'll try out an alliance with you, for now.') *Ally}
+
+EmbedMacro %Break "Break Alliance"
+$1 $0 MessageAsk '$1 and you are already allied.\nDo you want to end your alliance with them?' 1
+If Neq @z 1 {SetString 0 '$1 and you are still allied.' @z True Return}
+SetCA %BAlly @q @t Max GetCA %BAlly @q @t 125
+SetCA %BAlly @t @q Max GetCA %BAlly @t @q 125}
+SetString 0 ($1 says: 'Terminating our alliance is a bad mistake on your part!')
+@z False
+
+EmbedMacro %Lead "Change Leadership"
+@z Var Add %PLead @t
+@w Var Add %PLead @q
+IfElse Or Gt @SLead 0 And Not @SLead Gte @z @w {
+  $1 'Ok leader, I'll follow you around in this alliance.' @z Max @w Add @z Rnd 1 10
+} {
+  $1 'Ok, I'll no longer follow you around in this alliance.' @z Min @w Sub @z Rnd 1 10
+}
+SetVar Add %PLead @q @z
+@w 1
+
+EmbedMacro %AddInv "Add Inventory"
+Local 'i'
+For (i) 0 Dec @Inv {
+  If Not GetCA %BInv @v @i (
+    SetCA %BInv @v @i @o
+    @z True Return
+  )
+}
+If Equ @v @q {Message 'You can't carry any more items.'}
+@z False
+
+EmbedMacro %LstInv "List Items"
+For (i) 0 Dec @Inv {
+  $0 '_:'
+  SetChar 0 0 Add 65 @i
+  @o GetCA %BInv @t @i
+  If Gt @o 0 (@z Add %ZObj @o SetString 0 '$0 $z')
+  If Equ @i Var Add %PWield @t (SetString 0 '$0 (wielded)')
+  If Equ @i Var Add %PWear @t (SetString 0 '$0 (worn)')
+  *Msg
+}
+Spc
+
+EmbedMacro %SelInv "On Command"
+nOnRunCommand 0
+@d 0
+IfElse And Gte @x 65 Lt @x Add 65 @Inv
+  {@i Sub @x 65 If Not GetCA %BInv @q @i (Message 'You aren't carrying anything in that inventory slot.' @i -1)}
+  {@i -1}
+Spc
+nAutorepeat Command 'Macro3'
+fAutorepeatLastCommand @Auto
+
+// /////////////// //
+// Inventory hooks //
+// /////////////// //
+
+EmbedMacro %ODrop "On Drop"
+*SelInv
+If Lt @i 0 {@z True Return}
+fRedrawWhenBitmapEdited False
+*Drop
+fRedrawWhenBitmapEdited True n
+@v False *Next
+@z True
+
+EmbedMacro %OUse "On Use"
+*SelInv
+If Lt @i 0 {@z True Return}
+fRedrawWhenBitmapEdited False
+@o GetCA %BInv @q @i
+*Use
+If @z {Return}
+@v False *Next
+@z True
+
+EmbedMacro %OThrow "On Throw"
+IfElse Gte @i 0 {
+  *SelInv
+  If Lt @i 0 (@z True Return)
+  @o GetCA %BInv @q @i
+} {
+  @o Neg @i
+}
+fRedrawWhenBitmapEdited False
+@w Add %ZObjA @o
+@z And Var Add %JUse @o 7
+@g Var Add %PWield @q
+If And Not And @z 2 Not And Neq And @z 4 0 Equ GetCA %BInv @q @g Add @o %JDif {
+  @z Add %ZVerb @z
+  Message 'You can't throw a$w. You can only $z it.'
+  @z True Return
+}
+@d 0
+If Equ @i @g {*Use}
+IfElse And Neq And Var Add %JUse @o 4 0 Equ GetCA %BInv @q @g Add @o %JDif {
+  @w Add %ZHit Add @o %JDif
+  SetString 0 'You $w...'
+} {
+  @w Add %ZObjA @o
+  SetString 0 'You throw a$w...'
+}
+*Msg
+@x nX @y nY
+@z Div Mod Add 382 Add Mul nDir 90 nDirectionOffset 360 45
+*Throw
+@v False *Next
+@z True
+
+EmbedMacro %OGive "On Give"
+*Give
+If Not @z {@v False *Next}
+fRedrawWhenBitmapEdited True
+@z True
+
+EmbedMacro %Give "Give"
+*SelInv
+If Lt @i 0 {@z True Return}
+fRedrawWhenBitmapEdited False
+@t Sub 255 @t
+@o GetCA %BInv @q @i
+If Or Equ @i Var Add %PWield @q Equ @i Var Add %PWear @q {*Use}
+@v Add @t 600 *Name
+@v @t *AddInv
+If Not @z {Message '$0 is carrying too much to accept your gift.' @z True Return}
+SetCA %BInv @q @i 0
+@z Add %ZObj @o
+If Equ @o %JNlk {
+  IfElse Or Neq @s 2 Gt GetCA %BAlly @t @q 0
+    (Message '$0 gets angry because of the obviously poison $z!' *Anger @z False Return)
+    (Message '$0 agrees to eat the $z so you can live. They have to have their winner!')
+}
+@w Max Var Add %JDmg @o 0
+@x GetCA %BAlly @t @q
+@y Min Max Sub @x Mul @w 10 0 255
+@w Min Add Div Add @x 49 50 Div Add @y 49 50 8
+IfElse Lt @t @Trib {
+  @w Add %ZGive @w
+  SetString 0 "The $0 says: 'Thank you for the $z! $w'"
+} {
+  @w Add %ZGiveM @w
+  SetString 0 "You pass over the $z. $0 $w"
+}
+Message $0
+SetCA %BAlly @t @q @y
+If And Gt @x 100 Lte @y 100 {*Ally}
+@z False
+
+// ///////// //
+// Use items //
+// ///////// //
+
+EmbedMacro %UseWear "Use Wearable"
+@w Var Add %PWear @r
+IfElse And Gte @w 0 Neq @i @w {
+  @z Add %ZObjA GetCA %BInv @r @w
+  IfElse Equ @r @q
+    (SetString 1 'You remove a$z.\s')
+    (@v Add @r 600 *Name SetString 1 '$0 removes a$z.\s')
+} {
+  $1 ''
+}
+@z ?: Neq @i @w @i -1
+@w Add %ZObjA GetCA %BInv @r @i
+@t @r @i @z *Wear
+IfElse Equ @r @q {
+  IfElse Gte @z 0
+    ($0 '$1You put on a$w.')
+    ($0 'You remove a$w.')
+} {
+  @v Add @r 600 *Name
+  IfElse Gte @z 0
+    (SetString 0 '$1$0 puts on a$w.')
+    (SetString 0 '$0 removes a$w.')
+  @e 1
+}
+*Msg
+@t @r *Fall *Boom
+@z False
+
+EmbedMacro %Use1 "Use Berries"
+@f Var Add %PFood @r
+If Gte @f @Food {Message 'You're already as full as you can get!' @z True Return}
+SetCA %BInv @r @i 0
+@f Add @f Add @SBerry Mul Div @SBerry 2 Equ Inc Div @r @Per Var Add %JDst %JBry
+SetVar Add %PFood @r @f
+IfElse Equ @r @q
+  {$0 'The Berries taste good!'}
+  {@v Add @r 600 *Name SetString 0 '$0 eats some Berries.' @e 1}
+*Msg
+@z False
+
+EmbedMacro %Use2 "Use Nightlock"
+@f Var Add %PFood @r
+SetCA %BInv @r @i 0
+@f Add @f Add @SBerry Mul Div @SBerry 2 Equ Inc Div @r @Per Var Add %JDst %JNlk
+SetVar Add %PFood @r @f
+@w Rnd 9 18
+IfElse Equ @r @q
+  {SetString 0 'YEECH! The Nightlock Berries are deadly poisonous, and do @w damage!' @e 3}
+  {@v Add @r 600 *Name SetString 0 '$0 intentionally eats some Nightlock Berries!' @e 2}
+*Msg
+Sound 'hunger\choke.wav'
+@h Sub Var Add %PHP @r @w
+@t @r *UpdHp
+@v 2 *Death
+@z False
+
+EmbedMacro %Use3 "Use Bread"
+@f Var Add %PFood @r
+If Gte @f @Food {Message 'You're already as full as you can get!' @z True Return}
+SetCA %BInv @r @i 0
+@f Add @f Add @SBread Mul Div @SBread 2 Equ Inc Div @r @Per Var Add %JDst %JBrd
+SetVar Add %PFood @r @f
+IfElse Equ @r @q
+  {$0 'The Bread is delicious!'}
+  {@v Add @r 600 *Name SetString 0 '$0 eats a Loaf of Bread.' @e 1}
+*Msg
+@z False
+
+EmbedMacro %Use4 "Use Fish"
+@f Var Add %PFood @r
+If Gte @f @Food {Message 'You're already as full as you can get!' @z True Return}
+SetCA %BInv @r @i 0
+@f Add @f @SFish
+SetVar Add %PFood @r @f
+IfElse Equ @r @q
+  {$0 'The Fish tastes great!'}
+  {@v Add @r 600 *Name SetString 0 '$0 eats a Fish.' @e 1}
+*Msg
+@z False
+
+EmbedMacro %Use5 "Use First-Aid"
+@h Var Add %PHP @r
+If And Gte @h @HpMax Not Var Add %PWasp @r {Message 'You're already at full health!' @z True Return}
+@h Add @h Add @SAid Equ Inc Div @r @Per Var Add %JDst %JAid
+@t @r *UpdHp
+SetVar Add %PWasp @r 0
+SetCA %BInv @r @i 0
+IfElse Equ @r @q
+  {$0 'You heal your wounds.'}
+  {@v Add @r 600 *Name SetString 0 '$0 uses a First-Aid Kit.' @e 1}
+*Msg
+@z False
+
+EmbedMacro %Use6 "Use Nightvision"
+*UseWear
+
+EmbedMacro %Use7 "Use Helmet"
+*UseWear
+
+EmbedMacro %Use8 "Use Armor"
+*UseWear
+
+EmbedMacro %Use9 "Use Parachute"
+*UseWear
+
+EmbedMacro %Use10 "Use Inactive Landmine"
+@v @r *GetXY
+If Gt Var Add %PZ @r GetM @x @y {Message 'You're too high to reach the ground.' @z True Return}
+If RgbG GetCE @x @y {Message 'You can't plant landmines on top of existing objects.' @z True Return}
+@w Var Add %JDst %JLm0
+@z False
+For (j) Mul Dec @w @Per Dec Mul @w @Per {
+  If And Gt Var Add %PHP @j 0 Lte GetCA %BAlly @j @r 100 (@z True Break)
+}
+IfElse Not Or Or Equ Inc Div @r @Per @w @z Lte Rnd 1 10 1 {
+  IfElse Equ @r @q
+    ($0 'You try to activate a Landmine...')
+    (@v Add @r 600 *Name SetString 0 '$0 tries to activate a Landmine...' @e 1)
+} {
+  SetCA %BInv @r @i 0 @o %JLm1 *PutObj
+  IfElse Equ @r @q
+    ($0 'You activate and place the Landmine. Step carefully!')
+    (@v Add @r 600 *Name SetString 0 '$0 activates and places a Landmine. Beware!' @e 1)
+}
+*Msg
+@z False
+
+EmbedMacro %Use11 "Use Active Landmine"
+SetCA %BInv @r @i %JLm0
+$0 'You deactivate the Landmine.'
+*Msg
+@z False
+
+// //////////////// //
+// Computer actions //
+// //////////////// //
+
+EmbedMacro %Act1 "Computer Use"
+@o GetCA %BInv @r @i
+If And Gte @o %JBry Lte @o %JLm1 {Macro Add %Use1 Sub @o %JBry Return}
+@z Div @r @Per
+If Gte @z @Dist {@z @Dists} IfElse Equ Inc @z Var Add %JDst @o
+  {SetString 1 '\sThat's their district's favored weapon!'}
+  {$1 ''}
+@v Add @r 600 *Name
+@w Add %ZObjA @o
+SetString 0 '$0 wields a$w.$1'
+@e 1 *Msg
+@t @r *Wield
+
+EmbedMacro %Act2 "Computer Get"
+@o RgbG GetCE @x @y
+*GetObj
+
+EmbedMacro %Act3 "Computer Move"
+*Net If @z {Return}
+@m @x @n @y
+@x Add @x Sub Char $ZX @i 49 @y Add @y Sub Char $ZY @i 49 *Wrap
+@t RgbR GetCE @x @y
+@g Var Add %PWield @r
+@o GetCA %BInv @r @g
+If And Get @x @y Not @t {
+  @w GetC @x @y
+  IfElse Or Equ @w @KCorn Equ @w @KMaze (*Wall) (*Tree)
+  Return
+}
+If @t {*THit Return}
+SwapVar (m) (x) SwapVar (n) (y) *SqOut
+@x @m @y @n *SetXY
+@w GetM @x @y
+If Lt Sub Var Add %PZ @r 32 @w {SetVar Add %PZ @r @w}
+@t @r *Fall *Boom
+@v @r @i Div @i 2 *SqIn
+
+EmbedMacro %Act4 "Computer Throw"
+@o GetCA %BInv @r @i
+@v Add @r 600 *Name
+IfElse And Neq And Var Add %JUse @o 4 0 Equ GetCA %BInv @r Var Add %PWield @r Add @o %JDif {
+  @w Add %ZHits Add @o %JDif
+  SetString 0 '$0 $w...'
+} {
+  @w Add %ZObjA @o
+  SetString 0 '$0 throws a$w...'
+}
+@e 5 *Msg
+*Throw
+
+EmbedMacro %Act5 "Computer Drop"
+*Drop
+
+EmbedMacro %Act6 "Computer Down"
+@w Max Sub Var Add %PZ @r 64 GetM @x @y
+SetVar Add %PZ @r @w
+@v @r @i 0 *SqIn
+
+EmbedMacro %Act7 "Computer Up"
+@w Add Max Var Add %PZ @r GetM @x @y 64
+SetVar Add %PZ @r @w
+@v @r *SqIn
+@v Add @v 600 *Name
+SetString 0 '$0 climbs upward.'
+@e 1 *Msg
+
+EmbedMacro %Act8 "Computer Give"
+@m Add @x Sub Char $ZX @z 49 @n Add @y Sub Char $ZY @z 49
+@t Sub 255 RgbR GetCE @m @n
+IfElse Neq @t @q
+  {@v Add @t 300 *Name $1 $0}
+  {$1 'you'}
+@v Add @r 600 *Name
+@o GetCA %BInv @r @i
+@z Add %ZObjA @o
+SetString 0 '$0 gives $1 a$z.' @e 1
+@z GetCA %BAlly @t @r
+@w Max Sub @z Mul Var Add %JDmg @o 10 0
+If And Gt @z 100 Lte @w 100 {
+  IfElse Neq @t @q
+    (SetString 0 '$0 An alliance is formed!')
+    (SetString 0 '$0 You are being treated as an ally!' @e 2)
+}
+*Msg SetCA %BInv @r @i 0
+@v @t *AddInv
+SetCA %BAlly @t @r @w
+*Ally
+If Equ @t @q {Sound 'hunger\was_good.wav'}
+
+EmbedMacro %Act9 "Computer Dig"
+@g GetCA %BInv @r Var Add %PWield @r
+If Equ @g %JNet {@o 0 *Trap Return}
+IfElse And Neq Inc Div @r @Per ?: Equ @g %JPck 12 13 Gt Rnd 1 4 1 {
+  IfElse Equ @g %JPck
+    ($1 'dig up')
+    ($1 'burn away')
+  @v Add @r 600 *Name
+  SetString 0 '$0 attempts to $1 something...'
+} {
+  *Dig
+}
+@e 1 *Msg
+
+EmbedMacro %Act10 "Computer Fire"
+@o GetCA %BInv @r @i
+@v Add @r 600 *Name
+@w Add %ZHits @o
+SetString 0 '$0 $w...'
+@e 5 *Msg
+@o Sub @o %JDif
+@i -1 *Throw
+
+EmbedMacro %Act11 "Computer Free"
+@m Add @x Sub Char $ZX @z 49 @n Add @y Sub Char $ZY @z 49
+@t Sub 255 RgbR GetCE @m @n
+*NetHlp
+
+EmbedMacro %Act12 "Computer Propose"
+@t @i
+@v Add @r 600 *Name
+$1 $0
+IfElse Equ @t @q {
+  IfElse Not @SAllow (
+    Sound 'hunger\was_good.wav'
+    MessageAsk '$1 asks to form an alliance with you.\nDo you want to accept an alliance with them?' 1
+    @z Equ @z 1
+  ) (
+    @z Gt @SAllow 0
+  )
+  IfElse @z
+    ($0 'you. You accept and now are being treated as an ally!' *Ally)
+    ($0 'you. You decline their proposal.')
+  @e 2
+} {
+  @v Add @i 300 *Name
+  SwitchSgn Rnd -1 1
+    ($2 'and is accepted' *Ally)
+    ($2 'but is declined')
+    ($2 'but is violently rejected' *Anger)
+  SetString 0 '$0, $2.'
+  @e 1
+}
+SetString 0 '$1 asks to form an alliance with $0'
+*Msg
+If And Equ @t @q Neq @SAllow 0 {Sound 'hunger\was_good.wav'}
+
+EmbedMacro %Act13 "Computer Lead"
+@t @i
+@v Add @r 600 *Name
+$1 $0
+@v Add @t 300 *Name
+IfElse Equ @t @q {$0 'you' @e 2} {@e 1}
+@w Var Add %PLead @t
+IfElse Lte Var Add %PLead @r @w {
+  SetString 0 '$1 declares they have more leadership in the alliance than $0.'
+  @w Add @w Rnd 1 10
+} {
+  SetString 0 '$1 declares $0 should have leadership in the alliance.'
+  @w Sub @w Rnd 1 10
+}
+SetVar Add %PLead @r @w
+*Msg
+
+// ///////////// //
+// Day and night //
+// ///////////// //
+
+EmbedMacro %Day0 "Day and Night"
+Local 'igwz'
+@i Max Sub Mod Max @p 0 Add Mul @Day 6 @Sv @Sv 0
+@z Mod @i @Day
+@g Inc Div @q @Per
+@g And And And
+  Neq GetCA %BInv @q Var Add %PWear @q %JGog
+  Lte @g @Dist
+  Neq @g 13
+  Or Gt @q -1 Neq @Item %JGog
+SwitchSgn @Sky
+  {*Day4}
+  {Macro Add %Day1 Div @i @Day}
+  {*Day1}
+
+EmbedMacro %Day1 "Midday"
+fStars False
+nSunMoon ?: Lt @Tmp 2 Add 25 Mul @Tmp 12 ?: Lt @Tmp 5 Mul @Tmp 25 ?: Lt @Tmp 6 87 75
+kSky       @KSky
+kSky2      Var Add %KSky 3
+kGround    @KGrd
+kGround2   Var Add %KGrd 3
+kMountain  @KMtn
+kMountain2 Var Add %KMtn 3
+kCloud     @KCld
+kCloud2    Var Add %KCld 3
+kFog Var Add %KFog 3
+nFogDistance @SMist
+nSunMoonY 333
+
+EmbedMacro %Day2 "Late Day"
+fStars False
+nSunMoon ?: Lt @Tmp 2 Add 25 Mul @Tmp 12 ?: Lt @Tmp 5 Mul @Tmp 25 ?: Lt @Tmp 6 87 75
+kSky       Blend2 @KSky           Var Inc %KSky   @z @Day
+kSky2      Blend2 Var Add %KSky 3 Var Add %KSky 4 @z @Day
+kGround    Blend2 @KGrd           Var Inc %KGrd   @z @Day
+kGround2   Blend2 Var Add %KGrd 3 Var Add %KGrd 4 @z @Day
+kMountain  Blend2 @KMtn           Var Inc %KMtn   @z @Day
+kMountain2 Blend2 Var Add %KMtn 3 Var Add %KMtn 4 @z @Day
+kCloud     Blend2 @KCld           Var Inc %KCld   @z @Day
+kCloud2    Blend2 Var Add %KCld 3 Var Add %KCld 4 @z @Day
+kFog Blend2 Var Add %KFog 3 Var Add %KFog 4 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Mul @g Add @KFog Div Mul Sub Var Inc %KFog @KFog @z @Day
+nSunMoonY Add 333 Div Mul @z 767 @Day
+
+EmbedMacro %Day3 "Early Night"
+fStars Equ @SMist 0
+nSunMoon 50
+kSky       Blend2 Var Inc %KSky   Var Add %KSky 2 @z @Day
+kSky2      Blend2 Var Add %KSky 4 Var Add %KSky 5 @z @Day
+kGround    Blend2 Var Inc %KGrd   Var Add %KGrd 2 @z @Day
+kGround2   Blend2 Var Add %KGrd 4 Var Add %KGrd 5 @z @Day
+kMountain  Blend2 Var Inc %KMtn   Var Add %KMtn 2 @z @Day
+kMountain2 Blend2 Var Add %KMtn 4 Var Add %KMtn 5 @z @Day
+kCloud  Blend2 Var Inc %KCld   Var Add %KCld 2 @z @Day
+kCloud2 Blend2 Var Add %KCld 4 Var Add %KCld 5 @z @Day
+kFog Blend2 Var Add %KFog 4 Var Add %KFog 5 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Mul @g Blend2 Var Inc %KFog Var Add %KFog 2 @z @Day
+nSunMoonY Sub 1100 Div Mul @z 767 @Day
+nStarCount Div Mul @z 768 @Day
+
+EmbedMacro %Day4 "Midnight"
+fStars Equ @SMist 0
+nSunMoon 50
+kSky       Var Add %KSky 2
+kSky2      Var Add %KSky 5
+kGround    Var Add %KGrd 2
+kGround2   Var Add %KGrd 5
+kMountain  Var Add %KMtn 2
+kMountain2 Var Add %KMtn 5
+kCloud     Var Add %KCld 2
+kCloud2    Var Add %KCld 5
+kFog Var Add %KFog 5
+nFogDistance Min ?: Not @SMist 9999 @SMist Mul @g Var Add %KFog 2
+nSunMoonY 333
+nStarCount 768
+
+EmbedMacro %Day5 "Late Night"
+fStars Equ @SMist 0
+nSunMoon 50
+kSky       Blend2 Var Add %KSky 2 Var Inc %KSky   @z @Day
+kSky2      Blend2 Var Add %KSky 5 Var Add %KSky 4 @z @Day
+kGround    Blend2 Var Add %KGrd 2 Var Inc %KGrd   @z @Day
+kGround2   Blend2 Var Add %KGrd 5 Var Add %KGrd 4 @z @Day
+kMountain  Blend2 Var Add %KMtn 2 Var Inc %KMtn   @z @Day
+kMountain2 Blend2 Var Add %KMtn 5 Var Add %KMtn 4 @z @Day
+kCloud     Blend2 Var Add %KCld 2 Var Inc %KCld   @z @Day
+kCloud2    Blend2 Var Add %KCld 5 Var Add %KCld 4 @z @Day
+kFog Blend2 Var Add %KFog 5 Var Add %KFog 4 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Mul @g Blend2 Var Add %KFog 2 Var Inc %KFog @z @Day
+nSunMoonY Add 333 Div Mul @z 767 @Day
+nStarCount Sub 768 Div Mul @z 768 @Day
+
+EmbedMacro %Day6 "Early Day"
+fStars False
+nSunMoon ?: Lt @Tmp 2 Add 25 Mul @Tmp 12 ?: Lt @Tmp 5 Mul @Tmp 25 ?: Lt @Tmp 6 87 75
+kSky       Blend2 Var Inc %KSky   @KSky           @z @Day
+kSky2      Blend2 Var Add %KSky 4 Var Add %KSky 3 @z @Day
+kGround    Blend2 Var Inc %KGrd   @KGrd           @z @Day
+kGround2   Blend2 Var Add %KGrd 4 Var Add %KGrd 3 @z @Day
+kMountain  Blend2 Var Inc %KMtn   @KMtn           @z @Day
+kMountain2 Blend2 Var Add %KMtn 4 Var Add %KMtn 3 @z @Day
+kCloud     Blend2 Var Inc %KCld   @KCld           @z @Day
+kCloud2    Blend2 Var Add %KCld 4 Var Add %KCld 3 @z @Day
+kFog Blend2 Var Add %KFog 4 Var Add %KFog 3 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Mul @g Add Var Inc %KFog Div Mul Sub @KFog Var Inc %KFog @z @Day
+nSunMoonY Sub 1100 Div Mul @z 767 @Day
+
+// ////////////// //
+// Arena creation //
+// ////////////// //
+
+EmbedMacro %IArena "Create Arena"
+@z Mul @Rad 2
+Size @z @z 0 1
+@x ?: Lte @SC 0 Add @Tube 6 ?: Equ @SC 1 @Tube ?: Equ @SC 2 Sub @Tube 2 10
+@z Sub @Rad @x
+nX @z nY @z
+@z Dec Add @Rad @x
+nX2 @z nY2 @z
+fDragIsErase False 2ndDisk cDel CopyMask -1 %BDirt
+sDel CopyMask -1 %TVar
+Del CopyMask -1 %BBlock CopyMask -1 %BTrans
+DeleteMask %TLit
+= Quo \
+CopyTexture -1 %TFloor CopyTexture -1 %TWall CopyTexture -1 %TBlock CopyTexture -1 %TSide CopyTexture -1 %TVar CopyTexture -1 %BFloor
+*IElev *ITemp
+\
+@l 0 @w Div @Tmp 2 *IGrass *ITrees
+If Odd @Tmp {@l 1 @w Div Inc @Tmp 2 k - cDel \ *IGrass *ITrees}
+=
+*IMaze *IMtn *IWater *ITrans
+CopyMask %BBlock -1
+k \
+CopyMask %BTrans -1
+- k *ICorn = Del \ +
+CopyTexture %BFloor -2 CopyMask -1 %BBlock
+*ITrap *IObj *ITable *IVar *ITrib *ISky *Enemy
+If Equ @Ss 1 {SetStrings %ZName 255 ','}
+If Equ @Ss 2 {*Namer @z Add %ZName Mul 11 @Per SetString @z 'Maysilee' SetString Inc @z 'Haymitch'}
+If Equ @Ss 3 {@z %ZNameA SetString 0 ',$z' SetStrings %ZName 255 $0 SetVars %PTall 255 $ZTall For 't' 0 Dec @Live '@v Var Add %PTall @t *ITall'}
+If Equ @Ss 4 {@z Inc %ZNameA SetString 0 ',$z' SetStrings %ZName 255 $0}
+If Equ @Ss 5 {*Namer}
+IfElse Or Equ @Ss 2 Equ @Ss 3 {
+  @w Add Add %ZNameA 2 Sub @Ss 2 SetVars %PBody 255 $w
+} {
+  If Neq @Ss 0 (For 't' 0 Dec @Live 'SetVar Add %PBody @t Rnd 0 9 @v 0 *ITall')
+}
+For (t) 0 Dec @Live {
+  SetVar Add %PWield @t Neg Lt @t @Trib
+  SetVar Add %PWear @t -1
+  SetVar Add %PNet @t 0
+  SetVar Add %PWasp @t 0
+  @w Char $ZAlly Div @t @Per
+  SetVar Add %PLead @t Add Mul Add Lt @w 48 Lt @w 97 1000 Rnd 0 500
+  *IText
+}
+
+EmbedMacro %IElev "Create Hills"
+If Lte @Hill 0 {
+  kDot 15 ColorDotSet
+  CopyTexture -1 %TElev Del \
+  Return
+}
+If Equ @Hill 8 {
+  Del
+  fGraphNumber True
+  kBlend1 0 kBlend2 2047
+  @z Div Mul @Rad 1414 1000
+  nRainbowStart Div Mul @Tube -360 Sub @z @Tube
+  nRainbowDistance Sub 360 nRainbowStart
+  Replace Black -1 0
+  nRainbowStart 0 nRainbowDistance 360
+  fGraphNumber False
+  CopyTexture -1 %TElev Del \
+  Return
+}
+$0 '050207031104130517061907230825092710291131123413'
+@z Mul ?: Lt @Sj 12 @Sj Rnd 0 11 4
+nMarkElevX1 Add Mul Sub Char $0 @z 48 10 Sub Char $0 Inc @z 48
+nMarkElevX2 Add Mul Sub Char $0 Add @z 2 48 10 Sub Char $0 Add @z 3 48
+nMarkElevY1 Dec << 1 Add @Hill 4
+nMarkElevY2 Div nMarkElevY1 8
+nEdgeBehavior Mul 2 Gte @Edge 4
+k @x fWallsImpassable @y nInside @z nClippingPlane GroundVariable fWallsImpassable @x nInside @y nClippingPlane @z k
+nStepHeight -1 fMarkBlock False
+CopyTexture %TElev -1 Del \
+
+EmbedMacro %ITemp "Create Half"
+k
+If Not Odd @Tmp {sDel Return}
+If @Custom {
+  @v White *ICust
+  @w nCurrentGeneration SetLife "012345678/8" aL SetLife '45678/5678' nCurrentGeneration @w
+  cDel Return
+}
+If Equ @Quel 3 {
+  @w Add @Tube 6
+  nX Sub @Rad @w nY nX nX2 Add @Rad Dec @w nY2 nX2 2ndDisk
+  cDel Return
+}
+@k And Gte @SL 3 Lte @SL 5
+IfElse And Lt @Edge 4 Not @k {
+  av
+} {
+  Del
+  @z Div Mul SizeX 35 100
+  nX Or Sub @Rad @z 1 nY nX
+  nX2 Or Add @Rad @z 1 nY2 nX2
+  2ndBox cDel
+  DoCount 10 'H'
+}
+F nX 0 nY 0 `
+If Rnd 0 1 'Transpose'
+If Or And @k Equ @Tmp 5 And Not @k Rnd 0 1 'cDel'
+\ sDel
+If Gt @SP 0 {DoCount Mul Dec Div @Rad 25 @SP '*IBlob' =}
+- TempXor
+
+EmbedMacro %IGrass "Create Grass"
+fShowColorBitmap True Del
+IfElse Lt @w 2 {
+  IfElse Lt @w 1
+    (kBlend1 GrayN 191 kBlend2 GrayN 255)
+    (kBlend1 Rgb 0 128 0 kBlend2 Rgb 255 255 0)
+} {
+  IfElse Lt @w 3
+    (kBlend1 Rgb 255 255 191 kBlend2 Rgb 255 192 127)
+    (kBlend1 GrayN 87 kBlend2 GrayN 103)
+}
+Replace Black -16 0
+If Or Equ @w 0 Equ @w 3 {ColorGrayscale}
+If Equ @w 1 {Thicken}
+If Neq @w 3 {Thicken}
+If Or Equ @Quel 3 Gt @Custom 0 {
+  = k _ Del
+  IfElse Not @Custom (
+    @z Add @Tube 4
+    nX Sub @Rad @z nY nX
+    nX2 Add @Rad Dec @z nY2 nX2
+    2ndDisk
+  ) (
+    @v Gray *ICust
+  )
+  cDel Quo
+  kBlend1 GrayN 87 kBlend2 GrayN 103
+  Replace Black -16 0
+  ColorGrayscale
+  _ k cDel k ColorOr TempAnd k _ k
+}
+ColorAnd =
+SwapTexture -1 %BFloor _ ColorAnd TempOr
+SwapTexture -1 %BFloor _ | TempOr \
+
+EmbedMacro %ITrees "Create Trees"
+fShowColorBitmap False
+IfElse Or Lt @SF 1 Gt @SP 2 {
+  Del
+} {
+  IfElse Not @Custom (
+    @z Mod @ST 1000
+    If And @l Neq @z @ST '@z Div @ST 1000'
+    nRandomBias Add -50 ?: Lte @z 100 @z Rnd 1 Sub @z 100
+    AllRandom
+    nRandomBias 0
+  ) (
+    @v Green *ICust
+  )
+}
+= | TempAnd =
+If Equ @SF 1 {cDel *IHalf cDel =}
+If Lt @SF 3 {CopyMask %BDirt -1 TempAnd =}
+If Gt @SP 0 {DoCount Mul Dec Div @Rad 25 @SP '*IBlob' =}
+cDel fNoCornerHopping True NoIslands fNoCornerHopping False cDel
+If Equ @Edge 1 {*IEdge}
+=
+SwapMask -1 %BBlock TempOr SwapMask -1 %BBlock
+nRandomBias Add -50 ?: Lte @SW 100 @SW Rnd 1 Sub @SW 100
+AllRandom
+nRandomBias 0
+TempAnd _
+SwapTexture -1 %TWall ColorOr @z ?: Lt @w 2 %MTree %MCact Replace White UD @z @z 0 SwapTexture -1 %TWall
+SwapTexture -1 %TBlock ColorOr Replace White ?: Lt @w 2 %MTree2 %MCact2 0 k _ ColorOr Replace White %MWasp 0 k _ SwapTexture -1 %TBlock
+SwapTexture -1 %TVar ColorOr kBlend1 64 kBlend2 ?: Lt @w 2 511 255 fGraphNumber True Replace White -16 0 fGraphNumber False SwapTexture -1 %TVar
+- ColorOr
+IfElse Lt @w 2 {
+  IfElse Lt @w 1
+    (kBlend1 Rgb 0 64 0 kBlend2 Rgb 63 127 0)
+    (kBlend1 Rgb 0 64 0 kBlend2 Rgb 127 127 0)
+} {
+  IfElse Lt @w 3
+    (kBlend1 Rgb 64 64 0 kBlend2 Rgb 127 127 0)
+    (kBlend1 Brown kBlend2 Rgb 191 127 0)
+}
+Replace White -16 0 \
+
+EmbedMacro %IMtn "Create Mountains"
+If And Lt @SM 1 Neq @Edge 2 {Return}
+fShowColorBitmap False
+*IRidge
+=
+SwapMask -1 %BBlock TempOr SwapMask -1 %BBlock
+SwapTexture -1 %TWall ColorOr Replace White UD %MRock %MRock 0 SwapTexture -1 %TWall
+SwapTexture -1 %TBlock ColorOr Replace White %MRock2 0 SwapTexture -1 %TBlock
+ColorOr kBlend1 GrayN 96 kBlend2 GrayN 160 Replace White -14 0
+SwapTexture -1 %TVar fGraphNumber True nEdgeBehavior 0
+For (i) 0 19 {
+  ColorOr
+  @z Add 128 Mul @i 96
+  kBlend1 @z kBlend2 Add @z 95
+  Replace White -16 0
+  NoBoundary
+  If Not @z 'Break'
+}
+fGraphNumber False SwapTexture -1 %TVar
+k
+
+EmbedMacro %IRidge "Create Canyons"
+If @Custom {@v LtGray *ICust Return}
+Del
+If Gt @SM 2 {*IHalf CopyMask %BDirt -2 TempAnd}
+If Mod @SM 3 {cDel DoCount Mul Dec Div @Rad 25 Mod @SM 3 '*IBlob' cDel}
+If Equ @Edge 2 {*IEdge}
+cDel fNoCornerHopping True NoIslands fNoCornerHopping False cDel
+
+EmbedMacro %IMaze "Create Maze"
+If And And Lt @SZ 1 Neq @Edge 3 Not @Custom {Return}
+IfElse Gt @SZ 0 {
+  @x SizeX @y SizeY
+  IfElse Lt @SZ 5 (
+    @w ?: Lt @SZ 4 @SZ Rnd 1 3
+    @z ?: Equ @w 1 Inc Div @Rad 2 ?: Equ @w 2 Inc Div Mul @Rad 2 3 Inc @Rad
+    MazeSize @z @z 1
+    B
+    @z Sub 4 @w
+    If Gt @z 1 'Bias 1 @z 1 @z'
+    Size -2 -2 1 0
+  ) (
+    @z Sub @SZ 5
+    Size Add 8 @z Add 8 @z 0 1
+    nX 2 nY 2 nX2 Add 6 @z nY2 Add 6 @z 2ndBox
+    Zoom @x @y 1 2
+    Size @x @y 0 0
+    NoIsolation
+  )
+  CopyMask %BDirt -2 TempAnd
+  Size @x @y 0 0
+} {
+  fShowColorBitmap False Del
+  If @Custom (@v Red *ICust)
+}
+If Equ @Edge 3 {*IEdge}
+=
+SwapMask -1 %BBlock TempOr SwapMask -1 %BBlock
+SwapTexture -1 %TWall ColorOr Replace White UD %MBrick %MBrick 0 SwapTexture -1 %TWall
+SwapTexture -1 %TBlock ColorOr Replace White %MBrick2 0 SwapTexture -1 %TBlock
+ColorOr Replace White @KMaze 0
+SwapTexture -1 %TVar ColorOr Replace White 128 0 SwapTexture -1 %TVar
+
+EmbedMacro %IWater "Create Water"
+fShowColorBitmap False
+If And Lt @SL 1 Lt @SV 1 {Del CopyMask -1 %BWater *IElev2 Return}
+*IRiver *IQuell
+If And Gte @Edge 1 Lte @Edge 3 {*IEdge =}
+SwapMask -1 %BBlock TempAnd SwapMask -1 %BBlock
+cDel CopyMask -1 %BWater
+*IElev2
+ColorAnd
+kBlend1 Rgb 0 119 183 kBlend2 Rgb 0 135 199 Replace Black -16 0
+k cDel nEdgeBehavior Or Gte @SL 3 Gte @SV 2
+IfElse Lt @SDeep 256 {DoCount @SDeep 'NoBoundary'} {Del}
+cDel ColorAnd
+kBlend1 Blend kBlend1 Dark kBlend1 kBlend2 Blend kBlend2 Dark kBlend2 Replace Black -16 0
+SwapTexture -1 %TVar ColorAnd SwapTexture -1 %TVar
+\ CopyMask %BWater -1 ColorAnd _ k cDel ColorAnd TempOr _ | =
+SwapTexture -1 %BFloor k ColorAnd _ k cDel ColorAnd TempOr SwapTexture -1 %BFloor
+
+EmbedMacro %IElev2 "Hill Water"
+SwapTexture -1 %TElev
+cDel \ CopyMask %BDirt -2 TempAnd k = Del
+IfElse Lt @Hill 1 {
+  Replace Black 15 0
+} {
+  nEdgeBehavior Add 1 Gte @Edge 4
+  For (i) 1 16 (ColorOr Replace White Max Dec Mul @i 256 0 0 k NoBoundary)
+  k \ CopyMask %BDirt -1 k cDel Quo Replace White 15 0 k cDel
+  ForStep (i) 12 0 -3 (ColorOr Replace White @i 0 k NoBoundary)
+}
+CopyMask %BWater -1 ColorOr Replace White 0 0 k | k
+If Gt @Hill 0 {fGraphNumber True ColorTempAlpha fGraphNumber False}
+SwapTexture -1 %TElev
+
+EmbedMacro %IRiver "Create Rivers"
+If @Custom {@v Blue *ICust cDel = Return}
+sDel =
+If And @SV 2 {Del *IHalf CopyMask %BDirt -2 TempAnd cDel =}
+CopyMask %BDirt -1
+nX 1 nY 1
+If And Odd @SV Gte @Rad 50 {
+  PartialCavern AddEntrance AddExit
+  If Gte @Rad 75 (RotateRight AddEntrance If Gte @Rad 100 'AddExit')
+  F
+}
+nX @Rad nY @Rad
+` cDel Thicken cDel
+IfElse Rnd 0 1
+  {IfElse Rnd 0 1 'RotateRight' 'RotateLeft'}
+  {If Rnd 0 1 'FlipVertical'}
+TempAnd = CopyMask %BDirt -1 cDel TempOr =
+If Lt @SL 1 {Return}
+IfElse Lt @SL 6 {
+  If Gte @SL 3 (
+    Del
+    @z Max Div Mul SizeX 40 100 @SU
+    nX Or Sub @Rad @z 1 nY nX
+    nX2 Or Add @Rad @z 1 nY2 nX2
+    2ndBox cDel
+    DoCount 10 'H'
+    F nX 0 nY 0 `
+    If Rnd 0 1 'Transpose'
+  )
+  DoCount Mul Dec Div @Rad 25 Mod @SL 3 '*IBlob'
+} {
+  CopyMask %BDirt -1 cDel
+}
+=
+
+EmbedMacro %IQuell "Create Spokes"
+If Lt @Quel 2 {Return}
+@w Add @Tube 4
+nX Sub @Rad @w nY nX nX2 Add @Rad Dec @w nY2 nX2
+c 2ndDisk c \
+Size Mul @w 2 Mul @w 2 0 1
+nX Dec @w nY nX
+For (z) 0 3 {nX2 Add nX Cos2 Inc @w @z 12 nY2 Add nY Sin2 Inc @w @z 12 2ndLine}
+Thicken = FlipHorizontal TempOr = FlipVertical TempOr _ -
+nX Sub @Rad @w nY nX
+2ndOr
+nX Sub @Rad 6 nY nX nX2 Add @Rad 5 nY2 nX2 2ndDisk
+=
+Size SizeX SizeY 0 0
+
+EmbedMacro %IHalf "Create Splotches"
+Local 'wz'
+= AllRandom
+@w nCurrentGeneration DoCount 20 'aL' nCurrentGeneration @w
+TempOr
+
+EmbedMacro %IBlob "Create Blob"
+Local 'iwz'
+_
+@w Add 64 Div @Rad 15
+Size @w @w 0 1 sDel
+nX Or Div @w 2 1 nY nX
+nMazeCellMax Rnd 50 Mul @Rad 2
+PartialPrim
+cDel Zoom -2 -2 0 1 Thicken CollapseToSet
+@w Add @Tube 5
+@z Dec Mul @Rad 2
+For (i) 1 100 {
+  @x Rnd 1 Sub @z SizeX @y Rnd 1 Sub @z SizeY
+  If Or Or Or Gt @x Add @Rad @w Gt @y Add @Rad @w Lt @x Sub Sub @Rad @w SizeX Lt @y Sub Sub @Rad @w SizeY (Break)
+}
+cDel _
+If Lte @i 100 {nX @x nY @y 2ndAnd}
+Size SizeX SizeY 0 0
+
+EmbedMacro %IEdge "Create Boundary"
+nX 0 nY 0
+nX2 Dec SizeX nY2 Dec SizeY
+2ndBox
+
+EmbedMacro %ITrans "Create Transparency"
+@w And @SG 15
+For (i) 0 3 {
+  If And @SG << 1 Add 4 @i (@w Xor @w << Rnd 0 1 @i)
+}
+If Not And @w Inv 2 {Return}
+fShowColorBitmap True - SwapMask %BTrans -2
+If And @w 1 {
+  CopyTexture %TWall -1 kDot UD %MTree %MTree ColorDotXor ColorPut cDel TempOr _
+  CopyTexture %TWall -1 kDot UD %MCact %MCact ColorDotXor ColorPut cDel TempOr _
+}
+If And @w 4 {
+  CopyTexture %TWall -1 kDot UD %MBrick %MBrick ColorDotXor ColorPut cDel TempOr _
+}
+If And @w 8 {
+  CopyTexture %TWall -1 kDot UD %MRock %MRock ColorDotXor ColorPut cDel TempOr _
+}
+CopyMask %BBlock -1 TempAnd _
+SwapMask %BTrans -2 fShowColorBitmap True -
+
+EmbedMacro %ICorn "Create Cornucopia"
+If Gt @SP 3 {Return}
+@i Add %ZCorn Gt @Quel 0
+@k ?: Not And @SG 32 Gt And @SG 2 0 Rnd 0 1
+If @Corn {k CopyMask -1 %TLit Del SwapMask -1 %TLit k}
+For (n) 0 14 {
+  @y Add Sub @Rad ?: @Quel 5 13 @n
+  For (m) 0 4 (
+    @z Add Mul @n 6 @m
+    @w Sub Char $i @z 48
+    If And Gte @w 0 Lte @w 9
+      '@z Add 75 Div Mul @w 25 2 
+      @x Add Sub @Rad 5 @m *ICorn2
+      @x Sub Add @Rad 4 @m *ICorn2'
+  )
+}
+fGraphNumber True -
+CopyTexture %TElev -1 kDot 4097 ColorDotMul _
+SwapTexture -1 %TVar ColorTempAdd SwapTexture -1 %TVar
+- fGraphNumber False
+
+EmbedMacro %ICorn2 "Cornucopia Wall"
+Set @x @y On
+SetE @x @y @k
+SetC @x @y @KCorn
+SetA %TVar @x @y On
+SetCA %TVar @x @y @z
+SetCA %TWall @x @y 0
+SetCA %TBlock @x @y 0
+If And @Corn 1 {SetA %TLit @x @y On}
+
+EmbedMacro %ITrap "Set Traps"
+If And And Lte @Sw 0 Lte @St 0 Not @Custom {Return}
+k cDel =
+SwapTexture -1 Inc %BCopy
+IfElse Not @Custom {
+  nRandomBias ?: Lt @Sw 300
+    Add -50 ?: Lte @Sw 100 @Sw Rnd 1 Sub @Sw 100
+    Neg @Sw
+  AllRandom
+} {
+  @v Yellow *ICust
+}
+TempAnd SwapMask -2 %BWater cDel TempOr cDel SwapMask -2 %BWater
+If Not @Custom {SwapMask -2 %BDirt TempAnd SwapMask -2 %BDirt}
+Quo Replace White %MWasp 0
+k Del
+IfElse Not @Custom {
+  nRandomBias ?: Lt @St 300
+    Add -50 ?: Lte @St 100 @St Rnd 1 Sub @St 100
+    Neg @St
+  AllRandom
+} {
+  @v Maize *ICust
+}
+TempAnd SwapMask -2 %BWater cDel TempOr cDel SwapMask -2 %BWater
+If Not @Custom {SwapMask -2 %BDirt TempAnd SwapMask -2 %BDirt}
+ColorOr Replace White %MTrap 0
+_ SwapTexture -1 %TFloor TempOr SwapTexture -1 %TFloor _
+nRandomBias 0
+SwapTexture -1 Inc %BCopy
+CopyMask %BBlock -1
+
+EmbedMacro %IObj "Place Objects"
+@w %JAcc
+@k @SI
+@i Add %ZCorn Gt @Quel 0
+For (n) 0 14 {
+  For (m) 0 4 (
+    @z Char $i Add Mul @n 6 @m
+    @o InChar $ZItem @z
+    If Lte @o 0 'Continue'
+    @y Add Sub @Rad ?: @Quel 5 13 @n
+    @x Add Sub @Rad 5 @m
+    IfElse Lt @o %JMax '*PutObj' '*IObj2'
+    @x Sub Add @Rad 4 @m
+    IfElse Lt @o %JMax '*PutObj' '*IObj2'
+  )
+}
+@w %JAnc
+@z Sub @Tube 4
+@j ?: @Quel Sub @Rad @z @Rad
+For (i) 1 Mul Div Mul @Tube 36 25 Lt @k 3 {
+  @x Rnd Sub @Rad @z Add @Rad @z @y Rnd @j Add @Rad @z
+  If Or Or GetCE @x @y Get @x @y Gt Sqr Add Pow Sub @Rad @x 2 Pow Sub @Rad @y 2 @z
+    '@i Sub @i Gt Rnd 1 100 1 Continue'
+  *IObj2
+}
+@w %JAow
+@k 0
+@z Add @Tube 7
+For (i) 1 Div Pow Mul @Rad 2 2 100 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Dec SizeY
+  If Or Or Get @x @y Gt GetCE @x @y 0 Lt Sqr Add Pow Sub @Rad @x 2 Pow Sub @Rad @y 2 @z
+    '@i Sub @i Gt Rnd 1 100 1 Continue'
+  *IObj2
+}
+
+EmbedMacro %IObj2 "Place Random Object"
+Local 'loz'
+IfElse Lt Mod @k 3 2 {
+  @l ?: Mod @k 3 %JGun Dec %JMax
+  For (z) 1 10000 (
+    @o Rnd 1 @l
+    If Not Or Not Var Add @w @o And Equ @o %JGog Odd @SB 'Break'
+  )
+  If Gte @z 10000 (Return)
+} {
+  @o ?: @Item @Item %JMce
+}
+If GetA %BWater @x @y {@o %JFsh}
+*PutObj
+
+EmbedMacro %ITable "Reset Tables"
+SwapTexture -1 %BInv
+SizeC @Live Inc @Inv 0 1
+If @SJ {
+  For (r) 0 Dec @Trib (SetC @r 0 ?: Lt @SJ %JMax @SJ Rnd 1 Dec %JMax)
+}
+For (r) @Trib Dec @Live {SetC @r 0 %JMut}
+SwapTexture -1 %BInv
+SwapTexture -1 %BAlly
+SizeC Inc @Live Inc @Live 0 1
+kDot 150 ColorDotSet
+SetC @Live @Live Black
+@w Min @Dist Dec Len $ZAlly
+For (x) 0 @w {
+  @m Char $ZAlly ?: Lt @x @Dist @x @Dists
+  For (y) 0 @w (
+    @n Char $ZAlly ?: Lt @y @Dist @y @Dists
+    If Neq @m @n 'Continue'
+    nX Mul @x @Per nX2 ?: Lt @x @Dist Add nX Dec @Per Dec @Live
+    nY Mul @y @Per nY2 ?: Lt @y @Dist Add nY Dec @Per Dec @Live
+    kWall 100 2ndBlock
+  )
+}
+For (z) 0 @Dist {
+  nX Mul @z @Per nX2 ?: Lt @z @Dist Add nX Dec @Per Dec @Live
+  nY nX nY2 nX2 kWall 50 2ndBlock
+}
+kWall White
+For (r) 0 Dec @Live {
+  @z Div @r @Per
+  If Gte @z @Dist (@z @Dists)
+  @z Var Add %KDist @z
+  SetCA %BInv @r @Inv @z
+  SetC @r @Live @z SetC @Live @r @z SetC @r @r 0
+}
+SwapTexture -1 %BAlly
+@Log 0
+
+EmbedMacro %IVar "Reset Variables"
+fErrorCheckPixelOperations True fAutorepeatLastCommand False fGlancingBlows False
+nEdgeBehavior Mul 2 Gte @Edge 4
+nHorizontalOffset 0 nVerticalOffset 0 nDirectionOffset 0
+fRainbow False nHorizon 0
+@x Div @Sy 1000
+If Gt @x @Dist {@x Add Inc @Dist Gt @x Inc @Dists}
+If Not @x {@x Rnd 1 @Dist}
+@y Min Mod @Sy 1000 @Per
+If Not @y {@y Rnd 1 @Per}
+@q ?: Lte @x Inc @Dist Min Add Mul Dec @x @Per Dec @y Dec @Live -1
+For (r) 0 Dec @Live {
+  SetVar Add %PHP @r ?: Lt @r Max Sub @Live @Sn @Trib ?: Or Lt @r @Trib Lt @SMuttH 1 @HpMax @SMuttH 0
+  SetVar Add %PKill @r 0
+  SetVar Add %PFood @r Add @Food ?: Or Equ @r @q Gte @r @Trib 0 Rnd -24 24
+  *ITube
+  @v @r *SetXY
+}
+*IOrd
+For (r) 0 Dec @Live {
+  @v @r *GetXY
+  SetVar Add %PZ @r GetM @x @y
+  *ISeek
+}
+@v -1 @x Dec @Rad @y ?: @Quel @x Add @Rad 2 *SetXY
+@i 0
+For (r) -1 Dec @Live {
+  @v @r *GetXY
+  If And Gte @r 0 Gt Var Add %PHP @r 0 (*SqIn)
+  If Equ @r @q (
+    nX @x nY @y
+    nDir ?: Gte @q 0 And ?: @Quel
+      Div Sub 495 Ang Sub @x @Rad Sub @y @Rad 90
+      Add Div Sub @x Sub @Rad 29 20 3
+      3 2
+    g
+  )
+}
+@a 0 @b 0 @d 0 @p Neg @SK @r -2 @s @Trib
+
+EmbedMacro %ITube "Place Tribute"
+Local 'rwz'
+If And Or Equ @Ord 2 Gte @Ord 4 Lt @r @Trib {
+  @r Add Mul Odd @r Div Inc @Trib 2 Div @r 2
+}
+IfElse Lt @r @Trib {
+  @w Mul @Trib 2
+  IfElse @Quel (
+    @z Inc Mul @r 2
+    @x Cos2 @Tube @z @w @y Sin2 @Tube @z @w
+    @x Sub Add @x @Rad Lt @x 0 @y Sub Add @y @Rad Lt @y 0
+    If And And Gt @Quel 1 Equ @Trib 24 Lte @Tube 25
+      '@x Sub @x Or Equ @z 11 Equ @z 37
+      @x Add @x Or Equ @z 13 Equ @z 35
+      @y Sub @y Or Equ @z 1 Equ @z 23
+      @y Add @y Or Equ @z 25 Equ @z 47'
+  ) (
+    @w Max Sub @w 2 1 @x Cos2 @Tube @r @w @y Dec Add @Rad Sin2 @Tube @r @w @x Sub Add @x @Rad Lt @x 0
+  )
+  @v 1 *FndSq
+  Set @x @y On
+  SetCT @x @y @KTube
+  SetCA %TElev @x @y 30
+  SetCA %TFloor @x @y %MTube2
+  SetCA %TSide @x @y UD %MTube %MTube
+  SetCA %BFloor @x @y @KTube
+  SetA %BWater @x @y Off
+  SetCE @x @y 0
+  If And @Corn 2 (SetA %TLit @x @y On)
+} {
+  @z ?: Lt @SL 3 0 ?: Lt @SL 6 Div Mul @Rad 20 100 Sub @Rad @SU
+  @x ?: Odd @r Sub Dec SizeX @z @z
+  @y ?: And Gt And @r 2 0 Gt @Quel 0 Sub Dec SizeY @z @z
+  @v 2 *FndSq
+  Set @x @y Gt Var Add %PHP @r 0
+}
+
+EmbedMacro %IOrd "Tribute Order"
+If Or Equ @Ord 3 Equ @Ord 4 {Return}
+For (r) 0 Dec @Trib {
+  @w ?: Gte @Ord 5
+    Min Xor @r Not And @r 3 Dec @Trib
+    ?: Not @Ord
+      Rnd 0 Dec @Trib
+      Add Odd @r Mul 2 Rnd 0 Sub Div @Trib 2 Or Not Odd @Trib Odd @r
+  SwapVar Add %PXY @r Add %PXY @w
+}
+
+EmbedMacro %ISeek "Initial Coordinates"
+@v @r *GetXY
+IfElse Lt @r @Trib {
+  @m @x @n @y
+  @x Min Max @x Sub @Rad 3 Add @Rad 2 @y ?: @Quel Min Max @y Sub @Rad 3 Add @Rad 2 @Rad
+  @w Inc Div @r @Per @z Char $ZAlly Dec @w
+  If And Gte @z 48 Or Gte @z 97 Rnd 0 1
+    (@x Add @m Sub @m @x @y Add @n Sub @n @y)
+} {
+  IfElse Or Not @Quel Rnd 0 1
+    (@x Sub Dec SizeX @x)
+    (@y Sub Dec SizeY @y)
+}
+@x Min Max @x 0 Dec SizeX @y Min Max @y 0 Dec SizeY @v 0 *FndSq
+SetVar Add %PDest @r UD @x @y
+
+EmbedMacro %ITrib "Init Tribute"
+IfElse Gte @q 0
+  {kDot Light Var Add %KDist Div @q @Per If Equ kDot White (kDot LtGray)}
+  {kDot White}
+@z Inc Div @q @Per
+fCompass Or Equ @z 6 Lt @q 0 fCellLocation fCompass
+fNoSubmerge Lte @z Inc @Dists
+If Gte @q 0 {
+  If Neq Or Equ @z 10 Equ @z Inc @Dist GetA %MFoot2 0 0 (
+    For 'z' 0 3
+      'SwapMask Add %MFoot2 @z Add %MFoot3 @z
+      SwapMask Add %MPaw2 @z Add %MPaw3 @z'
+  )
+}
+@v ?: Gte @q 0 Var Add %PZ @q GetM nX nY
+*View nViewHeight @v
+*Day0
+
+EmbedMacro %IMutt "Init Mutt"
+Local 'hiv'
+SetVar Add %PNet @t 0
+SetVar Add %PWasp @t 0
+SetVar Add %PHP @t ?: Or Lt @t @Trib Lt @SMuttH 1 @HpMax @SMuttH
+@v 2 *FndSq
+SetVar Add %PXY @t UD @x @y
+SetVar Add %PZ @t GetM @x @y
+SetVar Add %PDest @t UD @x @y
+SetCA %BInv @t 0 %JMut
+SetVar Add %PWield @t 0 SetVar Add %PWear @t -1
+*IText
+@v @t @i 0 *SqIn
+For (i) 0 Dec @Live {
+  If Lt Var Add %PHP @i 1 'Continue'
+  SetCA %BAlly @t @i RgbR GetCA %BAlly @t @i
+  SetCA %BAlly @i @t RgbR GetCA %BAlly @i @t
+}
+
+EmbedMacro %ISky "Select Sky"
+IfElse Lt @Tmp 4 {
+  IfElse Lt @Tmp 2
+    (kSky Light Light Cyan kGround White kGround2 GrayN 159 kMountain2 White nCloudCount 32)
+    (kSky Cyan kGround Blend Maize Green kGround2 Blend Maize LtGray kMountain2 DkGreen nCloudCount 16)
+} {
+  IfElse Lt @Tmp 6
+    (kSky Cyan kGround Rgb 255 239 207 kGround2 Rgb 255 215 127 kMountain2 Gray nCloudCount 4)
+    (kSky Blend Cyan LtGray kGround Gray kGround2 Blend Gray Brown kMountain2 Gray nCloudCount 8)
+}
+kSky2 kSky kMountain kGround2
+If Gte @SL 3 {kGround Rgb 0 89 149 kGround2 kGround}
+SetVar Add %KSky 0 kSky
+SetVar Add %KSky 1 Blue
+SetVar Add %KSky 2 Black
+SetVar Add %KSky 3 kSky2
+SetVar Add %KSky 4 Orange
+SetVar Add %KSky 5 Black
+SetVar Add %KGrd 0 kGround
+SetVar Add %KGrd 1 Dark kGround
+SetVar Add %KGrd 2 Dark Dark kGround
+SetVar Add %KGrd 3 kGround2
+SetVar Add %KGrd 4 Dark kGround2
+SetVar Add %KGrd 5 Dark Dark kGround2
+SetVar Add %KMtn 0 kMountain
+SetVar Add %KMtn 1 Dark kMountain
+SetVar Add %KMtn 2 Dark Dark kMountain
+SetVar Add %KMtn 3 kMountain2
+SetVar Add %KMtn 4 Dark kMountain2
+SetVar Add %KMtn 5 Dark Dark kMountain2
+IfElse @SMist {
+  nCloudCount 0
+  For (i) %KSky Add %KMtn 5 (@z Mod Sub @i %KSky 3 SetVar @i ?: Not @z @KMist ?: Odd @z Dark @KMist Black)
+  SetVar Add %KFog 3 @KMist SetVar Add %KFog 4 Dark @KMist
+  fSunAndMoon False
+} {
+  SetVar Add %KFog 3 Black SetVar Add %KFog 4 Black
+  fSunAndMoon True
+}
+
+EmbedMacro %IText "Init Texture"
+Local 'hiklvwz'
+@l fRedrawWhenBitmapEdited fRedrawWhenBitmapEdited False
+$0 'T___'
+@w Add %MTrib @t
+CopyMask Add %BBody ?: Lt @t @Trib Inc Add Mul Odd @t 10 Var Add %PBody @t 0 @w
+@h Var Add %PHP @t *UpdHp
+@i Var Add %PWield @t *Wield
+@i Var Add %PWear @t *Wear
+SwapMask -1 @w
+fShowColorBitmap False = Del
+@v Inc Div @t @Per
+If Lte @v @Dist {Turtle 'BM12,10S8' *Draw}
+If Or And Lt @t @Trib Gt @Per 2 And Gte @t @Trib Gt Sub @Live @Trib 1 {
+  @z Inc ?: Lt @t @Trib Div Mod @t @Per 2 Sub @t @Trib
+  @k Lte ?: Lt @t @Trib @Per Sub @Live @Trib Mul @Dists Sub 2 Gt @v @Dist
+  Turtle 'BM5,212S8'
+  @v ?: @k 26 Div @z 10
+  *Draw Turtle 'BM184,212'
+  @v ?: @k @z Mod @z 10 *Draw
+}
+Thicken2 6 cDel TempAnd
+SwapMask -1 @w
+fRedrawWhenBitmapEdited @l
+
+EmbedMacro %ICust "Custom Arena"
+Local 'xyz'
+SwapTexture -1 %BCopy
+CopyTexture ?: Equ @Land 12 %BDist %BInit -1
+@x RgbR @v @y RgbG @v @z RgbB @v
+@x Add @x And Gt @x 0 Lt @x 255
+@y Add @y And Gt @y 0 Lt @y 255
+@z Add @z And Gt @z 0 Lt @z 255
+Replace Rgb @x @y @z @v 0
+kDot @v ColorDotXor ColorPut cDel
+SwapTexture -1 %BCopy
+
+EmbedMacro %ITall "Random Height"
+Local 'vxyz'
+IfElse Not @v {
+  IfElse Lt @t @Trib (
+    @x Lt Char $ZAlly Div @t @Per 48
+    @y Add Add Add 56 Mul @x 6 Mul Odd @t 6 Add Rnd 0 6 Rnd 0 6
+  ) (
+    @y @SMuttT
+  )
+} {
+  @y @v
+}
+SetVar Add %PTall @t @y
+If Gt Var Add %PHP @t 0 {
+  @v @t *GetXY
+  @z Var Add %PZ @t
+  SetCA %TVar @x @y UD Add Var Add %PTall @t @z Max @z GetM @x @y
+}
+If Equ @t @q {@v Var Add %PZ @t *View nViewHeight @v}
+
+// ////////////// //
+// District Arena //
+// ////////////// //
+
+EmbedDB
+DB
+200 200 24
+
+kQ-$!c{xQ-$!a{zszsbszczcbc{a{gzaaa{gia{c
+iQ-$!f{wQ-$!b{wa{sra{sjazczcaczaoa{c
+hQ-$!i{uQ-$!b{wa{sra{sjazczcac{a{gpa{gba{gra{c
+fQ-$!o{oQ-$!e{va{sra{sjazczc{c{a{gba{gpafclaac
+eQ-$!z{k{ksbadsba{sbahsba{sba{sbagszczc{cqaeccaccjaac
+cQ-$!z{n{ia{sba{sja{sfa{sba{sfa{sfazczc{gpaacba{gfacchaac
+bQ-$!z{o{ia{sba{sja{sfa{sba{sfa{sfazczcqaacja{g{afcbaac
+bQ-$!n{aQ-$!z{ha{sba{sja{sfa{sba{sfa{sfazcycqaacda{glabcaaac
+bQ-$!l{lQ-$!r{dsba{sba{sbahsba{sba{sbahsbacszcxcaa{goaacea{gladc
+bQ-$!k{oQ-$!p{ca{sfa{sba{sja{sna{sba{sbazcxcra{c{gna{geabc
+Q-$!m{oQ-$!q{ba{sfa{sba{sja{sna{sba{sbazcwcsaacka{gja{g
+n{rQ-$!n{ba{sfa{sba{sja{sna{sba{sbazcwcda{gnaac
+n{sQ-$!n{aa{sbadsba{sbatsba{sba{sbazcvc{a{gra{g{aacra{g
+aQ-$!l{sQ-$!n{aa{sfa{sra{sfa{sfa{sbazcvcna{ggaac
+bQ-$!k{yQ-$!i{{a{sfa{sra{sfa{sfa{sbazcucfa{gja{gdaacea{g{a{gba{g
+cQ-$!j{zQ-$!aQ-$!f{{a{sfa{sra{sfa{sfa{sbazcucia{gea{gfaacha{gia{g
+cQ-$!j{zQ-$!bQ-$!f{dsbalsba{sba{sba{sbakszctcea{graacca{g
+cQ-$!k{zQ-$!aQ-$!g{fa{sna{sfa{sba{sjazcsc{a{gla{gjaacda{g
+cQ-$!l{zQ-$!Q-$!g{fa{sna{sfa{sba{sjazcscia{gha{gba{gaa{c{g
+cQ-$!k{zQ-$!aQ-$!h{ea{sna{sfa{sba{sjazcrcza{a{cba{gba{g
+cQ-$!g{zQ-$!eQ-$!h{bsba{sbadsbalsba{sba{sba{sbazcrcia{gpaacia{gfa{g
+cQ-$!f{zQ-$!fQ-$!i{{a{sba{sba{sfa{sra{sba{sbazcqc{gpa{giaacma{g
+cQ-$!f{zQ-$!fQ-$!i{{a{sba{sba{sfa{sra{sba{sbazcqcba{gga{goabc
+dQ-$!e{zQ-$!fQ-$!j{{sba{sba{sfa{sra{sba{sbazcpcga{guabc
+dQ-$!g{zQ-$!cQ-$!l{ba{sba{sbadsbapsbacszcoczaeaac
+eQ-$!h{zQ-$!Q-$!m{ba{sfa{sfa{svazcocta{gga{gaaac
+eQ-$!h{zQ-$!h{dQ-$!a{aa{sfa{sfa{svazcncja{gaa{gka{geabcga{gea{g
+eQ-$!g{zQ-$!h{eQ-$!a{aa{sfa{sfa{svazcnczagaac{g
+eQ-$!f{xQ-$!k{eQ-$!b{isbadsba{sbahsba{sbazcmc{gqa{gaa{gda{gaa{gcaacaa{g
+eQ-$!f{wQ-$!l{eQ-$!b{la{sfa{sba{sfa{sba{sbazcmczahaacja{g
+dQ-$!g{wQ-$!l{fQ-$!b{ka{sfa{sba{sfa{sba{sbazclcpa{graac
+dQ-$!g{wQ-$!m{fQ-$!b{ja{sfa{sba{sfa{sba{sbazckcda{gzaca{g{a{cea{gea{gaa{g
+cQ-$!g{xQ-$!m{gQ-$!a{badsba{sba{sba{sba{sba{sba{sba{sbazckcma{gga{gga{gea{c
+bQ-$!h{yQ-$!l{gQ-$!b{aa{sja{sja{sfa{sbazcjc{gla{gpa{g{a{gda{cma{g
+bQ-$!h{xQ-$!m{hQ-$!a{aa{sja{sja{sfa{sbazcjcha{gna{glaac
+bQ-$!h{xQ-$!m{hQ-$!b{{a{sja{sja{sfa{sbazcic{a{gba{gzafaac
+bQ-$!h{xQ-$!k{kQ-$!a{{a{sbahsbapsbazcicea{glabcda{gea{gcaac{a{gqa{g
+bQ-$!h{wQ-$!k{lQ-$!b{{sba{sna{sfa{sfazchcoa{gaafcnaac
+bQ-$!i{tQ-$!k{nQ-$!b{{sba{sna{sfa{sfazchc{gpabc{a{g{abclaacba{gfa{g
+bQ-$!i{tQ-$!j{oQ-$!c{ba{sna{sfa{sfazcgcja{gea{gaceabcaaacfa{cpa{g{a{g
+aQ-$!j{tQ-$!h{qQ-$!d{aa{sbahsba{sba{sba{sbacszcfcraacgaeceaac
+m{sQ-$!g{rQ-$!d{aa{sja{sba{sba{sba{sfazcfcfa{gjaac{gia{gccaaccea{gma{g
+n{qQ-$!i{dQ-$!a{iQ-$!f{{a{sja{sba{sba{sba{sfazcecraacma{gfcea{g
+{so{mQ-$!v{bQ-$!i{{a{sja{sba{sba{sba{sfazcecraacca{gzala{{
+{aaso{hQ-$!z{l{hsba{sba{sba{sbadsbazcdcha{ggabcba{gzalab{
+baasz{z{h{ca{sfa{sfa{sjazcdcja{geabczaea{ggad{
+daasz{z{g{ba{sfa{sfa{sjazcccraaczamaf{
+fa{sz{z{dQ-$!b{aa{sfa{sfa{sjazcbcsaacra{gsag{
+gaasu{Q-$!z{gQ-$!a{aa{sbadsbaoszcbcsaacea{gzaba{gi{
+iaasp{cQ-$!z{hQ-$!a{da{sfa{snazcacba{gia{gfaacfa{gda{gea{gaa{gjak{
+aa{ghaask{fQ-$!i{bQ-$!k{jQ-$!a{da{sfa{snazcacda{goaacaa{gga{gca{gla{gbal{
+da{gba{gcaash{hQ-$!h{dQ-$!h{kQ-$!b{ca{sfa{snazc{cvaaczadan{
+oa{sf{iQ-$!h{dQ-$!e{nQ-$!b{dsba{sba{sbadsbacszc{csa{gaaacma{gnab{jA)#!b{
+ea{giaasd{iQ-$!f{fQ-$!d{oQ-$!c{fa{sfa{sjazcca{gda{glaacpa{gfa{gaad{jA)#!b{
+raasc{hQ-$!f{fQ-$!d{oQ-$!d{ea{sfa{sjayc{a{gla{gha{cua{gdae{jA)#!b{
+{a{gja{gfaasb{gQ-$!e{gQ-$!d{mQ-$!f{ea{sfa{sjaycba{goa{gbaacyag{bA)#!d{bA)#!b{
+va{sd{eQ-$!d{gQ-$!d{kQ-$!i{msbagsxcna{gba{gdaacha{gmai{bA)#!d{bA)#!b{
+eaacoaasf{aQ-$!d{fQ-$!e{jQ-$!j{xaxcja{glaacba{gqae{hA)#!d{bA)#!b{
+cajcjaasj{gQ-$!f{hQ-$!l{wawcfa{gda{gjabcfa{gca{ggaf{hA)#!d{bA)#!b{
+cakckaasf{jQ-$!g{fQ-$!l{wawcga{gia{g{a{gbaacaa{goa{gh{hA)#!d{bA)#!b{
+camcka{se{kQ-$!h{dQ-$!m{osba{sbavcma{giabcfa{g{a{ggaj{bA)#!j{bA)#!b{
+{gbamcaa{giaasc{kQ-$!i{cQ-$!e{eQ-$!b{ea{sja{sbaucha{gbaec{gaa{gbabcoal{bA)#!j{bA)#!b{
+dalcnaasc{kQ-$!i{aQ-$!d{fQ-$!b{ea{sja{sbaucba{g{a{gfancca{gda{gdam{bA)#!j{bA)#!b{
+dalcpaasb{kQ-$!o{gQ-$!b{da{sja{sbatclabcdadcpao{bA)#!j{bA)#!b{
+dalcdahsdaasb{iQ-$!o{hQ-$!a{{a{sba{sbakstciadcta{gcaq{bA)#!j{bA)#!b{
+dakcea{sfA)#!{sfa{sd{fQ-$!o{hQ-$!b{{srascaa{ggacc{a{gna{gaa{gba{g{ar{bA)#!j{bA)#!b{
+{a{gbakcea{sfA)#!{sgaase{bQ-$!o{iQ-$!b{{srasciabc{a{gwat{bA)#!j{bA)#!b{
+dajcfa{sfA)#!{siaasv{jQ-$!b{rarcjaacsa{gcae{sA)#!j{bA)#!b{
+dajcfahA)#!kaasi{bQ-$!h{jQ-$!a{gsbagsrcba{gaa{gcaacea{gea{ghag{sA)#!j{bA)#!b{
+eahcga{sfA)#!{sea{gfa{sg{cQ-$!h{kQ-$!a{aa{sja{sbaqckaacuah{sA)#!j{bA)#!b{
+faacma{sfA)#!{snaase{eQ-$!g{jQ-$!b{{a{sja{sbapcba{gda{gbaacsaj{bA)#!z{{{bA)#!b{
+va{sfA)#!{spaasc{fQ-$!l{dQ-$!b{{a{sja{sbapcfa{gca{gbcpal{bA)#!z{{{bA)#!b{
+da{gpacsA)#!csna{gbaasb{gQ-$!j{eQ-$!b{{sbadsbacsoc{a{glaacla{g{an{bA)#!z{{{bA)#!b{
+oa{gya{gha{sc{gQ-$!i{dQ-$!b{oaocda{gca{gcaacmao{bA)#!z{{{bA)#!b{
+aa{gzawaasc{hQ-$!g{bQ-$!d{nad{ic{gha{gcaacga{gcaq{bA)#!z{{{bA)#!b{
+zazaaaasb{kQ-$!k{nag{fcca{giaacea{gcas{bA)#!z{{{bA)#!b{
+zazacaasa{kQ-$!k{bsjaj{bc{a{glaaciau{bA)#!z{{{bA)#!b{
+zazaea{sb{jQ-$!k{lal{ja{gbaaciav{bA)#!z{{{bA)#!b{
+dsaA)#!dszauaasc{gQ-$!k{eab!)#!cab{!)#!{{!)#!f{fa{gcadcea{g{ax{bA)#!z{{{bA)#!b{
+{siA)#!{szawaasc{eQ-$!l{fa!)#!cab{!)#!{{!)#!e{eajc{a{gdaz{bA)#!z{{{bA)#!b{
+{siA)#!{szayaasb{dQ-$!l{dab!)#!cab{b!)#!e{eaac{acciaz{{{bA)#!z{{{bA)#!b{
+{siA)#!{szaza{aasa{bQ-$!n{ea!)#!cad{!)#!d{eaacmaz{b{bA)#!z{{{bA)#!b{
+{siA)#!{szazaba{sl{b!)#!b{cab!)#!cad{!)#!d{aab!)#!naz{d{bA)#!q{lA)#!b{
+{siA)#!cszaua{gdaasl{!)#!c{iai{ba!)#!ja{gbaz{f{bA)#!q{lA)#!b{
+{smA)#!zazabaash{b!)#!d{hah{cab!)#!kae{zA)#!dA)#!q{lA)#!b{
+{smA)#!ka{geabczaiaasf{!)#!f{hah{ea!)#!iag{zA)#!dA)#!q{bA)#!l{
+{smA)#!paeczaja{se{b!)#!e{gag{dab!)#!gai{zA)#!dA)#!q{bA)#!l{
+{siA)#!csoagcka{sbA)#!{sval{gag{mac{jA)#!z{s{bA)#!l{
+{siA)#!{sqaicja{sbA)#!{sqa{geak{faf{mad{jA)#!z{s{bA)#!l{
+{siA)#!{sqajcbagsbA)#!gssai{fae{laf{jA)#!z{s{bA)#!l{
+{siA)#!{spalcaa{spA)#!{stai{eae{jae{eA)#!z{z{{{bA)#!l{
+{siA)#!{spalcaa{spA)#!{svah{dad{iaj{bA)#!z{z{{{bA)#!l{
+dsaA)#!dspalcaarA)#!paa!)#!eaf{dac{hac{b!)#!e{bA)#!z{z{{{bA)#!l{
+wa{gcalcaa{spA)#!{sqa!)#!gae{cac{fae{!)#!g{bA)#!z{z{{{bA)#!l{
+oa{glakcaa{spA)#!{sqa!)#!hae{bab{faf{b!)#!e{zA)#!zA)#!fA)#!l{
+zabakcaarsqa!)#!jac{bab{dah{!)#!{{!)#!e{zA)#!zA)#!fA)#!l{
+za{a{g{aiczada{gfab!)#!jac{aaa{caj{b!)#!d{zA)#!zA)#!gA)#!l{
+aa{gzabaaczaca{gzaaaa{aaa{aaz{z{z{n{
+zazazapa{{{a{{{az{z{z{p{
+zszsssxa{{{az{z{z{q{
+zA)#!zA)#!zA)#!qA)#!{aA)#!za{gaa{g{a{g{a{gja{gaa{gca{gea{gza{g
+zA)#!zA)#!zA)#!pA)#!{a{{{aA)#!zaea{gha{gfa{gha{gba{g{a{gga{g{aagea{gha{g
+aA)#!dQ-$!cA)#!eQ-$!pA)#!gQ-$!dA)#!Q-$!eA)#!eQ-$!cA)#!aQ-$!aA)#!cQ-$!eA)#!a!)#!aA)#!b!)#!jA)#!aaa{aaaA)#!va{g{a{g{a{g{a{gaa{gaa{gga{gdaagca{gba{gda{gaaagsa{g
+A)#!fQ-$!aA)#!gQ-$!fA)#!dQ-$!bA)#!nQ-$!dA)#!gQ-$!aA)#!cQ-$!A)#!dQ-$!eA)#!!)#!cA)#!!)#!hA)#!caa{aacA)#!jab!)#!fa{gkaagaa{gca{gda{g{a{gba{g{a{g{aagfa{gaa{g{a{gdaagka{g
+A)#!gQ-$!A)#!gQ-$!eA)#!fQ-$!bA)#!lQ-$!eA)#!fQ-$!bA)#!iQ-$!eA)#!!)#!aA)#!b!)#!gA)#!cab{badA)#!ja!)#!ma{gnaag{a{g{a{gna{gra{g
+A)#!gQ-$!A)#!gQ-$!eA)#!gQ-$!bA)#!iQ-$!gA)#!fQ-$!bA)#!hQ-$!fA)#!!)#!aA)#!!)#!gA)#!eab{baeA)#!ha!)#!ra{gaa{gaa{g{a{gaa{gga{g{aagba{g{aagja{g{a{gaa{gba{gca{gba{g
+A)#!gQ-$!A)#!fQ-$!fA)#!hQ-$!dA)#!eQ-$!hA)#!fQ-$!aA)#!iQ-$!eA)#!b!)#!A)#!b!)#!dA)#!eac{cafA)#!ea!)#!ma{gca{gcaagiaagba{g{a{gba{gza{g
+A)#!gQ-$!aA)#!cQ-$!hA)#!hQ-$!sA)#!dQ-$!cA)#!hQ-$!pA)#!fad{dagA)#!ca!)#!eaagaa{gda{gcaagfa{gna{g{a{gba{g{a{gkaagaa{g{a{gda{g
+A)#!gQ-$!nA)#!fQ-$!uA)#!cQ-$!dA)#!eQ-$!qA)#!had{daiA)#!ja{gha{gba{gka{gaa{gda{gba{gca{gaaagfa{g{a{gda{g{a{gba{g
+aA)#!eQ-$!pA)#!cQ-$!wA)#!cQ-$!fA)#!bQ-$!pA)#!iae{eaiA)#!ha{g{aagca{gbaagda{gca{gda{g{a{g{aag{aagfa{gia{gba{gea{g
+aA)#!eQ-$!zA)#!lA)#!Q-$!cA)#!cQ-$!yA)#!iaf{fajA)#!la{gfa{gea{gca{gda{g{a{gfa{g{a{gca{gba{gbaag{a{gba{g{a{gda{g
+aA)#!dQ-$!zA)#!bA)#!lQ-$!cA)#!bQ-$!kA)#!cQ-$!gA)#!kaf{falA)#!{a{gaa{gaa{gea{gfa{gaaagba{gaa{g{aag{a{gbaagda{g{a{gea{gfa{gba{gaa{g{a{g
+bA)#!cQ-$!zA)#!aA)#!mQ-$!dA)#!Q-$!iA)#!iQ-$!bA)#!aaa!)#!aaa!)#!dag{gadA)#!b!)#!eA)#!da{g{a{g{a{gia{gga{gca{gba{gfa{gfa{g{a{gba{gga{gba{g
+nA)#!dQ-$!nA)#!mQ-$!kA)#!Q-$!cA)#!hQ-$!aA)#!da!)#!ba!)#!dag{gadA)#!!)#!A)#!!)#!eA)#!{sqa{gca{g{a{g{aagma{gfa{gba{gfa{gea{g{a{gba{g
+mA)#!fQ-$!mA)#!mQ-$!hA)#!dQ-$!bA)#!gQ-$!aA)#!ea!)#!ba!)#!cah{hacA)#!b!)#!eA)#!{saA)#!aa{gaa{gda{geaagga{g{a{gea{gba{gba{giaagca{gaa{g
+lA)#!hQ-$!hA)#!Q-$!bA)#!lQ-$!hA)#!eQ-$!gA)#!Q-$!aA)#!{a{gea!)#!ba!)#!cah{hacA)#!!)#!A)#!!)#!eA)#!{scA)#!{gaa{gaa{gaa{gda{gba{gka{gba{gda{g{abg{aagaaagia{gbaagaa{g
+lA)#!iQ-$!eA)#!bQ-$!dA)#!jQ-$!fA)#!gQ-$!hA)#!hab!)#!{ab!)#!aaa{a!)#!a{b!)#!{{bab!)#!cabA)#!b!)#!eA)#!{scA)#!{sA)#!{gma{gaaagca{g{a{gaa{gaa{gwaag{a{ggaag
+lA)#!iQ-$!A)#!gQ-$!eA)#!hQ-$!fA)#!hQ-$!fA)#!rac{!)#!a{!)#!{{!)#!{{ba!)#!{a!)#!dajA)#!{scA)#!{saA)#!ka{gba{gaa{gaa{gaa{goaagca{gaabgha{g{a{g{a{g
+cQ-$!hA)#!hQ-$!aA)#!hQ-$!dA)#!bQ-$!kA)#!hQ-$!fA)#!{gaa{gaa{gaa{giac{!)#!a{!)#!{{!)#!{{bab!)#!dajA)#!escA)#!ga{gbaag{a{g{aagqa{gea{g{a{g{a{gda{gaa{g
+eQ-$!fA)#!hQ-$!aA)#!hQ-$!sA)#!hQ-$!dA)#!tad{!)#!a{!)#!{{!)#!{{da!)#!eauA)#!ja{gga{g{a{gba{gaa{g{a{gca{gaa{geaagba{gea{gaa{g{a{g
+eQ-$!gA)#!gQ-$!A)#!iQ-$!iA)#!dQ-$!dA)#!iQ-$!aA)#!vac{b!)#!{{b!)#!{{bab!)#!eawA)#!ca{g{a{gba{gia{g{a{gca{g{a{gha{gaa{giaagaa{gaa{g{a{g
+eQ-$!iA)#!dQ-$!aA)#!iQ-$!fA)#!hQ-$!fA)#!dQ-$!aA)#!ba{gaa{gaa{gaa{gaa{gaa{gdal{lawA)#!{glaagpaagba{gaa{gia{gga{g
+eQ-$!oA)#!jQ-$!dA)#!jQ-$!gA)#!bQ-$!A)#!yal{laesbA)#!esbA)#!asA)#!bsaA)#!ia{gba{g{a{g{a{gea{gaa{gba{gcaagba{g{a{g{a{g{a{g
+eQ-$!dA)#!bQ-$!gA)#!jQ-$!dA)#!kQ-$!iA)#!yam{macA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{s{a{gga{g{a{gaa{g{a{gga{gca{gha{goa{g
+eQ-$!cA)#!fQ-$!dA)#!iQ-$!eA)#!kQ-$!gA)#!aa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gn{nabA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{saA)#!{abg{a{gaa{gea{gba{gfa{gcaag{a{gba{gaa{g{aag{aagca{g
+eQ-$!cA)#!fQ-$!cA)#!cQ-$!lA)#!lQ-$!dA)#!zaaan{nabA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{sbA)#!{gaa{gia{gba{gbaagca{gga{gea{gaa{g
+dQ-$!dA)#!hQ-$!rA)#!lQ-$!bA)#!zabao{oaaA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{saa{gda{gca{gda{gaa{gfaagdaag{aag{a{gga{g
+cQ-$!eA)#!iQ-$!rA)#!jQ-$!bA)#!{a{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaa{{gl{oabsbA)#!esbA)#!esbA)#!esaA)#!{a{gga{gaa{gga{g{a{g{a{g{a{g{aagca{gbaagha{g
+jA)#!gQ-$!iA)#!fQ-$!cA)#!hQ-$!aA)#!zadap{pazA)#!eA)#!{a{gaa{gfa{g{a{gaa{g{a{g{a{g{a{gjaagca{gca{g{a{g
+jA)#!fQ-$!hA)#!iQ-$!dA)#!dQ-$!aA)#!zafal{{gb{pazA)#!fA)#!{a{gia{g{aagga{gba{gcaag{a{gfa{gaa{g
+cQ-$!fA)#!fQ-$!gA)#!jQ-$!iA)#!{a{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gq{qazA)#!gA)#!na{g{aag{a{gca{g{a{g{a{gja{g
+dQ-$!eA)#!eQ-$!hA)#!jQ-$!hA)#!zagar{rabA)#!bsA)#!asbA)#!bsA)#!asbA)#!esbA)#!csA)#!{sba{g{a{gfa{gga{gba{gaabg{aagea{g
+dQ-$!dA)#!fQ-$!fA)#!Q-$!aA)#!iQ-$!fA)#!zaiar{rabA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{saA)#!ga{gba{gda{gaa{g{a{g{a{g
+eQ-$!cA)#!fQ-$!dA)#!cQ-$!aA)#!hQ-$!dA)#!ba{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{as{saaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!fa{gaa{gea{g{aagca{gja{gaaag
+fQ-$!bA)#!fQ-$!aA)#!fQ-$!bA)#!dQ-$!eA)#!zalas{saaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{sA)#!aa{gba{gca{gba{gcaagda{gja{g
+fQ-$!bA)#!eQ-$!bA)#!fQ-$!cA)#!bQ-$!eA)#!zalat{taA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{sbA)#!{a{g{a{goa{gga{g{a{g{aag
+fQ-$!cA)#!bQ-$!dA)#!hQ-$!bA)#!Q-$!dA)#!aa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gt{taA)#!esbA)#!esbA)#!bsA)#!asbA)#!esbA)#!esaa{gaa{gdaagla{gda{g
+fQ-$!kA)#!iQ-$!eA)#!zaoau{uazA)#!oA)#!ha{gga{g{a{gaaagaa{g
+fQ-$!kA)#!hQ-$!dA)#!zaqak{{gh{uazA)#!qA)#!ia{g{a{gaa{gea{gaa{gbaag
+fQ-$!lA)#!gQ-$!bA)#!aa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{av{vazA)#!rA)#!{g{a{gia{g
+fQ-$!mA)#!dQ-$!cA)#!zaraw{wacsbA)#!esbA)#!asA)#!bsbA)#!esbA)#!esbA)#!cs{gga{gca{g{a{gaa{gda{g
+eQ-$!uA)#!zataw{wabA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!ca{g{a{gea{gia{gaa{g
+dQ-$!gA)#!dQ-$!gA)#!{a{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaav{{g{{xaaA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sA)#!ba{g{a{gea{g{a{gca{g{a{g{a{g
+cQ-$!fA)#!fQ-$!eA)#!zawa{{{gv{xaaA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!ca{gea{gca{gca{g{a{g
+bQ-$!eA)#!hQ-$!dA)#!zaway{yaA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{sA)#!{geaag{a{gaa{gaa{g
+bQ-$!dA)#!jQ-$!aA)#!ba{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{ay{yaasbA)#!esbA)#!esbA)#!esbA)#!esbA)#!esbA)#!bs{gpa{g{a{g
+hA)#!gQ-$!aA)#!zazaz{zazA)#!zA)#!{gfa{g
+cA)#!aQ-$!bA)#!eQ-$!aA)#!zaza{az{{{za{azA)#!zA)#!A)#!ba{gja{g
+bA)#!cQ-$!aA)#!dQ-$!aA)#!aa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaz{{{za{azA)#!zA)#!bA)#!{a{g
+aA)#!dQ-$!aA)#!bQ-$!aA)#!zazabaz{a{zaaaaA)#!asA)#!bsbA)#!esbA)#!asA)#!bsbA)#!asA)#!bsbA)#!esbA)#!esbA)#!{saa{g
+A)#!eQ-$!dA)#!zazadaz{a{zaaaaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{saA)#!
+gQ-$!aA)#!aa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gz{b{zabaA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{gda{g
+fQ-$!A)#!zazagaz{b{zabaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{sgA)#!{scA)#!{sbA)#!{scA)#!{sA)#!ag
+dQ-$!aA)#!zazagam{{go{zaca{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{saA)#!ba{g
+bQ-$!aA)#!ca{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{aw{{gf{zadadsbA)#!esbA)#!esbA)#!esbA)#!esbA)#!asA)#!bsbA)#!esbA)#!{saa{g
+Q-$!aA)#!zazajaz{d{zadazA)#!zA)#!jA)#!{a{g
+A)#!zazakaz{e{zaeazA)#!zA)#!kA)#!
+ba{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{{{gz{c{zaeazA)#!zA)#!lA)#!
+zazakaz{f{zafabsbA)#!esbA)#!esbA)#!esbA)#!bsA)#!asbA)#!esbA)#!bsA)#!asbA)#!es
+zazakaz{f{zafaaA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{az{g{zagaA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zazaiaz{h{zaha{sbA)#!{sgA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zazaiaz{h{zaha{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{sgA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaz{i{zaiabA)#!esbA)#!bsA)#!asbA)#!esbA)#!esbA)#!esbA)#!esbA)#!es
+zazahaz{d{{gc{zaiazA)#!zA)#!hA)#!
+zazagaj{{gg{{gp{zajazA)#!zA)#!gA)#!
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{az{j{zajazA)#!zA)#!gA)#!
+zazafaz{k{zakaA)#!esbA)#!esbA)#!esbA)#!esbA)#!asA)#!bsbA)#!asA)#!bsbA)#!es
+zazafaz{k{zakaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaz{l{zala{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zazadaz{m{zamacA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{s
+zazadaz{m{zamacA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gz{n{zanacsbA)#!asA)#!bsbA)#!esbA)#!esbA)#!esbA)#!esbA)#!es
+zazacaz{n{zanazA)#!zA)#!cA)#!
+zazabai{{gz{d{zaoazA)#!zA)#!bA)#!
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{{{gx{{gn{zaoazA)#!zA)#!bA)#!
+zazaaaz{p{zapaasbA)#!esbA)#!bsA)#!asbA)#!esbA)#!esbA)#!esbA)#!es
+zaza{az{q{zaqa{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gz{q{zaqa{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zazaz{p{{g{{zaragA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zazaz{r{zarabA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{az{s{zasaaA)#!esbA)#!esbA)#!bsA)#!asbA)#!esbA)#!csA)#!{sbA)#!{sA)#!cs
+zayaz{s{zasazA)#!yA)#!
+zaxaz{t{zatazA)#!xA)#!
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaz{u{zauazA)#!wA)#!
+zawaz{u{zauaesbA)#!asA)#!bsbA)#!esbA)#!bsA)#!asbA)#!esbA)#!es
+zavag{{gz{m{zavacA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{g{az{v{zavacA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{s
+zauay{{gp{{ge{zawabA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zauaz{w{zawabA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaa{{gz{u{zaxabsbA)#!esbA)#!esbA)#!esbA)#!esbA)#!bsA)#!as
+zataz{x{zaxazA)#!tA)#!
+zasaz{y{zayazA)#!sA)#!
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gz{z{zazazA)#!rA)#!
+zaraz{z{zaza{sbA)#!esbA)#!asA)#!bsbA)#!esbA)#!esbA)#!asA)#!bs
+zaqav{{gz{c{zaza{abA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{sgA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaaz{z{{{zaza{agA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sgA)#!{sbA)#!{scA)#!{s
+zapaz{z{a{zazaaaaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+zapah{{gz{i{{gg{zazaaaaA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{sbA)#!{scA)#!{s
+{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gaa{gz{z{b{zazabaA)#!esbA)#!esbA)#!esbA)#!esbA)#!es
+
+RotateAcross CopyTexture -1 %BDist
+
+// //////////////// //
+// Tables (General) //
+// //////////////// //
+
+SetVars %KDist 14 "Magenta Gray White Blue Yellow Cyan Green Purple Orange Brown Red DkGray DkCyan Maize"
+SetVars %KMsg 4 "White Gray Yellow #5f5fff"
+SetStrings %ZX 2 ",10001222,00122210"
+SetStrings %ZSex 2 ",Female,Male"
+SetStrings %ZDist 14 ",Luxury,Masonry,Technology,Fishing,Power,Transportation,Lumber,Textiles,Grain,Livestock,Agriculture,Coal Mining,Nuclear,Capitol"
+SetStrings %ZNum 26 ";BD3OA3OC3D6OE3OG3U6;BF2E2D12NL2R2;BD3OA3R2OC3DG8R8;BD3OA3R2OC3OE3NLOC3OE3L2OG3;BR2M-2,+6R6NU6ND6R2;NR8D6R5OC3OE3L3OG2;BR8BD3OH3L2OF3D6OD3R2OB3OH3L5;R8M-8,+12;BD3OD3NR2OF3OD3R2OB3OH3OB3OH3L2OF3;BD9OD3R2OB3U6OH3L2OF3OD3R5;BDED12NLRBR4OG2U8OA2OC2D8OE2;BDED12NLRBR4RNRU12G;BDED12NLRBR6L4U2E4U4OH2OF2D;BDED12NLRBE2OD2OB2U2OH2NLOB2U2OH2OF2;BDED12NLRBR5U6NU6NRL3U6;BDED12NLRBE2OD2OB2U2OH2L2U6R4;BDED12NLRBE2OD2OB2U2OH2OF2ND2U6OA2OC2;BDED12NLRBR2U4E4U4L4;BDED12NLRBE2NU2OD2OB2U2OH2NOF2OG2U2OA2OC2D2OE2;BDED12NLRBE2OD2OB2U8OH2OF2D2OD2OB2;BDNDOAOCD5G2D4R2BR4OG2U8OA2OC2D8OE2;BDNDOAOCD5G2D4R2BR4RNRU12G;BDNDOAOCD5G2D4R2BR6L4U2E4U4OH2OF2D2;BDNDOAOCD5G2D4R2BE2OD2OB2U2OH2NLOB2U2OH2OF2;BDNDOAOCD4G2D5R2BR5U6NU6NRL3U6;BDNDOAOCD5G2D4R2BE2OD2OB2U2OH2L2U6R4"
+SetStrings %ZHair 20 ";OEL3D2OE;OEL3D4BLD2;OEL3OHOFD3EBDOBU2;OEL3ND6BD2BLNM-1,+4BD2D2;OEL3OHOFD5EBUOBU2;OEL3ND7BD2BLNM-1,+5BD2D3;OEL3OHOFD6EBEU4;OEL3ND8BD2BLNM-1,+6BD2D4;OEL3D8BLU4;OEL3D8LU4;;BDHGHG2;BDL2U;DBLUBLDBLUBLD;BDL4G;DBLUBLDBLUBLD2;BDL4DG;DBLUBLDBLUBLD3;BDL4D2G;DBLUBLDBLUBLD4"
+SetStrings %ZCorn 2 ";----9 ----6 ----3 ---00 ---1? ---2? --33? --4?? --5?? -66?? -7??? -8??? -9??? --??? ----?;---89 -6?7? -4??? 23??? 1???? ????? 23??? -4??? -678? ---9? ----- ----- ----- ----- -----"
+SetStrings %ZVerb 7 ",use,wield,throw,wield or throw,launch,wield or launch,throw or launch"
+SetStrings %ZDeath 13 ",Combat,Starvation,Poison,Forcefield,Ricochet,Landmine,Fall,Drowning,Cactus,Tracker Jacker,Lava,Peacekeeper,Gamemaker"
+SetStrings %ZMName 15 ",wasp,trap,fire,fire2,tree,tree2,cactus,cactus2,rock,rock2,brick,brick2,tube,tube2,tube3"
+
+SetString %ZSet "ACEFHLMPQTVZ"
+SetString %ZSet2 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()-_=+"
+SetString %ZArena "FMDPSZQCI273XUB45R10?"
+SetString Add %ZArenas 0 "A2C0E5F2H9L1M1P1Q4T10V1Z0" // F: Forest
+SetString Add %ZArenas 1 "A0C0E5F1H9L1M5P0Q4T10V1Z0" // M: Mountains
+SetString Add %ZArenas 2 "A4C0E5F1H9L1M1P0Q4T1V0Z0" // D: Desert
+SetString Add %ZArenas 3 "A7C0E5F0H9L1M1P0Q4T0V1Z0" // P: Plains
+SetString Add %ZArenas 4 "A2C1E5F1H3L2M1P1Q4T25V2Z0" // S: Swamp
+SetString Add %ZArenas 5 "A7C1E5F2H9L1M1P1Q4T2V1Z1" // Z: Maze
+SetString Add %ZArenas 6 "A3C0E0F2H8L1M1P0Q3T20V0Z0" // Q: Clock
+SetString Add %ZArenas 7 "A6C0E3F2H4L1M2P0Q4T1V1Z6" // C: Ruined city
+SetString Add %ZArenas 8 "A3C1E0F2H5L5M2P0Q4T5010V1Z0" // I: Island
+SetString Add %ZArenas 9 "A1B0D12E1F2G15H5I0J0L2M2P2Q1T15001V1Y4Z0s2!0@@0(0-0_0" // 2: 2nd Quarter Quell
+SetString Add %ZArenas 10 "A3B0C0D12F2G0H5I0J0L1M2O0P1Q0T2015V1W10Y2Z0l1000m24n22o2000s3!0@@0$$1(0-0_1+0" // 7: 74th HG
+SetString Add %ZArenas 11 "A3B0C0D12E0F2G16H8I1J0L1M1O0P0Q3T20V0Y2Z0m4n0s4_0" // 3: 3rd Quarter Quell
+SetString Add %ZArenas 12 "A3C1D12E0F2G1H4I3L1M1O3Q1S100T1U25V1Y2Z0" // X: Special 12 Districts bitmap
+SetString Add %ZArenas 13 "A4B0C1D13E0F2G0H6I0J0K10L1M1O0Q1S125T1U100V0W10X26Y18Z0m21n0q2s1!0@@0#0-0_0" // U: Ultimate arena
+SetString Add %ZArenas 14 "A7B0C1E0F3J99L6P0Q4S50T10U45W0Z0m0s5!0@@0#0" // B: Battle Royale
+SetString Add %ZArenas 15 "A2B1C0D12E0F2G0H0I0J0K0L0M0N9999O0P0Q0S50T10U25V0W0X0Y2Z0a42987526b0c0d45087047f1000h10i10l2000m0q0r8s1t0u25v50w0z0!0@@0#0$$0%0^0&0*1(0)72-0_0=0+0" // 4: Version 2.4 retro
+SetString Add %ZArenas 16 "A2B1C0D12E0F2G0H0I0J0K0L1M1N9999O0P1Q0S50T10U25V1W0X0Y2Z0a42988070b0c0d44170087f500h10i10l2000m999n0q0r8s1t0u25v50w0z0!0@@0#0$$0%0^0&0*1(0)72-0_0=0+0" // 5: Version 2.5 retro
+SetString Add %ZArenas 17 "A9B4E6G240H9O6Q5S0T120120W125X33f0h0i0j12s5x0$$8" // R: Random settings
+SetString Add %ZArenas 18 "A2B0C0D12E0F2G0H5I0J0K0L2M2N24O0P1Q0S50T10U25V1W10X26Y2Z0a0b0c0d0e0f500g1000h10i10j2k100l2000m999n0o0p100q0r8s1t0u25v50w0x9y15000z3000!0@@0#0$$0%5^10&0*1(0)72-0_0=0+0" // 1: Default
+
+SetStrings %ZTree 2 ",tree,cactus"
+SetStrings %ZThe 4 ",,the ,The ,"
+SetString %ZAlly "!!3!567890ABCM"
+SetStrings %ZNameA 2 ";Glimmer,Marvel,Clove,Cato,,,,,Foxface,,,Jason,,,,,,,,,Rue,Thresh,Katniss,Peeta;Cashmere,Gloss,Enobaria,Brutus,Wiress,Beetee,Mags,Finnick,,,Morphling,Morphling,Johanna,Blight,Cecilia,Woof,,,,,Seeder,Chaff,Katniss,Peeta"
+SetStrings %ZBody 2 ";6 6 9 3 8 8 5 1 2 8 4 7 6 5 7 7 1 5 0 4 3 0 9 9;7 3 8 0 0 2 5 1 3 5 5 7 1 6 2 4 0 6 6 8 0 4 9 9"
+SetString %ZTall "67 75 64 74 69 56 64 56 65 67 59 70 59 63 67 72 61 59 64 68 56 72 67 70"
+SetString 0 ",Crystal,Jade,Pearl,Gloria,Dazzle,Saffron,Luster,Wonder,Luxe,Gleam,Platinum,Shine" // D1
+AppendString 0 ",Victoria,Athena,Dianne,Scarlet,Cinder,Ember,Hunter,Flint,Slate,Clay,Ares,Mason" // D2
+AppendString 0 ",Wanda,Ada,Curie,Bernadette,Pixelle,Virginia,Isaac,Gates,Edison,Newton,Teslo,Albert" // D3
+AppendString 0 ",Ariel,Coral,Nixie,Naia,Marina,Shelly,Stern,Marlin,Salty,Seaward,Poseidon,Portman" // D4
+AppendString 0 ",Finch,Electra,Sunny,Luna,Brooke,Dawn,Franklin,Leo,Watson,Turbin,Serge,Ray" // D5
+AppendString 0 ",Aeria,Celeste,Virgo,Nova,Stella,Skylar,Jack,Axel,Aston,Ford,Avis,Rusty" // D6
+AppendString 0 ",Rowen,Willow,Holly,Fern,Ivy,Autumn,Chip,Douglas,Miller,Cedar,Leif,Sawyer" // D7
+AppendString 0 ",Auburn,Ginger,Rose,Indigo,Kelly,Violet,Weaver,Ned,Thread,Warp,Weft,Retter" // D8
+AppendString 0 ",Amber,Waverly,Sage,Tessa,Sprout,Savannah,Graham,Barley,Hayle,Wheaton,Oaten,Dell" // D9
+AppendString 0 ",Bovina,Landrie,Cheyenne,Fawn,Mulan,Clementine,Dalton,Tanner,Weston,Levi,Tyson,Roan" // D10
+AppendString 0 ",Cornflower,Olive,Hazel,Pepper,Cherry,Misty,Bran,Husker,Bushel,Maize,Emmer,Perry" // D11
+AppendString 0 ",Primrose,Lily,Daisy,Tara,Heather,Daisy,Ash,Rocky,Shade,Jet,Pitten,Dusty" // D12
+AppendString 0 ",Jane,Ann,Kay,Sue,Paige,Deb,John,Mike,Sam,Tom,Ben,Kent" // D13
+AppendString 0 ",Rover,Spot,Fido,Buddy,Max,Fluffy" SetStrings %ZNameB 162 $0
+SetStrings %ZName 255 ","
+SetString %ZText "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+SetStrings %ZLine 12 ","
+
+// ///////////// //
+// Tables (Text) //
+// ///////////// //
+
+SetString %ZHelp1 {Happy Hunger Games! May the odds be ever in your favor...\n\nThis is a simulation inspired by "The Hunger Games" from the book\nand movie. Your goal is to stay alive and be the last tribute\nstanding. In this game you are $$0 ($$z).\n\nF1: Display this help text (shortcut: "?", advanced commands: "/")\nF2: Start new game (shortcut: "R")\nF3: Pause one turn and let other tributes act (shortcut: ".")\nF4: List your inventory (shortcut: "i")\n\nF5: Pick up item (shortcut: ",")\nF6: Drop something from your inventory (shortcut: "d")\nF7: Use or (un)wield object in your inventory (shortcuts: "a", "w")\nF8: Throw or launch weapon from your inventory (shortcut: "t")\n\nF9: Communicate with another tribute nearby (shortcut: "c")\nF10: Give something to another tribute next to you (shortcut: "g")\nF11: Set rotation rate, animation frames, and clipping distance.\nF12: Specify tribute to play as for future games.\n\nSelect OK for more help, or Cancel to start playing.}
+SetString %ZHelp2 {The Hunger Games feature @@x tributes (a boy and girl from @@y\nDistricts) all trying to be the last person alive. The game starts\nwith everybody in a (semi)circle around weapons and other gear.\nThe best gear is inside the central Cornucopia. You can also\nforage in the surrounding wilderness.\n\nUse the arrow keys to move and rotate. To attack a tribute with a\nmelee weapon, just move into them. To shoot a ranged weapon,\nwield the launcher then throw the ammunition. Looking at a\ntribute, you can see their District and gender (above them) along\nwith weapon wielded, health, and item worn (upon body).\n\nEverybody has at least one ally, the other tribute from their\nDistrict, who won't attack them until near the end. Tributes from\nDistricts 1, 2, and 4 are "Careers" and all start in an alliance with\neach other. Giving items can cause tributes to like you more and\neven form new alliances.\n\nSelect OK for more help, or Cancel to start playing.}
+SetString %ZHelp3 {This simulation is turn based, where only after you move or take\nan action will other tributes do so. Spinning in place, chatting, and\nchecking inventory takes no time. Messages describing the result\nof your actions are displayed at the top of the screen, such as\nhow much damage tributes are doing to each other. At the bottom\nof the screen is the status line, which contains the following:\n\nYou:\tThe tribute you're playing as (District and gender).\nHealth:\tHit points. If this falls to zero you die!\nFood:\tBodily energy. If this falls to zero you lose health.\nKills:\tBragging rights. Number of tributes you've slain so far.\nTributes:\tPeople left in game. If this reaches 1 there's a victor!\nTurn:\tNumber of moves the game has lasted.\n\nAlso press "/" for help on advanced commands.}
+SetString %ZHelp4 {Advanced Help...\n\nShift+F1: Display this advanced command help (shortcut: "/")\nShift+F2: Set arena size and landscape (shortcut: "Ctrl+Del")\nShift+F3: Pause until interesting event happens (shortcut: ">")\nShift+F4: Toggle waiting until victor determined (shortcut: "N")\n\nShift+F5: Dig, burn, or set trap in current space (shortcut: "x")\nShift+F6: Sort your inventory (shortcut: "I")\nShift+F7: Fire ammo from wielded launcher (shortcut: "f")\nShift+F8: Toggle background between day & night (shortcut: "b")\n\nShift+F9: Display timeline of tribute deaths (shortcut: "`")\nShift+F10: Display tribute status report (shortcut: "Del")\nShift+F11: Display map ("Tab", "Ctrl+Tab", "Ctrl+Shift+Tab")\nShift+F12: Switch to a different tribute (shortcut: "Shift+Del")\n\nSelect OK for more help, or Cancel to continue playing.}
+SetString %ZHelp5 {Advanced Help continued...\n\nCtrl+F1: Move forward but don't attack (Shortcut: "Ctrl+f")\nCtrl+F2: Ask tribute to come to your location (Shortcut: "C")\nCtrl+F3: Propose or break alliance (Shortcut: "Ctrl+c")\nCtrl+F4: Ally requests, leadership, and stereo (Shortcut: "Alt+c")\n\nCtrl+F5: Set tribute name, appearance, and height (Shortcut: ')\nCtrl+F6: Set District, tribute, and mutt count (Shortcut: ":")\nCtrl+F7: Set random seed and arena details (Shortcut: "Alt+r")\nCtrl+F8: View and change all settings (Shortcut: ";")\n\nCtrl+F9: Show messages from previous turns (Shortcut: ")\nCtrl+F10: Display tribute alliance grid (Shortcut: "~")\nCtrl+F11: Toggle sound effects (Shortcut: "-")\nCtrl+F12: Toggle detailed textures (Shortcut: "_")\n\nCtrl+a:\tTurn around.\nq, z:\tClimb up or down.\n[, ], {, }:\tLook up or down.\nSpace:\tLook straight and clear text from screen.\n}
+SetStrings %ZChat11 5 ";You rock! I actually want to help you win!;Hello partner! Looks like you need my help!;Hey ally! You're looking pretty weak compared to me!;Hey there! You look like an easy kill!;I'm coming for you, loser! Don't worry, I'll kill you quickly!"
+SetStrings %ZChat12 5 ";You rock! I actually hope you win!;Hello partner! One of us deserves to win!;Hey ally! Let's take out the other tributes and then fight among ourselves!;Hey there! Do you want to fight me?;You suck! I'm going to kill you!"
+SetStrings %ZChat13 5 ";You rock! I hope you win!;Hello partner! If I don't win, I hope you do!;Hey ally! Give me some stuff so we can be stronger!;Hey there! Leave now if you know what's good for you!;I'm not beaten yet! I will fight you until my last breath!"
+SetStrings %ZChat21 5 ";You're such a great person! I actually want to help you win!;Hello partner! Looks like you could use some help!;Hey ally! I'm still working with you!;Hey there! Are you looking for a fight?;There can be only one winner, so I must kill you!"
+SetStrings %ZChat22 5 ";You're such a great person! I actually hope you win!;Hello partner! I hope one of us wins!;Hey ally! Let's work together as long as possible!;Why are you talking to me? Go away before I attack you!;You suck! I hope you die!"
+SetStrings %ZChat23 5 ";You're such a great person! I hope you win!;Hello partner! If I don't win, I hope you do!;Hey ally! Keep working with me please!;Leave me alone! I don't want to fight unless I have to!;You suck! I hope somebody kills you!"
+SetStrings %ZChat31 5 ";You're such a nice person! I'd actually like to help you live.;Hello partner! I hope neither of us dies.;Hey ally! You should avoid unnecessary combat.;Leave me alone! I don't want to hurt you.;Sorry! I'm only doing this so I can go home."
+SetStrings %ZChat32 5 ";You're such a nice person! I actually hope you live.;Hello partner! I hope one of us lives.;Hey ally! Let's avoid unnecessary combat.;Leave me alone! Go away before one of us gets hurt.;I don't want to fight, but I see no other option!"
+SetStrings %ZChat33 5 ";You're such a nice person! I hope you live.;Hello partner! If I don't live, I hope you do.;Hey ally! I'm avoiding unnecessary combat.;Leave me alone! I don't want to fight.;Aaah! Please don't kill me!"
+SetStrings %ZChatM 5 ";is your best friend!;wags its tail at you.;ignores you while looking for its next prey.;growls at you, ready to attack!;snarls at you in rabid fury!"
+SetStrings %ZGive 9 ";I hope to use it to help you win!;Wow, you're the best friend I've ever had!;May it be used to help us win!;I feel I can really trust you now!;We make good allies!;Let's form an alliance!;I don't know why you did that!;I hate you less now, but I still don't like you!;I hope to use it to kill you!"
+SetStrings %ZGiveM 9 ";keeps barking in pure delight!;starts barking with pure delight!;keeps wagging its tail.;starts wagging its tail!;keeps ignoring you while looking for other prey.;stops growling and starts ignoring you.;keeps growling at you.;stops snarling, but is still growling.;acts like you're trying to kill it!"
+SetStrings %ZAsk 10 ";Ok, I'll go anywhere with you!;Ok, lead the way, partner!;Ok ally, let's try your idea for now.;Why should I come over there? I don't trust you.;No, the only reason I'd ever come to you is to kill you!;I'll follow you anywhere!;Keep leading the way, partner!;Yes ally, let's follow your idea for now.;Why should I follow you? I don't trust you.;No, the only reason I'd ever follow you is to hunt you down!"
+
+// //////////////// //
+// Tables (Objects) //
+// //////////////// //
+
+SetStrings %ZObj %JMax ",Fist,Rock,Dart,Arrow,Bullet,Grenade,Net,Club,Blowtorch,Brick,Pick,Mutt Teeth,Knife,Mace,Spear,Axe,Sword,Trident,Slingshot,Blowgun,Bow,Gun,Berries,Nightlock Berries,Bread,Fish,First-Aid Kit,Nightvision Goggles,Helmet,Body Armor,Parachute,Landmine,Landmine (Active)"
+SetStrings %ZObjA %JMax ", Fist, Rock, Dart,n Arrow, Bullet, Grenade, Net, Club, Blowtorch, Brick, Pick, set of Mutt Teeth, Knife, Mace, Spear,n Axe, Sword, Trident, Slingshot, Blowgun, Bow, Gun, Bunch of Berries, Bunch of Nightlock Berries, Loaf of Bread, Fish, First-Aid Kit, Pair of Nightvision Goggles, Helmet, Suit of Body Armor, Parachute, Deactivated Landmine,n Activated Landmine"
+SetStrings %ZHit %JMax ",punch,smack,poke,pierce,hit,blast,entangle,bonk,burn,smash,hack,bite,cut,bash,stab,chop,slash,impale,sling a Rock,blow a Dart,fire an Arrow,shoot a Bullet,eat,eat,eat,eat,use,wear,wear,wear,wear,activate,deactivate"
+SetStrings %ZHits %JMax ",punches,smacks,pokes,pierces,hits,blasts,entangles,bonks,burns,smashes,hacks,bites,cuts,bashes,stabs,chops,slashes,impales,slings a Rock,blows a Dart,fires an Arrow,shoots a Bullet,eats,eats,eats,eats,uses,wears,wears,wears,wears,activates,deactivates"
+SetStrings %ZIcoJ %JMax ";BDD3ODDR2UOBNU2HUNU2LNU2LNU2G;BD3ERFDGLHU;BR2BDD3NGF;BR2NFNGD4NFNGDNFNGD;BR2BDDBDD0BDDBR2HBH2HBR4GBG2GBU2RBR2R;BF2LU2RNDRD2LOC2NL4OE2OG2OA2;BDD4BRU4BRD4BRU4BRD4L4BUR4BUL4BUR4BUL4;BRDFDGDFRHUEU2HL;BD4D2R3U2NL3OHLNOFU3RD2NDRFU3GL;BD3R2D2L2U2E2R2NG2D2G2;BDER2FDHLND5LGU;D2EFEFU2L4BD6U2FEFED2L4;BR2FD2LNU3D2;BDRNURNURNUNRDNRDNRNDLND3LNDNLUNLU;BD6NUM+4,-6D;BRDRUOC2OE2ULNU2D3;BD5RU4EFD4NRLNDL;DOD2NU3ND3OB2U;DOD2ND3OB2NUL4;BRD6BR2U6;BROC3OE3U6;BDD4RUNOBUR3UNUL4;RDLNUBR3RDLNUBGDLURBD2RDLU;RDLUBR3RDLUBD2DLURBD3RDLUBLLURD;BR2BDROCM-2,+1M+2,+1OELOG2OA2;BFU0BFFLBDDLGUEHU2EFEFD2GFDHL;BFR2DRD2LDL2ULU2RU;BDD3OAOCOANL2OCNU3OEOGOEOG;BD2OA2OC2D4LUL2DLU4BRDBR2UBGD;BRGD2RNUD3R2U3NURU2HGHR2;BD2OA2OC2L4F2NE2NU2RD2L2U2R;BD2ER2FD2GL2HU2BRR2D2L2U2;BD2ER2FD2GL2HU2BRR2D2L2U2FNENGF"
+SetString %ZItem "_o'^*p#JKxLMkX/PTEY=DF:;CQ+BuU)[]?"
+@r Red @p Pink @m Maroon @b Blue @a Aqua @y Yellow @o Orange
+
+//                   0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32
+//                   Fst Rck Drt Arr Bul Gre Net Clb Blt Brk Pck Mut Knf Mce Spr Axe Swd Tri Slg Blw Bow Gun Bry Nlk Brd Fsh Aid Gog Hel Arm Par Lm0 Lm1
+SetVars %JDmg %JMax "1   1   2   1   0   10  5   2   2   2   3   3   3   4   4   4   5   5   2   4   5   10  3   -1  5   3   5   3   4   8   1   1   0" // Weapon damage or value
+SetVars %JUse %JMax "1   6   6   4   20  18  17  1   1   3   1   1   3   1   3   3   1   3   9   9   9   25  0   0   0   0   0   0   0   0   0   0   0" // Weapon usages (0=use, 1=melee, 2=throw, 4=missile, 8=launcher, 16=disposable)
+SetVars %JDst %JMax "1   2   8   12  0   0   4   5   13  2   12  14  10  1   6   7   9   4   11  3   12  0   11  11  9   4   8   0   0   0   0   3   3" // District favored weapon
+SetVars %JMat %JMax "2   1   3   3   3   3   2   2   3   1   3   1   3   3   3   3   3   3   2   3   2   3   2   2   2   2   2   3   3   3   2   3   3" // Object material (1=stone, 2=vegetable, 3=metal)
+SetVars %JCol %JMax "@r  @p  @p  @p  @p  @p  @r  @r  @r  @r  @r  @r  @r  @r  @r  @r  @r  @r  @m  @m  @m  @m  @b  @b  @b  @b  @a  @y  @y  @y  @y  @y  @o" // Object colors
+SetVars %JAcc %JMax "0   0   11  11  0   0   11  0   11  0   11  0   0   11  11  11  11  11  0   11  11  0   0   0   11  0   11  11  11  0   0   0   0" // Object availability in Cornucopia
+SetVars %JAnc %JMax "0   11  11  11  0   0   0   0   0   11  0   0   11  0   0   0   0   0   11  0   0   0   11  0   11  0   0   0   0   0   0   0   0" // Object availability nearby Cornucopia
+SetVars %JAow %JMax "0   11  0   0   0   0   0   11  0   0   0   0   0   0   0   0   0   0   0   0   0   0   11  11  0   0   0   0   0   0   0   0   0" // Object availability out in wild
+SetVars %JAsg %JMax "0   0   11  11  0   11  11  0   11  11  11  0   11  11  11  11  11  11  11  11  11  11  11  0   11  11  11  11  11  11  0   0   0" // Object availability as sponsor gift
+SetVars %JAfe %JMax "0   0   0   0   0   11  0   0   0   0   0   0   0   0   0   0   0   11  0   0   0   11  0   0   11  0   11  11  0   11  0   0   0" // Object availability at random Feast
+
+// ////////////////////// //
+// Tables (Day and Night) //
+// ////////////////////// //
+
+@x White @y Dark DkGray @KCld @x SetVar Add %KCld 2 @y SetVar Inc %KCld Blend @x @y // Cloud
+@x Light LtGray @y Dark Dark DkGray SetVar Add %KCld 3 @x SetVar Add %KCld 5 @y SetVar Add %KCld 4 Blend @x @y // Cloud2
+SetVars %KFog 6 "2500 250 25 Gray DkGray Black" // Fog
+
+// ///////////////////////// //
+// Initial setup (Variables) //
+// ///////////////////////// //
+
+// Events
+nOnMoveOffBitmap    %VEdge
+nOnMoveIntoWall     %VWall
+nOnMoveToNewCell    %VMove
+nAfterMoveToNewCell %VMoved
+nAfterRedrawInside  %VInside
+nOnRedrawInside     %VScreen
+nOnLeftClick        %VMouse
+
+// Keys
+DisableAll
+Enable 'MoveU' Enable 'MoveD' Enable 'JumpL' Enable 'JumpR' Enable 'ca' Enable 'sTab' Enable 'Ent' Enable 'a9'
+// Commands F1-F12
+OnCommand (F1) %FHelp
+OnCommand (F2) %FStart
+OnCommand (F3) %FPause
+OnCommand (F4) %FInv
+OnCommand (F5) %FGet
+OnCommand (F6) %FDrop
+OnCommand (F7) %FUse
+OnCommand (F8) %FThrow
+OnCommand (F9) %FChat
+OnCommand (F10) %FGive
+OnCommand (F11) %FRot
+OnCommand (F12) %FPick
+// Hotkeys for F1-F12
+OnCommand (?) %FHelp
+OnCommand (R) %FStart
+OnCommand (.) %FPause
+OnCommand (i) %FInv
+OnCommand (,) %FGet
+OnCommand (d) %FDrop
+OnCommand (a) %FUse
+OnCommand (e) %FUse
+OnCommand (w) %FUse
+OnCommand (t) %FThrow
+OnCommand (c) %FChat
+OnCommand (g) %FGive
+// Commands Shift+F1 - Shift+F12
+OnCommand (sF1) %FHelp2
+OnCommand (sF2) %FArena
+OnCommand (sF3) %FWait
+OnCommand (sF4) %FAuto
+OnCommand (sF5) %FDig
+OnCommand (sF6) %FSort
+OnCommand (sF7) %FFire
+OnCommand (sF8) %FSky
+OnCommand (sF9) %FDeath
+OnCommand (sF10) %FTable
+OnCommand (sF11) %FMap
+OnCommand (sF12) %FChange
+// Hotkeys for Shift+F1 - Shift+F12
+OnCommand (/) %FHelp2
+OnCommand (cDel) %FArena
+OnCommand (>) %FWait
+OnCommand (N) %FAuto
+OnCommand (x) %FDig
+OnCommand (I) %FSort
+OnCommand (f) %FFire
+OnCommand (b) %FSky
+OnCommand (`) %FDeath
+OnCommand (Del) %FTable
+OnCommand (Tab) %FMap
+OnCommand (sDel) %FChange
+// Commands Ctrl+F1 - Ctrl+F12
+OnCommand (cF1) %FMove
+OnCommand (cF2) %FAsk
+OnCommand (cF3) %FAlly
+OnCommand (cF4) %FBehave
+OnCommand (cF5) %FName
+OnCommand (cF6) %FDist
+OnCommand (cF7) %FRnd
+OnCommand (cF8) %FSet
+OnCommand (cF9) %FPrev
+OnCommand (cF10) %FFeel
+OnCommand (cF11) %FSound
+OnCommand (cF12) %FPict
+// Hotkeys for Ctrl+F1 - Ctrl+F12
+OnCommand (cf) %FMove
+OnCommand (C) %FAsk
+OnCommand (cc) %FAlly
+OnCommand (ac) %FBehave
+OnCommand (') %FName
+OnCommand (:) %FDist
+OnCommand (ar) %FRnd
+OnCommand (;) %FSet
+OnCommand (Quo) %FPrev
+OnCommand (~) %FFeel
+OnCommand (-) %FSound
+OnCommand (_) %FPict
+// Commands other
+OnCommand (q) %FUp
+OnCommand (z) %FDown
+OnCommand (]) %FLookU
+OnCommand ([) %FLookD
+OnCommand (}) %FLookU2
+OnCommand ({) %FLookD2
+OnCommand (Spc) %FSpc
+// Hotkeys for other
+OnCommand (cTab) %FMap2
+OnCommand (csTab) %FMap3
+OnCommand (MoveL) %FLeft
+OnCommand (MoveR) %FRight
+OnCommand (Q) %FUp2
+OnCommand (Z) %FDown2
+OnCommand (cg) %FHome
+OnCommand (Esc) %FExit
+OnCommand (aF4) %FExit2
+OnCommand (*) %FUp
+OnCommand (@) %FDown
+
+// Daedalus settings
+// Display Settings dialog
+nWhatToDraw 2
+fHourglassCursorOnRedraw False
+fSkipMessageDisplay True
+// Set Colors dialog
+kPassage Black
+kWall White
+// Dot Settings dialog
+f3D False
+fShowDot True
+fDotIsCircle True
+fDotShowsArrow False
+nDotSize 0
+fWallsImpassable True
+fNoCornerHopping False
+fMoveByTwo False
+fDragIsErase False
+// Inside Settings dialog
+nInside 3
+fCellLocation False
+fSealedEntrances False
+fMountains True
+nPeakHeight 25
+fStars False
+fNarrowWalls False
+nCellSize 100
+nWallHeight 480
+nClippingPlane 250
+rViewingSpan 6000
+nSemitransparentWalls 3
+nMotionVelocity 105
+nRotationVelocity 45
+nUpDownVelocity 12
+// Other dialogs
+fRainbowBlend False
+fSolveFillersCheckEveryPixel True
+// Macro variables
+fFogGround True
+nGround -140
+fNoLocation True
+fMarkColor True
+fMarkAll True
+nMarkElevX1 11
+nMarkElevX2 4
+fTextureDual True
+fTextureBlend True
+SetLife '45678/5678'
+// Macro texture variables
+nTextureWall   %TWall
+nWallVariable  %TVar
+nMarkElev      %TElev
+nTextureGround %TFloor
+nTextureBlock  %TBlock
+nTextureElev   %TSide
+nFogLit        %TLit
+// Script internal variables
+@KTube Gray @KCorn #00d7ff @KMaze Maroon @KMist Gray
+@Dists 13
+@SLand Sub Len $ZArena 2
+@SMove 3
+@SAid 3
+@SBerry 50
+@SBread 100
+@SFish 50
+@SAllow 1
+@SStarv 100
+@SLead 0
+// Script setting variables
+For (i) %SA %SMuttC {SetVar @i 0}
+@SA 9 @SD 12 @SE 5 @SG 48 @SH 9 @SK 0 @SN 24 @SO 6 @SQ 4 @SS 50 @SU 25 @SW 10 @SX %JAid @SY 2
+@Sf 500 @Sg 1000 @Sh 10 @Si 10 @Sj 2 @Sk 100 @Sl 2000 @Sm 999 @Sp 100 @Sr 8 @Su 25 @Sv 50 @Sx 9 @Sz 3000
+@SCorn 3 @SAlly 5 @STrap 10 @SDeep 1 @SMuttT 72
+
+SetVar Dec %PHP 0 SetVar Dec %PTall 64 *Set
+SetStrings %ZName 255 ","
+@Trib 24 @Per 2 @v 0 For (t) 0 255 {SetVar Add %PBody @t Rnd 0 9 *ITall}
+
+Embed // Default object availabilities
+For (i) 0 4 {
+  @w Add %JAcc Mul @i 50
+  @l 0
+  For (j) 0 31 (
+    If Var Add @w Inc @j '@l Or @l << 1 @j'
+  )
+  SetVar Add %JDcc @i @l
+}
+
+// //////////////////////// //
+// Initial setup (Textures) //
+// //////////////////////// //
+
+Embed // Objects
+Turtle "_T1" Size 70 94 0 1
+For (o) 0 Dec %JMax {
+  Del Turtle "BM10,10S12"
+  @z Add %ZIcoJ @o Turtle $z
+  Thicken2 8 cDel
+  CopyMask -1 Add %BObj @o
+  Quo Replace White Var Add %JCol @o 0
+  CopyTexture -1 Add %MObj @o k
+}
+Size 28 40 0 1
+For (o) 0 Dec %JMax {\
+  Del
+  If @o (
+    Turtle "BM1,1S6"
+    @z Add %ZIcoJ @o Turtle $z
+    Thicken2 4
+  )
+  cDel CopyMask -1 Add %BObj2 @o
+}
+
+Embed // Numbers
+$0 "T___" Size 56 80 0 1
+For (i) 1 25 {
+  Del Turtle "BM3,3S12"
+  @v @i *Draw
+  Thicken2 8 cDel
+  CopyMask -1 Add %BNum Dec @i
+}
+
+Embed // Bodies
+Size 222 294 0 1
+For (i) 0 1 {
+  @w Mul @i 10
+  For (j) 0 9 (
+    Del Turtle "BM110,2S9"
+    IfElse Odd @i
+      "Turtle 'L4GD6FLDNR5BUL5G2D9NR4D2RDR2URNU8FD6NR7DGL2GDR11U11BU14LHRNDRNDBULEBHUL2DRNUR'"
+      "Turtle 'L2OF3D2OD3LODNR3BHL4OF5D6NR4D2RODOBRNU8OCD7NR6OEOF2R9U10OABU14LHRNDRBULEBHOHOFRNUR'"
+    Turtle "BM110,2S9"
+    @z Add Add %ZHair @w @j Turtle $z
+    Thicken2 6
+    = FlipHorizontal TempOr _
+    Del Turtle "BM176,10S4"
+    IfElse Odd @i
+      "Turtle 'BR4R4ND4M-4,+6BLOF3OD3OB3OH3'"
+      "Turtle 'BD10R4NR4ND2U4LOG3OA3R2OC3OE3L'"
+    Thicken2 6 TempOr cDel
+    CopyMask -1 Add %BBody Inc Add @w @j
+  )
+}
+
+Embed // Mutts
+Size 222 294 0 1
+Turtle "BM110,2S9BDL4HD7FDL7HD12RDNDRNDRNDURNU7FRGD4F2G2L2GNGDR6E3U3H2E3BU14GHGU2RNDRND2RNDBULEBHGH2M+2,+1R"
+Thicken2 6
+= FlipHorizontal TempOr _
+Del Turtle "BM6,6S4T_WO_BM6,38T_LF_BM174,6T_MU_BM174,38T_TT_"
+Thicken2 4 TempOr cDel
+CopyMask -1 %BBody
+
+Embed // Footprints
+Size 161 161 0 1
+ForStep (z) 50 90 40 {
+  SetString 0 "BM@z,100S1D10OD10OB10U10L20BU10R20U40OH10OF10D40"
+  Turtle $0
+}
+Thicken cDel
+For (z) 0 3 {
+  CopyMask -1 Add %MFoot @z
+  CopyMask -1 Add %MFoot2 @z
+  RotateLeft
+}
+
+Embed // Pawprints
+Size 161 161 0 1
+ForStep (y) 40 110 70 {
+  ForStep (x) 50 90 40 (
+    SetString 0 "BM@x,@yD10R10NR10NU10BL10OD10OB10U10BU5U5BL10ND5BL10D5"
+    Turtle $0
+  )
+}
+Thicken cDel
+For (z) 0 3 {
+  CopyMask -1 Add %MPaw @z
+  CopyMask -1 Add %MPaw2 @z
+  RotateLeft
+}
+
+Embed // Tree side
+Size 100 300 0 1
+nX 45 nY 0 nX2 52 nY2 299 2ndBlock
+For (i) 0 9 {
+  nX 0 nY Add 45 Mul @i 20
+  nX2 45 nY2 Mul @i 20
+  2ndLine
+  nX 97 nX2 53
+  nY2 Inc nY2
+  2ndLine
+}
+Thicken Thicken cDel
+For (i) 1 200 {
+  @x Rnd 46 53 @y Rnd 0 Dec SizeY
+  SetString 0 "BM@x,@yS1D" Turtle $0
+}
+@y SizeY @j 1
+For (i) 1 7 {
+  @x Add 37 @i
+  SetString 0 "C0BM@x,@yU@j" Turtle $0
+  @x Sub 62 @i
+  SetString 0 "BM@x,@yU@jC1" Turtle $0
+  @j Mul @j 2
+}
+For (i) 1 5000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  If Neq Get @x @y Get @x Add @y 2
+    (SetString 0 "C0BM@x,@yD2" Turtle $0)
+}
+CopyMask -1 %MTree
+
+Embed // Tree top
+Size 100 100 0 1
+nX 45 nY 0 nX2 52 nY2 99 2ndBlock
+nX 0 nY 45 nX2 99 nY2 52 2ndBlock
+nY 0 nX2 97 nY2 97 2ndLine
+nX 97 nX2 0 2ndLine
+Thicken Thicken cDel
+For (i) 1 33 {
+  @x Rnd 46 53 @y Rnd 0 Dec SizeY
+  SetString 0 "C1BM@x,@yS1D" Turtle $0
+  @x Rnd 0 Dec SizeX @y Rnd 46 53
+  SetString 0 "BM@x,@yR" Turtle $0
+}
+CopyMask -1 %MTree2
+
+Embed // Cactus side
+Size 102 202 0 1
+Turtle "BM40,200S10U9OG4U3OAOCD3OD2U8OAOCD9OB2U3OAOCD3OE4D8S1BL"
+Thicken = Turtle "`" cDel
+For (z) 1 500 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Dec SizeY
+  SetString 0 "BM@x,@yD" Turtle $0
+}
+cDel TempOr cDel
+CopyMask -1 %MCact
+
+Embed // Cactus top
+Size 102 102 0 1
+Turtle "BM50,100S10OGU3L3OGOAR3U3OAOCD3R3OCOEL3D3OES1BU"
+Thicken = Turtle "`" cDel
+For (z) 1 200 {
+  Set Rnd 0 Dec SizeX Rnd 0 Dec SizeY On
+}
+cDel TempOr cDel
+CopyMask -1 %MCact2
+
+Embed // Rocks
+For (i) 0 1 {
+  Size 102 ?: @i 102 202 0 1
+  nMazeCellMax ?: @i 50 100
+  K
+  Size Dec SizeX Dec SizeY 0 0 Size -1 -1 1 0 =
+  nRandomBias -48 AllRandom nRandomBias 0
+  TempOr cDel
+  CopyMask -1 ?: @i %MRock2 %MRock
+}
+
+Embed // Bricks
+Size 16 32 0 1
+Turtle "BM0,0R15D15L15DNR15D15R15"
+= FlipHorizontal _
+Zoom 2 1 0 2
+nX 16 nY 0 aG
+Zoom 4 10 0 2
+Size SizeX Dec SizeY 0 0 Size 0 -1 1 0
+cDel CopyMask -1 %MBrick
+Size SizeX Dec SizeX 0 0 Size 0 1 1 0
+CopyMask -1 %MBrick2
+
+Embed // Tubes
+Size 1 6 0 1
+Turtle "BM0,0D0BD2D0BD2D0"
+CopyMask -1 %MTube
+Size 100 100 0 1
+nX 3 nY 3 nX2 95 nY2 95 2ndCircle
+Thicken2 4 cDel
+CopyMask -1 %MTube2
+nX 50 nY 50 `
+CopyMask -1 %MTube3
+
+Embed // Net
+Size 19 19 0 1
+Turtle "BM9,0D9NL9NR9D9"
+cDel Zoom 85 64 0 2
+CopyMask -1 %BNet
+Size 13 13 0 1
+Turtle "BM6,0D6NL6NR6D6"
+cDel Zoom 222 294 1 2
+CopyMask -1 %MNet
+
+Embed // Wasp
+Size 106 106 0 1
+$0 "BM2,2BR50OC50OE50OG50OA50" Turtle $0
+Thicken2 4 =
+nX 0 nY 0 `
+TempXor cDel \ Del
+Turtle $0 Turtle "BM52,102OG10OA10OC10OE10BU`" =
+DoCount 4 {Size 0 20 1 0 TempOr}
+Thicken2 4
+_ - TempAnd = Del
+For (i) 1 50 {
+  nXTurtle Rnd 2 103 nYTurtle Rnd 2 103
+  Turtle 'NUNLNDR'
+}
+TempXor cDel
+Quo Replace White Orange 0
+CopyTexture -1 %MWasp
+
+Embed // Trap
+Size 19 19 0 1
+Turtle "BM0,0F9NE9NG9F9"
+Zoom 5 5 0 2
+Size Inc SizeX Inc SizeY 0 0
+Thicken cDel
+Quo Replace White Orange 0
+CopyTexture -1 %MTrap
+
+Embed // Fire side
+Size 101 300 0 1
+nX 0 nY Rnd 0 250
+While (Lt nX 100) {
+  nX2 Min Add nX Rnd 4 8 300 nY2 Rnd 0 250 2ndLine
+  nX nX2 nY nY2
+}
+Thicken
+For (i) 1 100 {
+  nX Rnd 0 101 nY Rnd 0 300
+  nX2 nX nY2 Add nY Rnd 1 10
+  2ndLine
+}
+cDel
+CopyMask -1 %MFire
+
+Embed // Fire top
+Size 100 100 0 1
+For (i) 1 100 {
+  nX Rnd 4 96 nY Rnd 4 96
+  nX2 Add nX Rnd -4 4 nY2 Add nY Rnd -4 4
+  2ndLine
+}
+cDel
+CopyMask -1 %MFire2
+
+Embed // Custom map
+$0 "hunger.bmp"
+@Custom FileOpen $0 0
+If @Custom {
+  FileClose @Custom
+  OpenBitmap $0
+  @SS Div SizeCX 2
+  @SLand -1
+  CopyTexture -1 %BInit
+}
+
+Embed // Custom textures
+@Txture 0
+IfElse fAllowTextureMapping {
+  For (i) 0 Dec %JMax (
+    @z Add %ZObj @i
+    SetString 0 'hunger\\$z.bmp'
+    @z FileOpen $0 0
+    If Not @z 'CopyTexture Add %MObj @i Add %MObj2 @i Continue'
+    FileClose @z
+    OpenBitmap $0
+    CopyTexture -1 Add %MObj2 @i
+    @Txture 1
+  )
+  For (i) 0 14 (
+    @z Add %ZMName @i $0 $z
+    @v Add %MPic @i
+    SetString 1 'hunger\\_$0.bmp'
+    @z FileOpen $1 0
+    If Not @z 'CopyMask Add %MWasp @i @v Continue'
+    FileClose @z
+    OpenBitmap $1
+    CopyTexture -1 @v
+    @Txture 1
+  )
+  If @Txture (*FPict)
+} {
+  fAllowTextureMapping True
+}
+
+*FStart

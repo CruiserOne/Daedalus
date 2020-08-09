@@ -1,0 +1,114 @@
+DS
+// Pentris game - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-b: Min and max piece sizes
+// c-d: Min and max piece offsets
+// e: Game state (0=playing, 1=game over)
+// f: Next piece
+// g: Next piece rotation
+// h: Horizontal color bitmap offset
+// i-j: Generic index
+// k: Pieces placed
+// l: Rows cleared
+// m-n: Coordinates of piece
+// o: Size of square in pixels
+// p: Current piece
+// q: Delay acceleration rate
+// r: Rotation of piece
+// s: Start delay
+// t: Total number of polyoninoes
+// u-v: Size of play area in squares
+// w-z: Temporary variables
+// 27-33: Offset of monomino through hexominos + end
+// 34-42: Colors of monomino through tetrominoes (constant)
+// 43+: Colors of pentonomies and hexominoes (computed)
+
+If Gte Version 3000 {Break} Message 'This script requires Daedalus 3.0 or later to run.' Break
+
+DefineMacro 1 {Message 'Welcome to Pentris!\n\nF1: Display this help text.\nF2: Start new game.\nF3: Specify polyomono sizes.\nF4: Specify board dimensions.\nF5: Specify animation speed.\nF6: Pause game.\n\nLeft arrow or 'a': Move piece left.\nRight arrow or 'd': Move piece right.\nShift+left arrow or 'q': Rotate piece left.\nShift+right arrow or up arrow or 'e': Rotate piece right.\nDown arrow or 's': Move piece down.\nShift+down arrow or Space or 'x': Drop piece down.\n\nLatest game: Pieces played = @k, Rows cleared = @l'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False @e False @k 0 @l 0 Macro13 fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct nRepeatDelayInMsec @s fAutoRepeatLastCommand False Macro24 If @s 'N'" "New Game"
+DefineMacro 3 "SetString 0 @a SetString 1 @b GetString2 'Enter minimum polyomono size (1-6):' 'Enter maximum polyomono size (1-6):' 0 If @z {Return} @x Num $0 If Or Lt @x 1 Gt @x 6 {Message 'Bad minimum size: @x' Return} @y Num $1 If Or Or Lt @y 1 Gt @y 6 Gt @x @y {Message 'Bad maximum size: @y'} @a @x @b @y @c Var Add 27 Dec @a @d Var Add 27 @b" "Set Pieces"
+DefineMacro 4 "SetString 0 @u SetString 1 @v GetString2 'Enter horizontal board size (6-20):' 'Enter vertical board size (22-50):' 0 If @z {Return} @x Num $0 If Or Lt @x 6 Gt @x 20 {Message 'Bad horizontal size: @x' Return} @y Num $1 If Or Lt @y 22 Gt @y 50 {Message 'Bad vertical size: @y'} @u @x @v @y @h Mul 8 @o Macro2" "Set Board"
+DefineMacro 5 "SetString 0 @s SetString 1 @q GetString2 'Enter start delay for new games (0-9999):' 'Enter delay acceleration rate for next pieces (0-1000):' 0 If @z {Return} @x Num $0 If Or Lt @x 0 Gt @x 9999 {Message 'Bad start speed: @x' Return} @y Num $1 If Or Lt @y 0 Gt @y 1000 {Message 'Bad speed acceleration: @y'} @s @x @q @y" "Set Speed"
+DefineMacro 6 "fPauseTimer True Message 'Game paused.\n\nCurrent game so far: Pieces played = @k, Rows cleared = @l' p @z True" "Pause Game"
+
+DefineMacro 13 "Size 5 67 0 1 Turtle '_T1' $0 'T___' $1 'PENTRIS' For (i) 0 6 {nXTurtle 0 nYTurtle Mul @i 10 SetChar 0 2 Char $1 @i Turtle $0} Quo = SizeC Mul Add @u 16 @o Mul Add @v 2 @o 0 1 ForStep (j) 1 0 -1 {nX Add @j Sub Div @h 2 3 nY Add @j 2 2ndOr If @j (Replace White Gray 0)} nX Dec @h nY Dec @o nX2 Add nX Inc Mul @u @o nY2 Add nY Inc Mul @v @o 2ndBox \ Size @u @v 0 1 \ Macro17 Macro15 k" "Draw Board"
+DefineMacro 14 "fRedrawWhenBitmapEdited False @j fShowColorBitmap fShowColorBitmap False | @x Pixels = nX @m nY @n CopyMask Add Mul @t Inc @r @p -2 _ @y Pixels _ 2ndOr @z Pixels @z Neq Add @x @y @z If Not @z {k | CopyTexture Add Mul @t Inc @r @p -2 nX Add @h Mul @m @o nY Mul Inc @n @o 2ndOr} fShowColorBitmap @j fRedrawWhenBitmapEdited True" "Draw Piece"
+DefineMacro 15 "@p @f @r @g Macro17 @m Sub Div @u 2 3 @n 0 Macro14 IfElse @z {| k | @e True Message 'Game over!\n\nPieces played = @k, Rows cleared = @l' fAutoRepeatLastCommand False k} {@k Inc @k}" "New Piece"
+DefineMacro 16 "fRedrawWhenBitmapEdited False k For (j) @n Add @n 5 {For (i) 0 Dec SizeX (If Not Get @i @j 'Break') If Gte @i SizeX (nY @j DelRow Size 0 1 1 0 @l Inc @l k nX @h nY Mul @o 2 nX2 Add nX Dec Mul @u @o nY2 Add nY Dec Mul Dec @j @o 2ndGet nY Add nY @o aG nY Sub nY @o nY2 Add nY Dec @o c 2ndBlock c k)} \ k \ k Macro15 k nRepeatDelayInMsec Max Sub nRepeatDelayInMsec @q 1 fRedrawWhenBitmapEdited True" "Place Piece"
+DefineMacro 17 "@f Rnd @c Dec @d @g Rnd 0 7 k nX Add @h Mul Inc @u @o nY @o CopyTexture Add Mul @t Inc @g @f -2 aG \ k" "Random Piece"
+
+DefineMacro 20 "If @e '@z True Return' @w @m @m Dec @m Macro14 If @z {@m @w Macro14} n @z True" "Move Left"
+DefineMacro 21 "If @e '@z True Return' @w @m @m Inc @m Macro14 If @z {@m @w Macro14} n @z True" "Move Right"
+DefineMacro 22 "If @e '@z True Return' @w @r @r Or And @r 4 And Dec @r 3 Macro14 If @z {@r @w Macro14} n @z True" "Rotate Left"
+DefineMacro 23 "If @e '@z True Return' @w @r @r Or And @r 4 And Inc @r 3 Macro14 If @z {@r @w Macro14} n @z True" "Rotate Right"
+DefineMacro 24 "If @e '@z True Return' @w @n @n Inc @n Macro14 If @z {@n @w Macro14 Macro16} n @z True" "Move Down"
+DefineMacro 25 "If @e '@z True Return' DoWhile (Not @z) {@w @n @n Inc @n Macro14} @n @w Macro14 Macro16 n @z True" "Drop Down"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Pentris" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+OnCommand (MoveL) 20 OnCommand (MoveR) 21 OnCommand (JumpL) 22 OnCommand (JumpR) 23 OnCommand (MoveD) 24 OnCommand (JumpD) 25 OnCommand (Spc) 25 OnCommand (a) 20 OnCommand (d) 21 OnCommand (q) 22 OnCommand (e) 23 OnCommand (s) 24 OnCommand (x) 25 OnCommand (w) 23 OnCommand (MoveU) 23 OnCommand (p) 6
+nRepeatDelayInMsec 1000 fSkipMessageDisplay True kBorder Gray fShowDot False nInside 0 f3D False
+
+EmbedDB
+DB
+74 47 1
+
+A
+
+Q
+
+Y
+
+Q
+A
+
+]
+
+\M
+B'
+
+Q
+|
+
+_
+
+^\A
+AAQ
+
+\MT%
+B':/
+B%*E
+
+\A
+SA
+
+`
+
+___]Y
+A1)'/
+
+^\H/9RD%)1AB
+AARC/=ZHP?^\Q
+AAAD)))U%%%AA
+
+^\XO=
+R34,/
+
+\O\-Q
+T+4O9
+B)R#Q
+
+Y
+|
+
+SetVars 27 7 "0 1 2 4 9 21 56"
+@a 1 @b 5 @c Var Add 27 Dec @a @d Var Add 27 @b @t Var Add 27 6 @u 10 @v 22 @o 3 @h Mul 8 @o @s 1000 @q 1
+SetVars 34 9 "White #cfcfcf #9f9f9f #6f6f6f Cyan Orange Purple Red Yellow"
+For (i) 5 6 {@x Var Add 27 Dec @i @y Var Add 27 @i @z Sub @y @x For (j) @x Dec @y (SetVar Add 34 @j Hue Add Div Mul Sub @j @x 360 @z Div 180 @z)}
+For (i) 0 Dec @t {CollapseToSet Size 1 0 1 0 = cDel c8 cDel ` _ TempXor CollapseToSet CopyMask -1 @i _}
+For (r) 0 7 {For (i) 0 Dec @t (@z Add Mul @t Inc @r @i CopyMask @i -1 If Gte @r 4 'FlipHorizontal' @j And @r 3 If Equ @j 1 'RotateRight' If Equ @j 2 'RotateAcross' If Equ @j 3 'RotateLeft' @w Sub 6 Or Odd SizeX And Odd SizeY Lt SizeX 6 Size Add Div Sub @w SizeX 2 And And Odd SizeY Not Odd SizeX Equ @r 3 Add Div Sub @w SizeY 2 And And Odd SizeX Not Odd SizeY Equ @r 0 1 0 Size Div Sub 6 SizeX 2 Div Sub 6 SizeY 2 1 0 Size 6 6 0 0 CopyMask -1 @z)}
+Size @o @o 0 1 sDel Set 1 1 Off Zoom 6 6 0 2 = k =
+For (r) 0 7 {For (i) 0 Dec @t (@z Add Mul @t Inc @r @i CopyMask @z -1 Quo @w Var Add 34 @i If And Equ @i 5 Gte @r 4 '@w Blue' If And Equ @i 7 Gte @r 4 '@w Green' Replace White @w 0 Zoom @o @o 0 0 \ k + ColorAnd _ | k cDel k ColorAnd k cDel k Brightness 90 2 TempOr CopyTexture -1 @z)}
+Macro2

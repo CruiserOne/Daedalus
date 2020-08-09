@@ -1,0 +1,631 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<title>Daedalus 3.3 Changes</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+h1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Arial","sans-serif";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+p.A, li.A, div.A
+	{mso-style-name:A;
+	mso-style-link:"A Char Char";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.ACharChar
+	{mso-style-name:"A Char Char";
+	mso-style-link:A;}
+p.Fixed, li.Fixed, div.Fixed
+	{mso-style-name:Fixed;
+	margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Courier New";}
+p.Section, li.Section, div.Section
+	{mso-style-name:Section;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:center;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:16.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+p.Item, li.Item, div.Item
+	{mso-style-name:Item;
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.B, li.B, div.B
+	{mso-style-name:B;
+	mso-style-link:"B Char Char";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:.5in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.BCharChar
+	{mso-style-name:"B Char Char";
+	mso-style-link:B;}
+span.N
+	{mso-style-name:N;
+	color:blue;
+	font-weight:bold;}
+p.Section2, li.Section2, div.Section2
+	{mso-style-name:Section2;
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Courier New";
+	color:red;
+	font-weight:bold;}
+span.O
+	{mso-style-name:O;
+	color:green;
+	font-weight:bold;}
+span.P
+	{mso-style-name:P;
+	color:olive;
+	font-weight:bold;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 65.95pt 1.0in 65.95pt;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=WordSection1>
+
+<p class=Fixed><span style='background:silver'>DDDDD</span>     <span
+style='background:silver'>AAAAA</span>   <span style='background:silver'>EEEEEEE</span> 
+<span style='background:silver'>DDDDD</span>     <span style='background:silver'>AAAAA</span>  
+<span style='background:silver'>L</span>        <span style='background:silver'>U</span>    
+<span style='background:silver'>U</span>   <span style='background:silver'>SSSSS</span></p>
+
+<p class=Fixed><span style='background:silver'>D</span><span lang=ES-CR>    </span><span
+style='background:silver'>D</span><span lang=ES-CR>   </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>E</span><span lang=ES-CR>        </span><span
+style='background:silver'>D</span><span lang=ES-CR>    </span><span
+style='background:silver'>D</span><span lang=ES-CR>   </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>L</span><span lang=ES-CR>        </span><span
+style='background:silver'>U</span><span lang=ES-CR>     </span><span
+style='background:silver'>U</span><span lang=ES-CR>  </span><span
+style='background:silver'>S</span><span lang=ES-CR>     </span><span
+style='background:silver'>S</span></p>
+
+<p class=Fixed><span style='background:silver'>D</span><span lang=ES-CR>     </span><span
+style='background:silver'>D</span><span lang=ES-CR>  </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>E</span><span lang=ES-CR>        </span><span
+style='background:silver'>D</span><span lang=ES-CR>     </span><span
+style='background:silver'>D</span><span lang=ES-CR>  </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>L</span><span lang=ES-CR>        </span><span
+style='background:silver'>U</span><span lang=ES-CR>     </span><span
+style='background:silver'>U</span><span lang=ES-CR>  </span><span
+style='background:silver'>S</span></p>
+
+<p class=Fixed><span lang=ES-CR style='background:silver'>D</span><span
+lang=ES-CR>     <span style='background:silver'>D</span>  <span
+style='background:silver'>AAAAAAA</span>  <span style='background:silver'>EEEEEE</span>  
+</span><span style='background:silver'>D</span><span lang=ES-CR>     </span><span
+style='background:silver'>D</span><span lang=ES-CR>  </span><span
+style='background:silver'>AAAAAAA</span><span lang=ES-CR>  </span><span
+style='background:silver'>L</span><span lang=ES-CR>        </span><span
+style='background:silver'>U</span><span lang=ES-CR>     </span><span
+style='background:silver'>U</span><span lang=ES-CR>   </span><span
+style='background:silver'>SSSSS</span></p>
+
+<p class=Fixed><span style='background:silver'>D</span><span lang=ES-CR>     </span><span
+style='background:silver'>D</span><span lang=ES-CR>  </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>E</span><span lang=ES-CR>        </span><span
+style='background:silver'>D</span><span lang=ES-CR>     </span><span
+style='background:silver'>D</span><span lang=ES-CR>  </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>L</span><span lang=ES-CR>        </span><span
+style='background:silver'>U</span><span lang=ES-CR>     </span><span
+style='background:silver'>U</span><span lang=ES-CR>        </span><span
+style='background:silver'>S</span></p>
+
+<p class=Fixed><span style='background:silver'>D</span><span lang=ES-CR>    </span><span
+style='background:silver'>D</span><span lang=ES-CR>   </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>E</span><span lang=ES-CR>        </span><span
+style='background:silver'>D</span><span lang=ES-CR>    </span><span
+style='background:silver'>D</span><span lang=ES-CR>   </span><span
+style='background:silver'>A</span><span lang=ES-CR>     </span><span
+style='background:silver'>A</span><span lang=ES-CR>  </span><span
+style='background:silver'>L</span><span lang=ES-CR>        </span><span
+style='background:silver'>U</span><span lang=ES-CR>     </span><span
+style='background:silver'>U</span><span lang=ES-CR>  </span><span
+style='background:silver'>S</span><span lang=ES-CR>     </span><span
+style='background:silver'>S</span></p>
+
+<p class=Fixed><span style='background:silver'>DDDDD</span>    <span
+style='background:silver'>A</span>     <span style='background:silver'>A</span> 
+<span style='background:silver'>EEEEEEE</span>  <span style='background:silver'>DDDDD</span>   
+<span style='background:silver'>A</span>     <span style='background:silver'>A</span> 
+<span style='background:silver'>LLLLLLL</span>   <span style='background:silver'>UUUUU</span>   
+<span style='background:silver'>SSSSS</span></p>
+
+<p class=Fixed>&nbsp;</p>
+
+<p class=Fixed>                         **  VERSION  3.3  **</p>
+
+<p class=Fixed>&nbsp;</p>
+
+<p class=A>This file describes the new features, changes, and bug fixes in
+Daedalus 3.3, that weren’t in the previous version. It is only useful if you’re
+already familiar with Daedalus 3.2 or before and want to know what the newest
+version offers. The file is divided into four sections:</p>
+
+<p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
+margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>1) <a href="#feature">New Features</a>:</b> A list of new
+features.</p>
+
+<p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
+margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>2) <a href="#extend">Extended &amp; Improved Features</a>:</b>
+A list of improvements or changes to existing features.</p>
+
+<p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
+margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>3) <a href="#bug">Bug Fixes</a>:</b> Bugs and other problems
+that have been fixed.</p>
+
+<p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
+margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>4) <a href="#script">Scripting Additions</a>:</b> New keywords
+added to the Daedalus scripting language.</p>
+
+<p class=A>For a quick demonstration of some things Daedalus 3.3 can do, start
+the program, press Alt+1 to start the “Daedalus demos” script, then press F2 to
+animate yourself running through a Maze.</p>
+
+<p class=A>&nbsp;</p>
+
+<div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
+
+<p class=Section><a name=feature>NEW FEATURES</a></p>
+
+</div>
+
+<p class=A>A list of new features in Daedalus 3.3, which means new commands and
+settings that weren’t present in the previous version:</p>
+
+<p class=A><span class=N>1. SVG files:</span> Daedalus can save wireframes to the
+Scalable Vector Graphics (SVG) format. The new “Draw / Wireframe File / Save
+Vector” command will save the internal wireframe to this format. SVG files are
+an XML based format, and like HTML files they can be displayed in Web browsers.</p>
+
+<p class=A><span class=N>2. Open Website:</span> The new “File / More Help /
+Open Website Mirror” menu command will open the alternate Daedalus website
+location at magitech.com in the default browser.</p>
+
+<p class=A><span class=N>3. Infinite bitmap:</span> Infinite length Mazes can
+be saved as a sequence of bitmap files. The new “Save As Bitmaps” option in the
+File Settings dialog will make it so infinite length Mazes created by the
+commands on the “Create / Infinite” submenu will be saved to bitmap files in
+the current directory, instead of plain text files. The first file will be
+called “inf00000.bmp”, the second “inf00001.bmp”, and so on.</p>
+
+<p class=A><span class=N>4. Braid Maze method:</span> In the Create Settings
+dialog, there’s a new “Braid Creation Method” radio button group which
+determines how Mazes without dead ends are created when the “Braid” command is
+run. The three options are “Wall Added”, “Eller’s Algorithm Variation”, and
+“Tilt Template”. These three methods were available in the program before, but
+required less intuitive setting combinations to access.</p>
+
+<p class=A><span class=N>5. Maze size addition:</span> The Maze Size dialog has
+a new “Maze Total Pixel Size Even” flag. It controls whether the resized Maze
+bitmap will have an even number of horizontal and vertical pixels (in which even
+means there will a blank row and column of pixels at the right and bottom edges).
+This flag is initially set based on the whether the original bitmap has odd or
+even pixel dimensions.</p>
+
+<p class=A><span class=N>6. Gigamaze script enhanced:</span> The World’s
+Largest Maze script that comes with the program has some new features. 3D virtual
+Mazes can be generated with the 3D nested cell and 3D binary tree creation algorithms.
+(Before, nested cells and binary trees were only available for 2D virtual
+Mazes.) Also, Hilbert curve unicursal Labyrinths are now available as a
+creation algorithm for both 2D and 3D Mazes.</p>
+
+<p class=A><span class=N>7. Squared script enhanced:</span> The Survivor
+Squares Game script that comes with the program has some new features. You can
+now set the board dimensions in squares, the number of players competing,
+whether players are allowed to move diagonally, and the difficulty. Higher
+difficulty means computer players will make more intelligent moves, and notice
+larger spaces with more available squares to move into.</p>
+
+<p class=A>&nbsp;</p>
+
+<div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
+
+<p class=Section><a name=extend>EXTENDED &amp; IMPROVED FEATURES</a></p>
+
+</div>
+
+<p class=A>A list of improvements to existing features, which means new things
+you can now do with old features that you couldn’t do before, or ways existing
+features work better than before. Note that some change existing behavior in
+ways users of previous versions should be aware of:</p>
+
+<p class=A><span class=O>1. Color wireframes:</span> Daedalus now supports
+color wireframe rendering. The Render Wireframe commands will draw lines in
+color if the color bitmap is active. The Make Wireframe Bitmap Overview command
+will produce a color wireframe if the color bitmap is active, giving lines the
+color of adjacent on pixels. The Convert Patches To Wireframe command will
+produce a color wireframe if the patches in memory have color.</p>
+
+<p class=A><span class=O>2. Rendered stars:</span> Wireframe and patch
+renderings now have the option to show background stars. Whether stars are
+displayed and if so how many are taken from the Stars and Star Count fields in
+Inside Settings.</p>
+
+<p class=A><span class=O>3. Binary tree addition:</span> 3D binary tree
+algorithm Mazes are now affected by the Random Run setting, in the same manner
+that 2D binary tree Mazes are. Within each level, each row of cells will have its
+ending passage column flipped to the right instead of on the left, using the
+Random Run setting as a percentage.</p>
+
+<p class=A><span class=O>4. True Prim’s addition:</span> If Solve Fillers
+Consider Dots As Exits in Maze Settings is on, then the starting point from
+which the True Prim’s Algorithm command will begin creating the Maze will be
+taken from the coordinates of the dot. Normally its starting location is chosen
+randomly.</p>
+
+<p class=A><span class=O>5. Command line addition:</span> The Enter Command Line
+dialog has been improved, such that it will evaluate the Number field as a
+command line expression. For example, if the World’s Largest Maze script has
+been loaded, then instead of having to be a specific number, it can be an
+expression like “%FHelp”, in which case the custom constant will be evaluated,
+instead of one having to manually determine the macro slot number containing
+the command line labeled FHelp.</p>
+
+<p class=A><span class=O>6. Setup improvement:</span> In the Windows version,
+the File Extensions setup command no longer requires Administrator privileges
+on most versions of Windows. Before, this command and the program’s initial
+install would often result in the error: “Failed to register Daedalus file
+extensions. You may need to run Daedalus as Administrator for registering to
+succeed.”</p>
+
+<p class=A><span class=O>7. Windows 64 bit build:</span> The source code for
+Daedalus can now compile 64 bit instances of the Windows version. The About
+dialog will indicate whether a 32 or 64 bit version of the program is running.
+Internally, the sources look for the compiler set #define _WIN64 to indicate 64
+bit specific content.</p>
+
+<p class=A>&nbsp;</p>
+
+<div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
+
+<p class=Section><a name=bug>BUG FIXES</a></p>
+
+</div>
+
+<p class=A>A list of bugs and other problems in Daedalus 3.2, all of which have
+been fixed in Daedalus 3.3:</p>
+
+<p class=A><span class=P>1. Planair bug:</span> Creating a Planair Maze would
+display an internal error message and produce a Maze that didn’t cover all
+panels. This bug affected the Demos script and caused the “Draw cubes Maze”
+options to produce incomplete Mazes. (The only way to prevent it would be if
+the 3D Z dimension of the Maze was at least as large as the number of Planair panels
+defined in Create Settings.)</p>
+
+<p class=A><span class=P>2. Infinite bug:</span> Saving an Infinite Maze to
+file as it’s being created would leave off the bottom text row in each section that
+was output.</p>
+
+<p class=A><span class=P>3. Inside crash:</span> In the perspective inside
+view, having color wall textures present but no monochrome mask bitmaps defined
+would crash in certain circumstances.</p>
+
+<p class=A><span class=P>4. Wireframe display:</span> In Wireframe renderings,
+long lines that face you and extend behind you would be clipped incorrectly,
+resulting in them appearing at wrong angles.</p>
+
+<p class=A><span class=P>5. Copy section bug:</span> The Get Section command on
+the 2nd Dot submenu wouldn’t work right when the upper left corner of the
+section was off the top or left edge of the bitmap. In such a case the bitmap
+contents would be justified in the upper left instead of the lower right corner
+of the destination bitmap.</p>
+
+<p class=A><span class=P>6. Create random bug:</span> The Random Perfect Maze
+creation command would, if Create With Wall Adding was on, and if randomly
+trying to create a Maze with the Growing Forest algorithm, produce only the
+boundary wall of the Maze. (Creating Mazes with the Growing Forest command
+itself would always work.)</p>
+
+<p class=A><span class=P>7. Zap dot limitation:</span> The commands on the Zap
+Dot submenu wouldn’t work in 2D Mazes if the Z coordinate of the dot was
+anything other than 0.</p>
+
+<p class=A><span class=P>8. Windows shell limitation:</span> In the Windows
+shell, one can right click a Daedalus generated file and select “Open” to have
+Daedalus launch and open that file. That however would fail to open the file,
+if there were spaces in the path of the filename.</p>
+
+<p class=A><span class=P>9. Gigamaze bug:</span> In the World’s Largest Maze
+script, creating a virtual Maze with the binary tree algorithm wouldn’t produce
+a perfect Maze if the Random Run random setting was non-zero.</p>
+
+<p class=A>&nbsp;</p>
+
+<div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
+
+<p class=Section><a name=script>SCRIPTING ADDITIONS</a></p>
+
+</div>
+
+<p class=A>A list of new operations, variables, and functions added to the
+Daedalus scripting language. This only affects those who write their own macros
+or scripts, and should be ignored by everybody else:</p>
+
+<p class=Section2>********************  Operations  ********************</p>
+
+<p class=A><span class=N>VirtualPerfect &lt;edges&gt;:</span> Creates or adds
+on to part of a Maze in memory using the hunt and kill algorithm, in which only
+part of the Maze is stored in the main bitmap. The dot indicates the current
+coordinates, and will be updated upon return. The &lt;edges&gt; parameter is a
+group of flags indicating which edges the current section being worked upon is
+adjacent to, in which 1 means top, 2 means left, 3 bottom, and 4 right. This
+operation will create the Maze until one of the edges is reached. Afterward,
+custom variable @z will contain how many cells were created. This operation can
+be used to compose a Maze larger than will fit in memory at once, by creating
+one section at a time, although it’s the responsibility of the caller to save
+created sections to disk and load other sections appropriately for the next
+phase of creation.</p>
+
+<p class=A><span class=N>VirtualAldous &lt;edges&gt;:</span> Like
+VirtualPerfect except creates or adds on to part of a Maze using the Aldous
+Broder algorithm.</p>
+
+<p class=A><span class=N>VirtualRecurs &lt;edges&gt; &lt;stack&gt;:</span> Like
+VirtualPerfect except creates or adds on to part of a Maze using the recursive
+backtracking algorithm. The stack used by this algorithm is stored in the
+temporary bitmap, which should be n by 1 pixels, where n is two times the
+number of entries in the stack. (Because the stack stores directions, two bits
+are needed to represent four possible numbers.) The &lt;stack&gt; parameter
+indicates the initial stack offset in the temporary bitmap. This operation will
+create the Maze until one of the edges is reached, or one of the ends of the
+stack is reached. Afterward, custom variable @y will contain the new stack
+offset. The “Virtual Mazes” script that comes with the program uses this operation
+to create large recursive backtracking Mazes in a grid of bitmaps (along with
+using other bitmaps temporarily for the stack). This script doesn’t have its
+own menu option, but it is available in the sources subdirectory of the
+installation.</p>
+
+<p class=A><span class=N>GetWireframe &lt;num&gt; &lt;var&gt;:</span> Fetches
+line number &lt;num&gt; from the wireframe scene in memory and stores it in 7 custom
+variables starting with index &lt;var&gt;. For example, “GetWireframe 0 10”
+will store the X, Y, and Z coordinates of the two endpoints of the first line
+in custom variables #10 through #15, and its color in variable #16.</p>
+
+<p class=A><span class=N>SetWireframe &lt;num&gt; &lt;var&gt;:</span> Defines
+line number &lt;num&gt; in the wireframe scene in memory with the 7 custom
+variables starting with index &lt;var&gt;. For example, “SetWireframe 0 10”
+will set the X, Y, and Z coordinates of the two endpoints of the first line
+with custom variables #10 through #15, and set color from variable #16. This
+does nothing if &lt;num&gt; is outside the limit of the number of lines in the
+wireframe, so set nWireframeSize if you want to change the number of lines in
+memory.</p>
+
+<p class=A><span class=N>GetPatch &lt;num&gt; &lt;var&gt;:</span> Fetches patch
+number &lt;num&gt; from the patch scene in memory and stores it in 19 custom
+variables starting with index &lt;var&gt;. The first 16 variables store the
+four vertexes of the patch, in X, Y, and Z coordinates, and then whether the
+edge connected with the point is highlighted. The 17th variable stores the
+number of vertexes used in the patch (which is always either 3 or 4), the 18th
+stores the color, and the 19th the patch’s transparency.</p>
+
+<p class=A><span class=N>SetPatch &lt;num&gt; &lt;var&gt;:</span> Defines patch
+number &lt;num&gt; in the patch scene in memory with the 19 custom variables
+starting with index &lt;var&gt;. The 19 custom variables define the three or
+four vertexes, the number of vertexes in use, the color, and transparency, in
+the same layout as GetPatch. This does nothing if &lt;num&gt; is outside the
+limit of the number of patches in the scene, so set nPatchSize if you want to change
+the number of patches in memory.</p>
+
+<p class=Section2>********************  Variables  ********************</p>
+
+<p class=A><span class=P>nIgnorePrint:</span> Determines the types of message
+boxes that are suppressed when the Skip Message Display setting is on. Setting
+this to -1 ignores nothing, and is the same as if Skip Message Display is off.
+Setting this to 0 ignores standard messages. Setting this to 1 ignores notice
+category messages too, such as the result of commands. Setting this to 2
+ignores warnings as well, such as bad user input. Setting this to 3 ignores
+serious error conditions, such as out of memory.</p>
+
+<p class=A><span class=P>nWireWidth:</span> Determines the maximum width of
+lines drawn in the wireframe display. Setting this to 0 always draws hairline
+thin one pixel wide lines, no matter their distance from the viewer. Setting
+this to 1 draws close lines one pixel wider horizontally, and the remainder as
+with setting 0. Setting this to 2 draws closer lines one pixel wider
+horizontally and vertically, and farther lines as with settings 1 and 0.
+Setting this to 3 draws the closest lines two pixels wider horizontally and
+vertically, and farther lines as with lower settings.</p>
+
+<p class=A><span class=P>nWireDistance:</span> This setting only plays a role
+when the wireframe width setting nWireWidth is more than zero. It determines
+how many coordinate units away from the viewer the midpoint of lines must get
+before they’re displayed in the next narrower category.</p>
+
+<p class=A><span class=P>fWireSort:</span> Determines whether lines in the
+wireframe display are sorted by distance before being drawn, to ensure that far
+away lines aren’t drawn on top of close lines. This generally isn’t necessary
+when the wireframe line width stored in nWireWidth is low, because intersecting
+lines will have little if any overlapping area. Sorting may slow down the
+rendering time, which is why there’s an option to turn it off.</p>
+
+<p class=A><span class=P>fArrowKeysFree:</span> This setting only plays a role
+when Move With Arrow Keys in Draw Settings is on. It causes movement in the
+wireframe and patch renderings to feel more fluid, like playing a video game.
+You don’t have to wait for key repeat to kick in, which means holding down a
+key immediately continuously moves, and you can also hold down two keys at once
+(e.g. move forward plus rotate) and have them both take effect. The speed at
+which continuous movement happens is controlled by the Repeat Delay In Msec
+field in Display Settings. This is like the Very Free Movement Inside Display
+Mode, but applied to the wireframe and patch renderings.</p>
+
+<p class=A><span class=P>nDrawFaceOrigin:</span> Determines whether the
+wireframe and patch displays force the rendering to face the origin, pointing
+at X, Y, Z coordinate 0, 0, 0. Setting this to 0 doesn’t face the origin at
+all. Setting 1 makes the rendering face the origin, but doesn’t affect the
+actual direction one is moving in Draw Settings, which allows one to move along
+one trajectory while continually facing the origin. Setting 2 makes the
+rendering face the origin, and also updates the actual direction one is facing
+in Draw Settings, which allows one to sidestep in order to continually circle
+around the origin.</p>
+
+<p class=A><span class=P>nWireframeSize:</span> Contains the current number of
+line segments in the wireframe scene in memory. This variable can be changed to
+truncate the list or add space for new lines at the end of the list.</p>
+
+<p class=A><span class=P>nPatchSize:</span> Contains the current number of
+patches in the patch scene in memory. This variable can be changed to truncate
+the list or add space for new patches at the end of the list.</p>
+
+<p class=A><span class=P>nFileLock:</span> Points to a custom string variable
+naming a mutex to use when reading files. A mutex is an operating system
+feature which ensures mutual exclusion, so that two processes aren’t accessing
+a file at the same time. If the file is locked by another program using the
+same mutex, then Daedalus won’t just fail right away, but will rather wait up
+to one second for the other process to release the mutex. This is used in the
+creation of videos such as <a href="https://www.youtube.com/watch?v=UdRaDGXBV-0">https://www.youtube.com/watch?v=UdRaDGXBV-0</a>
+in which Daedalus is continually reloading a file and rendering a scene, while
+another process is continually updating and rewriting the contents of that
+file.</p>
+
+<p class=A><span class=P>nHuntType:</span> Determines how the hunt and kill
+Maze generation algorithm command hunts for cells that aren’t yet part of the
+Maze. Setting this to 0 searches horizontal row by row until a new cell is
+found, which is simple but can result in a horizontal bias. Setting this to 1
+alternates searching in both rows and columns until a new cell is found, which
+is more balanced. Setting this to 2 searches outward from the last cell in a
+spiral pattern until a new cell is found, which appears even smoother but can
+be slower.</p>
+
+<p class=A>&nbsp;</p>
+
+<div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
+
+<p class=Section><a name=license>LICENSE</a></p>
+
+</div>
+
+<p class=A>IMPORTANT NOTICE: Daedalus and all Maze generation and general
+graphics routines used in this program are Copyright (C) 1998-2018 by Walter D.
+Pullen. Permission is granted to freely use, modify, and distribute these
+routines provided these credits and notices remain unmodified with any altered
+or distributed versions of the program. The user does have all rights to Mazes
+and other graphic output they make in Daedalus, like a novel created in a word
+processor.</p>
+
+<p class=A>More formally: This program is free software; you can redistribute
+it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version. This program is distributed in the hope
+that it will be useful and inspiring, but WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details, a copy of which is in the
+LICENSE.HTM included with Daedalus, and at <a href="http://www.gnu.org/">http://www.gnu.org</a></p>
+
+<p class=Fixed><span style='background:silver'>O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O</span></p>
+
+<p class=Fixed><span style='background:silver'>*</span>       Walter D.
+&quot;Cruiser1&quot; Pullen :)       !       <a href="mailto:Astara@msn.com">Astara@msn.com</a>
+      <span style='background:silver'>*</span></p>
+
+<p class=Fixed><span style='background:silver'>O</span> Find your way through
+life's Maze: <a href="http://www.astrolog.org/labyrnth.htm">http://www.astrolog.org/labyrnth.htm</a>
+<span style='background:silver'>O</span></p>
+
+<p class=Fixed><span style='background:silver'>*</span> &quot;Who am I, What am
+I?  As I am, I am not.  But as we are, I AM.  And to <span style='background:
+silver'>*</span></p>
+
+<p class=Fixed><span style='background:silver'>O</span> you my creation, My
+Perfect Love is your Perfect Freedom. And I will be <span style='background:
+silver'>O</span></p>
+
+<p class=Fixed><span style='background:silver'>*</span> with you forever and
+ever, until the End, and then forever more.&quot; - GOD <span style='background:
+silver'>*</span></p>
+
+<p class=Fixed><span style='background:silver'>O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O</span></p>
+
+</div>
+
+</body>
+
+</html>

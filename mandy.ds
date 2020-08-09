@@ -1,0 +1,49 @@
+DS
+// Mandelbrot set exploration - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astra@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// h: Current color depth used
+// i: 3D mode (0=Overhead, 1=Overview, 2=Inside)
+// j: Whether color depth maximized
+// k: Non-maximized color depth
+// l: Zoom level
+// m-p: Upper left and lower right coordinates of window
+// q-r: Coordinates of click
+// s-v: Initial horizontal coordinates of window
+// w: Whether zooming randomly
+// x-z: Temporary variables
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 "Message 'Welcome to Mandelbrot Set Exploration!\n\nThis applet allows one to view and zoom\nin on portions of a Mandelbrot Set fractal.\n\nF1: Display this help text.\nF2: Restart program.\nF3: Toggle maximized color depth.\nF4: Size bitmap to window.\n\nF5: Print coordinates.\nF6: Enter coordinates.\nF7: Toggle 3D overview.\nF8: Toggle 1st person perspective.\n\nF9: Zoom in randomly.\nF10: Toggle day and night.\nF11: Toggle burning ship variation.\nF12: Size bitmap to default.\n\nLeft mouse button: Zoom in.\nRight mouse button: Zoom out.\nMiddle mouse button: Recenter.'" "Help Text"
+DefineMacro 2 "If @i {Macro20 Break} Macro22 Macro1" "Initialize"
+DefineMacro 3 "If @i {Macro20 Break} @j Not @j Macro16" "Toggle Color"
+DefineMacro 4 "fRedrawWhenBitmapEdited False SizeWindow Macro16 fRedrawWhenBitmapEdited True n" "Resize Bitmap"
+DefineMacro 5 "Macro21 SetStringReal 0 @m 9 SetStringReal 1 @n 9 SetStringReal 2 @o 9 SetStringReal 3 @p 9 SetStringReal 4 @x 9 SetStringReal 5 @y 9 Message 'Current viewport coordinates:\n\nUpper left: ($0, $1)\nLower Right: ($2, $3)\nCenter: ($4, $5)'" "Print Coordinates"
+DefineMacro 6 "Macro21 SetStringReal 0 @x 9 SetStringReal 1 @y 9 GetString2 'Enter Horizontal Coordinate:' 'Enter Vertical Coordinate:' 0 If @z {Break} @q Real $0 9 @r Real $1 9 Macro19" "Enter Coordinates"
+DefineMacro 7 "If @i {Macro20 Break} Macro24" "Show 3D"
+DefineMacro 8 "If @i {Macro20 Break} fRedrawWhenBitmapEdited False @i 2 = \ ColorPut ExtraDelete k fGraphNumber True Macro16 Brightness Div 409500 @h 2 CopyTexture -1 1 CopyMask -1 1 fGraphNumber False + g cg fShowDot True nInside 4 fRedrawWhenBitmapEdited True n" "Show Inside"
+DefineMacro 9 "If Equ @i 1 {fRedrawWhenBitmapEdited False | @w True MandelbrotGet Macro23 Macro24 Break} @w True MandelbrotGet Macro13 @w False" "Zoom Random"
+DefineMacro 10 "If Equ nInside 0 {Macro8 Break} fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {fStars False kSky Cyan kGround Gray kMountain Brown kCloud White kCloud2 Light LtGray} {fStars True kSky Black kGround DkGray kMountain Dark Brown kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 11 "If @i {Macro20 Break} fMandelbrotShip Not fMandelbrotShip Macro16" "Sinking Ship"
+DefineMacro 12 "If @i {Macro20 Break} fRedrawWhenBitmapEdited False cZ Quo Macro16 fRedrawWhenBitmapEdited True n" "Resize Bitmap"
+
+DefineMacro 13 "If @i {@z Or Neq @i 2 Neq nInside 0 If @z 'Macro20' Break} Macro23" "Left Event"
+DefineMacro 14 "If @i {Macro20 @z True Break} If Lte @l 0 {Message 'Can't zoom out any farther!' Break} @l Dec @l @k Sub @k 18 Macro18 @x Sub @o @m @y Sub @p @n Macro17 @z True" "Right Event"
+DefineMacro 15 "If @i {Macro20 Break} Macro18 @x Sub Div @o 2 Div @m 2 @y Sub Div @p 2 Div @n 2 Macro17" "Center Event"
+
+DefineMacro 16 "@h ?: @j 1536 @k Mandelbrot @m @n @o @p @h" "Redraw"
+DefineMacro 17 "If Or Lt Sub @q @x @s Gte Sub @q @x @o {@q Add @s @x} If Or Gt Add @q @x @u Lte Add @q @x @m {@q Sub @u @x} If Lt Sub @r @y @t {@r Add @t @y} If Gt Add @r @y @v {@r Sub @v @y} @m Sub @q @x @o Add @q @x @n Sub @r @y @p Add @r @y Macro16" "Change Window"
+DefineMacro 18 "@z 0 @q Sub Div @o 2 Div @m 2 IfElse Lt @q 100000 {@q Div Mul @q @x Div SizeCX 2} {@q Mul Div @q Div SizeCX 2 @x} @q Add @m @q @r Sub Div @p 2 Div @n 2 IfElse Lt @r 100000 {@r Div Mul @r @y Div SizeCY 2} {@r Mul Div @r Div SizeCY 2 @y} @r Add @n @r" "Center"
+DefineMacro 19 "@x Sub Div @o 2 Div @m 2 @y Sub Div @p 2 Div @n 2 @m Sub @q @x @o Add Add @m @x @x @n Sub @r @y @p Add Add @n @y @y Macro16" "Entered Center"
+DefineMacro 20 "fRedrawWhenBitmapEdited False @i 0 fShowColorBitmap True | kBorder Gray fShowDot False nInside 0 fRedrawWhenBitmapEdited True n" "Leave 3D"
+DefineMacro 21 "@x Add @m Sub Div @o 2 Div @m 2 @y Add @n Sub Div @p 2 Div @n 2" "Get Center"
+DefineMacro 22 "@v Mul Div Sub Div @u 2 Div @s 2 SizeCX SizeCY @t Neg @v @m @s @o @u @n @t @p @v @j False @k 72 @l 0 Macro16" "Do Reset"
+DefineMacro 23 "If Gte @l 29 {IfElse And @w fAutorepeatLastCommand (Macro22) (Message 'Can't zoom in any farther!') Break} @l Inc @l @k Add @k 18 Macro18 @x Sub Div @o 4 Div @m 4 @y Sub Div @p 4 Div @n 4 Macro17" "Do Zoom"
+DefineMacro 24 "fRedrawWhenBitmapEdited False @i 1 \ Zoom -2 -2 0 0 Macro16 = fGraphNumber True Macro16 Altitude -1 nDepthSize fGraphNumber False kBorder White fRedrawWhenBitmapEdited True n" "Do 3D"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Mandelbrot Set" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+nOnLeftClick 13 nOnRightClick 14 nOnMiddleClick 15 nOnPrevClick 15 nOnNextClick 15
+nHorizontalPixelValue 1 nVerticalPixelValue 1 kBorder Gray kCloud2 Light LtGray fShowDot False fWallsImpassable True nEdgeBehavior 0 nInside 0 fNarrowWalls False nCellSize 50 nStepHeight 50 nClippingPlane 1000 nRainbowDistance 7200 nHorizontalSize 3 nVerticalSize 2 nDepthSize 255 fShadeObjects True nXLightVector -20 nYLightVector 0 nZLightVector 20 kGroundLow White nWallVariable 1 @i 0 @s -2050000000 @u 1000000000 @w False
+Size 512 384 0 1 c5 Quo fRedrawWhenBitmapEdited True Macro2

@@ -1,0 +1,272 @@
+DS
+// Giga Mazes - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-b,v: Coordinates of display upper left corner in whole Maze
+// c-d,w: Sector position of dot in display
+// e: Horizontal position of entrance in whole Maze
+// f: Passages per lowest level submaze
+// g: Horizontal position of goal/exit in whole Maze
+// h-j: Saved coordinates of dot in whole Maze
+// k: Nesting level of each sector
+// l: Nesting level of whole Maze
+// m-o: Coordinates of dot in whole Maze
+// p: Passages per sector
+// q: Passages in whole Maze
+// r: Random seed of Maze
+// s-u: Sector position of display middle in whole Maze
+// v-w: See above
+// x-z: Temporary coordinates and event return values
+
+If Gte Version 3300 {Break} Message 'This script requires Daedalus 3.3 or later to run.' Break
+DefineConst "1 FHelp FNew FNew1 FNew2 FNew3 FNew4 FNew5 FNew6 FSky FType FLoc F3D VMoved VFollow VInside Update Tele Jump2 Jump4 Jump6 Jump8 Jump1 Jump3 Jump7 Jump9 Tele1 Tele3 Tele7 Tele9 Tele2 Tele4 Tele6 Tele8 Tele5 Tele0 TeleG SetG"
+If @z {Message 'Initialization failed!' Halt}
+
+EmbedMacro %FHelp "Help Text"
+$0 ''
+If And Equ nFractalType 4 Not f3D
+  {@z Div @q 2 SetString 0 ', @z circuits'}
+IfElse f3D
+  {@x Div Mul Pow Div @q 100000000 3 3266 1}
+  {@x Div Mul Pow Div @q 10000000 2 4553 10000}
+@z Add 3 f3D Message $z
+
+EmbedMacro %FNew "New Maze"
+fRedrawWhenBitmapEdited False
+nFractalX @f nFractalY @f nNestingLevel @l @r Rnd 0 1999999999
+kInsideWall Hue Rnd 0 359
+@p Pow @f @k @q Pow @f @l
+If Or And f3D Or Equ nFractalType 3 Equ nFractalType 4
+  And Equ nFractalType 5 Neq And @f Dec @f 0 {nFractalType 2}
+If Equ nFractalType 3 {@q Or Dec @q 1}
+If Equ nFractalType 4 {@q Dec And @q Inv 7}
+IfElse f3D
+  {FractalPart3 -2 -2 -2 @k @r}
+  {FractalPart -4 -4 @k @r}
+@e @x @g @y *Tele8
+*FHelp ct
+
+DefineMacro %FNew1 "@k 2 @f 10  @l 9  *FNew" "Size #1"
+DefineMacro %FNew2 "@k 6 @f 2   @l 30 *FNew" "Size #2"
+DefineMacro %FNew3 "@k 4 @f 3   @l 19 *FNew" "Size #3"
+DefineMacro %FNew4 "@k 2 @f 7   @l 11 *FNew" "Size #4"
+DefineMacro %FNew5 "@k 1 @f 73  @l 5  *FNew" "Size #5"
+DefineMacro %FNew6 "@k 1 @f 215 @l 4  *FNew" "Size #6"
+
+EmbedMacro %FSky "Change ceiling/sky"
+fRedrawWhenBitmapEdited False
+If Equ nInside 0 {i}
+SwitchSgn Dec Add fSunAndMoon fStars
+  {fSunAndMoon True fStars True kSky Black kCloud DkGray kCloud2 Dark kCloud kGround2 Black k3DCeiling2 kSky}
+  {fMountains False fSunAndMoon False fStars False kSky LtGray kCloud kSky kCloud2 -1 kGround2 kGround k3DCeiling kSky k3DCeiling2 -1}
+  {fMountains True fStars False kSky Cyan kCloud White kCloud2 Light Light LtGray kGround2 ?: f3D White Blend kGround kMountain k3DCeiling kGround k3DCeiling2 White}
+kFog kGround2
+fRedrawWhenBitmapEdited True Spc
+@z True
+
+EmbedMacro %FType "Set Algorithm"
+@z nFractalType SetString 0 '@z'
+GetString '0:Nest 1:Binary 2:Division 3:Unicursal 4:Classic 5:Hilbert' 0
+If @z {Return}
+@z Num $0 If Or Lt @z 0 Gt @z 5 {Message 'Bad algorithm!\nNumber must be between 0-5.' Return}
+nFractalType @z
+If And f3D Or Equ @z 3 Equ @z 4 {f3D False}
+IfElse Equ @z 5 {*FNew2} {*FNew}
+
+EmbedMacro %FLoc "Set Coordinates"
+SetString 0 '@m' SetString 1 '@n' SetString 2 '@o'
+IfElse f3D {
+  GetString3 'Enter X Coordinate:' 'Enter Y Coordinate:' 'Enter Z Coordinate:' 0
+} {
+  GetString2 'Enter Horizontal X Coordinate:' 'Enter Vertical Y Coordinate:' 0
+}
+If @z {Break}
+@m Num $0 @n Num $1 @o Num $2
+*Tele
+
+EmbedMacro %F3D "Toggle Dimension"
+fRedrawWhenBitmapEdited False
+f3D Not f3D
+If f3D {nViewHeight 0}
+*FNew
+
+EmbedMacro %VMoved "After Move"
+@z False
+IfElse f3D {
+  @w False
+  If Lt nX Div Mul @p 2  3 (fRedrawWhenBitmapEdited False @s Dec @s nX Add nX << @p 1 @w True)
+  If Gt nX Div Mul @p 10 3 (fRedrawWhenBitmapEdited False @s Inc @s nX Sub nX << @p 1 @w True)
+  If Lt nY Div Mul @p 2  3 (fRedrawWhenBitmapEdited False @t Dec @t nY Add nY << @p 1 @w True)
+  If Gt nY Div Mul @p 10 3 (fRedrawWhenBitmapEdited False @t Inc @t nY Sub nY << @p 1 @w True)
+  If Lt nZ Div Mul @p 2  3 (fRedrawWhenBitmapEdited False @u Dec @u nZ Add nZ << @p 1 @w True)
+  If Gt nZ Div Mul @p 10 3 (fRedrawWhenBitmapEdited False @u Inc @u nZ Sub nZ << @p 1 @w True)
+  If @w (*Update)
+} {
+  @c Div nX @p @d Div nY @p @w Div nZ @p
+  If Or Or Or Lt @c 2 Gte @c 6 Or Lt @d 2 Gte @d 6 Or Lt @w 2 Gte @w 6 (
+    fRedrawWhenBitmapEdited False
+    @c Sub Dec >> @c 1 Not Odd @c
+    @d Sub Dec >> @d 1 Not Odd @d
+    @w Sub Dec >> @w 1 Not Odd @w
+    nX Sub nX Mul @c << @p 1
+    nY Sub nY Mul @d << @p 1
+    nZ Sub nZ Mul @w << @p 1
+    @s Add @s @c
+    @t Add @t @d
+    @u Add @u @w
+    *Update
+  )
+}
+
+EmbedMacro %VFollow "On Follow"
+*VMoved If @z {Return}
+IfElse f3D {
+  @z Add Add Add Add Add Get3 nX Dec nY nZ Get3 Dec nX nY nZ Get3 nX Inc nY nZ Get3 Inc nX nY nZ Get3 nX nY Dec nZ Get3 nX nY Inc nZ
+  @z Lt @z 4
+} {
+  @z Add Add Add Get nX Dec nY Get Dec nX nY Get nX Inc nY Get Inc nX nY
+  @z Lt @z 2
+}
+
+EmbedMacro %VInside "Inside Text"
+If Not fCellLocation {Return}
+@m Add @a >> nX 1
+@n Add @b >> nY 1
+@o Add @v >> nZ 1
+IfElse f3D {
+  MessageInside 'x=@m, y=@n, z=@o' -2
+} {
+  MessageInside 'x=@m, y=@n' -2
+}
+
+EmbedMacro %Update "Update Maze"
+ColorDelete TempDelete ExtraDelete
+IfElse f3D {
+  FractalPart3 @s @t @u @k @r
+  @a Mul Dec @s @p
+  @b Mul Dec @t @p
+  @v Mul Dec @u @p
+} {
+  FractalPart @s @t @k @r
+  @a Mul Dec @s @p
+  @b Mul Dec @t @p
+  @v Mul Dec @u @p
+}
+fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %Tele "Teleport"
+fRedrawWhenBitmapEdited False
+nDir @z
+@s Div @m @p @t Div @n @p @u Div @o @p
+@x Mod @m @p @y Mod @n @p @z Mod @o @p
+IfElse f3D {
+  If Gt @x >> @p 1 (@s Inc @s @x Sub @x @p)
+  If Gt @y >> @p 1 (@t Inc @t @y Sub @y @p)
+  If Gt @z >> @p 1 (@u Inc @u @z Sub @z @p)
+} {
+  If Lt @x >> @p 1 (@s Dec @s @x Add @x @p)
+  If Lt @y >> @p 1 (@t Dec @t @y Add @y @p)
+  If Lt @z >> @p 1 (@u Dec @u @z Add @z @p)
+}
+nX Inc << Add @x @p 1 nY Inc << Add @y @p 1 nZ << Add @z @p 1
+nHorizontalOffset 0 nVerticalOffset 0 nDirectionOffset 0
+*Update
+
+DefineMacro %Jump2 "If nInside {@z 0 Break} @t Inc @t *Update" "Jump Down"
+DefineMacro %Jump4 "If nInside {@z 0 Break} @s Dec @s *Update" "Jump Left"
+DefineMacro %Jump6 "If nInside {@z 0 Break} @s Inc @s *Update" "Jump Right"
+DefineMacro %Jump8 "If nInside {@z 0 Break} @t Dec @t *Update" "Jump Up"
+DefineMacro %Jump1 "@s Dec @s @t Inc @t *Update" "Jump Down Left"
+DefineMacro %Jump3 "@s Inc @s @t Inc @t *Update" "Jump Down Right"
+DefineMacro %Jump7 "@s Dec @s @t Dec @t *Update" "Jump Up Left"
+DefineMacro %Jump9 "@s Inc @s @t Dec @t *Update" "Jump Up Right"
+DefineMacro %Tele1 "@m -1 @n @q @o Mul f3D Dec @q @z 0 *Tele" "Teleport LL Corner"
+DefineMacro %Tele3 "@m @q @n @q @o Mul f3D Dec @q @z 0 *Tele" "Teleport LR Corner"
+DefineMacro %Tele7 "@m -1 @n -1 @o 0              @z 2 *Tele" "Teleport UL Corner"
+DefineMacro %Tele9 "@m @q @n -1 @o 0              @z 2 *Tele" "Teleport UR Corner"
+DefineMacro %Tele2 "@m @g @n ?: Neq nFractalType 5 @q -1 @o Mul And f3D Neq nFractalType 5 Dec @q @z Mul 2 Equ nFractalType 5 *Tele" "Teleport Down"
+DefineMacro %Tele4 "@m -1 @z 3 *Tele" "Teleport Left"
+DefineMacro %Tele6 "@m @q @z 1 *Tele" "Teleport Right"
+DefineMacro %Tele8 "@m @e @n -1 @o 0 @z 2 *Tele" "Teleport Up"
+DefineMacro %Tele5 "@m >> @q 1 @n @m @o @m @z nDir *Tele" "Teleport Middle"
+DefineMacro %Tele0 "@m Rnd 0 Dec @q @n Rnd 0 Dec @q @o Rnd 0 Dec @q @z Rnd 0 3 *Tele" "Teleport Random"
+DefineMacro %TeleG "@m @h @n @i @o @j @z nDir *Tele" "Teleport 2nd"
+DefineMacro %SetG "@h @m @i @n @j @o @z True" "Set 2nd"
+
+$3 {Welcome to Giga Mazes!\n\nYou are in the largest Maze ever, measuring a billion passages on\neach side, containing over one quintillion cells! A life size version\nof this Maze (with 5 feet between cells) would cover the Earth's\nsurface, @x times! This Maze is @q x @q\npassages (@f to the @lth power on a side$0).\n\nF1: Display this help text.\nF2: Create new Maze.\n\nF3: Create 1.00 billion x 1.00 billion passage Maze (10^9).\nF4: Create 1.07 billion x 1.07 billion passage Maze (2^30).\nF5: Create 1.16 billion x 1.16 billion passage Maze (3^19).\nF6: Create 1.98 billion x 1.98 billion passage Maze (7^11).\nF7: Create 2.07 billion x 2.07 billion passage Maze (73^5).\nF8: Create 2.14 billion x 2.14 billion passage Maze (215^4).\n\nF9: Switch sky/ceiling background.\nF10: Set Maze algorithm.\nF11: Change viewer coordinates.\nF12: Toggle between 2D and 3D Maze.\n\nPress "i" to toggle between inside and overhead views. Use\ncommands on the Dot/Teleport submenu to visit different parts of\nthe Maze.}
+
+$4 {Welcome to Giga Mazes!\n\nYou are in the largest 3D Maze ever, measuring a billion passages\non each side, containing over one octillion cells! A life size version\nof this Maze (with 5 feet between cells) would fill the Earth's\nvolume, @x times! This Maze is @q x @q\nx @q passages (@f to the @lth power on a side$0).\n\nF1: Display this help text.\nF2: Create new Maze.\n\nF3: Create 1.00 x 1.00 x 1.00 billion passage Maze (10^9).\nF4: Create 1.07 x 1.07 x 1.07 billion passage Maze (2^30).\nF5: Create 1.16 x 1.16 x 1.16 billion passage Maze (3^19).\nF6: Create 1.98 x 1.98 x 1.98 billion passage Maze (7^11).\nF7: Create 2.07 x 2.07 x 2.07 billion passage Maze (73^5).\nF8: Create 2.14 x 2.14 x 2.14 billion passage Maze (215^4).\n\nF9: Switch sky/ceiling background.\nF10: Set Maze algorithm.\nF11: Change viewer coordinates.\nF12: Toggle between 3D and 2D Maze.\n\nPress "i" to toggle between inside and overhead views. Use\ncommands on the Dot/Teleport submenu to visit different parts of\nthe Maze.}
+
+fRedrawWhenBitmapEdited False ResetProgram
+nAfterMoveToNewCell %VMoved
+nOnFollowToNewCell  %VFollow
+nAfterRedrawInside  %VInside
+OnCommand (F1) %FHelp
+OnCommand (F2) %FNew
+OnCommand (F3) %FNew1
+OnCommand (F4) %FNew2
+OnCommand (F5) %FNew3
+OnCommand (F6) %FNew4
+OnCommand (F7) %FNew5
+OnCommand (F8) %FNew6
+OnCommand (F9) %FSky
+OnCommand (F10) %FType
+OnCommand (F11) %FLoc
+OnCommand (F12) %F3D
+OnCommand (@) %Jump2
+OnCommand ($) %Jump4
+OnCommand (^) %Jump6
+OnCommand (*) %Jump8
+OnCommand (!) %Jump1
+OnCommand (#) %Jump3
+OnCommand (&) %Jump7
+OnCommand (() %Jump9
+OnCommand (c1) %Tele1
+OnCommand (c3) %Tele3
+OnCommand (c7) %Tele7
+OnCommand (c9) %Tele9
+OnCommand (c2) %Tele2
+OnCommand (c4) %Tele4
+OnCommand (c6) %Tele6
+OnCommand (c8) %Tele8
+OnCommand (c5) %Tele5
+OnCommand (c0) %Tele0
+OnCommand (cg) %TeleG
+OnCommand (g) %SetG
+WindowTitle "- Giga Mazes" True
+nHorizontalScroll 8 nVerticalScroll 8
+fHideMenu False fHideScrollbars True
+nRepeatDelayInMsec 25
+@h 0 @i 0
+kBorder Gray
+kPassage Black
+kWall White
+kDot Red
+kSky Black
+kCloud DkGray kCloud2 Dark kCloud
+kGround2 Black
+k3DCeiling2 Black
+fShowDot True
+fWallsImpassable True
+fMoveByTwo False
+fDoDragOnTemp True
+nEdgeBehavior 0
+nEntrancePositioning 1
+nInside 4
+fCompass True
+fCellLocation True
+fSealedEntrances False
+fMountains False
+fSunAndMoon True
+fStars True
+nMotionVelocity 10 nRotationVelocity 5
+fNarrowWalls True
+nCellSize 160 nNarrowCellSize 32
+nWallHeight 100
+nClippingPlane 200
+nFogDistance 1000
+fFogGround True
+fNoLocation True
+*FNew2

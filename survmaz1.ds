@@ -1,0 +1,49 @@
+DS
+// Survivor Maze game #1 - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-c: X and Y position and color of pole #1
+// d-f: X and Y position and color of pole #2
+// g-i: X and Y position and color of pole #3
+// j-l: X and Y position and color of pole #4
+// m-o: X and Y position and color of pole #5
+// p: Pole being hit
+// q: Next pole to visit
+// r-s: Temporary variables
+// x-y: X and Y coordinates of player during events
+// z: Event return value and temporary flag
+
+If Gte Version 2300 {Break} Message 'This script requires Daedalus 2.3 or later to run.' Break
+
+DefineMacro 1 "Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the episode 5 immunity\nchallenge in "Survivor II: The Australian Outback". Your goal is to\nnavigate the Maze, find and touch five poles in order, and then\nreach the exit.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in random Maze.\nF5: Switch background between day and night.\n\nA message will be displayed when you run into each pole.\nThe poles progress through the colors of the rainbow:\nPole #1: Red, #2: Yellow, #3: Green, #4: Blue, #5: Purple.\n\nJeff Probst says: "Survivors ready? Go!"'" "Help Text"
+DefineMacro 2 "Macro15 Macro19" "Restart Maze"
+DefineMacro 3 "Macro15 Macro16 Macro18 Macro19" "Start Survivor's Maze"
+DefineMacro 4 "Macro15 Macro17 Macro18 Macro19" "Start Random Maze"
+DefineMacro 5 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {fStars False nFogDistance 0 kSky Cyan kGround Light Yellow kMountain Brown kCloud White kCloud2 -1 Replace Dark Brown Light Brown 0} {fStars True nFogDistance 160 kSky Black kGround Blend Maize DkGray kMountain Dark Brown kCloud DkGray kCloud2 Dark kCloud Replace Light Brown Dark Brown 0} fRedrawWhenBitmapEdited True n" "Day And Night"
+
+DefineMacro 6 "@z Lte @q 6 If And Lt @y 0 @z {Macro9} If And Gte @y 0 @z {Macro10}" "Edge Event"
+DefineMacro 7 "@z False @r GetC @x @y For (p) 1 5 {If Equ @r Var Mul @p 3 'Break'} If Lte @p 5 {SwitchSgn Sub @p @q 'Macro12' 'Macro13' 'Macro14'}" "Wall Event"
+DefineMacro 8 "If Lt @q 6 {MessageInside 'Seeking: Pole #@q ($q)' -1 Break} If Equ @q 6 {MessageInside 'Seeking: Exit!' -1 Break}" "Inside Event"
+
+DefineMacro 9 "@r Sub 6 @q SwitchSgn Dec @r {Message 'This is the entrance.\n\nJeff Probst says: "You can't leave the Maze here! You have to find the exit. You're almost done!"'} {Message 'This is the entrance.\n\nJeff Probst says: "Hey, you can't leave the Maze here! You still have one more pole to find."'} {Message 'This is the entrance.\n\nJeff Probst says: "Hey, you can't leave the Maze here! You still have @r more poles to find."'}" "Leave Entrance"
+DefineMacro 10 "@r Sub 6 @q SwitchSgn Dec @r {@z False @q Inc @q fPauseTimer True Macro11} {Message 'This is the exit.\n\nJeff Probst says: "Hey, you can't leave the Maze yet! You still have one more pole to find."'} {Message 'This is the exit.\n\nJeff Probst says: "Hey, you can't leave the Maze yet! You still have @r more poles to find."'}" "Leave Exit"
+DefineMacro 11 "If Lte @q 6 {Break} @z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all poles and exited the Maze! :-)\nYou solved it in @x minutes, @y seconds.\n\nYour tribe wins immunity, and Jeff Probst hands you the coveted\nimmunity idol. You try to conceal a grin as Jeff tells the other tribe\nhe'll see them that evening in Tribal Council. Your tribemates cheer\nyou! With your new respect, you know you're safe from the vote\nuntil at least the merge.'" "Win Game"
+DefineMacro 12 "SwitchSgn Sub @q 6 {Message 'You've already been to this pole.\nThis is pole #@p ($p). You need to find pole #@q ($q).'} {Message 'You've already been to this pole.\nThis is pole #@p ($p). You need to find the exit.'} {Break}" "Pole Past"
+DefineMacro 13 "@q Inc @q IfElse Lte @q 5 {Message 'You find a pole!\nThis is pole #@p ($p). Now find pole #@q ($q).'} {Message 'You find a pole!\nThis is pole #@p ($p), the last pole! Now find the exit!'}" "Pole Present"
+DefineMacro 14 "IfElse Lte Sub @p @q 1 {Message 'You need to find another pole first before you can visit this one.\nThis is pole #@p ($p). You need to first find pole #@q ($q).'} {@r Dec @p Message 'You need to find other poles first before you can visit this one.\nThis is pole #@p ($p). You need to first find poles #@q ($q) though #@r ($r).'}" "Pole Future"
+
+DefineMacro 15 "fRedrawWhenBitmapEdited False fShowColorBitmap False Turtle '_'" "Draw Start"
+DefineMacro 16 "Size 53 69 0 1 Turtle 'S4R6BRR6BGL2BL4LBL2LBGRBGNLBR4R2BR2RBFLBL2L4BL2LBFRBR4RBR3RBDBL4L2BLL2BLLBDR5BRR2BR2R2BGLBL2LBLLBL2LBLLBDBR2R6BFL4BLLBLLBDNL2BR8RBFLBLLBL2L5BGR3BR3RBRR2BFL4BLL2BL3NL2BDRBR3R6BDBL3LBLL6BGR6BRR6' Turtle 'U17BGD5BD2D6BDDBGUBU6U2BUU2BUU2BHD2BDD3BDD2BDDBDDBDDBGUBU5UBUU7BUUBGD3BDDBD4D4BD3BLUBUUBU2UBU2UBU5U2BLDBD2D3BD3D2BDDBD2BLU2BUUBUUBUU2BUUBU2U2BHD2BDD2BD5D2BDD2BGU2BU3UBUUBU2UBUU3BGD2BD4D4BDDBGUBUUBU2U2BUU3BU2UBHD17' @a 42 @b 54 @d 2 @e 14 @g 6 @h 54 @j 42 @k 10 @m 26 @n 34" "Draw Survivor"
+DefineMacro 17 "MazeSize 13 17 1 @z nEntrancePositioning nEntrancePositioning 1 P nEntrancePositioning @z Bias 1 3 1 3 CollapseToSet @a 46 @b 54 @d 6 @e 14 @g 6 @h 54 @j 46 @k 14 @m 26 @n 34 @r 1 DoCount 5 {SetVar @r Add Var @r Mul Rnd -1 1 4 SetVar Inc @r Add Var Inc @r Mul Rnd -1 1 4 @r Add @r 3} For (r) 0 4 {@s Rnd 0 4 SwapVar Inc Mul @r 3 Inc Mul @s 3 SwapVar Add Mul @r 3 2 Add Mul @s 3 2}" "Draw Random"
+DefineMacro 18 "@r 1 DoCount 5 {Set Var @r Var Inc @r True @r Add @r 3} Quo Del CopyTexture -1 0 Quo Replace White Light Brown 0 Replace Black White 0 @r 1 @s 1 DoCount 5 {SetC Var @r Var Inc @r Var Add @r 2 SetX Var @r Var Inc @r -1 @s @r Add @r 3 @s Inc @s}" "Draw Middle"
+DefineMacro 19 "nX >> SizeX 1 nY 0 nZ 0 nDir 2 g cg @q 1 fRedrawWhenBitmapEdited True fShowColorBitmap True n Macro1 fPauseTimer False ct" "Draw End"
+
+Macro15 ResetProgram nOnMoveOffBitmap 6 nOnMoveIntoWall 7 nAfterRedrawInside 8 TempDelete ExtraDelete
+WindowTitle "- Survivor Maze Game 1" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+@c Red @f Yellow @i Green @l Blue @o Purple SetStrings 1 10 ",Red,Yellow,Green,Blue,Purple,T_1_,T_2_,T_3_,T_4_,T_5_"
+nRepeatDelayInMsec 25 kBorder White kWall White kDot Orange kSky Cyan kGround Light Yellow kMountain Brown kCloud White kMountain2 -1
+f3D False fShowDot True fWallsImpassable True fNoCornerHopping False fMoveByTwo False fDoDragOnTemp True nEdgeBehavior 0 nTextureWall 0
+nInside 4 fNarrowWalls True fCompass True fCellLocation False fSealedEntrances False fMountains True nPeakHeight 10 nCloudCount 4 fSunAndMoon True fStars False nMotionVelocity 25 nRotationVelocity 5 nUpDownVelocity 8 nCellSize 160 nNarrowCellSize 40 nWallHeight 300 nViewHeight 0 rLightFactor -50 nFogDistance 0
+Turtle "T1" For (r) 1 5 {Size 72 96 0 1 Turtle "S12BM11,11" @s Add 5 @r Turtle $s Thicken2 12 Zoom 1 5 0 2 cDel CopyMask -1 @r}
+Macro3

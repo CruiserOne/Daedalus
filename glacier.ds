@@ -1,0 +1,368 @@
+DS
+// Glacier Maze - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-d: Colors #1 through #4 (constant)
+// e-h: Color index for corners #1 through #4
+// i-l: Whether corners #1 through #4 have been hit
+// m-n: Temporary coordinates
+// o: Clue index
+// p: Whether Maze run has been finished
+// q: Number of corners hit so far
+// r: Record time in minutes
+// s: Record time in seconds
+// t: Number of dead ends in Maze
+// u: Whether emergency exit or other illegal passage has been used
+// v-z: Temporary variables
+
+// 27-71: Bounding box coordinates for clue zones
+// 72-82: Index for clue in each zone
+// 83-84: Temporary coordinates
+
+// Bitmap usage:
+// -1: Mono = Where walls are, Color = Color of walls
+// -2: Mono = Where floor markings are, Color = Current color of floor markings
+// -3: Mono = Where semitransparency is, Color = Trigger points
+// 0: Mono = Texture overlay color, Color = Texture bitmap indexes
+// 1: Mono = Where variable height walls are, Color = Actual height of walls
+// 2: Mono = Walls in addition to Maze, Color = Color coded wall heights
+// 3: Mono = Variable height variable height walls, Color = Temp wall heights
+// 4: Mono = Raw generated Maze, Color = Template for Maze creation
+// 5: Mono = Solvable Maze, Color = Master color of floor markings
+// 6: Mono = Mask for main emergency exit sign
+// 7: Mono = Mask for bridge emergency exit sign
+// 8-9: Mono = Masks for exit and here signs
+// 10: Mono = Masks for enter here sign
+// 11: Mono = Mask for finish here sign
+// 12: Mono = Mask for start here sign
+// 13: Mono = Mask for record time sign
+// 14: Mono = Mask for time sign
+// 15: Mono = Mask for corner sign
+// 16: Mono = Mask for clue sign
+// 17-20: Mono = Masks for color signs #1 through #4
+// 21-29: Mono = Masks for letters
+// 30: Color = Floor elevation
+
+If Gte Version 3000 {Break} Message 'This script requires Daedalus 3.0 or later to run.' Break
+
+DefineMacro 1 {Message 'Welcome to Glacier Maze!\n\nThis simulates random Mazes in the original layout of Glacier Maze,\na life size Maze located outside Glacier National Park, MT. Your\ngoal is to enter the Maze, find your way to each of the four\ncorners in any order, then to the exit. The exit can be seen on the\nwest side of the inner courtyard. Note there are a couple of\nemergency exits if you need to cheat. ;-) There are also clues on\ncertain walls in the Maze which can be read by touching the wall.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Create new Maze.\nF4: Switch between day and night.\n\nPress "e" to start and stop running mode.\nPress "x" to mark your path with a darker color square on ground.'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False CopyTexture 5 -2 Macro27 If fStars {_ Brightness -50 0 _} fRedrawWhenBitmapEdited True n Macro1 ct" "Restart Maze"
+DefineMacro 3 "fRedrawWhenBitmapEdited False Macro22 Macro27 If fStars {_ Brightness -50 0 _} fRedrawWhenBitmapEdited True n Macro1 ct" "New Maze"
+DefineMacro 4 "fRedrawWhenBitmapEdited False fShowColorBitmap True If Equ nInside 0 {i} IfElse fStars {_ Brightness 200 2 _ Macro30} {_ Brightness -50 0 _ fStars True nFogDistance 100 kSky Black kGround Dark kGround kMountain Dark DkGreen kCloud DkGray kMountain2 Dark DkGray kCloud2 Dark kCloud} @z Rgb 223 191 63 SetCT 47 60 @z SetCT 50 55 @z SetCT 47 50 @z fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 5 "If Gt nViewHeight 0 {Message 'You can't mark the ground from up here!' Break} SetCT nX nY Shade GetCT nX nY -20" "Mark Path"
+DefineMacro 6 "If Gt nViewHeight 0 {Message 'You can't erase marks on the ground from up here!' Break} fRedrawWhenBitmapEdited False @z GetCA 5 nX nY If fStars {@z Shade @z -50} fRedrawWhenBitmapEdited True SetCT nX nY @z" "Unmark Path"
+DefineMacro 7 "fRedrawWhenBitmapEdited False CopyTexture 5 -2 If fStars {_ Brightness -50 0 _} fRedrawWhenBitmapEdited True n Message 'A quick rain washes away all your marks on the ground.'" "Unmark Paths"
+DefineMacro 8 "fRedrawWhenBitmapEdited False @83 nX @84 nY Macro22 nX @83 nY @84 If fStars {_ Brightness -50 0 _} If And Get nX nY Equ nViewHeight 0 {@x nX2 @y nY2 g cg nX2 @x nY2 @y} fRedrawWhenBitmapEdited True n" "Reconfigure"
+
+DefineMacro 9 "Macro29 If Or Not @z Equ @z 12 {@z False Break} If Lt @z 7 {@z False Break} If GetE nX nY {@z True Break} If Neq @z 13 {Macro Add 15 Sub @z 7 Break} @o Sub White GetCE nX nY If And Gt @o 0 Lte @o 11 {@o Add 20 @o SetString 0 $o Message 'You get a clue! :-) It reads:\n\n$0'} @z False" "Wall Event"
+DefineMacro 10 "Macro29 If Not @z {Break} If And Neq @z 5 Neq @z 6 {@z False Break} Macro Add 13 Equ @z 6" "Before Move"
+DefineMacro 11 "If And fDragMoveDot Equ nViewHeight 0 {fRedrawWhenBitmapEdited False SetCT @x @y Shade GetCT @x @y -20 fRedrawWhenBitmapEdited True} Macro29 If Not @z {Break} If Or Or Gt @z 4 @p Gt nViewHeight 0 {Break} Spc If Var Add 8 @z {@z Sub 4 @q IfElse @z (Message 'You've already been to this corner.\nCorners left to find: @z') (Message 'You've already been to all four corners.\nYou need to find the exit.') Break} SetVar Add 8 @z True @q Inc @q @x Inc Var Add 4 @z @z Sub 4 @q IfElse @z {Message 'You find corner #@q ($x)!\nCorners left to reach: @z'} {Message 'You find corner #@q ($x)!\nAll four corners have been reached! Now find the exit!'}" "After Move"
+DefineMacro 12 "If @p {Break} If @u {MessageInside 'You have cheated! ;-)' -1 Break} If Equ @q 4 {MessageInside 'Seeking: Exit!' -1 Break} SetString 0 '' For (x) 0 3 {If Not Var Add 9 @x (@y Inc Var Add 5 @x SetString 0 '$0 $y')} MessageInside 'Seeking Corners:$0' -1" "Inside Event"
+
+DefineMacro 13 "If And @p Gt nX @x {MessageAsk 'This is the entrance to the Maze.\nBefore entering, you should go start the timer, by touching the south window of the building.\nDo you want to enter the Maze now anyway?' 3 @z Not @z Break} If And And Gt nX @x Gte @q 4 Not @u {MessageAsk 'This is the entrance to the Maze.\nYou shouldn't enter yet, since you haven't finished your current run in progress.\nTouch the east window of the building to finish and see your time.\nIf you enter here now, it will be considered cheating, and your time won't be eligable for the record.\nDo you want to enter the Maze now anyway?' 3 If @z '@u True' @z Not @z Break} If Or Or Gt nX @x @u @p {@z False Break} MessageAsk 'This is the entrance to the Maze.\nIf you exit here, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to exit the Maze here anyway?' 3 If @z {@u True} @z Not @z" "Entrance Trigger"
+DefineMacro 14 "If @p {@z False Break} If Gt nX @x {IfElse Not @u (MessageAsk 'This is the exit to the Maze.\nYou should enter the Maze on the south side of the building.\nIf you enter here, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to enter the Maze here anyway?' 3 If @z '@u True' @z Not @z) (@z False) Break} IfElse Not @u {IfElse Gte @q 4 (Message 'You've found the exit!\nNow quickly make your way to the east window of the building to finish and see your time.' @z False) (MessageAsk 'This is the exit to the Maze.\nYou shouldn't leave yet, since you still have corners to find.\nIf you exit prematurely, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to exit the Maze now anyway?' 3 If @z '@u True' @z Not @z)} {@z False}" "Exit Trigger"
+DefineMacro 15 "If Or @p @u {@z True Break} IfElse Lt nX @x {MessageAsk 'This bridge passage is an emergency exit.\nYou should find the proper exit out of the Maze.\nIf you exit here, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to exit the Maze here anyway?' 3} {MessageAsk 'The stairs you just climbed are an emergency exit.\nTo enter the Maze, go to the south side of the building.\nIf you enter here, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to enter the Maze here anyway?' 3} If @z {@u True}" "Bridge Emergency Exit"
+DefineMacro 16 "If Or @p @u {@z True Break} IfElse Lt nY @y {MessageAsk 'This is an emergency exit.\nYou should find the proper exit out of the Maze.\nIf you exit here, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to exit the Maze here anyway?' 3} {MessageAsk 'This is an emergency exit.\nTo enter the Maze, go to the south side of the building.\nIf you enter here, it will be considered cheating, and your time won't be eligible for the record.\nDo you want to enter the Maze here anyway?' 3} If @z {@u True}" "Main Emergency Exit"
+DefineMacro 17 "IfElse @p {Message 'This is the start window on the south side of the building.\nYou begin your fun here! Now enter the Maze using the passage to the west.' Macro28} {MessageAsk 'This is the start window on the south side of the building.\nYou begin your fun here, then enter the Maze using the passage to the west.\nYou already have a run through the Maze in progress.\nDo you want to discard that run and start over?' 3 If @z 'Macro28'} @z False" "Start Window"
+DefineMacro 18 "If @p {Message 'This is the finish window.\nYou're not running a Maze now, so there's nothing to do here.\nTo start the Maze, go touch the window on the south side of the building.' @z False Break} @p True fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 IfElse And Equ @q 4 Not @u {IfElse Or Lt @x @r And Equ @x @r Lt @y @s (Macro20) (Message 'Congratulations, you have finished Glacier Maze! :-)\nYou found all four corners in the four colors and properly exited.\nIt took you @x minutes, @y seconds.')} {Message 'You reached the finish window after @x minutes, @y seconds.\nYou found @q of the four corners.\nSince you cheated, the record time will not be updated.'} @z False" "Finish Window"
+DefineMacro 19 "Message 'This is the north window of the building.\nThere is nothing of interest here.\nTo finish an active Maze run, go touch the east window.\nTo start a new run through the Maze, go touch the south window.' @z False" "Other Window"
+DefineMacro 20 "Message 'Congratulations, you have finished Glacier Maze! :-)\nYou found all four corners in the four colors and properly exited.\nIt took you @x minutes, @y seconds.\nYou beat the previous record of @r minutes, @s seconds!\nThe fastest time posted on the wall has been updated. :-)' @r @x @s @y fRedrawWhenBitmapEdited False Macro21 fRedrawWhenBitmapEdited True n" "New Record"
+DefineMacro 21 "CopyMask -1 14 Size 36 102 0 1 @z Div @r 10 SetChar 14 2 ?: @z Add 48 @z 32 SetChar 14 10 Add 48 Mod @r 10 SetChar 15 2 Add 48 Div @s 10 SetChar 15 10 Add 48 Mod @s 10 Turtle 'C1S2A0BM4,4' Turtle $14 Turtle 'BM22,4' Turtle $15 Thicken cDel SwapMask -1 14 fShowColorBitmap True" "Record Texture"
+
+DefineMacro 22 "fShowColorBitmap True CopyTexture 5 -2 CopyTexture 4 -1 ColorPut PartialKruskal Turtle 'S1A0C0BM34,61U0BM34,33U0BD14U0' CopyMask -1 4 = Macro24 CopyMask 2 -1 TempOr \ CopyMask 3 -1 TempAnd kWall 1 CopyTexture 3 -1 ColorXor kWall White Replace UD 501 200 UD 500 40 0 Replace UD 251 240 UD 250 40 0 Replace UD 334 240 UD 335 40 0 CopyTexture -1 1 _ ColorPut k _ k = Del - SetE 43 22 On SetE 34 47 On k Macro23 Macro25 CopyTexture -2 5" "Create Maze"
+DefineMacro 23 "CopyTexture 2 -1 ColorAnd Replace White Blend Orange Brown 0 Replace Gray Rgb 239 119 31 0 @z Rgb 207 191 175 Replace Blue @z 0 Replace DkBlue @z 0 Replace Cyan Rgb 71 63 55 0 Replace DkCyan Rgb 143 127 111 0 @z Rgb 191 31 0 Replace Green @z 0 Replace DkGreen @z 0 Replace Yellow Dark Maize 0 Replace Pink Rgb 123 107 91 0 Replace Orange Rgb 133 117 101 0 Replace Rgb 255 255 127 Rgb 143 127 111 0 Replace Rgb 127 255 127 Rgb 93 77 61 0 Replace Rgb 127 255 255 Rgb 103 87 71 0 Replace Rgb 127 127 255 Rgb 113 97 81 0 Replace Black White 0 nX 36 nY 50 nX2 50 nY2 60 kWall Rgb 223 191 63 2ndBlock For (z) 0 3 {SwapVar Add 5 @z Rnd 5 8} For (z) 0 3 {@x Mul Odd @z 98 @y Mul Gt @z 1 58 nX @x nY @y nX2 Add @x 6 nY2 Add @y 6 kWall Var Add 1 Var Add 5 @z 2ndBox SetCT Add Inc @x Mul Odd @z 4 Add Inc @y Mul Gt @z 1 4 Light kWall @w Add 17 Var Add 5 @z IfElse Gt @z 1 (IfElse Odd @z 'SetX 104 63 1 @w' 'SetX 1 64 0 @w') (IfElse Odd @z 'SetX 103 0 2 @w' 'SetX 0 1 3 @w')}" "Color Maze"
+DefineMacro 24 "Turtle 'C1BM34,46R2D2L2C0BM43,22U0BM8,11U0BR40U0BR8U0BR40U0BM8,13U0BR88U0BM15,34U0BR2U0BR70U0BR2U0BM9,54U0BR16U0BR54U0BR16U0' CopyMask -1 5 fSkipMessageDisplay True F ? @t @z +" "Solve Maze"
+DefineMacro 25 "kWall Black For (o) 0 10 {SwapVar Add 72 @o Add 72 Rnd 0 10} For (o) 0 10 {@z Add 27 Mul @o 4 @m Var @z @n Var Inc @z @v Var Add @z 2 @w Var Add @z 3 Macro26} kWall White" "Place Clues"
+DefineMacro 26 "nX @m nY @n nX2 Inc @v nY2 Inc @w SwapTexture -1 0 2ndBlock SwapTexture -1 0 - 2ndBlock - DoWhile (And And And Not Get @x Dec @y Not Get Dec @x @y Not Get @x Inc @y Not Get Inc @x @y) {@x Or Rnd @m @v 1 @y Or Rnd @n @w 1} DoWhile (Not Get @m @n) {@z Rnd 0 3 @m @x @n @y IfElse Odd @z '@m Sub Add @m @z 2' '@n Dec Add @n @z'} SetX @m @n Xor @z 2 16 SetCE @m @n Gray SetCE @x @y Neg Add Var Add 72 @o 2" "Place Clue"
+DefineMacro 27 "fMoveByTwo False nX 47 nY 61 nDir 1 g cg Macro28" "Teleport To Start"
+DefineMacro 28 "SetVars 9 4 '0 0 0 0' @p 0 @q 0 @u 0 fPauseTimer False ct" "Clear Settings"
+DefineMacro 29 "@z GetCE @x @y If Not @z {Break} @z Add Add Min >> RgbR @z 6 2 Mul Min >> RgbG @z 6 2 3 Mul Min >> RgbB @z 6 2 9" "Trigger Number"
+DefineMacro 30 "fStars False nFogDistance 0 kSky Cyan kGround Rgb 159 191 127 kMountain DkGreen kCloud White kMountain2 Gray kCloud2 Light Light LtGray" "Day Settings"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Glacier Maze" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True nOnMoveIntoWall 9 nOnMoveToNewCell 10 nAfterMoveToNewCell 11 nAfterRedrawInside 12 nTextureWall 0 nWallVariable 1 nMarkElev 30 OnCommand (h) 5 OnCommand (x) 5 OnCommand (y) 6
+SetVars 1 8 "Red #00BF00 Blue #00EFEF 0 1 2 3" SetStrings 1 4 ",Red,Green,Blue,Yellow" @r 99 @s 99 SetVars 27 44 "8 4 51 7  52 4 95 7  4 16 11 33  20 16 31 33  34 16 69 19  70 16 83 33  92 16 99 33  4 36 31 43  72 36 99 43  12 50 21 59  82 50 91 59" For (o) 0 10 {SetVar Add 72 @o @o}
+SetStrings 21 11 {/"Don't go on! This is not the way! Take heed, and go no farther!"/It's not whether you solve the Maze, but whether you have fun along the way./Just because you can go up and across a bridge, doesn't mean you should./Q: How is a Maze like a religious text?\nA: They both have lots of passages!/Reading this clue just wasted 5 seconds./Some of these clues are lies. Maybe even this one!/"Some walls have ears, and some ears have walls."/Sometimes you have to go back, in order to move forward./This Maze plan contains @t dead ends./Wall following won't work to solve all Mazes, but it will get through this one./You're doing great! Honest, hee hee. ;-)}
+nRepeatDelayInMsec 25 kBorder White kPassage Black kWall White kDot Black kInsideWall Brown kLine White fShowDot True fDotIsCircle True nDotSize 0 fWallsImpassable True fDoDragOnTemp True nEdgeBehavior 0 nInside 4 fSealedEntrances False fMountains True nPeakHeight 25 nCloudCount 16 fSunAndMoon True fNarrowWalls True nCellSize 108 nNarrowCellSize 12 nWallHeight 200 nStepHeight 63 nClippingPlane 200 nMotionVelocity 6 nRotationVelocity 5 nUpDownVelocity 8 fMarkColor True fMarkBlock True Macro30
+
+// Color template for Maze creation
+EmbedDB
+DB
+105 71 24
+
+f{zazazaiaf{
+|
+z{z{z{w{
+|4
+aaz{z{z{s{
+|3
+aad{{s{{daz{a{da{{{sd{{g{{daz{a{da{{{gd{
+aaz{z{z{s{
+aad{{y{{daz{z{v{da{{{cd{
+aaz{z{z{s{
+|8
+aaz{e{zagaz{e{
+|5
+aal{{a{{{ap{zagap{{a{{{al{
+|4
+aaz{e{zagaz{e{
+aal{{y{{{up{zagap{{u{{{cl{
+aaz{e{zagaz{e{
+|12
+aaf{{an{{ah{zagah{{an{{af{
+|4
+aaz{e{zagaz{e{
+aaf{{in{{ih{zagah{{nn{{nf{
+aaz{e{zagaz{e{
+|
+z{g{zagaz{g{
+|4
+f{zazazaiaf{
+|
+
+|5
+
+CopyTexture -1 4
+
+// Color coded wall heights
+EmbedDB
+DB
+105 71 24
+
+fszazazaiafs
+{s{a{n{a{n{a{szazazaia{s{a{n{a{n{a{s
+{s{n{{{n{{{n{sz{z{z{i{{s{n{{{n{{{n{s
+{s{a{n{a{n{a{j{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{j{a{n{a{n{a{s
+{s{n{{{n{{{n{s{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{n{{{n{{{n{s
+{s{a{n{a{n{a{j{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{j{a{n{a{n{a{s
+bs{j{s{j{s{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{j{s{jbs
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{nawavaz{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{iazavaw{n{{{n{{{n{{{nawavaz{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{iazavaw{n{{{n{{{n{{
+aa{{{a{n{a{n{aaqarao{bzc{baoaraq{a{n{a{n{a{n{aaqarao{bzc{baoaraq{a{n{a{n{a{{
+aa{{{n{{{n{{{nawavaz{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{efi{e{i{e{i{e{i{efi{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{iazavaw{n{{{n{{{n{{
+aa{{{a{n{a{n{aaqarao{b{c{ezczcpc{e{c{baoaraq{a{n{a{n{a{{
+aa{{{n{{{n{{{nawavaz{i{c{i{c{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{c{i{c{iazavaw{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{nb{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaga{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{zaga{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaga{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{zaga{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaga{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{c{e{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{i{b{i{b{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{fa{g{d{gfa{g{d{gfa{g{d{gda{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{b{i{b{i{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{z{o{z{o{z{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nfabdfabdfabdda{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{z{o{z{o{z{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{z{o{z{o{z{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{fa{g{d{gfa{g{d{gfa{g{d{gda{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{z{o{z{o{z{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{v{r{v{r{v{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaga{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{v{r{v{r{v{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{v{r{v{r{v{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{zaga{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{v{r{v{r{v{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{w{q{w{q{w{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaia{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{w{q{w{q{w{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{w{q{w{q{w{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{zaga{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{w{q{w{q{w{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaga{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{zaga{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaga{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{pa{g{d{gfa{g{d{gda{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{npabdfabdda{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{w{q{wna{g{d{gfa{g{d{gda{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{w{q{wzaea{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{v{r{vzaea{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{v{r{vzaea{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{z{o{zzaea{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{z{o{zzaea{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{b{izaea{{{n{{{n{{{n{{{n{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{n{{{n{{{n{{
+aa{{{a{n{a{n{a{exc{e{c{izaea{n{a{n{a{n{a{n{a{epc{e{a{n{a{n{a{{
+aa{{{n{{{n{{{n{i{b{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{b{i{e{i{e{i{e{i{ebixa{g{d{gda{{{n{{{n{{{n{{{n{i{b{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{b{i{n{{{n{{{n{{
+aa{{{a{n{a{n{a{z{o{z{a{n{a{n{a{n{a{n{a{n{a{n{a{z{o{z{a{n{a{n{a{n{a{{zabdda{n{a{n{a{n{a{n{a{z{o{z{a{n{a{n{a{n{a{n{a{n{a{n{a{z{o{z{a{n{a{n{a{{
+aa{{{n{{{n{{{n{z{o{z{n{{{n{{{n{{{n{{{n{{{n{{{n{z{o{z{n{{{n{{{n{{{n{{{abubtdu{xbuja{g{d{gda{{{n{{{n{{{n{{{n{z{o{z{n{{{n{{{n{{{n{{{n{{{n{{{n{z{o{z{n{{{n{{{n{{
+aa{{{a{n{a{n{a{v{r{v{a{n{a{n{a{n{a{n{a{n{a{n{a{v{r{v{a{n{a{n{a{n{a{{{a{ulk{ura{n{a{n{a{n{a{n{a{v{r{v{a{n{a{n{a{n{a{n{a{n{a{n{a{v{r{v{a{n{a{n{a{{
+aa{{{n{{{n{{{n{v{r{v{n{{{n{{{n{{{n{{{n{{{n{{{n{v{r{v{n{{{n{{{n{{{n{{{a{u{kjl{k{ura{{{n{{{n{{{n{{{n{v{r{v{n{{{n{{{n{{{n{{{n{{{n{{{n{v{r{v{n{{{n{{{n{{
+aa{{{a{n{a{n{a{w{q{w{a{n{a{n{a{n{a{n{a{n{a{n{a{w{q{w{a{n{a{n{a{n{a{{{a{u{kjl{k{ura{n{a{n{a{n{a{n{a{w{q{w{a{n{a{n{a{n{a{n{a{n{a{n{a{w{q{w{a{n{a{n{a{{
+aa{{{n{{{n{{{n{w{q{w{n{{{n{{{n{{{n{{{n{{{n{{{n{w{q{w{n{{{n{{{n{{{n{{{a{u{kalfpal{k{ura{{{n{{{n{{{n{{{n{w{q{w{n{{{n{{{n{{{n{{{n{{{n{{{n{w{q{w{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{{a{u{kalfpal{k{xra{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{a{u{kalfpal{k{ura{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{{a{u{kjl{k{ura{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+bs{j{s{j{s{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{a{u{kjl{k{ura{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{j{s{jbs
+{s{a{n{a{n{a{j{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{{a{ulk{ura{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{j{a{n{a{n{a{s
+{s{n{{{n{{{n{s{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{na{ju{xbura{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{n{{{n{{{n{s
+{s{a{n{a{n{a{j{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{nzaia{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{j{a{n{a{n{a{s
+{s{n{{{n{{{n{sz{{{bm{ybm{ybm{ybm{yraz{{{{s{n{{{n{{{n{s
+{s{a{n{a{n{a{szaoa{mra{mza{s{a{n{a{n{a{s
+fszaoa{mra{mzafs
+zava{mra{m
+zava{yra{y
+zazaoa{m
+|2
+zava{ybm{ybm{ybm{ybm{ybm{y
+
+CopyTexture -1 2 Replace White 200 0 Replace Gray UD 200 40 0 Replace Red 500 0 Replace Maroon UD 500 200 0 Replace Green 80 0 Replace DkGreen UD 80 65 0 Replace Yellow 100 0 Replace Maize UD 100 85 0
+Replace Blue UD 250 240 0 Replace DkBlue 250 0 Replace Cyan 335 0 Replace DkCyan UD 335 240 0 Replace Rgb 127 127 255 187 0 Replace Rgb 127 255 255 125 0 Replace Rgb 127 255 127 63 0 Replace Rgb 255 255 127 335 0 Replace Orange 290 0 Replace Pink 245 0
+Replace Magenta 300 0 Replace Purple UD 300 290 0 Replace Rgb 127 0 255 UD 400 290 0 Replace Rgb 127 255 0 UD 500 290 0 Replace Rgb 255 0 127 UD 300 250 0 Replace Rgb 255 127 255 UD 300 250 0 0 CopyTexture -1 3
+
+// Color coded floor mark colorings
+EmbedDB
+DB
+105 71 24
+
+fnzazazaiafn
+|
+znznznwn
+|4
+aaznznznsn
+|15
+aaznenzgggznen
+|3
+aaznenegdndgdndgdncgznen
+|4
+aaznenzgggznen
+aazngnzgegznen
+|3
+aazngnmgdndgdncgznen
+aazninkgdndgdncgznen
+|3
+aazninzgcgznen
+|4
+aazninugdncgznen
+|
+aaznvnhgdncgznen
+aaznfnj{{yb{{nhgdncgznen
+aaznfnn{{nhgdncgznen
+aaznfnn{{nqgznen
+aaznfnj{{sb{{nqgznen
+|
+aaznfnj{{sa{{y{nqgznen
+aaznfnj{{sb{{nqgznen
+|
+znhnn{{nqgzngn
+|
+znhnj{{yb{{nqgzngn
+znxnqgzngn
+zngnoa{nqgzngn
+fnzapa{nqgza{afn
+|
+zawa{nqg
+|
+znxnqg
+|2
+
+Replace Gray Light LtGray 0 Replace Green Rgb 15 207 15 0 Replace White Light Light LtGray 0 Replace Red Brown 0 Replace Yellow Rgb 223 191 63 0 Replace Black kGround 0 CopyTexture -1 5
+kDot Brown ColorDotXor kDot Black ColorPut cDel Quo Replace White 100 0 SetC 47 60 100 SetC 50 55 100 SetC 47 50 100 CopyTexture -1 30
+
+// Where walls in addition to Maze
+EmbedDB
+DB
+105 71 1
+
+`Am0Y
+AAm))
+|4
+`Am0Y
+
+|2
+!0rA0rA
+|
+!0zA
+|2
+a0Ai0A
+|12
+a0AbY$A/b0A
+|2
+a0Ai0A
+|3
+
+|2
+g$A/
+|
+d$A!$A/
+d$A
+|4
+!0pAeoA
+|
+!0pAb/aoA
+!/aYd/aY!$A
+!/aY!nY!/aY!$A
+!/aY!nYcY!$A
+|3
+enY
+|2
+`AcnYf0Y
+AAcnYf))
+AAb"nYf))
+AAm))
+AAb"nYf))
+AAe)a#c))
+`Ae)a#c0Y
+g)a#
+|
+j#
+|2
+g0n_
+
+CopyMask -1 2
+
+// Where variable height variable height walls
+EmbedDB
+DB
+105 71 1
+
+
+|2
+!Am)
+
+!Am)
+&m!&
+
+|2
+a&6666b&6666
+a#KKKKb#KKKK
+a&6666!61&6666
+a#KKKKKKKKKKKK
+a&666666666666
+a+Ai+A
+a&j&
+a+Ai+A
+a&j&
+a+Ai+A
+a&j&
+a+Ai+A
+a&j&
+a+Ai+A
+a&j&
+a+Ai+A
+a&j&
+a+Ai+A
+
+|17
+!&6665f666
+!+KKKIfKKKA
+!"66&5f&65
+
+|8
+&m!&
+!Am)
+
+!Am)
+
+|8
+
+CopyMask -1 3 sDel CopyMask -1 1 k \ Del CopyTexture -1 0 SetC 1 1 Maroon SetC 103 1 Red SetC 1 63 DkGreen SetC 103 63 Maize SetC 36 61 Orange SetC 34 33 Green SetC 34 47 Rgb 127 255 0 SetC 43 22 Yellow SetC 47 60 DkBlue SetC 50 55 Purple SetC 47 50 Rgb 255 0 127 For (z) 53 57 {SetC 47 @z DkCyan} -
+SetString 5 "T_H\n_BU2T_E\n_BU2T_R\n_BU2T_E_" SetString 6 "T_S\n_BU2T_T\n_BU2T_A\n_BU2T_R\n_BU2T_T_" SetString 7 "T_E\n_BU2T_N\n_BU2T_T\n_BU2T_E\n_BU2T_R_" SetString 8 "T_F\n_BU2T_I\n_BU2T_N\n_BU2T_I\n_BU2T_S\n_BU2T_H_" SetString 9 "T_E\n_BU2T_X\n_BU2T_I\n_BU2T_T_" SetString 10 "T_E\n_BU2T_M\n_BU2T_E\n_BU2T_R_" SetString 11 "T_G\n_BU2T_E\n_BU2T_N\n_BU2T_C\n_BU2T_Y_" SetString 12 "T_R\n_BU2T_E\n_BU2T_C\n_BU2T_O\n_BU2T_R\n_BU2T_D_" SetString 13 "T_T\n_BU2T_I\n_BU2T_M\n_BU2T_E_" SetString 14 "T_9\n_BU2T_9\n\n_BU4T_M\n_BU2T_I\n_BU2T_N_" SetString 15 "T_9\n_BU2T_9\n\n_BU4T_S\n_BU2T_E\n_BU2T_C_"
+SetString 16 "T_C\n_BU2T_O\n_BU2T_R\n_BU2T_N\n_BU2T_E\n_BU2T_R_" SetString 17 "BM4,28T_R\n_BU2T_E\n_BU2T_D_" SetString 18 "BM4,12T_G\n_BU2T_R\n_BU2T_E\n_BU2T_E\n_BU2T_N_" SetString 19 "BM4,20T_B\n_BU2T_L\n_BU2T_U\n_BU2T_E_" SetString 20 "BM4,4T_Y\n_BU2T_E\n_BU2T_L\n_BU2T_L\n_BU2T_O\n_BU2T_W_"
+
+Size 54 86 0 1 Turtle "C1S2A0T1BM4,12" Turtle $10 Turtle "BM22,4" Turtle $11 Turtle "BM40,12" Turtle $9 Thicken cDel CopyMask -1 6 // Main Emergency Exit
+Size 66 66 0 1 Turtle "BM10,4T_EMER_BM4,22T_GENCY_BM10,40T_EXIT_" Thicken cDel CopyMask -1 7 // Bridge Emergency Exit
+Size 54 70 0 1 Turtle "BM40,4" Turtle $9 Thicken cDel CopyMask -1 8 Del Turtle "BM4,4" Turtle $5 Thicken cDel CopyMask -1 9 // Exit Here
+Size 40 86 0 1 Turtle "BM4,4" Turtle $7 Turtle "BM22,12" Turtle $5 Thicken cDel CopyMask -1 10 // Enter Here
+Size 36 102 0 1 Turtle "BM4,4" Turtle $8 Turtle "BM22,20" Turtle $5 Thicken cDel CopyMask -1 11 // Finish Here
+Del Turtle "BM4,12" Turtle $6 Turtle "BM22,20" Turtle $5 Thicken cDel CopyMask -1 12 // Start Here
+Del Turtle "BM4,4" Turtle $12 Turtle "BM22,20" Turtle $13 Thicken cDel CopyMask -1 13 Macro21 // Record Time
+Size 116 104 0 1 Turtle "BM29,39R28D12L28U12BM35,45T_CLUE_" Thicken cDel CopyMask -1 16 // Clue
+Size 18 102 0 1 Turtle "BM4,4" Turtle $16 Thicken cDel CopyMask -1 15 For (z) 17 20 {Del Turtle $z Thicken cDel CopyMask -1 @z} // Corner
+Size 14 22 0 1 SetString 0 "BM2,4T_@_" @w 0 For (z) 0 8 {Del SetChar 0 7 Char 'GLACIERMZ' @z Turtle $w Thicken cDel CopyMask -1 Add 21 @z} For (y) 0 1 {For (x) 0 11 (@z Sub Char 'ABCDEFG@HCIF' @x 65 If Lt @z 0 'Continue' SetX Add Add 9 Mul @y 64 Mul @x 2 62 2 Add 21 @z)}
+SetX 43 22 0 6 SetX 43 22 2 6 SetX 34 47 1 7 SetX 34 47 3 7 SetX 34 35 3 8 SetX 34 31 3 9 SetX 35 60 2 10 SetX 50 53 3 11 SetX 45 60 2 12 SetX 50 59 3 13 SetX 50 57 3 14 SetX 1 0 2 15 SetX 104 1 1 15 SetX 0 63 3 15 SetX 103 64 0 15
+Macro3

@@ -1,0 +1,116 @@
+DS
+// Survivor Maze game #9 - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+// For actual Maze see http://www.youtube.com/watch?v=_x6HVvdOq5g
+
+// Variable usage:
+// a-d: Player colors (constant)
+// e-h: Whether checkpoint visited
+// l: Whether blindfolded
+// k: Whether animating clouds
+// p: Player color index
+// q: Next thing for player to find (0-5)
+// r: Cloud movement rate (constant)
+// w: Temporary variable
+// x-y: X and Y coordinates of player during events
+// z: Event return value
+
+// Bitmap usage:
+// -1: Mono = Where walls are, Color = Color of walls
+// -2: Mono = Where floor markings are, Color = Color of floor markings
+// -3: Color = Trigger indicators
+// 0: Color = Wall texture mapping
+// 1: Mono = Where variable height walls are, Color = Wall heights
+// 2: Mono = Survivor Maze template, Color = Color backup
+// 3: Mono = Random Maze template, Color = Wall height backup
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the\nfinal four in "Survivor XXII: Redemption Island". Your goal is to\nvisit the four checkpoints in the Maze in any order, then go to the\n$x station in the raised finish area. $x was the color $y had.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in random Maze.\n\nF5: Put on or remove blindfold.\nF6: Switch background between day and night.\nF7: Toggle cloud movement.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False CopyTexture 2 -1 ColorAnd CopyTexture 3 1 k = Del _ k Macro13 SetVars 5 4 '0 0 0 0' @p Rnd 0 3 @q 0 nX 1 nY 21 nZ 0 nDir 3 g cg @z Var Inc @p SetC 29 3 @z SetC 55 3 @z SetC 29 39 @z SetC 55 39 @z k3DWall @z fShowColorBitmap True fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct" "Restart Maze"
+DefineMacro 3 "fRedrawWhenBitmapEdited False CopyMask 2 -1 Macro2" "Restart Survivor"
+DefineMacro 4 "fRedrawWhenBitmapEdited False Macro14 Macro2" "Restart Random"
+DefineMacro 5 "fRedrawWhenBitmapEdited False @l Not @l IfElse @l {kSky Black kGround Black kGround2 -1 kCloud Black kCloud2 -1 fMapOverlay False fMountains False fSunAndMoon False fStars False nFogDistance 15 fRedrawWhenBitmapEdited True Spc Message 'You put on a blindfold.'} {Macro13 fRedrawWhenBitmapEdited True Spc Message 'You remove your blindfold.'}" "Blindfold"
+DefineMacro 6 "If @l {Macro5 Break} fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {Macro13} {fStars True nFogDistance 200 kSky Black k3DCeiling kSky kGround Dark Dark kGround kGround2 Dark kGround kMountain kGround2 kMountain2 Dark Dark DkGreen kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 7 "If @l {Macro5} @k Not @k If @k {Spc} fAutorepeatLastCommand @k" "Cloud Movement"
+
+DefineMacro 8 "If Or Gt @q 4 Not fWallsImpassable {Break} Message 'Jeff Probst says: "Hey, you can't exit the Maze! You haven't completed it yet."' @z True" "Boundary Event"
+DefineMacro 9 "@z False If Gt @q 4 {Break} @w GetCE @x @y If Not @w {Break} If Equ @w White {IfElse Neq GetC @x @y Var Inc @p (@w Inc @p Message 'This center station is not yours.\nYou want to touch the $w station.') (@q 5 Macro12) Break} @w And @w 255 If Gt @w 4 {Break} If Var Add 4 @w {Message 'You've already been to this checkpoint.' Break} Message 'You visit a checkpoint!' SetVar Add 4 @w 1 @q Inc @q @w GetCA 1 @x @y SetCA 1 @x @y UD Add @w 400 Sub @w 10 Spc" "Wall Event"
+DefineMacro 10 "@z False If Gte @q 4 {Break} @w GetCE @x @y If Or Or Neq @w Gray Gte nX @x Gt nViewHeight 48 {Break} Message 'Jeff Probst says: "Hey, you can't go up there yet! You need to visit all the checkpoints first."' @z True" "Move Event"
+DefineMacro 11 "If @k {MoveCloud -1 @r} If Gt @q 4 {Break} IfElse Lt @q 4 {@z Sub 4 @q MessageInside 'Checkpoints needed: @z' -1} {MessageInside 'Checkpoints needed: None - Go to finish!' -1}" "Inside Event"
+
+DefineMacro 12 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you found all checkpoints and made it to the end\nof the Maze! :-) You solved it in @x minutes, @y seconds.\n\nJeff Probst gives you the immunity necklace, meaning you can't be\nvoted off the island at Tribal Council. Only you are safe! With this\nwin you find yourself in the final three, and in good position to do\nthe most a-Maze-ing thing in Survivor: Win the million dollar prize!'" "Win Game"
+DefineMacro 13 "@l False fStars False fMountains True fSunAndMoon True nFogDistance 900 kSky Cyan k3DCeiling kSky kGround Rgb 202 177 147 kGround2 -1 kMountain kGround kMountain2 DkGreen kCloud White kCloud2 Light LtGray" "Day Settings"
+DefineMacro 14 "CopyMask 3 -1 DoWhile (Not Get nX nY) {nX Or Rnd 0 Sub SizeX 2 1 nY Or Rnd 0 Dec Sub SizeY 2 1} PartialRecursive If Not Or Or Or Or Or Get 49 20 Get 53 20 Get 57 20 Get 49 22 Get 53 22 Get 57 22 {Turtle 'C0BM23,18D0BM30,19D0BM23,24D0BM30,23D0C1BM29,3`BM55,3`BM29,39`BM55,39`BM3,3`BM3,39`' nX 30 nY 20 nX2 58 nY2 22 2ndBlock nX 59 nY 10 nX2 74 nY2 32 2ndBlock Break} Restart" "Create Random"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Survivor Maze Game 9" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+nRepeatDelayInMsec 25 nRandomRun 10 kBorder Black kPassage Black fShowDot True fWallsImpassable True fNoCornerHopping False fDragIsErase False fDoDragOnTemp True nEdgeBehavior 0 Macro13 fSealedEntrances False fMountains True nPeakHeight 30 nCloudCount 24 fSunAndMoon True fNarrowWalls True nInside 4 nCellSize 160 nNarrowCellSize 20 nWallHeight 300 nViewHeight 0 nStepHeight 60 nClippingPlane 200 nMotionVelocity 13 nRotationVelocity 5 nUpDownVelocity 57 fFogGround True fMarkColor True fRedrawAfter True nOnMoveOffBitmap 8 nOnMoveIntoWall 9 nOnMoveToNewCell 10 nAfterRedrawInside 11 nWallVariable 1
+@r 18000 SetVars 1 4 "Purple Blue Orange Red" SetStrings 1 8 ",Purple,Blue,Orange,Red,Ashley,Boston Rob,Natalie,Phillip"
+
+Size 10 3 0 1 Turtle "T1BM2,0DNDR5NUD" Zoom 1 3 0 2 cDel CopyMask -1 7
+Turtle "S4" SetString 0 "T_ _" Size 28 292 0 1 For (y) 0 Dec Len $11 {SetChar 0 2 Char $11 @y nXTurtle 4 nYTurtle Add 4 Mul @y 32 Turtle $0} DoCount 3 {Thicken} cDel CopyMask -1 4
+Size 32 388 0 1 For (y) 0 Dec Len $12 {SetChar 0 2 Char $12 @y nXTurtle 6 nYTurtle Add 4 Mul @y 32 Turtle $0} DoCount 3 {Thicken} cDel CopyMask -1 5
+Size 180 148 0 1 Turtle "BM56,8T_KEY_BM8,40T_STATION_BM8,80T_GET KEY_BM44,112T_HERE_" DoCount 3 {Thicken} cDel CopyMask -1 6
+Size 50 500 0 1 Turtle "S1O1BM49,100OF25UOD25BU`BM49,399OG25DOA25BD`" cDel CopyMask -1 8
+Size 200 200 0 1 Turtle "BM100,20OC80OE80OG80OA80BD40OC40OE40OG40OA40BU`" cDel CopyMask -1 9
+Size 8 8 0 1 Turtle "BM1,2R5DL2D3LU3L2" FlipVertical cDel CopyMask -1 10
+Size 7 7 0 1 Turtle "BM3,3NU2NL2ND2R2" cDel CopyMask -1 11
+Size 7 7 0 1 Turtle "BM1,2R4D2L4U2" cDel CopyMask -1 12
+Size 200 200 0 1 SetString 0 "OC30OE30OG30OA30BD`" SetString 0 "BM100,23$0BM50,107$0BM150,107$0" Turtle $0 FlipVertical cDel CopyMask -1 13
+For (z) 0 4 {CopyMask Add 9 @z -1 Quo Del Replace Black Blend Var Inc @z Dark Var Inc @z 0 CopyTexture -1 Add 15 @z}
+
+EmbedDB
+DB
+75 43 24
+
+fsr{fvr{fy
+{sdj{s{a{l{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{vd!$^`{v{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{ydm{y
+{sdj{s{lf{{l{{{l{{{le{{vd!$^`{v{l{{{ld{{li{{ydm{y
+{sdj{s{a{{{a{l{a{l{a{{{a{{{a{{{a{l{a{l{a{l{a{ba!$^`{va!$^`{v{a{{{a{{{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{cam{yam{y
+{sdj{s{ld{{l{{{l{{{lg{{vd!$^`{v{l{{{l{{{l{{{lk{{ydm{y
+{sdj{s{a{l{a{l{a{l{a{{{a{{{a{{{a{l{a{l{a{l{a{vd!$^`{v{a{{{a{{{a{{{a{l{a{l{a{l{a{l{a{l{a{{{a{ydm{y
+fsg{{l{{{ld{{la{fv{l{{{l{{{ll{{lfy
+{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{{
+{{{l{{{ld{{lv{{l{{{lf{{ll{{l{{
+{{{a{{{a{{{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{
+{{{l{{{l{{{l{{{l{{{lv{{lf{{lf{{lb{{l{{{l{{{l{uog
+{{{a{{{a{{{a{{{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{und{g
+{{{l{{{lb{{l{{{lz{a{{l{{{l{{{ld{{l{{{l{{{lc{{u{dli{d{g
+{{{a{{{a{l{a{l{a{l{a{{{a{l{a{{{a{l{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{{{a{l{a{l{a{{{a{{{a{l{a{l{a{u{d{ije{i{d{g
+{{{lf{{l{{{l{{{l{{{lf{{l{{{ld{{lh{{l{{{l{{{lj{{l{u{d{i{ehn{e{i{d{g
+{{{a{l{a{l{a{l{a{{{a{{{a{{{a{{{a{{{a{l{a{l{a{{{a{{{a{{{a{l{a{{{a{l{a{l{a{l{a{l{a{{{a{{{a{{{a{{{a{l{a{l{a{l{a{l{a{{{a{u{d{i{e{nc0T]`P\_`a0T]`{n{e{i{d{g
+f{{l{{{lb{{l{{{ld{{l{{{l{{{lb{{l{{{l{{{ld{{l{{{lb{{l{{{lb{{l{{{l{{{l{{{l{u{d{i{e{nf0T]`{n{e{i{d{g
+{{{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{{{a{{{a{l{a{{{a{l{a{{{a{l{a{l{a{{{a{l{a{{{a{{{a{{{a{{{a{u{d{i{e{nf0T]`{n{e{i{d{g
+{{{lt{{lf{{ld{{lh{{l{{{l{{{l{{{l{{{l{{{l{u{d{i{e{nf0T]`{n{e{i{d{g
+{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{ja{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{{{a{{{a{{{a{u{d{i{e{nc0T]`P\_`a0T]`{n{e{i{d{g
+{wq{jaru{kbu{kbu{kbuakf0T]`{n{e{i{d{g
+zabaqk{u{k{u{k{u{k{u{k{u{k{u{k{uakf0T]`{n{e{i{d{g
+{wq{jaru{kbu{kbu{kbuakf0T]`{n{e{i{d{g
+{{{a{l{a{l{a{{{a{l{a{{{a{l{a{l{a{l{a{{ja{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{{{a{{{a{{{a{u{d{i{e{nc0T]`P\_`a0T]`{n{e{i{d{g
+{{{lb{{l{{{lb{{ld{{ld{{lf{{ld{{lh{{l{{{l{{{l{{{l{{{l{{{l{u{d{i{e{nf0T]`{n{e{i{d{g
+{{{a{{{a{{{a{{{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{{{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{{{a{{{a{{{a{{{a{{{a{{{a{u{d{i{e{nf0T]`{n{e{i{d{g
+{{{l{{{l{{{l{{{lh{{ld{{l{{{lb{{l{{{ld{{lh{{l{{{l{{{l{{{l{{{l{{{l{u{d{i{e{nf0T]`{n{e{i{d{g
+{{{a{{{a{{{a{l{a{{{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{{{a{{{a{{{a{{{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{{{a{u{d{i{e{nc0T]`P\_`a0T]`{n{e{i{d{g
+{{{l{{{ld{{l{{{lb{{l{{{l{{{l{{{l{{{l{{{l{{{l{{{lh{{lh{{lf{{l{u{d{i{ehn{e{i{d{g
+{{{a{{{a{{{a{l{a{{{a{{{a{{{a{{{a{{{a{{{a{{{a{{{a{{{a{l{a{{{a{{{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{u{d{ije{i{d{g
+{{{l{{{lb{{l{{{l{{{l{{{l{{{l{{{l{{{l{{{l{{{ld{{l{{{ld{{ll{{le{{u{dli{d{g
+{{{a{{{a{l{a{l{a{{{a{{{a{{{a{{{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{{{a{{{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{l{a{und{g
+{{{l{{{ld{{l{{{l{{{lf{{lh{{l{{{l{{{lr{{l{{{l{uog
+{{{a{{{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{{
+{{{lf{{l{{{lt{{lv{{l{{
+{{{a{l{a{l{a{l{a{{{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{{
+fs{l{{{lo{fv{l{{{ld{{li{fy
+{sdj{s{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{vd!$^`{v{a{{{a{{{a{l{a{{{a{l{a{l{a{l{a{l{a{l{a{ydm{y
+{sdj{s{l{{{lo{{vd!$^`{va{{l{{{l{{{l{{{li{{ydm{y
+{sdj{s{a{{{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{ba!$^`{va!$^`{v{a{{{a{{{a{{{a{{{a{l{a{l{a{l{a{l{a{l{a{cam{yam{y
+{sdj{s{lq{{vd!$^`{v{l{{{l{{{lm{{ydm{y
+{sdj{s{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{vd!$^`{v{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{l{a{ydm{y
+fsr{fvr{fy
+
+= Replace Rgb 127 0 255 Black 0 ColorPut TempDelete ExtraDelete CopyMask -1 2 sDel CopyMask -1 1
+Replace LtGray Gray 0 kDot Rgb 128 0 0 ColorDotAnd kDot Green ColorPut Turtle "C0BM29,3D0BM55,3D0BM29,39D0BM55,39D0C1BM26,3D0BM52,3D0BM26,39D0BM52,39D0BM23,18D0BM30,19D0BM23,24D0BM30,23D0BM31,19`BM23,17`BM23,25`" CopyMask -1 3 CopyMask 2 -1 k +
+@z Blend Brown Light Brown Replace White @z 0 Replace Rgb 127 0 255 @z 0 Replace Pink @z 0 @z Gray Replace Red @z 0 Replace Maroon @z 0 Replace Orange @z 0 Replace Brown @z 0 Replace Yellow @z 0 Replace Maize @z 0 Replace Blue @z 0 Replace DkBlue @z 0 Replace Magenta @z 0 Replace Purple @z 0 Replace Green @z 0 Replace DkGreen @z 0 Replace Cyan @z 0 Replace DkCyan @z 0 Replace Gray @z 0 Replace DkGray @z 0 For (z) 0 3 {SetC 67 Add 15 Mul @z 4 Var Add 1 @z}
+_ Replace White 100 0 Replace Rgb 127 0 255 100 0 Replace Pink 150 0 Replace Red 300 0 Replace Maroon UD 300 290 0 Replace Orange 400 0 Replace Brown UD 400 390 0 Replace Yellow 500 0 Replace Maize UD 500 490 0 Replace Blue UD 500 300 0 Replace DkBlue UD 400 300 0 Replace Magenta 266 0 Replace Green 266 0 Replace DkGreen UD 266 256 0 Replace Cyan UD 533 256 0 Replace DkCyan UD 533 523 0 Replace Gray UD 800 523 0 Replace DkGray UD 700 690 0 Replace LtGray UD 780 690 0
+For (x) 0 32 {@y Div Mul 700 Inc Div @x 2 17 @z ?: Equ GetC Add 30 @x 20 Purple 300 0 SetC Add 30 @x 20 UD Add @y 100 @z SetC Add 30 @x 21 UD @y @z SetC Add 30 @x 22 UD Add @y 100 @z} CopyTexture -1 3
+Del @z Rgb 0 255 255 SetC 29 3 Add @z 1 SetC 55 3 Add @z 2 SetC 29 39 Add @z 3 SetC 55 39 Add @z 4 SetC 31 21 Gray For (z) 0 3 {SetC 67 Add 15 Mul @z 4 White} \ + TempDelete CopyTexture -1 2
+@k True fAutoRepeatLastCommand True nAutoRepeat Command "Spc" Macro3

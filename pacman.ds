@@ -1,0 +1,130 @@
+DS
+// Pac-Man game - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-d: 1st through 4th choices of direction to move for current monster
+// e-f: X and Y position differences between current monster and player
+// g-h: X and Y absolute distances between current monster and player
+// i-l: Coordinates and direction of the four monsters
+// m: X coordinate of current monster
+// n: Y coordinate of current monster
+// o: Direction current monster is moving
+// p: Current monster index
+// q: Score to add when player eats monster
+// r: Previous score when score changes
+// s: Score
+// t: Dots left
+// u: Energizer time left
+// v: Lives left
+// w: Board number
+// x-y: X and Y coordinates of player during events
+// z: Event return value and temporary flag
+
+If Gte Version 2000 {Break} Message 'This script requires Daedalus 2.0 or later to run.' Break
+
+DefineMacro 1 {Message 'Welcome to 3D Pac-Man!\n\nThis simulates the old arcade video game Pac-Man, but with a first\nperson view. :-) Your goal is to eat all the dots in the Maze,\navoiding the red monsters which chase you. If caught, you lose a\nlife. If you eat a green energizer dot, the monsters turn blue for a\nshort while and you can eat them instead.\n\nF1: Display this help text.\nF2: Restart game.\nF3: Pause and give monsters an extra move.\nF4: Switch background between night and day.\n\nEating a dot: 10 points.\nEating a green energizer dot: 50 points.\nEating the purple fruit: 100 points per level.\nEating a monster: 200, 400, 800, or 1600 points.\n\nPress "i" to toggle to overhead view (much easier :-)'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False Macro28 Macro16 Macro29 Macro31 Macro26 Macro18 fRedrawWhenBitmapEdited True n Macro1" "Restart Game"
+DefineMacro 3 "fRedrawWhenBitmapEdited False Macro15 fRedrawWhenBitmapEdited True n Macro12" "Empty Move"
+DefineMacro 4 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {fStars False nFogDistance 0 kSky Cyan kGround Gray kCloud White kCloud2 Light Light LtGray} {fStars True nFogDistance 600 kSky Black kGround DkGray kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 5 "@z False fRedrawWhenBitmapEdited False" "Before Move"
+DefineMacro 6 "fRedrawWhenBitmapEdited True Macro12 fRedrawWhenBitmapEdited False If GetT @x @y {SetT @x @y Off SetCT @x @y Black SetC @x @y Black Macro9} Macro15 fRedrawWhenBitmapEdited True n Macro12" "After Move"
+DefineMacro 7 "@z False IfElse Lt @x 0 {nX 55} {nX 1}" "Edge Event"
+DefineMacro 8 "MessageInside 'Score: @s, Lives: @v, Dots left: @t, Board #@w' -1" "Inside Event"
+
+DefineMacro 9 "@r @s If Equ GetCE @x @y Green {@t Dec @t @s Add @s 50 @u Max Sub 25 @w 0 @q 200 Macro19 Spc Message 'You eat a power pellet. :-)\nNow you can get the monsters, if you're quick!' Macro16 Macro18} If Equ GetCE @x @y Magenta {@s Add @s Mul 100 @w Spc Message 'You eat the fruit!'} If Equ GetCE @x @y Light Orange {@t Dec @t @s Add @s 10} Macro11 If Lte @t 0 {Spc Message 'You clear the board! :-)' @w Inc @w Macro28 Macro16 Macro29 Macro31 Macro18 n}" "Eat Dot"
+DefineMacro 10 "@r @s @s Add @s @q n Message 'You eat a monster for @q points!' Macro17 Macro30 n Macro11 If Lt @q 1600 {@q Mul @q 2}" "Player Eat Monster"
+DefineMacro 11 "If And Lt @r 10000 Gte @s 10000 {@v Inc @v n Message 'You've reached 10,000 points, so get an extra life! :-)'}" "Extra Life"
+DefineMacro 12 "@z False For (p) 0 3 (Macro24 If And Equ nX @m Equ nY @n {IfElse @u 'Macro10' '@z True'}) If @z 'Macro13'" "Kill Check"
+DefineMacro 13 "@v Dec @v n Message 'You've been eaten by a monster! :-(\nLives left: @v' If Lte @v 0 {Message 'You have no lives left! Game over! :-('} Macro28 Macro16 Macro29 Macro18 n" "Monster Eat Player"
+DefineMacro 14 "If @u {@u Dec @u If Lte @u 0 'Macro19'}" "Energizer Timer"
+
+DefineMacro 15 "Macro16 For (p) 0 3 'Macro24 @e Sub nX @m @f Sub nY @n @g Abs @e @h Abs @f IfElse Gte @g @h {@a ?: Lt @e 0 1 3 @b ?: Lt @f 0 0 2} {@a ?: Lt @f 0 0 2 @b ?: Lt @e 0 1 3} @z And @p 1 @c Xor ?: @z @a @b 2 @d Xor ?: @z @b @a 2 If @u {@a Xor @a 2 @b Xor @b 2 @c Xor @c 2 @d Xor @d 2} @z Not And @u 1 If @z {Macro Add 20 @a} If @z {Macro Add 20 @b} If @z {Macro Add 20 @c} If @z {Macro Add 20 @d} If Lt @m 1 {@m 55} If Gt @m 55 {@m 1} Macro25' Macro14 Macro18" "Monsters Move"
+DefineMacro 16 "For (p) 0 3 {Macro17}" "Monsters Erase"
+DefineMacro 17 "Macro24 SetE @m @n False SetC @m @n GetCT @m @n" "Monster Erase"
+DefineMacro 18 "For (p) 0 3 {Macro24 SetE @m @n True SetC @m @n ?: @u ?: And Lt @u 6 And @u 1 Purple DkBlue Red}" "Monsters Draw"
+DefineMacro 19 "For (p) 0 3 {Macro24 @o 4 Macro25}" "Allow Reverse"
+DefineMacro 20 "If And Neq @o 2 Not Get @m Sub @n 2 {@n Sub @n 2 @o 0 @z False}" "Monster Move Up"
+DefineMacro 21 "If And Neq @o 3 Not Get Sub @m 2 @n {@m Sub @m 2 @o 1 @z False}" "Monster Move Left"
+DefineMacro 22 "If And Neq @o 0 Not Get @m Add @n 2 {@n Add @n 2 @o 2 @z False}" "Monster Move Down"
+DefineMacro 23 "If And Neq @o 1 Not Get Add @m 2 @n {@m Add @m 2 @o 3 @z False}" "Monster Move Right"
+DefineMacro 24 "@a Var Add 9 @p @m And @a 255 @n And >> @a 8 255 @o >> @a 16" "Get Monster Variable"
+DefineMacro 25 "SetVar Add 9 @p Or Or @m << @n 8 << @o 16" "Set Monster Variable"
+
+DefineMacro 26 "@s 0 @v 3 @w 1" "Init Game Variables"
+DefineMacro 27 "@u 0 @t 244" "Init Board Variables"
+DefineMacro 28 "nX 29 nY 47 nDir 3 g" "Init Player Variables"
+DefineMacro 29 "For (p) 0 3 {Macro30}" "Init Monster Variables"
+DefineMacro 30 "If Equ @p 0 {@m 27 @n 23 @o 1} If Equ @p 1 {@m 29 @n 23 @o 3} If Equ @p 2 {@m 25 @n 21 @o 0} If Equ @p 3 {@m 31 @n 21 @o 0} Macro25" "Init Monster Variable"
+DefineMacro 31 "Macro27 | = fShowColorBitmap False _ ColorPut TempXor Turtle 'C0BM0,28D2BR56U2' _ fShowColorBitmap True" "Reset Board"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Pac-Man" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+kBorder Black kPassage Black kWall White kDot Yellow kSky Black kGround DkGray kCloud DkGray kCloud2 Dark kCloud
+fShowColorBitmap False fWallsImpassable False fDoDragOnTemp False nInside 0 EmbedDB
+DB
+32 63 1
+
+
+|3
+c0Q
+b$`Q
+b0Q
+b]
+a$Q
+a0
+a=
+aY
+!"Q
+!$A
+!(
+!'
+!-
+|
+!9
+|
+!Q!Y
+!Q"%
+"A##
+"A#3
+"A##
+"A"%
+$aY
+$
+|8
+$!$nQ
+$!#331
+|
+$!$nQ
+$!#331
+|
+$!$nQ
+$
+|4
+$!1a1
+$!YaQ
+$"M!"A
+$$'!$
+$'$!'
+$-"A-
+$9!Q9
+$Q!9Q
+$A!.A
+$a(
+#a#
+
+|3
+
+nX 0 nY 0 = FlipHorizontal Size 31 0 1 0 2ndOr cDel CopyMask -1 1 Size 30 63 0 1
+Turtle "BM29,9C1A0S2LU4L13D9R5D4L5BD2R5D4L5D5R2DL2D5R14BU2LU3L3UR4BU2LU3L3UR4BU2L4U4R4BU2LU3L3UR4BL12R3DL3UBU4R3D2L3U2BR5R4D2L4U2BD4RD3R3DL3D3LU7BD9RD4LU4BD6R4DL4UBL5R3D4LU3L2UBD6R5U3RD3R3DL9UBM28,0S1L28D27BD4D31R28"
+nX 0 nY 0 = FlipHorizontal Size 27 0 1 0 2ndOr
+\ _ AllClear nX 25 nY 17 fShowDot False fMoveByTwo True fDragMoveDot True fDragIsErase False
+4 4 4 8 8 8 4 4 6 6 6 6 6 6 4 8 8 8 8 DoCount 11 {4} 2 2 2 2 2 2 2 6 6 6 6 a 8 8 8 a 4 4 4
+nX 13 nY 5 DoCount 24 {2} 4 4 4 4 4 2 2 2 DoCount 12 {6} 4 8 8 8 4 4 4 8 8 8 4 4 6 6 6 6 6 8 8 8 DoCount 11 {4} 2 2 2 6 6 2 2
+nX 0 nY 0 = FlipHorizontal Size 27 0 1 0 2ndOr Set 29 35 On _ |
+Turtle "BM0,28D2BR56U2" cDel Quo Replace White NWSE 1 1 1 1 0 CopyTexture -1 0
+fShowColorBitmap False AllClear Turtle "BM0,28D2BR56U2BM27,25R2" -
+Blend3 Replace Blue Pink 0 Replace Red Blue 0 Replace Green Light Orange 0 Replace Magenta Pink 0 SetC 29 35 Magenta SetC 3 7 Green SetC 53 7 Green SetC 3 47 Green SetC 53 47 Green = \ fShowColorBitmap False
+nOnMoveOffBitmap 7 nOnMoveToNewCell 5 nAfterMoveToNewCell 6 nAfterRedrawInside 8 fRedrawAfter True
+f3D False fShowDot True fWallsImpassable True nMoveCount 0 fDragMoveDot False nEdgeBehavior 0
+nInside 2 fNarrowWalls True fCompass True fCellLocation False fSealedEntrances False fMountains False fSunAndMoon True fStars True nMotionFrames 15 nRotationFrames 15 nSemitransparentWalls 3 nCellSize 160 nNarrowCellSize 40 nWallHeight 150 rLightFactor 40 nFogDistance 600 fMarkColor True
+Macro28 Macro29 Macro27 Macro18 Macro26 fShowColorBitmap True fRedrawWhenBitmapEdited True n Macro1

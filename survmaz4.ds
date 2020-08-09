@@ -1,0 +1,203 @@
+DS
+// Survivor Maze game #4 - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-h: Whether poles #1 through #8 have been hit.
+// i-l: Colors for players #1 through #4 (constant)
+// p: Player color index
+// q: Next thing for player to find (ranges from 1-17)
+// r: Pole being hit
+// v-w: Temporary variables
+// x-y: X and Y coordinates of player during events
+// z: Event return value
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the\nfinal four in "Survivor VIII: All Stars". Your goal is to navigate the\nMaze, finding and touching eight poles in any order, and also\ntouching the center after each pole. Note some passages are\nclogged with obstacles you have to weave through.\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Switch background between day and night.\n\nWhen you touch the center, it must be on the side of the color\nyou're playing as. In this game you're the $x player. That was\nthe position $y had on Survivor.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False SetVars 1 8 '0 0 0 0 0 0 0 0' @p Rnd 0 3 @q 1 fShowColorBitmap False = Del _ ExtraDelete k c5 IfElse Odd @p {nX Add nX Mul 7 Sgn Sub @p 2} {nY Add nY Mul 7 Sgn Dec @p} nDir @p g cg nDirectionOffset -20 fRedrawWhenBitmapEdited True Spc Macro1 fPauseTimer False ct" "Restart Maze"
+DefineMacro 3 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {Macro8} {fStars True nFogDistance 800 kSky Black kGround Rgb 95 119 0 kMountain Dark DkGreen kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+
+DefineMacro 4 "@w GetC @x @y If Neq @w Blend Gray Brown {If Lte Add Abs Sub @x 194 Abs Sub @y 194 10 'Macro6' Break} If Gt @q 16 {nViewHeight nWallHeight @z True Break} If Not Odd @q {Message 'You don't need to find a pole now.\nYou need to return to the center.' Break} @x Div @x 130 @y Div @y 130 @r Add Mul @y 3 @x @r Add @r Lt @r 5 IfElse Var @r {Message 'You've already been to this pole.\nYou need to find a pole you haven't visited yet.'} {SetVar @r True @q Inc @q @w Div @q 2 Message 'You find a pole!\nThis is pole #@w. Now return to the center!'}" "Wall Event"
+DefineMacro 5 "If Gt @q 16 {Break} IfElse Odd @q {@w Div Inc @q 2 MessageInside 'Seeking: Pole #@w' -1} {MessageInside 'Seeking: Center' -1}" "Inside Event"
+
+DefineMacro 6 "If Gt @q 16 {nViewHeight nWallHeight @z True Break} If Odd @q {@w Div Inc @q 2 Message 'You don't need to be at the center now. You need to go find pole #@w.' Break} For (v) 1 3 {If Equ @w Var Add 8 @v 'Break'} IfElse Equ Var Add 9 @p Var Add 8 @v {@q Inc @q If Gt @q 16 'Macro7 Break' @w Div Inc @q 2 Message 'You've reached the center! Now go find pole #@w.'} {@w Inc @p Message 'You don't want to be at the $v color wall of the center.\nRather you want to touch the $w wall.'}" "Hit Center"
+DefineMacro 7 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you've found all the poles and returned to the\ncenter! :-) You solved it in @x minutes, @y seconds.\n\nWith the immunity necklace around your neck, you can't be voted\noff the island in Tribal Council. Having made it from the final four\nto the final three, you now have a 1 in 3 chance of winning the\nmillion dollar prize!' nViewHeight nWallHeight @z True" "Win Game"
+DefineMacro 8 "fStars False nFogDistance 0 kSky Cyan kGround Rgb 191 239 0 kMountain DkGreen kCloud White kCloud2 -1" "Day Settings"
+
+fRedrawWhenBitmapEdited False ResetProgram EmbedDB
+DB
+275 195 1
+
+mg"
+mg#A
+mg%1
+mg))
+mg1%
+mgA#
+mf"!"
+mf#aA
+mf%a1
+mf)a)
+mf1a%
+mfAa#
+me"b"
+me#cA
+me%c1
+me)c)
+me1c%
+meAc#
+md"d"
+md#eA
+md%e1
+md)e)
+md1e%
+|2
+md)a$Aa)
+|2
+md)e)
+|4
+md%e1
+|7
+md#eA
+|7
+md"!9a-"
+md"$Ia$B
+md"-)b:
+md"Q)b(
+md(!)b"Q
+md9!)c-
+mc$A!)c$A
+mc-a)d9
+QmbQa)d'mb'
+0ma(b%d"Qm!"Y
+!]m!9b%e-m!?
+!$Ql"Ab%$Ac$m(A
+a0l/c%-9c#Yk"Y
+b]kQc%Q'c#'k?
+b$Qi(d(!"Qb#"Qi(A
+c0i9d9a-b#!-h"Y
+d]g"Ac"Aa$b%!$h?
+d$Qf/d/cYa%aYf(A
+e0fQd1c%a%a'e"Y
+f]d(1d1f)a"Qd?
+f$Qc91d1f)b-c(A
+g0b"A)d1f)b$b"Y
+h]a/!)d1f)cYa?
+h$Q!Q!%d)f1c'!(A
+a$Ae0(a%a%a)f1c"RYe$A
+a"AfYa%a%a)f1d/f$
+bAe"Aa#a%a)!"Ac1d$f#
+i/b#a#a)!"9cAeY
+iQb"a#a)!"(cAe'
+h$c"a#a)!"!QbAe"A
+h=dA!#a)!"!-bAf=
+g"AdA!"a%!"!$A!"a$d$
+g/eA!"a%!"a9!"a#QdY
+gQe1!"a%"6a(!"a%-d7
+f$f1aA!%!"bQ#a%$AcBA
+f=f)aA!%KJb-#a)!9b"!=
+e"Af)aA!%!"b$Ca)!'b#!$
+k%a)aA!&66c;a)!"Aa#
+k9a%a1!%!"c'a1a1a%
+j"Aa%a1!#KJf1d)
+j/b#a1!#!"fAd1
+jQb#a1!#66fAd1
+i(c#a)!#!"fAdA
+i9c"a)!#KJe"d"
+h"Ac(a)!#!"e"d$
+h/d9A!)!#66e#eY
+hQc$AA!%!#!"!"Ab#e'
+g$d-!1!%!"+J!"Yb%e"A
+g=c"Q!1!%!"!"!"'b%f=
+f"Ac'a1!#!"665""Qa%aQc$
+f'd?a)!#!"!"!"!-a)a]dQ
+f9c$`a)!#!"+J+J!$a)!"`Ac-
+k0`a%!#!"!"!"aY!1!"`Y
+j"nA!%!"!"6666a'!1!$n
+j(nQ!%!"!"!"!"a"A1!(nQ
+j@nQ!#!"aKJ+Kb=A!(n]
+i$oY!#!"aA"!#b$A!0oA
+i0oY!"aA!F663b"a0oY
+h"p]!"aA!A"!#b"a@p
+h(p_!"aA!KJ+Kb"aqQ
+h@p_aA!A!A"!#b#aq]
+g"raA!1!F663b#!"r
+hra1!1!A"!#b%!"q_
+h@qA!1!1!3J+Eb%!$q]
+h0qA!)!1!1"!%b)!$qY
+h(qQ!)!)!6665!/!)!(qQ
+h$qY!)b1"!%!"A)!0qA
+h"qY!%b3B+Ea91!0q
+iq]!%b1"!%a(1!@p_
+i@p]!#b1"65bQ!@p]
+i0p_d1"!%bO!qY
+i(p_d)"+IbBAqQ
+i$qd)"!)a"!:qA
+i"qAc)"6)a"!(q
+jqAc)"!)a#!$p_
+j@pQc)"+Ia#!(p]
+j0pQd"!)a%!(pY
+j(pYd"6)a%!0pQ
+j$pYd"!)a%!0pA
+j"p]d"+1a)!@p
+kp_d"!1a)!p_
+k@o_d""1a1!p]
+k0p!%b"!1a1"pY
+k(p!%b"!1a1"pQ
+k$pA#b"!1aA$pA
+k"pA#b"!1aA$p
+lpQ"b$!A!"!(o_
+l@n_!"b-!A!"ao]
+l0nQ!"bQ!A!"a(nY
+l(nbA!$aA!#a"nQ
+l$`]bA!=aA!#b@`A
+l"`Ab1"AaA!%b$`
+m_c1'bA!%c_
+m9c)YbA!)c-
+md,b"a)
+md-b"a9
+mh"a'
+mh"a"Q
+mh"b-
+mh"b$
+mh"cY
+mbQc$Bc'
+ma$d0[c"A
+ma-d`_d9
+maQc(`_d'
+mf@`_
+me$n_
+me0n_!)
+men]?!/
+md(nQ'!0Q
+md@`_b@]
+mc$nYb@`A
+mc0ncnY
+mcn]c@`_
+mb$nQc(nA
+mb"`_en
+mc`Ye0_
+mc@f"]
+mc-g9
+
+|19
+mg=
+mg@Q
+mg@]
+mg0Y
+mg(Q
+mg$A
+mg"
+
+WindowTitle "- Survivor Maze Game 4" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True nOnMoveIntoWall 4 nAfterRedrawInside 5
+SetVars 9 4 "Blue Yellow #00BF00 Red" SetStrings 1 8 ",Blue,Yellow,Green,Red,Amber,Rupert,Boston Rob,Jenna"
+nRepeatDelayInMsec 25 kBorder White kInsideWall Blue k3DWall White fShowDot True fWallsImpassable True fNoCornerHopping True fDoDragOnTemp True nEdgeBehavior 0 Macro8 fSealedEntrances False fMountains True nPeakHeight 33 nCloudCount 6 fSunAndMoon True fNarrowWalls False nInside 4 nCellSize 160 nWallHeight 2000 nStepHeight 999 nClippingPlane 600 nMotionVelocity 100 nRotationVelocity 5 nUpDownVelocity 100 fMarkColor True
+
+Size 275 389 0 0 = RotateAcross TempOr Size 332 389 0 0 Size 57 0 1 0 = RotateRight TempOr =
+Quo Replace White DkBlue 0 k Turtle "C0" For (y) 0 3 {SetString 0 "A@yBM194,194BU42BR5D0BD`BL77U0BU`" Turtle $0} TempXor ColorOr Replace White Blend Cyan DkCyan 0 k +
+For (y) 0 3 {SetString 0 "A@yBM194,194BU168`BL120BD48`" Turtle $0} TempXor \ ColorOr Replace White Blend Brown Gray 0 k +
+For (y) 0 3 {SetString 0 "A@yBM194,194BU80BL21~" Turtle $0} Turtle "BM194,154~" _ - TempXor ColorOr Replace White Gray 0 k
+Turtle "C1" For (y) 0 3 {Del c5 nXTurtle nX nYTurtle nY SetString 0 "A@yBELHR4BRBEL6HR8BL4BUL4UL" Turtle $0 ColorOr Replace White Var Add 9 And Sub 4 @y 3 0 k}
+Del For (y) 0 3 {SetString 0 "A@yBM194,194BU41BR6R2BR2BDL4DR7FL8DR8DL8FR6DGUL3" Turtle $0} = ColorOr Replace White Blend Cyan DkCyan 0 = kDot Gray ColorDotXor ColorPut cDel Set nX nY Off Quo Replace White (??) 0 kDot 127 ColorDotAnd kDot 128 ColorDotOr k _ ColorOr Replace White UD 256 240 0 CopyTexture -1 1 _ TempDelete k TempOr CopyMask -1 1 nWallVariable 1 _ - TempOr
+Turtle "A0" kDot Orange k TempDelete ExtraDelete Replace Black White 0 fRedrawWhenBitmapEdited True n Macro2

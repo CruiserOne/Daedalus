@@ -1,0 +1,268 @@
+DS
+// Survivor Squared Off game - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a: Difficulty (0-10)
+// b-c: Saved X and Y coordinates
+// d: Board directions can move
+// e: Board extent
+// f: Max moves reachable
+// g: Players total in game
+// i-p: X and Y position of the eight players
+// q: User player index (0-7)
+// r: Current player (0-7)
+// s: Players left in game
+// t: Number of moves available
+// u: Current direction
+// v: Which move to take
+// w: Temporary variable
+// x-y: X and Y coordinates of player
+// z: Event return value
+// 27-34: Colors for the eight players (constant)
+// 35-42: Moves reachable down the eight directions
+
+If Gte Version 3300 {Break} Message 'This script requires Daedalus 3.3 or later to run.' Break
+DefineConst "1 FHelp FNew FWait FSize FHard VEdge VBefore VAfter VInside GoAll GoComp EasyAI HardAI GoUser Death End Count Check GetDir GetXY SetXY Texture Reset Build"
+If @z {Message 'Initialization failed!' Halt}
+
+EmbedMacro %FHelp "Help Text"
+@w Inc @q @z Dec @g
+IfElse Lte @g 1 {$0 'player'} {SetString 0 '@g players'}
+Message 'Welcome to Survivor!\n\nThis simulates the Squared Off game from the episode 9 immunity\nchallenge in the original "Survivor" series. Your goal is to be the\nlast player standing, by running the other $0 out of room.\nOn your turns, move to an adjacent square that hasn't yet been\nvisited, for as long as you're able.\n\nF1: Display this help text.\nF2: Start new game.\nF3: Let other players continue (if you've lost).\n\nF4: Set game board dimensions, and number of players.\nF5: Set game difficulty, and number of move directions.\n\nIn this game you are player #@w ($w).\nJeff Probst says: "Survivors ready? Go!"'
+
+EmbedMacro %FNew "Restart Game"
+fRedrawWhenBitmapEdited False
+fShowColorBitmap True
+_ AllClear _ | k \ k
+*Reset
+fRedrawWhenBitmapEdited True n
+*FHelp *GoAll
+
+EmbedMacro %FWait "User Wait"
+If Lte @s 1 {Message 'The game has finished.' Break}
+If Neq Var Add 9 @q -1 {Message 'You are still in the game.' Break}
+@r Mod Inc @r @g
+*GoAll
+
+EmbedMacro %FSize "Set Size"
+SetString 0 @e SetString 1 @g
+GetString2 'Enter board size to restart game with (8-50):' 'Enter number of players to restart game with (2,4,8):' 0
+If @z {Return}
+@w Num $0
+If Or Lt @w 8 Gt @w 50 {Message 'Bad size: @w' Return}
+@z Num $1
+If And And Neq @z 2 Neq @z 4 Neq @z 8 {Message 'Bad player count: @z' Return}
+@e @w @g @z
+*Build *FNew
+
+EmbedMacro %FHard "Set Difficulty"
+SetString 0 @a
+@z Sub 12 Mul @d 4 SetString 1 @z
+GetString2 'Enter game difficulty (0=easy, 10=hard):' 'Number of options for move (4=orthogonal, 8=diagonal):' 0
+If @z {Return}
+@w Num $0
+If Or Lt @w 0 Gt @w 10 {Message 'Bad difficulty: @w' Return}
+@z Num $1
+If And Neq @z 4 Neq @z 8 {Message 'Bad number of moves: @z' Return}
+@a @w @d Sub 3 Div @z 4
+nInside Sub 4 @d
+If Gt @d 1 {nDirectionOffset 0}
+
+EmbedMacro %VEdge "Edge Event"
+Message 'Jeff Probst says: "Hey, you can't step off the playing field!"'
+@z True
+
+EmbedMacro %VBefore "Before Move"
+If Gte @x @e {*VEdge Break}
+If GetE @x @y {Message 'You bump into another player!' @z True Break}
+@w GetCT @x @y
+If Neq @w Black {Message 'That square has already been visited!' @z True Break}
+fRedrawWhenBitmapEdited False
+SetC @x @y Var Add 27 @q
+SetCT @x @y White
+*SetXY
+@r Mod Inc @r @g
+fRedrawWhenBitmapEdited True
+@z False
+
+EmbedMacro %VAfter "After Move"
+fRedrawWhenBitmapEdited False
+nHorizontalOffset 0 nVerticalOffset 0
+fRedrawWhenBitmapEdited True n
+*GoAll
+
+EmbedMacro %VInside "Inside Event"
+@x Inc @q
+IfElse Neq @r @q
+  {@y Inc @r MessageInside 'You: Player #@x ($x). Current turn: Player #@y ($y)' -1}
+  {MessageInside 'You: Player #@x ($x). It's your turn!' -1}
+
+EmbedMacro %GoAll "Move All"
+If Lte @s 1 {Break}
+If Equ @r @q {*GoUser Spc Break}
+*GoComp
+@r Mod Inc @r @g
+Restart
+
+EmbedMacro %GoComp "Move Computer"
+If Equ Var Add 9 @r -1 {Break}
+fRedrawWhenBitmapEdited False
+*GetXY
+SetE @x @y False
+*Count
+If Lte @t 0 {*Death fRedrawWhenBitmapEdited True n Break}
+IfElse Lt @a Rnd 1 10 {*EasyAI} {*HardAI}
+SetC @x @y Var Add 27 @r
+SetCT @x @y White
+SetE @x @y True
+*SetXY
+If nInside {Delay nRepeatDelayInMsec}
+fRedrawWhenBitmapEdited True n
+
+EmbedMacro %EasyAI "Easy Difficulty"
+@v Rnd 1 @t
+ForStep (u) 0 7 @d {
+  *GetXY *GetDir *Check
+  If @z '@v Dec @v'
+  If Lte @v 0 'Break'
+}
+
+EmbedMacro %HardAI "Hard Difficulty"
+@b nX @c nY
+fHourglassCursorOnRedraw False fSkipMessageDisplay True
+@f -1
+ForStep (u) 0 7 @d {
+  fShowColorBitmap True _ ColorPut k _ k
+  *GetXY *GetDir *Check
+  If Not @z (SetVar Add 35 @u -1 Continue)
+  nX @x nY @y ~ @z Pixels SetVar Add 35 @u @z
+  If Equ @z @f (@v Inc @v)
+  If Gt @z @f (@f @z @v 1)
+}
+@v Rnd 1 @v
+ForStep (u) 0 7 @d {
+  If Neq Var Add 35 @u @f 'Continue'
+  @v Dec @v
+  If Lte @v 0 'Break'
+}
+*GetXY *GetDir
+nX @b nY @c fHourglassCursorOnRedraw True ?
++ Del k
+
+EmbedMacro %GoUser "Check User"
+If Equ Var Add 9 @q -1 {Break}
+*Count If Gt @t 0 {Break}
+@w Dec @s
+Message 'You can't move and are out of the game! :-(\nNumber of players finishing better: @w\nYou get sent over to the "loser bench" to watch the rest of the players still in this game.\n\nF1: Display help text.\nF2: Start new game.\nF3: Let the other players still in the game take a turn.'
+fRedrawWhenBitmapEdited False
+*Death
+kSky Black kCloud DkGray kCloud2 Dark kCloud fStars True
+*End
+fRedrawWhenBitmapEdited True n
+
+EmbedMacro %Death "Die"
+@x Inc @e @y Add Div Sub @e @g 2 @r
+SetC @x @y Var Add 27 @r
+*Texture
+@s Dec @s
+IfElse Neq @r @q
+  {@w Inc @r Message 'Player #@w ($w) can't move and is out of the game!\nNumber of players left: @s' SetE @x @y True}
+  {nX @x nY @y nDir 1 nDirectionOffset 0}
+SetVar Add 9 @r -1
+If Gt @s 1 {Break}
+IfElse Equ Var Add 9 @q -1
+  {Message 'One player left, we have a winner!\n\nUnfortunately the winner wasn't you. You overhear the other\nplayers plotting to vote you off the island this Tribal Council. :-('}
+  {fRainbow True Message 'You win! You are the sole surviving player left standing! :-)\n\nJeff congratulates you, and hands you the coveted immunity\nnecklace. You try to keep from laughing as the other tribemates\nfrantically try to form an alliance with you.'}
+*End
+
+DefineMacro %End "ClearEvents nMotionVelocity 50" "Disengage User"
+DefineMacro %Count "@t 0 ForStep (u) 0 7 @d {*GetXY *GetDir *Check @t Add @t @z}" "Count Square"
+DefineMacro %Check "If Or Or Or Lt @x 0 Lt @y 0 Gte @x @e Gte @y @e {@z 0 Break} @w GetC @x @y If And Neq @w LtGray Neq @w Light LtGray {@z 0 Break} @z 1" "Check Square"
+DefineMacro %GetDir "If And Gte @u 1 Lte @u 3 {@x Dec @x} If Gte @u 5 {@x Inc @x} If Or Lte @u 1 Gte @u 7 {@y Dec @y} If And Gte @u 3 Lte @u 5 {@y Inc @y}" "Get Dir"
+DefineMacro %GetXY "@x Div Var Add 9 @r 100 @y Mod Var Add 9 @r 100" "Get XY"
+DefineMacro %SetXY "SetVar Add 9 @r Add Mul @x 100 @y *Texture" "Set XY"
+DefineMacro %Texture "SetX @x @y -1 Inc @r" "Set Texture"
+
+EmbedMacro %Reset "Reset Variables"
+nOnMoveOffBitmap %VEdge nOnMoveToNewCell %VBefore nAfterMoveToNewCell %VAfter nAfterRedrawInside %VInside
+kSky Cyan kCloud White kCloud2 Light Light LtGray fStars False nMotionVelocity 140
+nHorizontalOffset 0 nVerticalOffset 0 nDirectionOffset 0 fRainbow False
+IfElse Gte @g 8 {
+  @w Add 2 Div Sub @e @g 4
+  @i @w
+  @j Mul @w 100
+  @k Sub Dec @e @w
+  @l Mul @k 100
+  @m Add Mul @w 100 Dec @e
+  @n Add Mul Dec @e 100 @w
+  @o Add Mul @k 100 Dec @e
+  @p Add Mul Dec @e 100 @k
+} {
+  @w Dec @e
+  @i 0
+  @j Add Mul @w 100 @w
+  @k @w
+  @l Mul @w 100
+}
+For (r) 0 Dec @g
+  {@w Rnd 0 Dec @g SwapVar Add 9 @r Add 9 @w}
+@q Rnd 0 Dec @g
+kDot Light Var Add 27 @q
+For (r) 0 Dec @g {
+  *GetXY
+  SetC @x @y Var Add 27 @r
+  SetCT @x @y White
+  IfElse Neq @r @q (SetE @x @y True) (nX @x nY @y)
+  *Texture
+}
+nDir Add << Or Lte nY 0 Lte nX 0 1 Or Lte nX 0 Gte nX Dec @e
+g @r 0 @s @g
+
+EmbedMacro %Build "Build Board"
+fRedrawWhenBitmapEdited False
+Size @e @e 0 1
+Quo = k AllSet
+Size Add @e 2 @e 0 0
+@x Inc @e @y Div Sub @e @g 2 @z Dec @g
+SetString 0 "BM@x,@yS1D@z" Turtle $0
+= Quo
+Replace White LtGray 0
+k AllClear Blend ColorOr
+Replace White Light LtGray 0
+\ AllClear CopyTexture -1 0 | k AllClear \ k
+
+fRedrawWhenBitmapEdited False ResetProgram
+WindowTitle "- Survivor Squares" True
+nHorizontalScroll 8 nVerticalScroll 8
+fHideMenu True fHideScrollbars True
+nTextureWall 0
+kGround Light Brown
+kMountain2 Brown
+kMountain kGround
+f3D False
+fShowDot True
+fDotIsCircle True
+nDotSize 0
+fNoCornerHopping False
+fMoveByTwo False
+nEdgeBehavior 0
+nInside 3
+fNarrowWalls False
+fCellLocation True
+fSealedEntrances False
+fMountains True
+nPeakHeight 20
+nRotationVelocity 15
+nSemitransparentWalls 3
+nCellSize 100
+nWallHeight 100
+rViewingSpan 6000
+SetVars 27 8 "Red Orange Yellow Green Cyan Blue Purple Magenta"
+SetStrings 0 9 ",T_0_,Red,Orange,Yellow,Green,Cyan,Blue,Purple,Magenta"
+Size 72 96 0 1 Turtle "T1"
+For (r) 1 8 {Del SetChar 0 2 Add 48 @r Turtle "BM11,11S12" Turtle $0 Thicken2 8 cDel CopyMask -1 @r}
+@d 1 @e 10 @g 8
+*Build *Reset
+fRedrawWhenBitmapEdited True n
+*FHelp *GoAll

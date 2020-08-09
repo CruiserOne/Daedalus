@@ -1,0 +1,78 @@
+DS
+// Daedalus Demonstrations - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// b: Border color
+// c: Object color
+// d: Rotation angle
+// l: Evolution/Life last number of cells changed
+// m: Day/night mode/minute
+// n: Evolution/Life number of cells
+// o: Evolution/Life number of generations near end
+// p: Spree pixels per cell (constant)
+// q: Whether solids.dp has been loaded yet
+// s: Day/night mode fraction/second
+// t: Day/night current time/total
+// u: Day/night time increment rate (constant)
+// v: Evolution number of cell colors (constant)
+// w: Evolution/Life pixels per cell (constant)
+// x-z: Return values and temporary variables
+
+If Gte Version 3300 {Break} Message 'This script requires Daedalus 3.3 or later to run.' Break
+
+DefineMacro 1 "Message 'Daedalus Feature Demonstrations\n\nF1: Display this help menu.\tShift+F1: Stop any animation.\nF2: Random Maze walk.\tShift+F2: Random 3D Maze walk.\nF3: Maze creation spree.\tShift+F3: Spree (see generation).\nF4: Draw Maze overview.\tShift+F4: Aerial Maze overview.\nF5: Draw cubes Maze.\tShift+F5: Draw cubes Maze #2.\nF6: View Chartres Labyrinth.\tShift+F6: View classical Labyrinth.\nF7: Animate over Maze.\tShift+F7: Animate wireframe Maze.\nF8: Display Escher room.\tShift+F8: Display castle.\nF9: Evolution patterns.\tShift+F9: Life patterns.\nF10: Geometrical shapes.\tShift+F10: Animate shapes.'" "Help Text"
+DefineMacro 13 "Macro48 If fWindowAlwaysOnTop {sTab} Macro1" "Stop"
+DefineMacro 2 "Macro48 fRedrawWhenBitmapEdited False fShowColorBitmap False TempDelete ExtraDelete cF an CollapseToSet Quo Replace White '\' 0 c8 nY -1 nDir 0 fShowDot True fWallsImpassable True fNarrowWalls True fStars False nWallHeight 100 fRedrawWhenBitmapEdited True nInside 2 @t 1536 nAfterRedrawInside 25 n If Not fWindowAlwaysOnTop {sTab} 0 fAutorepeatLastCommand True" "Maze Walk"
+DefineMacro 14 "Macro48 fRedrawWhenBitmapEdited False ColorDelete TempDelete ExtraDelete Size3X 15 Size3Y 15 Size3Z 15 Size3W 4 Q c8 nY -1 nDir 0 fShowDot True fWallsImpassable True kSky Black kCloud DkGray kCloud2 Dark DkGray fNarrowWalls True fStars True nWallHeight 100 nStarCount 768 fRedrawWhenBitmapEdited True nInside 2 n If Not fWindowAlwaysOnTop {sTab} 0 fAutorepeatLastCommand True" "3D Maze Walk"
+DefineMacro 3 "Macro32 fShowIndividualPixelEdits False" "Spree"
+DefineMacro 15 "Macro32 fShowIndividualPixelEdits True" "Spree Process"
+DefineMacro 4 "Macro48 fRedrawWhenBitmapEdited False Size 48 48 0 1 an CollapseToSet nHorizontalSize 10 nVerticalSize 7 nDepthSize 12 @c Hue Rnd 0 359 @b White Macro34 fRedrawWhenBitmapEdited True n" "Overview"
+DefineMacro 16 "Macro48 fRedrawWhenBitmapEdited False Size 48 48 0 1 an CollapseToSet nHorizontalSize 10 nVerticalSize 10 nXVanishingPoint 235 nYVanishingPoint 235 fShowDot False nInside 0 @c Hue Rnd 0 359 @z Light @c kObject Light @z kSkyHigh Blend @z Light @z kSkyLow Blend @c @z kGroundHigh @z kGroundLow @c k Pyramid k Pyramid k kBorder White fRedrawWhenBitmapEdited True n" "Perspective"
+DefineMacro 5 "Macro48 fRedrawWhenBitmapEdited False fShowColorBitmap False sPlanair 'c2t3f0b1 c7a3i5s1 c0c1a0b4 f2w3l0e1 f7d3o5g1 a2t6d0e4 i2e3o0h1 i7g3r5v1 s2b6g0h4 l2j1j2k1 l7j3u5m1 d2w6j0k4 o2k3u0n1 o7m3x5p1 g2e6m0n4 r2n3x0q1 r7p3q2q3 v2h6p0q4 s0b3i0s3 t0t1f5a1 m2k6u2u3 v0h3r0v3 w0w1l5d1 p2n6x2x3' SetVars 27 48 '02 01 12 01 03 00 01 12 11 12 02 11 12 11 22 11 13 10 00 23 10 23 01 22 11 22 21 22 12 21 22 21 32 21 23 20 13 00 01 02 11 32 23 10 00 13 22 31' Macro38 Macro40" "Cube #1"
+DefineMacro 17 "Macro48 fRedrawWhenBitmapEdited False fShowColorBitmap False sPlanair 'c1a1a2b1 c2a3l0d1 c0a0b0c3 f1b3l3e1 f2d3o0g1 f0d0e0f3 i1e3o3h1 i2g3h2h3 i0g0h0i3 l1j1r3k1 l2j3u0m1 b2j0k0d2 o1k3u3n1 o2m3x0n3 e2m0n0g2 r1p1p2q1 r2p3q2s1 r0p0q0j2 u1q3s2t1 u2s3t2v1 k2s0t0m2 x1t3v2w1 x2v3w2w3 n2v0w0x3' SetVars 27 48 '0 01 1 02 0 01 2 01 3 02 2 01 4 01 5 02 4 01 1 12 2 13 1 12 3 12 4 13 3 12 0 23 1 24 0 23 2 23 3 24 2 23 4 23 5 24 4 23' Macro39 Macro40" "Cube #2"
+DefineMacro 6 "Macro48 fRedrawWhenBitmapEdited False Size 512 512 0 1 fTeleportToEntranceOnMazeCreation True ChartresReplica g = nX 0 nY 0 Fill cg TempXor cDel TempDelete ExtraDelete Quo nRainbowStart Rnd 0 359 Replace White 'X' 0 kBorder Black kSky Black kCloud DkGray fWallsImpassable True fNarrowWalls False fStars True nMotionVelocity 225 nWallHeight 1500 nClippingPlane 400 nInside 4 i fRedrawWhenBitmapEdited True n" "Chartres"
+DefineMacro 18 "Macro48 fRedrawWhenBitmapEdited False Size 256 230 0 1 fTeleportToEntranceOnMazeCreation True Classical nY Add nY 5 g Thicken TempDelete ExtraDelete Quo nX Div SizeX 2 nY nX nRainbowStart Rnd 0 359 Replace White 'x' 0 cg kBorder Black kSky Black kCloud DkGray fWallsImpassable True fNarrowWalls False fStars True nMotionVelocity 300 nWallHeight 1500 nClippingPlane 300 nInside 4 i fRedrawWhenBitmapEdited True n" "Classical"
+DefineMacro 7 "Macro48 @d 0 @q False fRedrawWhenBitmapEdited False fHourglassCursorOnRedraw False fSkipMessageDisplay True fShowDot False nInside 0 nHorizontalSize 20 nVerticalSize 20 nDepthSize 30 nHorizontalSizeBias 10 nVerticalSizeBias 10 nXStartingLocation 0 nYStartingLocation 0 nZStartingLocation 0 fMoveWithArrowKeys True nVerticalPitchPhi 30 fDrawEdges False fShadeObjects True fShowColorBitmap False cB an Quo Replace White '\' 0 MakePatch nZStartingLocation 200 cZ ColorPut k Macro43 fRedrawWhenBitmapEdited True n Macro43 fAutorepeatLastCommand True" "Patch Maze"
+DefineMacro 19 "Macro48 @d 0 fRedrawWhenBitmapEdited False fHourglassCursorOnRedraw False fSkipMessageDisplay True fShowDot False nInside 0 nHorizontalSize 10 nVerticalSize 10 nDepthSize 0 nHorizontalSizeBias 4 nVerticalSizeBias 4 nXStartingLocation 0 nYStartingLocation 0 nZStartingLocation 0 fMoveWithArrowKeys True nVerticalPitchPhi 30 fShowColorBitmap False cF an MakeWire nZStartingLocation 200 cZ Quo k Macro44 fRedrawWhenBitmapEdited True n Macro44 fAutorepeatLastCommand True" "Wireframe Maze"
+DefineMacro 8 "Macro48 fRedrawWhenBitmapEdited False Open3D 'escher.d3' nHorizontalSize 8 nVerticalSize 5 nDepthSize 8 @c Hue Rnd 0 359 @b White Macro34 fRedrawWhenBitmapEdited True n" "Escher"
+DefineMacro 20 "Macro48 fRedrawWhenBitmapEdited False Open3D 'castle.d3' If Gt Rnd 1 4 1 {Flip3D 2 Rnd 1 3} nHorizontalSize 6 nVerticalSize 3 nDepthSize 5 @c Gray @b Hue Rnd 0 359 Macro34 fRedrawWhenBitmapEdited True n" "Castle"
+DefineMacro 9 "Macro47 Evolution @v 0 Macro35 fAutorepeatLastCommand True" "Evolution"
+DefineMacro 21 "Macro47 Macro36 Macro37 fAutorepeatLastCommand True" "Life"
+DefineMacro 10 "Macro48 fShowColorBitmap True fSkipMessageDisplay True If Not @q {@q True OpenPatch 'solids.dp'} If Or Lt SizeCX 256 Lt SizeCY 192 {fShowColorBitmap False cZ Quo} fShowDot False nInside 0 fMoveWithArrowKeys True fDrawEdges False fShadeObjects True nXStartingLocation 0 nYStartingLocation 680 nZStartingLocation 290 nViewingAngleTheta 180 nVerticalPitchPhi 20 PatchPerspective Macro41" "Shapes"
+DefineMacro 22 "Macro48 @d 90 fHourglassCursorOnRedraw False fShowColorBitmap True fSkipMessageDisplay True If Not @q {@q True OpenPatch 'solids.dp'} If Or Lt SizeCX 256 Lt SizeCY 192 {fShowColorBitmap False cZ Quo} fShowDot False nInside 0 fMoveWithArrowKeys True fDrawEdges False fShadeObjects True nZStartingLocation 290 nVerticalPitchPhi 20 Macro42 Macro41 Macro42 fAutorepeatLastCommand True" "Animate Shapes"
+DefineMacro 11 "Macro10" "Shapes"
+DefineMacro 23 "Macro22" "Animate Shapes"
+
+DefineMacro 25 "fRedrawWhenBitmapEdited False @t Add @t @u If Gte @t 1536 {@t 0} @m Div @t 256 @s Mod @t 256 Macro Add 26 @m fRedrawWhenBitmapEdited True" "Inside Event"
+DefineMacro 26 "If Equ @s 0 {kSky Aqua kCloud White kCloud2 Light LtGray kMountain Brown kMountain2 Gray nFogDistance 0 kGround2 -1 nSunMoonY 333}" "Midday"
+DefineMacro 27 "kSky Rgb 0 Sub 255 @s 255 kCloud GrayN Sub 255 Div Mul @s 3 8 kCloud2 GrayN Sub 223 Div Mul @s 3 8 kMountain Rgb Sub 127 Div @s 8 Sub 63 Div @s 16 0 kMountain2 GrayN Sub 127 Div Mul @s 52 256 nFogDistance Sub 5290 Mul @s 20 kGround2 GrayN Sub 128 Div @s 4 nSunMoonY Add 333 Div Mul @s 667 256" "Late Day"
+DefineMacro 28 "If Equ @s 0 {fStars True} kSky Rgb 0 0 Sub 255 @s kCloud GrayN Sub 159 Div Mul @s 3 8 kCloud2 GrayN Sub 127 Div Mul @s 3 8 kMountain Rgb Sub 95 Div @s 8 Sub 47 Div @s 16 0 kMountain2 GrayN Sub 75 Div Mul @s 52 256 nStarCount Mul @s 3 nFogDistance Sub 170 Div @s 2 kGround2 GrayN Sub 64 Div @s 4 nSunMoonY Sub 1000 Div Mul @s 667 256" "Early Night"
+DefineMacro 29 "If Equ @s 0 {kSky Black kCloud DkGray kCloud2 Dark DkGray kMountain Dark Brown kMountain2 GrayN 23 nStarCount 768 nFogDistance 42 kGround2 Black nSunMoonY 333}" "Midnight"
+DefineMacro 30 "kSky Rgb 0 0 @s nStarCount Mul Sub 255 @s 3 kCloud GrayN Add 64 Div Mul @s 3 8 kCloud2 GrayN Add 32 Div Mul @s 3 8 kMountain Rgb Add 63 Div @s 8 Add 31 Div @s 16 0 kMountain2 GrayN Add 24 Div Mul @s 52 256 nFogDistance Add 42 Div @s 2 kGround2 GrayN Div @s 4 nSunMoonY Add 333 Div Mul @s 667 256" "Late Night"
+DefineMacro 31 "If Equ @s 0 {fStars False} kSky Rgb 0 @s 255 kCloud GrayN Add 160 Div Mul @s 3 8 kCloud2 GrayN Add 128 Div Mul @s 3 8 kMountain Rgb Add 95 Div @s 8 Add 47 Div @s 16 0 kMountain2 GrayN Add 76 Div Mul @s 52 256 nFogDistance Add 170 Mul @s 20 kGround2 GrayN Add 64 Div @s 4 nSunMoonY Sub 1000 Div Mul @s 667 256" "Early Day"
+
+DefineMacro 32 "Macro48 If Not fWindowAlwaysOnTop {sTab} Size Div nWindowHorizontalSize @p Div nWindowVerticalSize @p 0 1 fHourglassCursorOnRedraw False fSkipMessageDisplay True fAutorepeatRandomizesWallColor True kBorder Black fShowDot False nInside 0 Macro33 fAutorepeatLastCommand True" "Spree Initialize"
+DefineMacro 33 "fCreateWithWallAdding Rnd 0 1 @z Rnd 0 16 If Lte @z 8 {an} If Equ @z 9 {aj} If Equ @z 10 {as} If Equ @z 11 {S} If Equ @z 12 {av} If Equ @z 13 {K} If Gte @z 14 {nBraidMethod Sub @z 14 B}" "Random Maze"
+DefineMacro 34 "fShowDot False nInside 0 = \ fShadeSky True fShadeObjects False Overview _ fShadeSky False fShadeGround True Overview - fShadeGround False fShadeObjects True Overview - Blend3 Replace Yellow @c 0 Replace Magenta Light @c 0 Replace White Dark @c 0 Replace Cyan @b 0 kBorder @b" "Draw Overview"
+DefineMacro 35 "@l @z Evolution @v 1 If Or Lte @z 0 Gte @z @n {Evolution @v 0 Break} IfElse Or Gte @z Div Mul @n 4 5 Equ @z @l {@o Inc @o If Gte @o 128 'Evolution @v 0'} {@o 0}" "Next Evolution"
+DefineMacro 36 "fRedrawWhenBitmapEdited False fShowColorBitmap False AllRandom Quo TempDelete fRedrawWhenBitmapEdited True aL" "Life Start"
+DefineMacro 37 "@l @z aL If Lte @z 0 {Macro36 Break} IfElse Lte Abs Sub @z @l Div @n 1000 {@o Inc @o If Gte @o 64 'Macro36'} {@o 0}" "Next Life"
+DefineMacro 38 "@c 11 @d 8 @e 4 Size3X Add << @c 1 2 Size3Y Size3X Size3Z 24 Size3W 4 J Set Inc Mul Size3X 2 0 Off Set Sub SizeX 3 Sub SizeY 2 Off = @z Inc Mul Mul Add @d @e 3 @c Size @z @z 0 1 CopyMask -1 1 CopyMask -1 2 CopyMask -1 3 For (b) 0 23 {@z Var Add 27 << @b 1 @x Add Mul Mul @d @c Div @z 10 Mul Mul @e @c Mod @z 10 @z Var Add 28 << @b 1 @y Add Mul Mul @d @c Div @z 10 Mul Mul @e @c Mod @z 10 SwapMask -1 Inc Mod @b 3 SwitchSgn Dec Mod @b 3 'DrawLevel @b @x @y @d 0 0 @d' 'DrawLevel @b @x @y @e Neg @e 0 @d' 'DrawLevel @b @x @y @d 0 Neg @e @e' SwapMask -1 Inc Mod @b 3}" "Cube Start #1"
+DefineMacro 39 "@c 12 @d 8 @e 6 @f 2 Size3X Add << @c 1 2 Size3Y Size3X Size3Z 24 Size3W 4 J Set Sub Mul Size3X 3 3 0 Off Set Inc Sub SizeX << Size3X 1 Sub SizeY 2 Off = @x Inc Mul Mul @e 6 @c @y Inc Mul Add Mul @d 3 Mul @f 4 @c Size @x @y 0 1 CopyMask -1 1 CopyMask -1 2 CopyMask -1 3 For (b) 0 23 {@z Var Add 27 << @b 1 @x Mul Mul @e @c @z @z Var Add 28 << @b 1 @y Add Mul Mul @d @c Div @z 10 Mul Mul @f @c Mod @z 10 SwapMask -1 Inc Mod @b 3 SwitchSgn Dec Mod @b 3 'DrawLevel @b @x @y @e @f 0 @d' 'DrawLevel @b @x @y @e Neg @f 0 @d' 'DrawLevel @b @x @y @e Neg @f @e @f' SwapMask -1 Inc Mod @b 3}" "Cube Start #2"
+DefineMacro 40 "kBorder Black @c Hue Rnd 0 359 SwapMask 1 -1 SwapMask 2 -2 SwapMask 3 -3 Blend3 @c Blend @c Blend @c White Replace Red @c 0 Replace Green Dark @c 0 Replace Blue Light @c 0 Replace Yellow Blend @c Dark @c 0 Replace Magenta Blend @c Light @c 0 Replace Cyan Blend Light @c Dark @c 0 Replace White @c 0 k TempOr _ - TempOr TempDelete ExtraDelete TextureDelete k fRedrawWhenBitmapEdited True n" "Cube End"
+DefineMacro 41 "Message 'Front Row: Dodecahedron (12 sides), Sphere (1 surface), Icosahedron (20 sides)\nMiddle Row: Tetrahedron (4 sides), Octahedron (8 sides)\nBack: Cube (6 sides), Ring (4 surfaces), Crystal (18 sides), Torus (1 surface)'" "Shapes"
+DefineMacro 42 "nXStartingLocation Cos 440 @d nYStartingLocation Add 240 Sin 440 @d nViewingAngleTheta Mod Sub 270 @d 360 PatchPerspective @d Add @d @u If Gte @d 360 {@d Sub @d 360}" "Next Shape"
+DefineMacro 43 "nXStartingLocation Add 305 Cos 380 @d nYStartingLocation Add 305 Sin 380 @d nViewingAngleTheta Mod Sub 270 @d 360 PatchPerspective @d Add @d @u If Gte @d 360 {@d Sub @d 360}" "Next Patch"
+DefineMacro 44 "nXStartingLocation Add 311 Cos 385 @d nYStartingLocation Add 312 Sin 385 @d nViewingAngleTheta Mod Sub 270 @d 360 WirePerspective @d Add @d @u If Gte @d 360 {@d Sub @d 360}" "Next Wireframe"
+
+DefineMacro 47 "Macro48 fRedrawWhenBitmapEdited False fHourglassCursorOnRedraw False fSkipMessageDisplay True fShowDot False nEdgeBehavior 2 nInside 0 If Not fWindowAlwaysOnTop {sTab} fShowColorBitmap False Size Div nWindowHorizontalSize @w Div nWindowVerticalSize @w 0 1 kBorder Black @n Mul SizeX SizeY Quo fRedrawWhenBitmapEdited True" "Initialize #2"
+DefineMacro 48 "fShowIndividualPixelEdits False fAutoRepeatLastCommand False fHourglassCursorOnRedraw True fSkipMessageDisplay False nAfterRedrawInside 0 kPassage Black kWall White fAutorepeatRandomizesWallColor False fMoveByTwo False fDoDragOnTemp True nEdgeBehavior 0 fMoveWithArrowKeys False nXVanishingPoint 0 nYVanishingPoint 0 fShadeSky False fShadeGround False" "Initialize"
+
+WindowTitle "- Demos" True fRedrawWhenBitmapEdited False
+ResetProgram fShowColorBitmap False nHorizontalScroll 8 nVerticalScroll 8
+fTiltLinesMakeNoDiamonds True
+kGround Gray fSealedEntrances False fMountains True nPeakHeight 20 fSunAndMoon True nCellSize 160 nNarrowCellSize 40 rLightFactor 50 nMotionFrames 45 nRotationFrames 45 nUpDownFrames 45 fShadeObjects True fSkyAll False
+TempDelete ExtraDelete
+@p 2 @q False @u 1 @v 17 @w 8
+fRedrawWhenBitmapEdited True n Macro13

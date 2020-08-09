@@ -1,0 +1,33 @@
+DS
+// Word Mazes - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// k: Whether color bitmap
+// q: Whether skipping messages
+// s: Scale of Maze
+// t: Type of Maze
+// x-z: Temporary variables
+
+If Gte Version 2200 {Break} Message 'This script requires Daedalus 2.2 or later to run.' Break
+
+DefineMacro 1 {Message 'Welcome to Word Mazes!\n\nF1: Display this help text.\nF2: Create new Maze.\nF3: Toggle size.\nF4: Set Maze text.\n\nF5: Have Maze in shape of word.\nF6: Have Maze with rooms forming word.\nF7: Have Maze with solution spelling word (obvious).\nF8: Have Maze with solution spelling word (hidden).\nF9: Show perspective version of word.\n\nPress "k" to toggle solution view.'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False @k fShowColorBitmap fShowColorBitmap False @q fSkipMessageDisplay fSkipMessageDisplay True @x Len $1 Macro Add 13 @t fSkipMessageDisplay @q fShowColorBitmap @k fRedrawWhenBitmapEdited True n" "New Maze"
+DefineMacro 3 "@s Sub 3 @s Macro2" "Toggle Size"
+DefineMacro 4 "GetString 'Enter word to use to create Maze:' 1 If @z {Break} Macro2" "Set Text"
+DefineMacro 5 "@t 0 Macro2" "Boundary"
+DefineMacro 6 "@t 1 Macro2" "Room"
+DefineMacro 7 "@t 2 Macro2" "Solution"
+DefineMacro 8 "@t 3 Macro2" "Hidden Solution"
+DefineMacro 9 "@t 4 Macro2" "Perspective Text"
+
+DefineMacro 13 "Size Add 3 Mul Sub Mul @x 24 4 @s Add 3 Mul 36 @s 0 1 @z Mul 4 @s SetString 0 'C1S@zA0T1BM1,1TT$1' Turtle $0 DoCount Mul 4 @s {Thicken} NoIslands ExpandSet PartialKruskal AddEntrance AddExit NoIsolation = \ MarkBlindAlley cDel _ F TempOr - _ cDel _ CopyMask -1 0 NoPassage cDel TempOr _ CopyMask 0 -1 Macro18 Blend3 Replace Cyan Black 0 Replace Blue Red 0 Replace Green Blue 0 Macro19" "Create Boundary"
+DefineMacro 14 "Size Inc Mul Add Mul @x 24 8 @s Inc Mul 44 @s 0 1 @z Mul 4 @s @y Mul 6 @s SetString 0 'C1S@zA0T1BM@y,@yTT$1' Turtle $0 DoCount Mul 4 @s {Thicken} cDel ExpandSet ColorDelete PartialKruskal AddEntrance AddExit NoIsolation = \ nX 0 nY 0 MarkBlindAlley cDel _ F TempOr - = Shortest _ Macro18 Blend3 Replace Cyan Black 0 Replace Blue Red 0 Replace Green Blue 0 Macro19" "Create Room"
+DefineMacro 15 "Macro16" "Create Solution"
+DefineMacro 16 "Size Inc Mul Add Mul @x 44 Sub 27 @s @s Inc Mul Sub 75 @s @s 0 1 sDel Set 1 0 Off @z Mul 4 @s SetString 0 'C0S@zA0T2BM1,1D15R3TT$1' Turtle $0 Turtle 'R3D4' If Equ @t 3 {DoCount Mul @s 2 'H'} = nX 1 nY 1 cP \ Macro18 Blend2 Replace Black Red 0 Replace Cyan Black 0 Macro19" "Create Hidden Solution"
+DefineMacro 17 "@y Sub Mul @x 12 2 Size @y Add Div @y 2 18 0 1 Turtle 'C1S2A0T1' nXTurtle 0 nYTurtle Sub SizeY 18 SetString 0 'TT$1' Turtle $0 Thicken nHorizontalSize Mul @s 5 nVerticalSize nHorizontalSize nXVanishingPoint Div Mul @y nHorizontalSize 2 nYVanishingPoint 0 k Pyramid k Pyramid cDel" "Create Perspective Text"
+
+DefineMacro 18 "If fCreateMazesPolished {Bias 1 3 1 3 _ Bias 1 3 1 3 _ - Bias 1 3 1 3 -}" "Bias Maze"
+DefineMacro 19 "If fCreateMazesPolished {Replace Black White 1}" "Polish Maze"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Word Mazes" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu False fHideScrollbars False fShowDot False fNoCornerHopping True nInside 0 fFindAPathFindsRandomPath True kSkyHigh Gray kSkyLow Gray kGroundHigh LtGray kGroundLow DkGray $1 "DAEDALUS" @s 1 @t 0 If Not fCreateMazesPolished {/} Macro2 Macro1

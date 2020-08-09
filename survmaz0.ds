@@ -1,0 +1,395 @@
+DS
+// Survivor Maze game #10 - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+// For actual Maze see https://www.youtube.com/watch?v=DAow6IWqkcI
+
+// Variable usage:
+// a-d: Whether North, West, South, East directions found
+// f: Fog distance
+// l: Whether blindfolded
+// m-n: Temporary coordinates
+// k: Whether animating clouds
+// q: Next thing for player to find (0-5)
+// r: Cloud movement rate (constant)
+// t: Whether touching wall
+// w: Temporary variable
+// x-y: X and Y coordinates of player during events
+// z: Event return value
+
+// Bitmap usage:
+// -1: Mono = Where walls are, Color = Color of walls
+// -2: Mono = Where floor markings are
+// -3: Color = Trigger indicators
+// 0: Color = Wall texture mapping
+// 1: Mono = Where variable height wall are, Color = Wall heights
+// 2: Mono = Where wall top textures are, Color = Wall top texture indexes
+// 3-5: Mono = Finish textures
+// 6-8: Mono = Guidepost side textures
+// 9-44: Mono = Direction textures
+// 45-53: Color = Guidepost top textures
+
+If Gte Version 3100 {Break} Message 'This script requires Daedalus 3.1 or later to run.' Break
+
+DefineMacro 1 "Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for\nthe final five in "Survivor XXX: World's Apart". Your goal is to\nnavigate the Maze, finding and touching four checkpoints in any\norder, then reaching the finish point when done. Guideposts\nfound at locations in the Maze give the direction of each\ncheckpoint and the finish. The Survivors had to do the entire\nMaze blindfolded. Do it blindfolded too, if you dare! :-)\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Restart Maze blindfolded.\nF4: Put on or remove blindfold.\n\nF5: Switch background between day and night.\nF6: Toggle cloud movement.\nF7: Set blindfolded sensory distance.\n\nA message will be displayed when you run into each checkpoint.\nCheckpoints and quadrants of the Maze represent four directions:\nRed: North, Blue: West, Yellow: South, Purple: East,\nOrange: Guidepost, Magenta: Finish.\n\nJeff Probst says: "Survivors ready? Go!"'" "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False Macro16 @q 0 @t 0 SetVars 1 4 '0 0 0 0' nX 162 nY 160 nDir 0 g cg nDirectionOffset 0 fShowColorBitmap True fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct" "Restart Maze"
+DefineMacro 3 "Macro2 Macro4" "Restart Blind"
+DefineMacro 4 "fRedrawWhenBitmapEdited False fCompass @l @l Not @l IfElse @l {kSky Black kGround Black kGround2 -1 kCloud Black kCloud2 -1 fMapOverlay False fMountains False fSunAndMoon False fStars False nFogDistance @f fRedrawWhenBitmapEdited True Spc Message 'You put on a blindfold.'} {Macro16 fRedrawWhenBitmapEdited True Spc Message 'You remove your blindfold.'}" "Blindfold"
+DefineMacro 5 "If @l {Macro4 Return} fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {Macro16} {fStars True nFogDistance 300 kSky Black k3DCeiling kSky kGround Dark Dark kGround kGround2 Dark kGround kMountain kGround2 kMountain2 Dark Dark Dark DkGreen kCloud Dark DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 6 "If @l {Macro4} @k Not @k If @k {Spc} fAutorepeatLastCommand @k" "Cloud Movement"
+DefineMacro 7 "SetString 0 '@f' GetString 'Enter blindfolded sensory distance (1-300):' 0 If @z {Return} @z Num $0 If Or Lt @z 1 Gt @z 300 {Message 'Bad blindfold distance!\nNumber must be between 1-300.' Return} @f @z IfElse Not @l {Macro4} {nFogDistance @f}" "Set Fog"
+
+DefineMacro 13 "@z False @t 1 If Gt @q 4 {Return} @w GetCE @x @y If Or Not @w Gt @w 9 {Return} If Gte @w 9 {IfElse Lt @q 4 (@w Sub 4 @q Message 'This is the finish. You don't need to be here yet.\nYou still have @w directions to find.') (Macro15) Return} If Gte @w 5 {Macro17 Return} If Var @w {Message 'This is the checkpoint for direction: $w\nYou've already been here.' Return} Message 'You find the checkpoint for direction: $w' SetVar @w 1 @q Inc @q" "Wall Event"
+DefineMacro 14 "If And @k Sgn nInside {MoveCloud -1 @r} If fCompass {@z Add Div Mod Add Add Mul nDir 90 nDirectionOffset 337 360 45 10 MessageInside $z -3} If @t {@t 0 MessageInside 'You touch a wall.' -4} If Gt @q 4 {Return} If Equ @q 4 {MessageInside 'Seeking: Finish' -1 Return} SetString 0 '' For (z) 1 4 {If Not Var @z (SetString 0 '$0 $z')} MessageInside 'Seeking Directions:$0' -1" "Inside Event"
+DefineMacro 15 "If @l {@l False fRedrawWhenBitmapEdited False Macro16 fRedrawWhenBitmapEdited True Spc} @q 5 fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you've found all four directions and finished the\nMaze! :-) You solved it in @x minutes, @y seconds.\n\nJeff Probst puts the immunity necklace around your neck, meaning\nyou can't be voted off the island in Tribal Council. With this win\nyou find yourself in the final four, and in a good position to\nhopefully do the most a-Maze-ing thing in Survivor: Win the million\ndollar prize!'" "Win Game"
+DefineMacro 16 "@l False fStars False fMountains True fSunAndMoon True nFogDistance 0 kSky Cyan kGround DkGreen kGround2 -1 kMountain kGround kMountain2 Brown kCloud White kCloud2 Light LtGray" "Day Settings"
+DefineMacro 17 "SetString 0 '' @x Add 18 Sub @w 5 For (z) 1 5 {@y Add Xor And Add Sub Char $x Dec @z 48 nDir 3 Mul 2 Odd nDir 6 SetString 0 '$0\n$z: $y'} Message 'This is a guidepost.\n$0' @z False" "Guidepost"
+DefineMacro 18 "@m Add Add Mul Sub Char $0 @z 48 100 Mul Sub Char $0 Inc @z 48 10 Sub Char $0 Add @z 2 48 @n Add Add Mul Sub Char $0 Add @z 3 48 100 Mul Sub Char $0 Add @z 4 48 10 Sub Char $0 Add @z 5 48" "Checkpoint Coordinate"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Survivor Maze Game 10" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+nRepeatDelayInMsec 25 kBorder Black kPassage Black fShowDot True fWallsImpassable True fNoCornerHopping True fDragIsErase False fDoDragOnTemp True nEdgeBehavior 0 fSealedEntrances False fMountains True nPeakHeight 30 nCloudCount 16 fSunAndMoon True fNarrowWalls False nInside 4 nCellSize 100 nWallHeight 1000 nViewHeight 0 nStepHeight 320 nClippingPlane 500 nMotionVelocity 40 nRotationVelocity 5 nUpDownVelocity 40 fFogGround True fNoCompass True fMarkColor False fRedrawAfter True nOnMoveIntoWall 13 nAfterRedrawInside 14 nTextureWall 0 nWallVariable 1 nTextureBlock 2 Macro16
+@r 20000 SetStrings 1 29 ",North,West,South,East,Finish,Straight,Left,Behind,Right,North,NorthWest,West,SouthWest,South,SouthEast,East,NorthEast,12230,02333,01300,11201,FINISH,HERE,GUIDE,POST,NORTH,WEST,SOUTH,EAST"
+
+$0 'T_ _' Turtle "T1S4" Size 57 196 0 1 For (x) 0 1 {@w Add 22 @x For (y) 0 Dec Len $w (SetChar 0 2 Char $w @y nXTurtle Add 4 Mul @x 29 nYTurtle Add 4 Mul Add @y @x 32 Turtle $0)} DoCount 3 'Thicken' cDel nY 0 nY2 Dec SizeY For (x) 0 2 {nX Mul @x 19 nX2 Add nX 18 ag CopyMask -2 Add 3 @x}
+Size 57 164 0 1 For (x) 0 1 {@w Add 24 @x For (y) 0 Dec Len $w (SetChar 0 2 Char $w @y nXTurtle Add 4 Mul @x 29 nYTurtle Add Add 4 Mul @y 32 Mul @x 16 Turtle $0)} DoCount 3 'Thicken' cDel nY 0 nY2 Dec SizeY For (x) 0 2 {nX Mul @x 19 nX2 Add nX 18 ag CopyMask -2 Add 6 @x}
+For (y) 0 3 {@z Add @y 26 @x Add 4 Mul Len $z 24 @w Mod @x 9 Size Add @x @w 36 0 1 Setstring 0 "BM4,4T_$z_" Turtle $0 DoCount 3 'Thicken' cDel @z Div SizeX 9 nY 0 nY2 Dec SizeY For (x) 0 8 (nX Mul @x @z nX2 Add nX Dec @z ag CopyMask -2 Add Add 9 Mul @y 9 @x)}
+Size 102 51 0 1 sDel Size 102 102 0 0 = Transpose Blend2 Replace Black Yellow 0 Replace Red Blue 0 Replace White Red 0 k Del nX 25 nY 25 nX2 76 nY2 76 2ndDisk ColorOr Replace White Magenta 0 k Del Turtle "BM5,5T_N_BM77,5T_E_BM5,69T_W_BM77,69T_S_BM41,45E2NF2D6" DoCount 3 'Thicken' Turtle "S1BM50,36R" cDel ColorAnd For (y) 0 2 {For (x) 0 2 (nX Mul @x 34 nY Mul @y 34 nX2 Add nX 33 nY2 Add nY 33 ag CopyTexture -2 Add Add 45 Mul @y 3 @x)}
+
+EmbedDB
+DB
+325 325 24
+
+{jzazazazazaya{vzazazazazaya{e
+{aajzazazazazava0T]`avzazazazazava0T]`{e
+{a0T]`ajzazazazazaua0T]`avzazazazazaua0T]`ae
+aa0T]`bjzazazazazaraa0T]`bvzazazazazaraa0T]`ae
+ba0T]`bjzazazazazaqaa0T]`bvzazazazazaqaa0T]`ae
+baa0T]`cjzazazazazanab0T]`cvzazazazazanab0T]`be
+caa0T]`cjzazazazazamab0T]`cvzazazazazamab0T]`be
+daa0T]`djzazazazazajac0T]`dvzazazazazajac0T]`be
+dab0T]`djzazazazazaiac0T]`dvzazazazazaiac0T]`ce
+eab0T]`ejzazazazazafad0T]`evzazazazazafad0T]`ce
+fab0T]`ejzazazazazaead0T]`evzazazazazaead0T]`ce
+fac0T]`fjzazazazazabae0T]`fvzazazazazabae0T]`de
+gac0T]`fjzazazazazaaae0T]`fvzazazazazaaae0T]`de
+hac0T]`gjzazazazayaf0T]`gvzazazazayaf0T]`de
+had0T]`gjzazazazaxaf0T]`gvzazazazaxaf0T]`ee
+iad0T]`hjzazazazauag0T]`hvzazazazauag0T]`ee
+jad0T]`hjzazazazatag0T]`hvzazazazatag0T]`ee
+jae0T]`ijzazazazaqah0T]`ivzazazazaqah0T]`fe
+kae0T]`ijzazazazapah0T]`ivzazazazapah0T]`fe
+lae0T]`jjzazazazamai0T]`jvzazazazamai0T]`fe
+laf0T]`jjzazazazalai0T]`jvzazazazalai0T]`ge
+maf0T]`kjzazazazaiaj0T]`kvzazazazaiaj0T]`ge
+naf0T]`kjzazazazahaj0T]`kvzazazazahaj0T]`ge
+nag0T]`ljzazazazaeak0T]`lvzazazazaeak0T]`he
+oag0T]`ljzazazazadak0T]`lvzazazazadak0T]`he
+pag0T]`mjzazazazaaal0T]`mvzazazazaaal0T]`he
+pah0T]`mjzazazaza{al0T]`mvzazazaza{al0T]`ie
+qah0T]`njzazazaxam0T]`nvzazazaxam0T]`ie
+rah0T]`njzazazawam0T]`nvzazazawam0T]`ie
+rai0T]`ojzazazatan0T]`ovzazazatan0T]`je
+sai0T]`ojzazazasan0T]`ovzazazasan0T]`je
+tai0T]`pjzazazapao0T]`pvzazazapao0T]`je
+taj0T]`pjzazazaoao0T]`pvzazazaoao0T]`ke
+uaj0T]`qjzazazalap0T]`qvzazazalap0T]`ke
+vaj0T]`qjzazazakap0T]`qvzazazakap0T]`ke
+vak0T]`rjzazazahaq0T]`rvzazazahaq0T]`le
+wak0T]`rjzazazagaq0T]`rvzazazagaq0T]`le
+xak0T]`sjzazazadar0T]`svzazazadar0T]`le
+xal0T]`sjzazazacar0T]`svzazazacar0T]`me
+yal0T]`tjzazaza{as0T]`tvzazaza{as0T]`me
+zal0T]`tjzazazas0T]`tvzazazas0T]`me
+zam0T]`ujzazawat0T]`uvzazawat0T]`ne
+za{am0T]`ujzazavat0T]`uvzazavat0T]`ne
+zaaam0T]`vjzazasau0T]`vvzazasau0T]`ne
+zaaan0T]`vjzazarau0T]`vvzazarau0T]`oe
+zaban0T]`wjzazaoav0T]`wvzazaoav0T]`oe
+zacan0T]`wjzazanav0T]`wvzazanav0T]`oe
+zacao0T]`xjzazakaw0T]`xvzazakaw0T]`pe
+zadao0T]`xjzazajaw0T]`xvzazajaw0T]`pe
+zaeao0T]`yjzazagax0T]`yvzazagax0T]`pe
+zaeap0T]`yjzazafax0T]`yvzazafax0T]`qe
+zafap0T]`zjzazacay0T]`zvzazacay0T]`qe
+zagap0T]`zjzazabay0T]`zvzazabay0T]`qe
+zagaq0T]`zj{jzazaz0T]`zv{vzazaz0T]`re
+zahaq0T]`zj{jzayaz0T]`zv{vzayaz0T]`re
+zaiaq0T]`zjajzavaz0T]`0T]`zvavzavaz0T]`0T]`re
+zaiar0T]`zjajzauaz0T]`0T]`zvavzauaz0T]`0T]`se
+zajar0T]`zjbjzaraz0T]`a0T]`zvbvzaraz0T]`a0T]`se
+zakar0T]`zjbjzaqaz0T]`a0T]`zvbvzaqaz0T]`a0T]`se
+zakas0T]`zjcjzanaz0T]`b0T]`zvcvzanaz0T]`b0T]`te
+zalas0T]`zjcjzamaz0T]`b0T]`zvcvzamaz0T]`b0T]`te
+zamas0T]`zjdjzajaz0T]`c0T]`zvdvzajaz0T]`c0T]`te
+zamat0T]`zjdjzaiaz0T]`c0T]`zvdvzaiaz0T]`c0T]`ue
+zanat0T]`zjejzafaz0T]`d0T]`zvevzafaz0T]`d0T]`ue
+zaoat0T]`zjejzaeaz0T]`d0T]`zvevzaeaz0T]`d0T]`ue
+zaoau0T]`zjfjzabaz0T]`e0T]`zvfvzabaz0T]`e0T]`ve
+zapau0T]`zjfjzaaaz0T]`e0T]`zvfvzaaaz0T]`e0T]`ve
+zaqau0T]`zjgjyaz0T]`f0T]`zvgvyaz0T]`f0T]`ve
+zaqav0T]`zjgjxaz0T]`f0T]`zvgvxaz0T]`f0T]`we
+zarav0T]`zjhjuaz0T]`g0T]`zvhvuaz0T]`g0T]`we
+zasav0T]`zjhjtaz0T]`g0T]`zvhvtaz0T]`g0T]`we
+zasaw0T]`zjijqaz0T]`h0T]`zvivqaz0T]`h0T]`xe
+zataw0T]`zjijpaz0T]`h0T]`zvivpaz0T]`h0T]`xe
+zauaw0T]`zjjjmaz0T]`i0T]`zvjvmaz0T]`i0T]`xe
+zauax0T]`zjjjlaz0T]`i0T]`zvjvlaz0T]`i0T]`ye
+zavax0T]`zjkjiaz0T]`j0T]`zvkviaz0T]`j0T]`ye
+zawax0T]`zjkjhaz0T]`j0T]`zvkvhaz0T]`j0T]`ye
+zaway0T]`zjljeaz0T]`k0T]`zvlveaz0T]`k0T]`ze
+zaxay0T]`zjljdaz0T]`k0T]`{nzvkvdaz0T]`k0T]`ze
+zayay0T]`zjmjaaz0T]`k0T]`{n{d{nzvkvaaz0T]`l0T]`ze
+zayaz0T]`zjmj{az0T]`j0T]`{nbd{nzvjv{az0T]`l0T]`ze{e
+zazaz0T]`zjnjz0T]`h0T]`{ndd{nzvhvz0T]`m0T]`ze{e
+zaza{az0T]`zjnjz0T]`f0T]`{nfd{nzvfvz0T]`m0T]`ze{e
+zaza{az0T]`0T]`zjojz0T]`c0T]`{nhd{nzvcvz0T]`n0T]`zeae
+zazaaaz0T]`0T]`zjojz0T]`a0T]`{njd{nzvavz0T]`n0T]`zeae
+zazabaz0T]`0T]`zjpjy0T]`{nld{nyvz0T]`o0T]`zeae
+zazabaz0T]`a0T]`zjpjw0T]`{nnd{nwvz0T]`o0T]`zebe
+zazacaz0T]`a0T]`zjqjt0T]`{npd{ntvz0T]`p0T]`zebe
+zazadaz0T]`a0T]`zjqjr0T]`{nrd{nrvz0T]`p0T]`zebe
+zazadaz0T]`b0T]`zjrjo0T]`{nhdbuhd{novz0T]`q0T]`zece
+zazaeaz0T]`b0T]`zjrjm0T]`{nidbuid{nmvz0T]`q0T]`zece
+zazafaz0T]`b0T]`zjsjj0T]`{njdbujd{njvz0T]`r0T]`zece
+zazafaz0T]`c0T]`zjsjh0T]`{nzd{nhvz0T]`r0T]`zede
+zazagaz0T]`c0T]`zjtje0T]`{nzdad{nevz0T]`s0T]`zede
+zazahaz0T]`c0T]`zjtjc0T]`{nzdcd{ncvz0T]`s0T]`zede
+zazahaz0T]`d0T]`zjuj0T]`{nzded{n{vz0T]`t0T]`zeee
+zazaiaz0T]`d0T]`ysuj{szdgd{nu0T]`xn{izede
+zazajaz0T]`c0T]`{njd{sjdastj{szdid{nt0T]`anjd{njd{izece
+zazajaz0T]`c0T]`{njd{sjdassj{szdkd{ns0T]`anjd{njd{izece
+zazakaz0T]`b0T]`{njd{sjdasrj{szdmd{nr0T]`anjd{njd{izebe
+zazalaz0T]`a0T]`{njd{sjdasqj{szdod{nq0T]`anjd{njd{izeae
+zazalaz0T]`a0T]`{njd{sjdsszdqdsnjd{njd{izeae
+zazamaz0T]`0T]`{ndd{ndd{sdd{sddssodfsenodsndd{ndd{ndd{idd{ize{e
+zazanaz0T]`{ndd{njd{svdaszdqdanvd{njd{idd{ize
+|
+zazaoay0T]`{ndd{njd{svdaszdqdanvd{njd{idd{iye
+zazapax0T]`{ndd{njd{svdaszdqdanvd{njd{idd{ixe
+|
+zazaqaw0T]`{nddenxsddasidlsjd{nidanddwnfidd{iwe
+zazarav0T]`{njd{nwsddasid{svd{nidanddvn{k{ijd{ive
+zazarav0T]`{njdantdasddasid{svd{nidanddantd{k{ijd{ive
+zazasau0T]`{njdantdasddasid{svd{nidanddantd{k{ijd{iue
+zazatat0T]`{njdantdasddasid{svd{nidanddantd{k{ijd{ite
+|
+zazauas0T]`{ndd{nddantdasddasid{sjdlnidanddantd{k{idd{idd{ise
+zazavar0T]`{ndd{nddantdasddaszdqdanddantd{k{idd{idd{ire
+|
+zazawaq0T]`{ndd{nddantdasddaszdqdanddantd{k{idd{idd{iqe
+zazaxap0T]`{ndd{nddantdasddaszdqdanddantd{k{idd{idd{ipe
+zazaxap0T]`{ndd{nddanedhsedasddaszdqdanddanedhked{k{idd{idd{ipe
+zazayao0T]`{ndd{nddanedhsedasddasodfsenodanddanedhked{k{idd{idd{ioe
+zazazan0T]`{ndd{nddanedhsedasddaszdqdanddanedhked{k{idd{idd{ine
+zazaxaavn0T]`{ndd{nddantdasddaszdqdanddantd{k{idd{idd{inea0T]`
+zazavadvm0T]`{ndd{nddantdasddaszdqdanddantd{k{idd{idd{imed0T]`
+zazatagvl0T]`{ndd{nddantdasddaszdqdanddantd{k{idd{idd{ileg0T]`
+zazaraivl0T]`{ndd{nddantdasddmstdmnddantd{k{idd{idd{ilei0T]`
+zazapalvk0T]`{ndd{nddantdasddmstdmnddantd{k{idd{idd{ikel0T]`
+zazanaovj0T]`{ndd{nddantdaspdastdanpdantd{k{idd{idd{ijeo0T]`
+zazalaqvj0T]`{ndd{nddantdaspdastdanpdantd{k{idd{idd{ijeq0T]`
+zazajatvi0T]`{ndd{nddantdaspdastdanpdantd{k{idd{idd{iiet0T]`
+zazahawvh0T]`{ndd{nddantdaspdastdanpdantd{k{idd{idd{ihew0T]`
+zazafayvh0T]`{ndd{nddfnjddnaspdastdanpd{nekjdek{idd{idd{ihey0T]`
+zazadazvavg0T]`{ndd{nddfnjdenlsddastdanddknfijdfidd{idd{igez0T]`a0T]`
+zazabazvdvf0T]`{ndd{nzdad{nksddastdanddjnaizdad{idd{ifez0T]`d0T]`
+zaza{azvfvf0T]`{ndd{nzdadanjsddastdanddinbizdad{idd{ifez0T]`f0T]`
+zayazvive0T]`{ndd{nzdadbnisddastdanddhncizdad{idd{ieez0T]`i0T]`
+zawazvlvd0T]`{ndd{nzdadcnhsddastdanddgndizdad{idd{idez0T]`l0T]`
+zauazvnvd0T]`{ndd{nzdaddngsddgshdgnddfneizdad{idd{idez0T]`n0T]`
+zasazvqvc0T]`{nddxnddenfsddgshdgnddenfiddxidd{icez0T]`q0T]`
+zaqazvtvb0T]`{njd{npd{nddfnesjdashdanjddngidd{ipd{ijd{ibez0T]`t0T]`
+zaoazvvvb0T]`{njd{npd{nddgndsjdashdanjdcnhidd{ipd{ijd{ibez0T]`v0T]`
+zamazvyva0T]`{njd{npd{nddhncsjdashdanjdbniidd{ipd{ijd{iaez0T]`y0T]`
+zakazvzvav0T]`{njd{npd{nddinbsjdashdanjdanjidd{ipd{ijd{i{ez0T]`z0T]`a0T]`
+zaiazvzvcv0T]`{njd{npd{nddjnasjdashdanjd{nkidd{ipd{ijd{i{ez0T]`z0T]`c0T]`
+zagazvzvfvfndd{nddlnddknfsddashdanddenliddlidd{iddfiz0T]`z0T]`f0T]`
+zaeazvzviv{nzdrd{nesddashdandddnaizdrd{iz0T]`z0T]`i0T]`
+zacazvzvkv{nzdrdandsddashdanddcnbizdrd{iz0T]`z0T]`k0T]`
+zaaazvzvnv{nzdqdbncsddashdanddbncizdqd{iz0T]`z0T]`n0T]`
+zazvzvqv{nzdpdcnbsddashdanddandizdpd{iz0T]`z0T]`q0T]`
+xazvzvsv{nzdpddnasddashdandd{neizdpd{iz0T]`z0T]`s0T]`
+vazvzvvvhnddznhn{sddashdanddziiiddhiz0T]`z0T]`v0T]`
+tazvzvyv{nzdbd{nzdzddd{izdbd{iz0T]`z0T]`y0T]`
+razvzvzv{v{nzdbd{nzdzddd{izdbd{iz0T]`z0T]`z0T]`0T]`
+pazvzvzvcv{nzdad{nzdzddd{izdad{iz0T]`z0T]`z0T]`c0T]`
+nazvzvzvfv{nzd{d{nzdzddd{izd{d{iz0T]`z0T]`z0T]`f0T]`
+lazvzvzvhv{nzd{d{nzdzddd{izd{d{iz0T]`z0T]`z0T]`h0T]`
+jazvzvzvkv{nhdfnddlndd{ndd{nvd{idd{iddliddfihd{iz0T]`z0T]`z0T]`k0T]`
+hazvzvzvnv{nmd{nvd{ndd{nvd{idd{ivd{imd{iz0T]`z0T]`z0T]`n0T]`
+fazvzvzvpv{nmd{nvd{ndd{nvd{idd{ivd{imd{iz0T]`z0T]`z0T]`p0T]`
+dazvzvzvsv{nld{nvd{ndd{nvd{idd{ivd{ild{iz0T]`z0T]`z0T]`s0T]`
+bazvzvzvvv{nkd{nvd{ndd{nvd{idd{ivd{ikd{iz0T]`z0T]`z0T]`v0T]`
+{azvzvzvxv{nddbgcd{nvd{ndd{nidbgid{idd{ivd{icdbgdd{iz0T]`z0T]`z0T]`x0T]`
+zvzvzvzv{ccdbgcdzcccidbgidzicicdbgcd{izvzvzvzv
+{az0T]`z0T]`z0T]`x0T]`{cddbgcd{cvd{cdd{cidbgid{ndd{nvd{ncdbgdd{nzvzvzvxv
+baz0T]`z0T]`z0T]`v0T]`{ckd{cvd{cdd{cvd{ndd{nvd{nkd{nzvzvzvvv
+daz0T]`z0T]`z0T]`s0T]`{cld{cvd{cdd{cvd{ndd{nvd{nld{nzvzvzvsv
+faz0T]`z0T]`z0T]`p0T]`{cmd{cvd{cdd{cvd{ndd{nvd{nmd{nzvzvzvpv
+haz0T]`z0T]`z0T]`n0T]`{cmd{cvd{cdd{cvd{ndd{nvd{nmd{nzvzvzvnv
+jaz0T]`z0T]`z0T]`k0T]`{chdfcddlcdd{cdd{cvd{ndd{nddlnddfnhd{nzvzvzvkv
+laz0T]`z0T]`z0T]`h0T]`{cid{cdd{czdzdzdad{ndd{nid{nzvzvzvhv
+naz0T]`z0T]`z0T]`f0T]`{cid{cdd{czdzdzdad{ndd{nid{nzvzvzvfv
+paz0T]`z0T]`z0T]`c0T]`{cjd{cdd{czdzdzdad{ndd{njd{nzvzvzvcv
+raz0T]`z0T]`z0T]`0T]`{ckd{cdd{czdzdzdad{ndd{nkd{nzvzvzv{v
+taz0T]`z0T]`y0T]`{ckd{cdd{czdzdzdad{ndd{nkd{nzvzvyv
+vaz0T]`z0T]`v0T]`{cfdfcdd{cjdrcdd{ndd{ydd{ydd{yqndd{ndd{nddfnfd{nzvzvvv
+xaz0T]`z0T]`s0T]`{cmd{czdadec{ndd{ndd{ydd{yddaydnpd{njd{nmd{nzvzvsv
+zaz0T]`z0T]`q0T]`{cmd{czdaddcandd{ndd{ydd{yddbycnpd{njd{nmd{nzvzvqv
+zaaaz0T]`z0T]`n0T]`{cnd{czdadccbndd{ndd{ydd{yddcybnpd{njd{nnd{nzvzvnv
+zacaz0T]`z0T]`k0T]`{cod{czdadbccndd{ndd{ydd{ydddyanpd{njd{nod{nzvzvkv
+zaeaz0T]`z0T]`i0T]`{cod{czdadacdndd{ndd{ydd{yddey{npd{njd{nod{nzvzviv
+zagaz0T]`z0T]`f0T]`{cjd{cddlcddlcendd{ndd{ydd{yddfyknddlndd{njd{nzvzvfv
+zaiaz0T]`z0T]`c0T]`{b{cjd{cpd{cddkc{npd{ypdayjndd{npd{njd{n0T]`zvzvcv
+zakaz0T]`z0T]`a0T]`{b{cjd{cpd{cddjcanpd{ypdbyindd{npd{njd{n0T]`zvzvav
+zamaz0T]`y0T]`ab{cjd{cpd{cddicbnpd{ypdcyhndd{npd{njd{na0T]`zvyv
+zaoaz0T]`v0T]`bb{cjd{cpd{cddhccnpd{ypddygndd{npd{njd{nb0T]`zvvv
+zaqaz0T]`t0T]`bb{cjd{cpd{cddgcdnpd{ypdeyfndd{npd{njd{nb0T]`zvtv
+zasaz0T]`q0T]`cbfcddrcddfcenjd{ndd{ydd{yjdfyenddrnddfnc0T]`zvqv
+zauaz0T]`n0T]`db{czdgdecfnid{ned{yed{yidgydnzdgd{nd0T]`zvnv
+zawaz0T]`l0T]`db{czdgddcgnhd{nfd{yfd{yhdhycnzdgd{nd0T]`zvlv
+zayaz0T]`i0T]`eb{czdgdcchngd{ngd{ygd{ygdiybnzdgd{ne0T]`zviv
+zaza{az0T]`f0T]`fb{czdgdbcinfd{nhd{yhd{yfdjyanzdgd{nf0T]`zvfv
+zazabaz0T]`d0T]`fb{czdgdacjned{nid{yid{yedky{nzdgd{nf0T]`zvdv
+zazadaz0T]`a0T]`gb{cddzccckndd{njd{yjd{yddlyznbndd{ng0T]`zvav
+zazafay0T]`hb{cjdwc{npd{nvd{ypdayvnjd{nh0T]`yv
+zazahaw0T]`hb{cjdactdanpd{nvd{ypdaytdanjd{nh0T]`wv
+zazajat0T]`ib{cjdactdanpd{nvd{ypdaytdanjd{ni0T]`tv
+zazalaq0T]`jb{cjdactdanpd{nvd{ypdaytdanjd{nj0T]`qv
+zazanao0T]`jb{cjdactdanpd{nvd{ypdaytdanjd{nj0T]`ov
+zazapal0T]`kbfcddactdmndd{nvd{yddmytdanddfnk0T]`lv
+zazarai0T]`lb{cjdactdanjd{ned{ntd{yed{yjdaytdanjd{nl0T]`iv
+zazatag0T]`lb{cjdactdanjd{nfd{nrd{yfd{yjdaytdanjd{nl0T]`gv
+zazavad0T]`mb{cjdactdanjd{ngd{npd{ygd{yjdaytdanjd{nm0T]`dv
+zazaxaa0T]`nb{cjdactdanjd{nhd{nnd{yhd{yjdaytdanjd{nn0T]`av
+zazazanb{cjdacedhcedanjd{nid{nld{yid{yjdayedhyedanjd{nn0T]`
+zazayaob{cddgcedhcedandd{ndd{ndd{nddenfydd{ydd{ydd{yddayedhyedgndd{no0T]`
+zazaxapb{cjdacedhcedandd{ndd{ndd{nvd{ydd{ydd{yddayedhyedanjd{np0T]`
+zazaxapb{cjdactdandd{ndd{ndd{nvd{ydd{ydd{yddaytdanjd{np0T]`
+zazawaqb{cjdactdandd{ndd{ndd{nvd{ydd{ydd{yddaytdanjd{nq0T]`
+zazavarb{cjdactdandd{ndd{ndd{nvd{ydd{ydd{yddaytdanjd{nr0T]`
+zazavarb{cjdactdandd{ndd{ndd{nidbgid{ydd{ydd{yddaytdanjd{nr0T]`
+zazauasbfcddactdandd{ndd{ndd{nidbgid{ydd{ydd{yddaytdanddfns0T]`
+zazatatb{cjdactdandd{njd{nidbgid{yjd{yddaytdanjd{nt0T]`
+zazatatb{cjdactdandd{njd{nvd{yjd{yddaytdanjd{nt0T]`
+zazasaub{cjdactdandd{njd{nvd{yjd{yddaytdanjd{nu0T]`
+zazaravb{cjdactdandd{njd{nvd{yjd{yddaytdanjd{nv0T]`
+zazaravb{cjdacdnjdfndd{njd{nvd{yjd{yddfyjdey{njd{nv0T]`
+zazaqawb{cddfcenjdfnddfndd{njd{yjd{yddfyddfyjdfyendd{nw0T]`
+zazapaxb{cdd{cjd{npd{njd{ndd{nhdan{vayhd{ydd{yjd{ypd{yjd{ndd{nx0T]`
+zazapaxb{cdd{cjd{npd{njd{ndd{ngd{nbva0T]`{ygd{ydd{yjd{ypd{yjd{ndd{nx0T]`
+zazaoayb{cdd{cjd{npd{njd{ndd{nedancvb0T]`ayed{ydd{yjd{ypd{yjd{ndd{ny0T]`
+zazanazb{cdd{cjd{npd{njd{ndd{ndd{nevd0T]`{ydd{ydd{yjd{ypd{yjd{ndd{nz0T]`
+zazanazb{cdd{cjd{npd{njd{ndd{nbdanfve0T]`aybd{ydd{yjd{ypd{yjd{ndd{nz0T]`
+zazamazb{b{cdd{cdd{ndd{nddfnddfndd{ndd{nad{nhvg0T]`{yad{ydd{yddfyddfydd{ydd{ydd{ndd{nz0T]`0T]`
+zazalazbab{cjd{njd{nvd{nddbnivh0T]`bydd{yvd{yjd{yjd{nz0T]`a0T]`
+zazalazbab{cjd{njd{nvd{ndd{nkvj0T]`{ydd{yvd{yjd{yjd{nz0T]`a0T]`
+zazakazbbb{cjd{njd{nvd{nbdanlvk0T]`aybd{yvd{yjd{yjd{nz0T]`b0T]`
+zazajazbcb{cjd{njd{nvd{nad{nnvm0T]`{yad{yvd{yjd{yjd{nz0T]`c0T]`
+zazajazbcb{cjd{njd{nvdbnovn0T]`byvd{yjd{yjd{nz0T]`c0T]`
+zazaiazbdb{czntnqvp0T]`zyuyz0T]`d0T]`
+zazahazbebz0T]`t0T]`rvq0T]`zmumz0T]`d0T]`
+zazahazbdbz0T]`s0T]`tvs0T]`zmtmz0T]`c0T]`
+zazagazbdbz0T]`s0T]`uvt0T]`zmtmz0T]`c0T]`
+zazafazbdbz0T]`r0T]`wvv0T]`zmsmz0T]`c0T]`
+zazafazbcbz0T]`r0T]`xvw0T]`zmsmz0T]`b0T]`
+zazaeazbcbz0T]`q0T]`zvy0T]`zmrmz0T]`b0T]`
+zazadazbcbz0T]`q0T]`zv{vz0T]`zmrmz0T]`b0T]`
+zazadazbbbz0T]`p0T]`zvbvz0T]`a0T]`zmqmz0T]`a0T]`
+zazacazbbbz0T]`p0T]`zvcvz0T]`b0T]`zmqmz0T]`a0T]`
+zazabazbbbz0T]`o0T]`zvevz0T]`d0T]`zmpmz0T]`a0T]`
+zazabazbabz0T]`o0T]`zvfvz0T]`e0T]`zmpmz0T]`0T]`
+zazaaazbabz0T]`n0T]`zvhvz0T]`g0T]`zmomz0T]`0T]`
+zaza{azbabz0T]`n0T]`zvivz0T]`h0T]`zmomz0T]`0T]`
+zaza{azb{bz0T]`m0T]`zvkvz0T]`j0T]`zmnmz0T]`
+zazazb{bz0T]`m0T]`zvlvz0T]`k0T]`zmnmz0T]`
+zayazb{bz0T]`l0T]`{azvmvz0T]`l0T]`{azmmmz0T]`
+zayazbz0T]`l0T]`aazvmvz0T]`l0T]`aazmmmy0T]`
+zaxazbz0T]`k0T]`dazvlvz0T]`k0T]`dazmlmy0T]`
+zawazbz0T]`k0T]`eazvlvz0T]`k0T]`eazmlmy0T]`
+zawaybz0T]`j0T]`hazvkvz0T]`j0T]`hazmkmx0T]`
+zavaybz0T]`j0T]`iazvkvz0T]`j0T]`iazmkmx0T]`
+zauaybz0T]`i0T]`lazvjvz0T]`i0T]`lazmjmx0T]`
+zauaxbz0T]`i0T]`mazvjvz0T]`i0T]`mazmjmw0T]`
+zataxbz0T]`h0T]`pazvivz0T]`h0T]`pazmimw0T]`
+zasaxbz0T]`h0T]`qazvivz0T]`h0T]`qazmimw0T]`
+zasawbz0T]`g0T]`tazvhvz0T]`g0T]`tazmhmv0T]`
+zarawbz0T]`g0T]`uazvhvz0T]`g0T]`uazmhmv0T]`
+zaqawbz0T]`f0T]`xazvgvz0T]`f0T]`xazmgmv0T]`
+zaqavbz0T]`f0T]`yazvgvz0T]`f0T]`yazmgmu0T]`
+zapavbz0T]`e0T]`zaaazvfvz0T]`e0T]`zaaazmfmu0T]`
+zaoavbz0T]`e0T]`zabazvfvz0T]`e0T]`zabazmfmu0T]`
+zaoaubz0T]`d0T]`zaeazvevz0T]`d0T]`zaeazmemt0T]`
+zanaubz0T]`d0T]`zafazvevz0T]`d0T]`zafazmemt0T]`
+zamaubz0T]`c0T]`zaiazvdvz0T]`c0T]`zaiazmdmt0T]`
+zamatbz0T]`c0T]`zajazvdvz0T]`c0T]`zajazmdms0T]`
+zalatbz0T]`b0T]`zamazvcvz0T]`b0T]`zamazmcms0T]`
+zakatbz0T]`b0T]`zanazvcvz0T]`b0T]`zanazmcms0T]`
+zakasbz0T]`a0T]`zaqazvbvz0T]`a0T]`zaqazmbmr0T]`
+zajasbz0T]`a0T]`zarazvbvz0T]`a0T]`zarazmbmr0T]`
+zaiasbz0T]`0T]`zauazvavz0T]`0T]`zauazmamr0T]`
+zaiarbz0T]`0T]`zavazvavz0T]`0T]`zavazmamq0T]`
+zaharbz0T]`zayazv{vz0T]`zayazm{mq0T]`
+zagarbz0T]`zazazv{vz0T]`zazazm{mq0T]`
+zagaqby0T]`zazabazvy0T]`zazabazmp0T]`
+zafaqby0T]`zazacazvy0T]`zazacazmp0T]`
+zaeaqbx0T]`zazafayvx0T]`zazafaymp0T]`
+zaeapbx0T]`zazagayvx0T]`zazagaymo0T]`
+zadapbw0T]`zazajaxvw0T]`zazajaxmo0T]`
+zacapbw0T]`zazakaxvw0T]`zazakaxmo0T]`
+zacaobv0T]`zazanawvv0T]`zazanawmn0T]`
+zabaobv0T]`zazaoawvv0T]`zazaoawmn0T]`
+zaaaobu0T]`zazaravvu0T]`zazaravmn0T]`
+zaaanbu0T]`zazasavvu0T]`zazasavmm0T]`
+za{anbt0T]`zazavauvt0T]`zazavaumm0T]`
+zanbt0T]`zazawauvt0T]`zazawaumm0T]`
+zambs0T]`zazazatvs0T]`zazazatml0T]`
+yambs0T]`zazaza{atvs0T]`zazaza{atml0T]`
+xambr0T]`zazazacasvr0T]`zazazacasml0T]`
+xalbr0T]`zazazadasvr0T]`zazazadasmk0T]`
+walbq0T]`zazazagarvq0T]`zazazagarmk0T]`
+valbq0T]`zazazaharvq0T]`zazazaharmk0T]`
+vakbp0T]`zazazakaqvp0T]`zazazakaqmj0T]`
+uakbp0T]`zazazalaqvp0T]`zazazalaqmj0T]`
+takbo0T]`zazazaoapvo0T]`zazazaoapmj0T]`
+tajbo0T]`zazazapapvo0T]`zazazapapmi0T]`
+sajbn0T]`zazazasaovn0T]`zazazasaomi0T]`
+rajbn0T]`zazazataovn0T]`zazazataomi0T]`
+raibm0T]`zazazawanvm0T]`zazazawanmh0T]`
+qaibm0T]`zazazaxanvm0T]`zazazaxanmh0T]`
+paibl0T]`zazazaza{amvl0T]`zazazaza{ammh0T]`
+pahbl0T]`zazazazaaamvl0T]`zazazazaaammg0T]`
+oahbk0T]`zazazazadalvk0T]`zazazazadalmg0T]`
+nahbk0T]`zazazazaealvk0T]`zazazazaealmg0T]`
+nagbj0T]`zazazazahakvj0T]`zazazazahakmf0T]`
+magbj0T]`zazazazaiakvj0T]`zazazazaiakmf0T]`
+lagbi0T]`zazazazalajvi0T]`zazazazalajmf0T]`
+lafbi0T]`zazazazamajvi0T]`zazazazamajme0T]`
+kafbh0T]`zazazazapaivh0T]`zazazazapaime0T]`
+jafbh0T]`zazazazaqaivh0T]`zazazazaqaime0T]`
+jaebg0T]`zazazazatahvg0T]`zazazazatahmd0T]`
+iaebg0T]`zazazazauahvg0T]`zazazazauahmd0T]`
+haebf0T]`zazazazaxagvf0T]`zazazazaxagmd0T]`
+hadbf0T]`zazazazayagvf0T]`zazazazayagmc0T]`
+gadbe0T]`zazazazazaaafve0T]`zazazazazaaafmc0T]`
+fadbe0T]`zazazazazabafve0T]`zazazazazabafmc0T]`
+facbd0T]`zazazazazaeaevd0T]`zazazazazaeaemb0T]`
+eacbd0T]`zazazazazafaevd0T]`zazazazazafaemb0T]`
+dacbc0T]`zazazazazaiadvc0T]`zazazazazaiadmb0T]`
+dabbc0T]`zazazazazajadvc0T]`zazazazazajadma0T]`
+cabbb0T]`zazazazazamacvb0T]`zazazazazamacma0T]`
+babbb0T]`zazazazazanacvb0T]`zazazazazanacma0T]`
+baaba0T]`zazazazazaqabva0T]`zazazazazaqabm0T]`
+aaaba0T]`zazazazazarabva0T]`zazazazazarabm0T]`
+{aab0T]`zazazazazauaav0T]`zazazazazauaam0T]`
+{a{b0T]`zazazazazavaav0T]`zazazazazavaam
+{bzazazazazaya{vzazazazazaya{m
+
+= Replace DkGreen Black 0 Replace DkGray Black 0 Replace Orange Black 0 Replace Maroon Black 0 Replace DkBlue Black 0 Replace Maize Black 0 Replace DkCyan Black 0 ColorPut
+= ExtraDelete CopyMask -1 1 k Del CopyTexture -1 0 CopyTexture -1 2 + ColorPut _ k
+Replace DkGreen 0 0 Replace DkGray 0 0 Replace Orange 0 0 Replace Maroon 0 0 Replace DkBlue 0 0 Replace Maize 0 0 Replace DkCyan 0 0 @z 90 Replace Gray @z 0 Replace Red @z 0 Replace Blue @z 0 Replace Yellow @z 0 Replace Cyan @z 0 Replace Purple @z 0 Replace Green 105 0 Replace Magenta 150 0 CopyTexture -1 1
++ Replace DkGreen Blend DkGreen Yellow 0 Replace Green Orange 0 Replace Red Blend Red Maroon 0 Replace Blue Blend Blue DkBlue 0 Replace Yellow Blend Yellow Maize 0 Replace Cyan Blend Cyan DkCyan 0 Replace Gray Blend Gray DkGray 0
+\ $0 '120120120204204204204120162162114162162210210162162090' For (i) 0 8 {@z Mul @i 6 Macro18 nX @m nY @n kDot Inc @i `} - kDot White
+@w 3 For (y) 0 2 {For (x) 0 2 (SetCA 0 Add 161 @x Add 89 @y NWSE Add @w Sub 2 @x Add @w @y Add @w @x Add @w Sub 2 @y)}
+@w 6 For (i) 4 7 {@z Mul @i 6 For (y) 0 3 (For "x" 0 3 "Macro18 SetCA 0 Add Dec @x @m Add Dec @y @n NWSE Add @w Sub 2 @x Add @w @y Add @w @x Add @w Sub 2 @y SetCA 2 Add Dec @x @m Add Dec @y @n Add 45 Add Mul @y 3 @x")}
+For (i) 0 3 {@z Mul @i 6 Macro18 For (x) -3 3 (SetCA 1 Add @m @x @n ?: Lt Abs @x 3 UD 180 170 180) For (x) 0 8 (SetX Add @m Sub @x 4 Inc @n 2 Add Add 9 Mul @i 9 @x SetX Add @m Sub @x 4 Dec @n 0 Add Add 9 Mul @i 9 Sub 8 @x)}
+@f 40 @k True fAutoRepeatLastCommand True nAutoRepeat Command "Spc" Macro2

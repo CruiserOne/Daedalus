@@ -1,0 +1,256 @@
+DS
+// Puzzle Safari Maze - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a-d: Color of corners (constant)
+// e-h: Whether corners #1 through #4 have been hit
+// i-l: Bitflags for whether textures for characters have been created.
+// m-p: Horizontal direction offsets (constant)
+// q: Number of corners hit so far
+// r: Cloud movement rate (constant)
+// s: Day/night mode second/section
+// t: Day/night current time/total
+// u: Day/night units per section (constant)
+// v: Trigger point being visited
+// w-z: Temporary variables
+// 27-47: Day/Dusk/Midnight colors for inside components (constant)
+// 48: Random number seed
+
+// Bitmap usage:
+// 0: Color = Where textures are
+// 1: Mono = Where variable height walls are, Color = Actual height of walls
+// 2: Mono = Guaranteed wall locations, Color = Color coded wall heights
+// 3: Mono = Variable height variable height walls, Color = Maze template
+// 4: Mono = Created Maze, Color = Base wall heights
+// 5-10: Mono = Textures for walls
+// 11-64: Mono = Textures for characters
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 {Message 'Welcome to Safari Maze!\n\nYour goal is to get out of the Maze. The exit is located in the\nmiddle of the east boundary wall. Before leaving the exit, you\nmust first hunt down and visit each of the four corners in any\norder. To begin, go forward and down the spiral staircase into\nthe Maze proper.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in default Maze.\nF4: Start in random Maze.\n\nF5: Toggle day and night.\nF6: Toggle cloud and daylight animation.\n\nUse the arrow keys to move and rotate.\nUse shift+left and right arrows to sidestep.\nWant to move faster? Press "e" to start and stop running mode.'} "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False SetVars 5 4 '0 0 0 0' @q 0 @s 0 @t 0 Macro17 c5 nDir 3 g cg fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct Spc fAutorepeatLastCommand True" "Restart Maze"
+DefineMacro 3 "fRedrawWhenBitmapEdited False @48 12 Macro12 Macro2" "Default Maze"
+DefineMacro 4 "fRedrawWhenBitmapEdited False @48 Rnd 0 65535 Macro12 Macro2" "Random Maze"
+DefineMacro 5 "fRedrawWhenBitmapEdited False fShowColorBitmap True If Equ nInside 0 {i} @s 0 IfElse fStars {@t 0 Macro17} {@t Mul @u 3 Macro20} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 6 "IfElse fAutorepeatLastCommand {N} {Spc fAutorepeatLastCommand True}" "Animation"
+
+DefineMacro 7 "@z False If Or Neq nViewHeight 0 Gt @q 4 {Break} @v GetCT @x @y If Not @v {Break} IfElse Lt @v 5 {Macro9} {Macro10}" "Before Move Event"
+DefineMacro 8 "If fAutorepeatLastCommand {@w Div @t @u @s Mod @t @u Macro Add 17 @w @t Inc @t If Gte @t Mul @u 6 '@t 0'  MoveCloud -1 @r}  If Gt @q 4 {MessageInside 'Maze Solved!' -1 Break} If Equ @q 4 {MessageInside 'Seeking: Exit!' -1 Break} SetString 0 '' For (z) 1 4 {If Not Var Add 4 @z (SetString 0 '$0 $z')} MessageInside 'Seeking Corners:$0' -1" "Inside Event"
+
+DefineMacro 9 "If GetCT nX nY {Break} @w Add 4 @v If Var @w {@x Sub 4 @q IfElse @x (Message 'You've already been to this corner.\nCorners left to find: @x') (Message 'You've already been to all four corners.\nYou need to find the exit.') Break} SetVar @w True @q Inc @q @x Sub 4 @q IfElse @x {Message 'You find corner #@q ($v)!\nCorners left to reach: @x'} {Message 'You find corner #@q ($v)!\nAll four corners have been reached! Now find the exit!'}" "Check Corner"
+DefineMacro 10 "If Equ @q 4 {Macro11 Break} IfElse Lt @q 3 {@w Sub 4 @q Message 'This is the exit to the Maze.\nYou can't leave yet, because you still have @w more corners to visit.'} {Message 'This is the exit to the Maze.\nYou can't leave yet, because you still have one more corner to visit.'} @z True" "Check Exit"
+DefineMacro 11 {@q Inc @q fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you found all four corners and exited the Maze!\nIt took you @x minutes, @y seconds. :-)\n'} "Exit Maze"
+DefineMacro 12 "CopyTexture 3 -1 ColorPut nRandomSeed @48 PartialKruskal \ CopyMask -1 4 CopyMask 2 -2 TempOr - CopyMask 3 -2 TempAnd CopyTexture 4 -1 kWall 1 ColorXor kWall White Replace UD 251 240 UD 250 40 0 Replace UD 334 240 UD 335 40 0 k | CopyTexture -1 1 CopyTexture 2 -1 Macro14 Macro13 Macro15" "Create Maze"
+DefineMacro 13 "Replace White Blend Orange Brown 0 Replace Gray Rgb 239 119 31 0 @z Rgb 207 191 175 Replace Blue @z 0 Replace DkBlue @z 0 Replace Cyan Rgb 71 63 55 0 Replace DkCyan Rgb 143 127 111 0 Replace Magenta Rgb 123 107 91 0 Replace Red Rgb 133 117 101 0 Replace Green Rgb 143 127 111 0 Replace Purple Rgb 93 77 61 0 Replace Maroon Rgb 103 87 71 0 Replace DkGreen Rgb 113 97 81 0 ColorAnd Replace Black White 0 For (z) 0 3 {@x Mul Odd @z 58 @y Mul Gt @z 1 58 nX @x nY @y nX2 Add @x 4 nY2 Add @y 4 kWall Var Inc @z 2ndBox nX Inc nX nY Inc nY nX2 Dec nX2 nY2 Dec nY2 kWall Light kWall 2ndBlock} kWall White" "Color Maze"
+DefineMacro 14 "For (y) 26 36 {For (x) 26 36 (@z GetC @x @y  @w Add Add  Mul >> Inc And @z 255 7 9  Mul >> Inc And >> @z 8 255 7 3  >> Inc >> @z 16 7  @z Mul Sub 24 @w 7 SetC @x @y Rgb Sub 207 @z Sub 191 @z Sub 175 @z)}" "Color Center"
+DefineMacro 15 "k Set 60 31 Off - Del Set 60 31 On - _ Del fDragBigDot True fDoDragOnTemp False ForStep (y) 2 60 58 {ForStep (x) 2 60 58 (nX @x nY @y h)} fDoDragOnTemp True b _ k" "Mark Maze"
+DefineMacro 16 "For (x) 0 Dec Len $z {@y Add 4 Mul @x 38 SetString 0 'BM4,@yT_ _' SetChar 0 Sub Len $0 2 Char $z @x Turtle $0} For (x) 1 3 {Thicken} cDel" "Text Texture"
+
+DefineMacro 17 "If Equ @s 0 {fStars False kSky Cyan kGround @27 kGround2 -1 kMountain @33 kMountain2 @36 kCloud @39 kCloud2 @42 nFogDistance 0 nSunMoonY 333}" "Midday"
+DefineMacro 18 "kSky Blend2 Cyan Blue @s @u kGround Blend2 @27 @28 @s @u kGround2 Blend2 @30 @31 @s @u kMountain Blend2 @33 @34 @s @u kMountain2 Blend2 @36 @37 @s @u kCloud Blend2 @39 @40 @s @u kCloud2 Blend2 @42 @43 @s @u nFogDistance Add @45 Div Mul Sub @46 @45 @s @u nSunMoonY Add 333 Div Mul @s 767 @u" "Late Day"
+DefineMacro 19 "If Equ @s 0 {fStars True} kSky Blend2 Blue Black @s @u kGround Blend2 @28 @29 @s @u kGround2 Blend2 @31 @32 @s @u kMountain Blend2 @34 @35 @s @u kMountain2 Blend2 @37 @38 @s @u kCloud Blend2 @40 @41 @s @u kCloud2 Blend2 @43 @44 @s @u nStarCount Div Mul @s 768 @u nFogDistance Blend2 @46 @47 @s @u nSunMoonY Sub 1100 Div Mul @s 767 @u" "Early Night"
+DefineMacro 20 "If Equ @s 0 {fStars True kSky Black kGround @29 kGround2 @32 kMountain @35 kMountain2 @38 kCloud @41 kCloud2 @44 nStarCount 768 nFogDistance @47 nSunMoonY 333}" "Midnight"
+DefineMacro 21 "kSky Blend2 Black Blue @s @u kGround Blend2 @29 @28 @s @u kGround2 Blend2 @32 @31 @s @u kMountain Blend2 @35 @34 @s @u kMountain2 Blend2 @38 @37 @s @u kCloud Blend2 @41 @40 @s @u kCloud2 Blend2 @44 @43 @s @u nStarCount Sub 768 Div Mul @s 768 @u nFogDistance Blend2 @47 @46 @s @u nSunMoonY Add 333 Div Mul @s 767 @u" "Late Night"
+DefineMacro 22 "If Equ @s 0 {fStars False} kSky Blend2 Blue Cyan @s @u kGround Blend2 @28 @27 @s @u kGround2 Blend2 @31 @30 @s @u kMountain Blend2 @34 @33 @s @u kMountain2 Blend2 @37 @36 @s @u kCloud Blend2 @40 @39 @s @u kCloud2 Blend2 @43 @42 @s @u nFogDistance Add @46 Div Mul Sub @45 @46 @s @u nSunMoonY Sub 1100 Div Mul @s 767 @u" "Early Day"
+
+DefineMacro 23 "fShowColorBitmap False CopyMask 4 -1 c5 ` Turtle 'C0BM31,31NL5NU5ND5BR4RBR24U0' SetString 0 'A0BM31,31BM+4,-11C0U0BU14U0BF21U0BL14U0BM+16,-24NFBUC1U2R4D4L2' ForStep (z) 3 0 -1 {SetChar 0 1 Add 48 @z Turtle $0} = CopyMask 2 -1 Blend2 cDel Replace Red Black 0 Replace Cyan Gray 0" "Create Map"
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Safari Maze" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True nOnMoveToNewCell 7 nAfterRedrawInside 8
+DisableAll Enable 'F1' Enable 'F2' Enable 'F3' Enable 'F4' Enable 'F5' Enable 'F6' Enable 'MoveU' Enable 'MoveL' Enable 'MoveR' Enable 'MoveD' Enable 'JumpU' Enable 'JumpL' Enable 'JumpR' Enable 'JumpD' Enable 'MoveUL' Enable 'MoveUR' Enable 'MoveDL' Enable 'MoveDR' Enable 'Esc' Enable 'e' Enable 't' Enable 'sTab' Enable 'Ent'
+SetVars 1 4 "Red #00BF00 Blue #00EFEF" SetVars 9 8 "0 0 0 0 0 -1 0 1" @r -18000 @u 1024 SetStrings 1 11 ",Red,Green,Blue,Yellow,   RED, GREEN,  BLUE,YELLOW,CORNER,EXIT"
+SetStrings 12 4 ',EXIT. CONGRATULATIONS FOR A,GOOD JOURNEY TO IT FROM THE,START. REMEMBER LIFE IS ONE,GIANT MAZE.     THIS IS THE'
+nRepeatDelayInMsec 25 kBorder White kPassage Black kWall White kDot Purple kLine White fShowDot True fDotIsCircle True nDotSize 0 fWallsImpassable True fMoveByTwo False nEdgeBehavior 0 nInside 4 fSealedEntrances False fMountains True nPeakHeight 25 nCloudCount 16 fSunAndMoon True fNarrowWalls True nCellSize 108 nNarrowCellSize 12 nWallHeight 200 nStepHeight 49 nClippingPlane 200 nMotionVelocity 6 nRotationVelocity 5 nUpDownVelocity 8 fFogGround True fRedrawAfter True
+
+SetVar 27 Rgb 159 191 127 SetVar 29 Dark @27 SetVar 28 Blend @27 @29 // Ground
+SetVar 30 @27 SetVar 32 Black SetVar 31 @29 // Ground2
+SetVar 33 DkGreen SetVar 35 Dark DkGreen SetVar 34 Blend @33 @35 // Mountain
+SetVar 36 Gray SetVar 38 Dark DkGray SetVar 37 Blend @36 @38 // Mountain2
+SetVar 39 White SetVar 41 DkGray SetVar 40 Blend @39 @41 // Cloud
+SetVar 42 Light Light LtGray SetVar 44 Dark DkGray SetVar 43 Blend @42 @44 // Cloud2
+SetVars 45 3 "5348 228 100" // Fog
+
+// Color coded wall heights
+fShowColorBitmap True EmbedDB
+DB
+63 63 24
+
+dyzayady
+{ybm{yzaya{ybm{y
+{ybm{yz{y{{ybm{y
+{ybm{v{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{vbm{y
+by{v{y{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{y{vby
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{u{k{u{n{{{n{{{n{u{k{u{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{u{k{u{a{n{a{n{a{u{k{u{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{j{s{n{{{n{{{n{s{j{s{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{s{j{s{a{n{a{n{a{s{j{s{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{g{d{g{n{{{n{{{n{g{d{g{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{g{d{g{a{n{a{n{a{g{d{g{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{b{i{n{{{n{{{n{i{b{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{enc{e{a{n{a{n{a{enc{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{e{i{e{i{e{i{e{i{e{i{e{i{b{i{n{{{n{{{n{i{b{i{e{i{e{i{e{i{e{i{e{i{e{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{g{d{g{a{n{a{n{a{g{d{g{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{g{d{g{n{{{n{{{n{g{d{g{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{s{j{s{a{n{a{n{a{s{j{s{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{s{j{s{n{{{n{{{n{s{j{s{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{u{k{u{a{n{a{n{a{u{k{u{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{u{k{u{n{{{n{{{n{u{k{u{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{nauasag{i{c{iagasau{n{{{n{{{nbpaoanamal{n{{{n{{{nauasag{i{c{iagasau{n{{{n{{
+aa{{{a{n{aakajad{b{c{badajak{a{n{a{n{a{pamalakaj{i{l{a{n{a{n{aakajad{b{c{badajak{a{n{a{{
+aa{{{n{{{nauasag{i{e{iagasau{n{{{n{{{n{q{nfy{i{l{n{{{n{{{nauasag{i{e{iagasau{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{q{n{ydw{y{h{k{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{r{o{ydwby{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{r{o{yfw{y{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{i
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{p{ydw{y{w{y{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{s{p{ydw{y{v{y{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{nauasag{i{e{iagasau{n{{{n{{{n{t{qfy{v{y{n{{{n{{{nauasag{i{e{iagasau{n{{{n{{
+aa{{{a{n{aakajad{b{c{badajak{a{n{a{n{a{t{qarasatau{x{a{n{a{n{aakajad{b{c{badajak{a{n{a{{
+aa{{{n{{{nauasag{i{c{iagasau{n{{{n{{{natauavawbx{n{{{n{{{nauasag{i{c{iagasau{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{u{k{u{n{{{n{{{n{u{k{u{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{u{k{u{a{n{a{n{a{u{k{u{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{s{j{s{n{{{n{{{n{s{j{s{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{s{j{s{a{n{a{n{a{s{j{s{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{{n{g{d{g{n{{{n{{{n{g{d{g{n{{{n{{{n{{{n{{{n{{{n{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{n{a{g{d{g{a{n{a{n{a{g{d{g{a{n{a{n{a{n{a{n{a{n{a{e{c{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{c{i{e{i{e{i{e{i{e{i{e{i{e{i{b{i{n{{{n{{{n{i{b{i{e{i{e{i{e{i{e{i{e{i{e{i{c{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{enc{e{a{n{a{n{a{enc{e{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{b{i{n{{{n{{{n{i{b{i{e{i{e{i{e{i{e{i{e{i{e{i{e{i{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{g{d{g{a{n{a{n{a{g{d{g{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{g{d{g{n{{{n{{{n{g{d{g{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{s{j{s{a{n{a{n{a{s{j{s{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{s{j{s{n{{{n{{{n{s{j{s{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{u{k{u{a{n{a{n{a{u{k{u{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+aa{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{u{k{u{n{{{n{{{n{u{k{u{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{
+aa{{{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{{
+by{v{y{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{{{n{y{vby
+{ybm{v{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{n{a{vbm{y
+{ybm{yz{y{{ybm{y
+{ybm{yzaya{ybm{y
+dyzayady
+
+CopyTexture -1 2
+For (y) 26 36 "For (x) 26 36 {@z GetC @x @y  @w Add Add  Mul >> Inc And @z 255 7 9  Mul >> Inc And >> @z 8 255 7 3  >> Inc >> @z 16 7  SetC @x @y Mul Sub @w 6 45}"
+@z << 170 12 For (y) 26 36 {SetC 31 @y Or GetC 31 @y @z} For (x) 26 30 {SetC @x 31 Or GetC @x 31 @z} @z << 225 12 For (y) 30 31 "For (x) 35 36 {If And Lte @y 30 Gte @x 36 'Continue' SetC @x @y Or GetC @x @y @z}"
+
+Replace White 200 0 Replace Gray UD 200 40 0 Replace Yellow 600 0 Replace Maize UD 555 545 0 Replace Orange UD 600 240 0
+Replace Blue UD 250 240 0 Replace DkBlue 250 0 Replace Cyan 335 0 Replace DkCyan UD 335 240 0 Replace DkGreen 187 0 Replace Maroon 125 0 Replace Purple 63 0 Replace Green 335 0 Replace Red 290 0 Replace Magenta 245 0
+CopyTexture -1 4
+
+// Template for Maze creation
+EmbedDB
+DB
+63 63 24
+
+
+
+caz{z{{{
+ca{{{jz{w{{d{{
+aaz{z{d{
+aa{{{jv{{sf{{gv{{d{{
+aaz{z{d{
+aax{{af{{ax{
+|4
+aaz{z{d{
+|2
+aax{{af{{ax{
+|4
+aaz{z{d{
+aax{{sf{{gx{
+aaz{z{d{
+|2
+aaz{a{{nz{a{
+aaz{z{d{
+aab{{s{{dab{da{{{sd{had{{g{{dab{da{{{gb{
+aax{hax{
+|2
+aav{{n{{hax{
+aax{hax{
+|2
+aab{{c{{dab{da{{{cd{had{{y{{dab{da{{{yb{
+aaz{z{d{
+aaz{a{{nz{a{
+aaz{z{d{
+|2
+aax{{cf{{yx{
+aaz{z{d{
+aax{{af{{ax{
+|4
+aaz{z{d{
+|2
+aax{{af{{ax{
+|4
+aaz{z{d{
+aa{{{bv{{cf{{yv{{m{{
+aaz{z{d{
+ca{{{bz{w{{m{{
+caz{z{{{
+
+
+// Guaranteed walls
+CopyTexture -1 3 k EmbedDB
+DB
+32 32 1
+
+c(Q
+|4
+
+(
+|5
+(nQ
+|2
+(!"Q
+|5
+a"Q
+|4
+`"nQ
+|2
+`
+|2
+
+// Variable height walls that may vary in height
+= FlipHorizontal _ Size 31 0 1 0 TempOr = FlipVertical Size 0 31 1 0 TempOr CopyMask -1 2 EmbedDB
+DB
+32 32 1
+
+
+|11
+!KKA
+&661
+!KKA
+a"1
+bA
+a"1
+bA
+a"1
+bA
+a"1
+bA
+a"1
+bA
+a"1
+bA
+
+bA
+
+|2
+
+= FlipHorizontal _ Size 31 0 1 0 TempOr = FlipVertical Size 0 31 1 0 TempOr CopyMask -1 3
+nWallVariable 1 CopyTexture 2 -1 ColorPut CopyMask -1 1 k Del CopyTexture -1 0
+Turtle 'C1S5A0T1' Size 32 232 0 1 For (w) 0 5 {Size 32 ?: Lt @w 5 232 156 0 1 @z Add 5 @w Macro16 If Lt @w 5 'cDel Size 0 40 1 0 cDel' CopyMask -1 Add 5 @w}
+SetX 60 31 1 10 SetX 0 1 3 5 SetX 1 0 2 9 SetX 61 0 2 6 SetX 62 1 1 9 SetX 1 62 0 7 SetX 0 61 3 9 SetX 62 61 1 8 SetX 61 62 0 9
+k = Del For (z) 0 3 {@x Inc Mul Odd @z 58 @y Inc Mul Gt @z 1 58 nX @x nY @y nX2 Add @x 2 nY2 Add @y 2 kWall Inc @z 2ndBlock} kWall White SetC 60 31 5 _
+// For (x) 12 15 {For (y) 0 26 "SetChar @x @y Xor Char $x @y And @y 3"}
+Size 32 42 0 1 For (e) 0 3 {@g << Var Add 13 And Inc @e 3 1  @h << Var Add 13 And Add @e 2 3 1  @x Add 31 Add Mul 26 Var Add 13 And Dec @e 3 Mul 29 Var Add 13 @e  @y Add 31 Add Mul 29 Var Add 13 And Inc @e 3 Mul 26 Var Add 13 @e  For (f) 0 26 "@z Add 12 @e @w Sub Char $z @f 32  @z Add 9 >> @w 5 If And Gte @w 11 Not And Var @z << 1 And @w 31 (SetVar @z Or Var @z << 1 And @w 31 Del SetString 0 'BM4,4T_ _' SetChar 0 7 Add 32 @w Turtle $0 For 'z' 1 3 'Thicken' cDel CopyMask -1 @w) If Gte @w 11 (SetX @x @y @e @w) @x Add @x @g @y Add @y @h"} Turtle 'S1'
+For (x) 12 15 {For (y) 0 26 "SetChar @x @y Xor Char $x @y And @y 3"}
+Macro3

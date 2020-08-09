@@ -1,0 +1,42 @@
+DS
+// 4D Mazes - A script file for Daedalus 3.3
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+
+// Variable usage:
+// a: Past color (constant)
+// b: Future color (constant)
+// c: Past & future color (constant)
+// d: Current color
+// h: Virtual x dimension of 4D Maze
+// q: Whether Maze is only 3D
+// v: Dimensions of Maze
+// w-z: Temporary dimension variables
+
+If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
+
+DefineMacro 1 "@x Sub 4 @q @y Pow @v @x @w Add 2000 @v IfElse @q {SetString 0 'Welcome to 4D Mazes!\n\nYou are in a 3-dimensional Maze, existing as a stack of 2D Mazes\nconnected by up and down holes. Make your way to the exit of\nthis @vx@vx@v Maze (@y cells total). It is at the SouthEast\ncorner on level @v.\n\n'} {SetString 0 'Welcome to 4D Mazes!\n\nYou are in a 4-dimensional Maze, existing as a sequence of 3D\nMazes connected by portals through time. Make your way to\nthe exit of this @vx@vx@vx@v Maze (@y cells total). The exit is\nat the SouthEast corner on level @v in the year @w.\n\n'} Message '$0F1: Display this help text.\nF2: Create new @xD Maze.\nF3: Create smaller @xD Maze.\nF4: Create larger @xD Maze.\n\n$1'" "Help Text"
+DefineMacro 2 "fRedrawWhenBitmapEdited False Macro Add 14 @q Macro17" "New Maze"
+DefineMacro 3 "If Lte @v 1 {IfElse @q (SetString 0 '') (SetString 0 'x@v') Message 'Come on now! A @vx@vx@v$0 Maze is as easy as they come! ;-)' Break} @v Dec @v Macro2" "Smaller Maze"
+DefineMacro 4 "If Gte @v 39 {IfElse @q (SetString 0 '') (SetString 0 'x@v') Message 'I think a @vx@vx@v$0 Maze is large enough for now. ;-)' Break} @v Inc @v Macro2" "Larger Maze"
+DefineMacro 5 "@q Not @q Macro2" "Toggle Dimension"
+DefineMacro 6 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {fStars False nFogDistance 0 kSky Cyan kCloud White kCloud2 Light Light LtGray kGround2 -1 k3DCeiling2 -1} {fStars True nFogDistance 150 kSky Black kCloud DkGray kCloud2 Dark kCloud kGround2 DkGray k3DCeiling2 Gray} fRedrawWhenBitmapEdited True Spc" "Day And Night"
+DefineMacro 7 "@z False Macro13 If @z {Break} If And Neq @d @a Neq @d @c {Message 'This portal does not lead to the past.' Break} nX Sub nX << @h 1" "Past"
+DefineMacro 8 "@z False Macro13 If @z {Break} If And Neq @d @b Neq @d @c {Message 'This portal does not lead to the future.' Break} nX Add nX << @h 1" "Future"
+DefineMacro 9 "fRedrawWhenBitmapEdited False Macro17" "Restart"
+
+DefineMacro 10 "If Not fCellLocation {Break} @w Add 2001 >> Div nX @h 1 @x Inc >> Mod nX @h 1 @y Inc >> nY 1 @z Inc >> nZ 1 IfElse @q {MessageInside 'X=@x, Y=@y, Level=@z' -2} {MessageInside 'X=@x, Y=@y, Level=@z, Year=@w' -2}" "Inside Text"
+DefineMacro 11 "@z False If And Equ @x 1 Equ @y -1 {Message 'This is the entrance to the Maze.\nDon't give up, find your way to the exit!' @z True Break} If And Equ @x Sub Size3X 2 Equ @y Size3Y {Macro16 @z True}" "Before Move"
+DefineMacro 12 "@z Or Get3E nX nY nZ And And Equ nX Sub Size3X 2 Equ nY Sub Size3Y 2 Equ nZ Sub Dec Size3Z @q" "Follow Event"
+
+DefineMacro 13 "If @q {Message '3D Mazes don't contain portals.' @z True Break} @x nX @y Add nY Mul Size3Y nZ If Not GetE @x @y {Message 'There is no portal here.' @z True Break} @d GetC @x @y" "Portal"
+DefineMacro 14 "fShowColorBitmap False Size3X Dec << Inc @v 1 Size3Y Dec << Inc @v 1 Size3Z << @v 1 Size3W << @v 1 @z nRandomBias nRandomBias Add @z 10 R nRandomBias @z TempDelete @h Size3X @z kInsideWall kInsideWall Black 4D3D @a @b @c kInsideWall @z fShowColorBitmap True" "Create 4D Maze"
+DefineMacro 15 "fShowColorBitmap False Size3X Dec << Inc @v 1 Size3Y Dec << Inc @v 1 Size3Z << @v 1 Size3W 1 @z nRandomBias nRandomBias Add @z 10 Q nRandomBias @z TempDelete ExtraDelete Quo Replace White kInsideWall 0" "Create 3D Maze"
+DefineMacro 16 "fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 Message 'You step out the exit to the Maze! :-)\nCongratulations, you solved it in @x minutes, @y seconds.'" "Solve Maze"
+DefineMacro 17 "nX 1 nY 1 nZ 0 nDir 2 g fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct" "Start"
+
+fRedrawWhenBitmapEdited False ResetProgram nAfterRedrawInside 10 nOnMoveToNewCell 11 nOnFollowToNewCell 12 OnCommand (f) 8 OnCommand (b) 7 OnCommand (cg) 9
+WindowTitle "- 4D Mazes" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+@a Red @b Blue @c Purple @q 0 @v 3
+SetString 1 'F5: Toggle between 4D and 3D Maze.\nF6: Switch background between day and night.\nF7 or "b": Go through portal into past (red cloud).\nF8 or "f": Go through portal into future (blue cloud).\n\nPress "u" & "d" to go up or down to adjacent level.\nPress "Ctrl+g" to restart current Maze.'
+kBorder Black kDot White fShowDot True nDotSize 0 fDotIsCircle True fWallsImpassable True fMoveByTwo False fDoDragOnTemp True nEdgeBehavior 0 nInside 2 fSealedEntrances False fCellLocation True fMountains True nPeakHeight 20 fNarrowWalls True nCellSize 160 nNarrowCellSize 40 nWallHeight 100 nViewHeight 0 nEntrancePositioning 0 fNoLocation True
+Macro2
