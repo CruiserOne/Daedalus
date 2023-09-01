@@ -1,5 +1,5 @@
 DS
-// The Hunger Games Simulation - A script file for Daedalus 3.3
+// The Hunger Games Simulation - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 // Inspired by "The Hunger Games" series, as seen in the novels by Suzanne Collins and the movies by Lionsgate Films
 // Documentation for this script: http://www.astrolog.org/labyrnth/daedalus/hunger.htm
@@ -36,7 +36,7 @@ DS
 // 31 [SE]: Edge of arena (0-4, 5=random edge, 6=random)
 // 32 [SF]: Forest presence (0-3)
 // 33 [SG]: Glass blocks (0=solid, 1,2,4,8=transparent, 16,32,64,128=random)
-// 34 [SH]: Hilliness of arena (0-7, 8=bowl, 9=random)
+// 34 [SH]: Hilliness of arena (0-7, 8=bowl, 9=stadium, 10=random)
 // 35 [SI]: Items in cornucopia (0-5)
 // 36 [SJ]: Initial object in inventory (0=none, 30=random)
 // 37 [SK]: Initial countdown (0+)
@@ -75,7 +75,7 @@ DS
 // 68 [Sp]: Feast turn preparation time (0=none)
 // 69 [Sq]: Difficulty mode (0=everything, 1=no cheat commands, 2=no tribute messages, 3=no status line)
 // 70 [Sr]: Ranged weapon distance
-// 71 [Ss]: Tribute name and style (0=unchanged, 1=empty, 2=50th, 3=74th, 4=75th, 5=random names)
+// 71 [Ss]: Tribute name and style (0=unchanged, 1=empty, 2=50th, 3=74th, 4=75th, 5=10th, 6=random names)
 // 72 [St]: Percentage of set Net traps on ground
 // 73 [Su]: Day period length
 // 74 [Sv]: Daylight extra length
@@ -307,7 +307,7 @@ AppendString 0 "0 TWall TVar TElev TFloor TBlock TSide TLit BInv BAlly BWater MW
 
 AppendString 0 "27 SA SB SC SD SE SF SG SH SI SJ SK SL SM SN SO SP SQ SR SS ST SU SV SW SX SY SZ Sa Sb Sc Sd Se Sf Sg Sh Si Sj Sk Sl Sm Sn So Sp Sq Sr Ss St Su Sv Sw Sx Sy Sz SCont SPeace SHover SCorn SAlly STrap SMist SDeep SMuttH SMuttT SMuttR SMuttD SMuttS SMuttC 100 KDist +14 KMsg +4 KTube KCorn KMaze KMist KSky +6 KGrd +6 KMtn +6 KCld +6 KFog +6 Dists Dist Per Trib Live Tmp Sky Edge Hill Ord Quel Rad Tube Food HpMax Inv Day Corn Land SLand SAmmo SMove SAid SBerry SBread SFish SStarv SAllow SLead Item File Custom Auto Wipe Line Txture JDcc JDnc JDow JDsg JDfe 200 JDmg +50 JUse +50 JDst +50 JMat +50 JCol +50 JAcc +50 JAnc +50 JAow +50 JAsg +50 JAfe 900 PXY +300 PZ +300 PHP +300 PFood +300 PKill +300 PWield +300 PWear +300 PNet +300 PDest +300 PWasp +300 PLead +300 PBody +300 PDead +300 PTall +300 Log " // Variables
 
-AppendString 0 "3 ZX ZY ZSex +2 ZDist +14 ZNum +26 ZHair +20 ZCorn +2 ZVerb +7 ZDeath +13 ZMName +15 ZSet ZSet2 ZArena ZArenas +19 ZTree +2 ZThe +4 ZAlly ZNameA +2 ZBody +2 ZTall ZNameB +162 ZName +255 ZText ZLine +12 ZHelp1 ZHelp2 ZHelp3 ZHelp4 ZHelp5 ZChat11 +5 ZChat12 +5 ZChat13 +5 ZChat21 +5 ZChat22 +5 ZChat23 +5 ZChat31 +5 ZChat32 +5 ZChat33 +5 ZChatM +5 ZGive +9 ZGiveM +9 ZAsk +10 ZObj +50 ZObjA +50 ZHit +50 ZHits +50 ZIcoJ +50 ZItem ZMsg " // Strings
+AppendString 0 "3 ZX ZY ZSex +2 ZDist +14 ZNum +26 ZHair +20 ZCorn +2 ZVerb +7 ZDeath +13 ZMName +15 ZSet ZSet2 ZArena ZArenas +20 ZTree +2 ZThe +4 ZAlly ZNameA +3 ZBody +2 ZTall ZNameB +162 ZName +255 ZText ZLine +12 ZHelp1 ZHelp2 ZHelp3 ZHelp4 ZHelp5 ZChat11 +5 ZChat12 +5 ZChat13 +5 ZChat21 +5 ZChat22 +5 ZChat23 +5 ZChat31 +5 ZChat32 +5 ZChat33 +5 ZChatM +5 ZGive +9 ZGiveM +9 ZAsk +10 ZObj +50 ZObjA +50 ZHit +50 ZHits +50 ZIcoJ +50 ZItem ZMsg " // Strings
 
 AppendString 0 "0 JFst JRck JDrt JArr JBul JGre JNet JClb JBlt JBrk JPck JMut JKnf JMce JSpr JAxe JSwd JTri JSlg JBlw JBow JGun JBry JNlk JBrd JFsh JAid JGog JHel JArm JPar JLm0 JLm1 JMax 17 JDif" // Objects
 
@@ -337,7 +337,7 @@ DoWait {
   @Sky ?: Lt @SB 2 @SB ?: Lt @SB 4 -1 Rnd 0 1
   @Dist Min Max @SD 1 13
   @Edge ?: Lt @SE 5 @SE Rnd 0 Add 3 Gt @SE 5
-  @Hill ?: Lt @SH 9 @SH Rnd 0 7
+  @Hill ?: Lt @SH 10 @SH Rnd 0 7
   @Ord ?: Lt @SO 6 @SO Rnd 0 5
   @Quel ?: Lt @SQ 4 @SQ Rnd 0 Add 1 Gt @SQ 4
   @Tube Min Max @SU 0 @Rad  @Per Min Max @SY 1 Div 255 @Dist
@@ -531,7 +531,7 @@ Message $ZHelp5
 EmbedMacro %FArena "Set Size"
 @x Mul @SS 2 SetString 0 '@x'
 $1 '_' SetChar 1 0 ?: Gte @SLand 0 Char $ZArena @SLand 0
-GetString2 'Enter arena size to restart with (20-4096, 0=Random):' 'Enter arena type (FMDPSZQCI 273XUB45, 0=Random):' 0
+GetString2 'Enter arena size to restart with (20-4096, 0=Random):' 'Enter arena type (FMDPSZQCI 2739XUB4, 0=Random):' 0
 If @z {Return}
 @z True
 @x Num $0 If And Or Lt @x 20 Gt @x 4096 Neq @x 0 {Message 'Bad arena size!\nNumber must be 0 or between 20-4096.' Return}
@@ -826,7 +826,7 @@ IfElse Gte @q 0
   {@x Add %ZName @q SetString 0 $x @y Var Add %PBody @q SetString 1 '@y' @z Var Add %PTall @q SetString 2 '@z'}
   {$0 '' $1 '' $2 ''}
 GetString3
-  'Enter name of tribute (? or 74 or 75 names all):'
+  'Enter name of tribute (? or 74 or 75 or 10 names all):'
   'Enter hair style of tribute (0-9, ?, 74 or 75 sets all):'
   'Enter height of tribute (? or 74th sets all):' 0
 If @z {Return}
@@ -840,6 +840,7 @@ If And And And Or Lt @v 24 Gt @v 96 Lt InChar $2 (?) 0 Lt InChar $2 32 0 Len $2
 fRedrawWhenBitmapEdited False
 If EquStr $0 '74' {$0 $ZNameA}
 If EquStr $0 '75' {@w Inc %ZNameA $0 $w}
+If EquStr $0 '10' {@w Add %ZNameA 2 $0 $w}
 If EquStr $0 '?' {*Namer}
 IfElse Gte InChar $0 (,) 0
   {SetString 0 ',$0' SetStrings %ZName 255 $0}
@@ -1253,7 +1254,7 @@ fRedrawWhenBitmapEdited False
 @h Dec Var Add %PHP @t *UpdHp
 @v Add @t 300 *Name
 SetString 0 'You damage $0: @h health left!' @d 0 *Msg
-@v 11 *Death
+@v 12 *Death
 fRedrawWhenBitmapEdited True Spc
 
 EmbedMacro %AAsk "Audience Ask"
@@ -2616,7 +2617,7 @@ If Lt @SLand 0 {Return}
 @z Sub Len $ZArena 2
 @w ?: Lt @SLand @z @SLand ?: Equ @SLand @z Rnd 0 8 Rnd 0 Sub @z 2
 @Land @w
-@Custom Equ @Land 12
+@Custom Equ @Land 13
 @z Add %ZArenas @w
 $1 $z
 *Parse
@@ -2844,15 +2845,15 @@ If @s {
   Return
 }
 IfElse @Wipe
-  {Message 'With all tributes dead and no victor, people are angry at the\tCapitol. By eliminating all remaining tributes at the same time,\tyou've shown the Capitol you won't be a piece in their games.\nA rebellion is starting! :-)'}
-  {Message 'With all tributes dead and no victor, people are annoyed at the\tCapitol. However, your contribution to making this happen wasn't\nrebellious enough to cause any uprising.'}
+  {Message 'With all tributes dead and no victor, people are angry at the Capitol. By eliminating all remaining tributes at the same time, you've shown the Capitol you won't be a piece in their games. A rebellion is starting! :-)'}
+  {Message 'With all tributes dead and no victor, people are annoyed at the Capitol. However, your contribution to making this happen wasn't rebellious enough to cause any uprising.'}
 
 EmbedMacro %Escape "Down Tube"
 If Neq GetCA %TFloor nX nY %MTube3 {Message 'This launch tube is closed.' Return}
 @d 0
 *Unrise
 IfElse Lt @q @Trib {
-  Message 'You climb back down the open launch tube! The audience and\nGamemakers are both incredibly surprised you escaped the arena!\nUnfortunately, waiting Peacekeeper guards immediately execute\nyou. :-(\n\nHowever, your act of open rebellion and escape from Capitol\ncontrol has inspired an uprising across the country. You are the\nsymbol of the rebellion: The Mockingjay! :-)'
+  Message 'You climb back down the open launch tube! The audience and Gamemakers are both incredibly surprised you escaped the arena! Unfortunately, waiting Peacekeeper guards immediately execute you. :-(\n\nHowever, your act of open rebellion and escape from Capitol control has inspired an uprising across the country. You are the symbol of the rebellion: The Mockingjay! :-)'
   @t @q *DelInv
   @h 0 *UpdHp
   @v 11 *Death
@@ -3613,7 +3614,7 @@ Size @z @z 0 1
 nX @z nY @z
 @z Dec Add @Rad @x
 nX2 @z nY2 @z
-fDragIsErase False 2ndDisk cDel CopyMask -1 %BDirt
+fDragIsErase False IfElse Neq @Land 12 '2ndDisk' '2ndBlock' cDel CopyMask -1 %BDirt
 sDel CopyMask -1 %TVar
 Del CopyMask -1 %BBlock CopyMask -1 %BTrans
 DeleteMask %TLit
@@ -3635,7 +3636,8 @@ If Equ @Ss 1 {SetStrings %ZName 255 ','}
 If Equ @Ss 2 {*Namer @z Add %ZName Mul 11 @Per SetString @z 'Maysilee' SetString Inc @z 'Haymitch'}
 If Equ @Ss 3 {@z %ZNameA SetString 0 ',$z' SetStrings %ZName 255 $0 SetVars %PTall 255 $ZTall For 't' 0 Dec @Live '@v Var Add %PTall @t *ITall'}
 If Equ @Ss 4 {@z Inc %ZNameA SetString 0 ',$z' SetStrings %ZName 255 $0}
-If Equ @Ss 5 {*Namer}
+If Equ @Ss 5 {@z Add %ZNameA 2 SetString 0 ',$z' SetStrings %ZName 255 $0}
+If Equ @Ss 6 {*Namer}
 IfElse Or Equ @Ss 2 Equ @Ss 3 {
   @w Add Add %ZNameA 2 Sub @Ss 2 SetVars %PBody 255 $w
 } {
@@ -3657,15 +3659,17 @@ If Lte @Hill 0 {
   CopyTexture -1 %TElev Del \
   Return
 }
-If Equ @Hill 8 {
+If Gte @Hill 8 {
   Del
   fGraphNumber True
   kBlend1 0 kBlend2 2047
   @z Div Mul @Rad 1414 1000
   nRainbowStart Div Mul @Tube -360 Sub @z @Tube
   nRainbowDistance Sub 360 nRainbowStart
-  Replace Black -1 0
+  @z ?: Lte @Hill 8 -1 -8
+  Replace Black @z 0
   nRainbowStart 0 nRainbowDistance 360
+  If Equ @Hill 9 (@z kDot kDot Div Mul @Tube 1414 @Rad ColorDotSub kDot 15 ColorDotAdd kDot @z)
   fGraphNumber False
   CopyTexture -1 %TElev Del \
   Return
@@ -4345,7 +4349,7 @@ fRedrawWhenBitmapEdited @l
 EmbedMacro %ICust "Custom Arena"
 Local 'xyz'
 SwapTexture -1 %BCopy
-CopyTexture ?: Equ @Land 12 %BDist %BInit -1
+CopyTexture ?: Equ @Land 13 %BDist %BInit -1
 @x RgbR @v @y RgbG @v @z RgbB @v
 @x Add @x And Gt @x 0 Lt @x 255
 @y Add @y And Gt @y 0 Lt @y 255
@@ -4603,31 +4607,32 @@ SetStrings %ZMName 15 ",wasp,trap,fire,fire2,tree,tree2,cactus,cactus2,rock,rock
 
 SetString %ZSet "ACEFHLMPQTVZ"
 SetString %ZSet2 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()-_=+"
-SetString %ZArena "FMDPSZQCI273XUB45R10?"
-SetString Add %ZArenas 0 "A2C0E5F2H9L1M1P1Q4T10V1Z0" // F: Forest
-SetString Add %ZArenas 1 "A0C0E5F1H9L1M5P0Q4T10V1Z0" // M: Mountains
-SetString Add %ZArenas 2 "A4C0E5F1H9L1M1P0Q4T1V0Z0" // D: Desert
-SetString Add %ZArenas 3 "A7C0E5F0H9L1M1P0Q4T0V1Z0" // P: Plains
+SetString %ZArena "FMDPSZQCI2739XUB45R10?"
+SetString Add %ZArenas 0 "A2C0E5F2H10L1M1P1Q4T10V1Z0" // F: Forest
+SetString Add %ZArenas 1 "A0C0E5F1H10L1M5P0Q4T10V1Z0" // M: Mountains
+SetString Add %ZArenas 2 "A4C0E5F1H10L1M1P0Q4T1V0Z0" // D: Desert
+SetString Add %ZArenas 3 "A7C0E5F0H10L1M1P0Q4T0V1Z0" // P: Plains
 SetString Add %ZArenas 4 "A2C1E5F1H3L2M1P1Q4T25V2Z0" // S: Swamp
-SetString Add %ZArenas 5 "A7C1E5F2H9L1M1P1Q4T2V1Z1" // Z: Maze
+SetString Add %ZArenas 5 "A7C1E5F2H10L1M1P1Q4T2V1Z1" // Z: Maze
 SetString Add %ZArenas 6 "A3C0E0F2H8L1M1P0Q3T20V0Z0" // Q: Clock
 SetString Add %ZArenas 7 "A6C0E3F2H4L1M2P0Q4T1V1Z6" // C: Ruined city
 SetString Add %ZArenas 8 "A3C1E0F2H5L5M2P0Q4T5010V1Z0" // I: Island
 SetString Add %ZArenas 9 "A1B0D12E1F2G15H5I0J0L2M2P2Q1T15001V1Y4Z0s2!0@@0(0-0_0" // 2: 2nd Quarter Quell
 SetString Add %ZArenas 10 "A3B0C0D12F2G0H5I0J0L1M2O0P1Q0T2015V1W10Y2Z0l1000m24n22o2000s3!0@@0$$1(0-0_1+0" // 7: 74th HG
 SetString Add %ZArenas 11 "A3B0C0D12E0F2G16H8I1J0L1M1O0P0Q3T20V0Y2Z0m4n0s4_0" // 3: 3rd Quarter Quell
-SetString Add %ZArenas 12 "A3C1D12E0F2G1H4I3L1M1O3Q1S100T1U25V1Y2Z0" // X: Special 12 Districts bitmap
-SetString Add %ZArenas 13 "A4B0C1D13E0F2G0H6I0J0K10L1M1O0Q1S125T1U100V0W10X26Y18Z0m21n0q2s1!0@@0#0-0_0" // U: Ultimate arena
-SetString Add %ZArenas 14 "A7B0C1E0F3J99L6P0Q4S50T10U45W0Z0m0s5!0@@0#0" // B: Battle Royale
-SetString Add %ZArenas 15 "A2B1C0D12E0F2G0H0I0J0K0L0M0N9999O0P0Q0S50T10U25V0W0X0Y2Z0a42987526b0c0d45087047f1000h10i10l2000m0q0r8s1t0u25v50w0z0!0@@0#0$$0%0^0&0*1(0)72-0_0=0+0" // 4: Version 2.4 retro
-SetString Add %ZArenas 16 "A2B1C0D12E0F2G0H0I0J0K0L1M1N9999O0P1Q0S50T10U25V1W0X0Y2Z0a42988070b0c0d44170087f500h10i10l2000m999n0q0r8s1t0u25v50w0z0!0@@0#0$$0%0^0&0*1(0)72-0_0=0+0" // 5: Version 2.5 retro
-SetString Add %ZArenas 17 "A9B4E6G240H9O6Q5S0T120120W125X33f0h0i0j12s5x0$$8" // R: Random settings
-SetString Add %ZArenas 18 "A2B0C0D12E0F2G0H5I0J0K0L2M2N24O0P1Q0S50T10U25V1W10X26Y2Z0a0b0c0d0e0f500g1000h10i10j2k100l2000m999n0o0p100q0r8s1t0u25v50w0x9y15000z3000!0@@0#0$$0%5^10&0*1(0)72-0_0=0+0" // 1: Default
+SetString Add %ZArenas 12 "A6B0C0D12E3F0G2H9I4J0L0M0O0P0Q1T0U10V0Y2Z0s5!0@@0" // 9: 10th HG
+SetString Add %ZArenas 13 "A3C1D12E0F2G1H4I3L1M1O3Q1S100T1U25V1Y2Z0" // X: Special 12 Districts bitmap
+SetString Add %ZArenas 14 "A4B0C1D13E0F2G0H6I0J0K10L1M1O0Q1S125T1U100V0W10X26Y18Z0m21n0q2s1!0@@0#0-0_0" // U: Ultimate arena
+SetString Add %ZArenas 15 "A7B0C1E0F3J99L6P0Q4S50T10U45W0Z0m0s5!0@@0#0" // B: Battle Royale
+SetString Add %ZArenas 16 "A2B1C0D12E0F2G0H0I0J0K0L0M0N9999O0P0Q0S50T10U25V0W0X0Y2Z0a42987526b0c0d45087047f1000h10i10l2000m0q0r8s1t0u25v50w0z0!0@@0#0$$0%0^0&0*1(0)72-0_0=0+0" // 4: Version 2.4 retro
+SetString Add %ZArenas 17 "A2B1C0D12E0F2G0H0I0J0K0L1M1N9999O0P1Q0S50T10U25V1W0X0Y2Z0a42988070b0c0d44170087f500h10i10l2000m999n0q0r8s1t0u25v50w0z0!0@@0#0$$0%0^0&0*1(0)72-0_0=0+0" // 5: Version 2.5 retro
+SetString Add %ZArenas 18 "A9B4E6G240H10O6Q5S0T120120W125X33f0h0i0j12s5x0$$8" // R: Random settings
+SetString Add %ZArenas 19 "A2B0C0D12E0F2G0H5I0J0K0L2M2N24O0P1Q0S50T10U25V1W10X26Y2Z0a0b0c0d0e0f500g1000h10i10j2k100l2000m999n0o0p100q0r8s1t0u25v50w0x9y15000z3000!0@@0#0$$0%5^10&0*1(0)72-0_0=0+0" // 1: Default
 
 SetStrings %ZTree 2 ",tree,cactus"
 SetStrings %ZThe 4 ",,the ,The ,"
 SetString %ZAlly "!!3!567890ABCM"
-SetStrings %ZNameA 2 ";Glimmer,Marvel,Clove,Cato,,,,,Foxface,,,Jason,,,,,,,,,Rue,Thresh,Katniss,Peeta;Cashmere,Gloss,Enobaria,Brutus,Wiress,Beetee,Mags,Finnick,,,Morphling,Morphling,Johanna,Blight,Cecilia,Woof,,,,,Seeder,Chaff,Katniss,Peeta"
+SetStrings %ZNameA 3 ";Glimmer,Marvel,Clove,Cato,,,,,Foxface,,,Jason,,,,,,,,,Rue,Thresh,Katniss,Peeta;Cashmere,Gloss,Enobaria,Brutus,Wiress,Beetee,Mags,Finnick,,,Morphling,Morphling,Johanna,Blight,Cecilia,Woof,,,,,Seeder,Chaff,Katniss,Peeta;Velvereen,Facet,Sabyn,Marcus,Teslee,Circ,Coral,Mizzen,Sol,Hy,Ginnee,Otto,Lamina,Treech,Wovey,Bobbin,Sheaf,Panlo,Brandy,Tanner,Dill,Reaper,Lucy Gray,Jessup"
 SetStrings %ZBody 2 ";6 6 9 3 8 8 5 1 2 8 4 7 6 5 7 7 1 5 0 4 3 0 9 9;7 3 8 0 0 2 5 1 3 5 5 7 1 6 2 4 0 6 6 8 0 4 9 9"
 SetString %ZTall "67 75 64 74 69 56 64 56 65 67 59 70 59 63 67 72 61 59 64 68 56 72 67 70"
 SetString 0 ",Crystal,Jade,Pearl,Gloria,Dazzle,Saffron,Luster,Wonder,Luxe,Gleam,Platinum,Shine" // D1
@@ -4652,11 +4657,11 @@ SetStrings %ZLine 12 ","
 // Tables (Text) //
 // ///////////// //
 
-SetString %ZHelp1 {Happy Hunger Games! May the odds be ever in your favor...\n\nThis is a simulation inspired by "The Hunger Games" from the book\nand movie. Your goal is to stay alive and be the last tribute\nstanding. In this game you are $$0 ($$z).\n\nF1: Display this help text (shortcut: "?", advanced commands: "/")\nF2: Start new game (shortcut: "R")\nF3: Pause one turn and let other tributes act (shortcut: ".")\nF4: List your inventory (shortcut: "i")\n\nF5: Pick up item (shortcut: ",")\nF6: Drop something from your inventory (shortcut: "d")\nF7: Use or (un)wield object in your inventory (shortcuts: "a", "w")\nF8: Throw or launch weapon from your inventory (shortcut: "t")\n\nF9: Communicate with another tribute nearby (shortcut: "c")\nF10: Give something to another tribute next to you (shortcut: "g")\nF11: Set rotation rate, animation frames, and clipping distance.\nF12: Specify tribute to play as for future games.\n\nSelect OK for more help, or Cancel to start playing.}
-SetString %ZHelp2 {The Hunger Games feature @@x tributes (a boy and girl from @@y\nDistricts) all trying to be the last person alive. The game starts\nwith everybody in a (semi)circle around weapons and other gear.\nThe best gear is inside the central Cornucopia. You can also\nforage in the surrounding wilderness.\n\nUse the arrow keys to move and rotate. To attack a tribute with a\nmelee weapon, just move into them. To shoot a ranged weapon,\nwield the launcher then throw the ammunition. Looking at a\ntribute, you can see their District and gender (above them) along\nwith weapon wielded, health, and item worn (upon body).\n\nEverybody has at least one ally, the other tribute from their\nDistrict, who won't attack them until near the end. Tributes from\nDistricts 1, 2, and 4 are "Careers" and all start in an alliance with\neach other. Giving items can cause tributes to like you more and\neven form new alliances.\n\nSelect OK for more help, or Cancel to start playing.}
-SetString %ZHelp3 {This simulation is turn based, where only after you move or take\nan action will other tributes do so. Spinning in place, chatting, and\nchecking inventory takes no time. Messages describing the result\nof your actions are displayed at the top of the screen, such as\nhow much damage tributes are doing to each other. At the bottom\nof the screen is the status line, which contains the following:\n\nYou:\tThe tribute you're playing as (District and gender).\nHealth:\tHit points. If this falls to zero you die!\nFood:\tBodily energy. If this falls to zero you lose health.\nKills:\tBragging rights. Number of tributes you've slain so far.\nTributes:\tPeople left in game. If this reaches 1 there's a victor!\nTurn:\tNumber of moves the game has lasted.\n\nAlso press "/" for help on advanced commands.}
-SetString %ZHelp4 {Advanced Help...\n\nShift+F1: Display this advanced command help (shortcut: "/")\nShift+F2: Set arena size and landscape (shortcut: "Ctrl+Del")\nShift+F3: Pause until interesting event happens (shortcut: ">")\nShift+F4: Toggle waiting until victor determined (shortcut: "N")\n\nShift+F5: Dig, burn, or set trap in current space (shortcut: "x")\nShift+F6: Sort your inventory (shortcut: "I")\nShift+F7: Fire ammo from wielded launcher (shortcut: "f")\nShift+F8: Toggle background between day & night (shortcut: "b")\n\nShift+F9: Display timeline of tribute deaths (shortcut: "`")\nShift+F10: Display tribute status report (shortcut: "Del")\nShift+F11: Display map ("Tab", "Ctrl+Tab", "Ctrl+Shift+Tab")\nShift+F12: Switch to a different tribute (shortcut: "Shift+Del")\n\nSelect OK for more help, or Cancel to continue playing.}
-SetString %ZHelp5 {Advanced Help continued...\n\nCtrl+F1: Move forward but don't attack (Shortcut: "Ctrl+f")\nCtrl+F2: Ask tribute to come to your location (Shortcut: "C")\nCtrl+F3: Propose or break alliance (Shortcut: "Ctrl+c")\nCtrl+F4: Ally requests, leadership, and stereo (Shortcut: "Alt+c")\n\nCtrl+F5: Set tribute name, appearance, and height (Shortcut: ')\nCtrl+F6: Set District, tribute, and mutt count (Shortcut: ":")\nCtrl+F7: Set random seed and arena details (Shortcut: "Alt+r")\nCtrl+F8: View and change all settings (Shortcut: ";")\n\nCtrl+F9: Show messages from previous turns (Shortcut: ")\nCtrl+F10: Display tribute alliance grid (Shortcut: "~")\nCtrl+F11: Toggle sound effects (Shortcut: "-")\nCtrl+F12: Toggle detailed textures (Shortcut: "_")\n\nCtrl+a:\tTurn around.\nq, z:\tClimb up or down.\n[, ], {, }:\tLook up or down.\nSpace:\tLook straight and clear text from screen.\n}
+SetString %ZHelp1 {Happy Hunger Games! May the odds be ever in your favor...\n\nThis is a simulation inspired by "The Hunger Games" from the books and movies. Your goal is to stay alive and be the last tribute standing. In this game you are $$0 ($$z).\n\nF1: Display this help text (shortcut: "?", advanced help: "/")\nF2: Start new game (shortcut: "R")\nF3: Pause one turn and let other tributes act (shortcut: ".")\nF4: List your inventory (shortcut: "i")\n\nF5: Pick up item (shortcut: ",")\nF6: Drop something from your inventory (shortcut: "d")\nF7: Use or (un)wield object in inventory (shortcuts: "a", "w")\nF8: Throw or launch weapon from inventory (shortcut: "t")\n\nF9: Communicate with another tribute nearby (shortcut: "c")\nF10: Give object to another tribute next to you (shortcut: "g")\nF11: Set rotation rate, animation frames, clipping distance.\nF12: Specify tribute to play as for future games.\n\nSelect OK for more help, or Cancel to start playing.}
+SetString %ZHelp2 {The Hunger Games feature @@x tributes (a boy and girl from @@y Districts) all trying to be the last person alive. The game starts with everybody in a (semi)circle around weapons and other gear. The best gear is inside the central Cornucopia. You can also forage in the surrounding wilderness.\n\nUse the arrow keys to move and rotate. To attack a tribute with a melee weapon, just move into them. To shoot a ranged weapon, wield the launcher then throw the ammunition. Looking at a tribute, you can see their District and gender (above them) along with weapon wielded, health, and item worn (upon body).\n\nEverybody has at least one ally, the other tribute from their District, who won't attack them until near the end. Tributes from Districts 1, 2, and 4 are "Careers" and all start in an alliance with each other. Giving items can cause tributes to like you more and even form new alliances.\n\nSelect OK for more help, or Cancel to start playing.}
+SetString %ZHelp3 {This simulation is turn based, where only after you move or take an action will other tributes do so. Spinning in place, chatting, and checking inventory takes no time. Messages describing the result of your actions are displayed at the top of the screen, such as how much damage tributes are doing to each other. At the bottom of the screen is the status line, which contains the following:\n\nYou:\tThe tribute you're playing as (District and gender).\nHealth:\tHit points. If this falls to zero you die!\nFood:\tBodily energy. If this falls to zero you lose health.\nKills:\tBragging rights. Count of tributes you killed so far.\nTributes:\tPeople left in game. If this reaches 1 there's a victor!\nTurn:\tNumber of moves the game has lasted.\n\nAlso press "/" for help on advanced commands.}
+SetString %ZHelp4 {Advanced Help...\n\nShift+F1: Display this advanced command help (shortcut: "/")\nShift+F2: Set arena size and landscape (shortcut: "Ctrl+Del")\nShift+F3: Pause until interesting event happens (shortcut: ">")\nShift+F4: Toggle waiting until victor determined (shortcut: "N")\n\nShift+F5: Dig, burn, or set trap in current space (shortcut: "x")\nShift+F6: Sort your inventory (shortcut: "I")\nShift+F7: Fire ammo from wielded launcher (shortcut: "f")\nShift+F8: Toggle scenery between day & night (shortcut: "b")\n\nShift+F9: Display timeline of tribute deaths (shortcut: "`")\nShift+F10: Display tribute status report (shortcut: "Del")\nShift+F11: Display map ("Tab", "Ctrl+Tab", "Ctrl+Shift+Tab")\nShift+F12: Switch to a different tribute (shortcut: "Shift+Del")\n\nSelect OK for more help, or Cancel to continue playing.}
+SetString %ZHelp5 {Advanced Help continued...\n\nCtrl+F1: Move forward but don't attack (Shortcut: "Ctrl+f")\nCtrl+F2: Ask tribute to come to your location (Shortcut: "C")\nCtrl+F3: Propose or break alliance (Shortcut: "Ctrl+c")\nCtrl+F4: Ally, leadership, & stereo settings (Shortcut: "Alt+c")\n\nCtrl+F5: Set tribute name, appearance, & height (Shortcut: ')\nCtrl+F6: Set District, tribute, and mutt count (Shortcut: ":")\nCtrl+F7: Set random seed and arena details (Shortcut: "Alt+r")\nCtrl+F8: View and change all settings (Shortcut: ";")\n\nCtrl+F9: Show messages from previous turns (Shortcut: ")\nCtrl+F10: Display tribute alliance grid (Shortcut: "~")\nCtrl+F11: Toggle sound effects (Shortcut: "-")\nCtrl+F12: Toggle detailed textures (Shortcut: "_")\n\nCtrl+a:\tTurn around.\nq, z:\tClimb up or down.\n[, ], {, }:\tLook up or down.\nSpace:\tLook straight and clear text from screen.\n}
 SetStrings %ZChat11 5 ";You rock! I actually want to help you win!;Hello partner! Looks like you need my help!;Hey ally! You're looking pretty weak compared to me!;Hey there! You look like an easy kill!;I'm coming for you, loser! Don't worry, I'll kill you quickly!"
 SetStrings %ZChat12 5 ";You rock! I actually hope you win!;Hello partner! One of us deserves to win!;Hey ally! Let's take out the other tributes and then fight among ourselves!;Hey there! Do you want to fight me?;You suck! I'm going to kill you!"
 SetStrings %ZChat13 5 ";You rock! I hope you win!;Hello partner! If I don't win, I hope you do!;Hey ally! Give me some stuff so we can be stronger!;Hey there! Leave now if you know what's good for you!;I'm not beaten yet! I will fight you until my last breath!"
@@ -4889,7 +4894,7 @@ nFogLit        %TLit
 @SLead 0
 // Script setting variables
 For (i) %SA %SMuttC {SetVar @i 0}
-@SA 9 @SD 12 @SE 5 @SG 48 @SH 9 @SK 0 @SN 24 @SO 6 @SQ 4 @SS 50 @SU 25 @SW 10 @SX %JAid @SY 2
+@SA 9 @SD 12 @SE 5 @SG 48 @SH 10 @SK 0 @SN 24 @SO 6 @SQ 4 @SS 50 @SU 25 @SW 10 @SX %JAid @SY 2
 @Sf 500 @Sg 1000 @Sh 10 @Si 10 @Sj 2 @Sk 100 @Sl 2000 @Sm 999 @Sp 100 @Sr 8 @Su 25 @Sv 50 @Sx 9 @Sz 3000
 @SCorn 3 @SAlly 5 @STrap 10 @SDeep 1 @SMuttT 72
 

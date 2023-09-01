@@ -1,5 +1,5 @@
 DS
-// Puzzle Safari Maze - A script file for Daedalus 3.3
+// Puzzle Safari Maze - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -28,7 +28,7 @@ DS
 
 If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
 
-DefineMacro 1 {Message 'Welcome to Safari Maze!\n\nYour goal is to get out of the Maze. The exit is located in the\nmiddle of the east boundary wall. Before leaving the exit, you\nmust first hunt down and visit each of the four corners in any\norder. To begin, go forward and down the spiral staircase into\nthe Maze proper.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in default Maze.\nF4: Start in random Maze.\n\nF5: Toggle day and night.\nF6: Toggle cloud and daylight animation.\n\nUse the arrow keys to move and rotate.\nUse shift+left and right arrows to sidestep.\nWant to move faster? Press "e" to start and stop running mode.'} "Help Text"
+DefineMacro 1 {Message 'Welcome to Safari Maze!\n\nYour goal is to get out of the Maze. The exit is located in the middle of the east boundary wall. Before leaving the exit, you must first hunt down and visit each of the four corners in any order. To begin, go forward and down the spiral staircase into the Maze proper.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in default Maze.\nF4: Start in random Maze.\n\nF5: Toggle day and night.\nF6: Toggle cloud and daylight animation.\n\nUse the arrow keys to move and rotate.\nUse shift+left and right arrows to sidestep.\nWant to move faster? Press "e" to start and stop running mode.'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False SetVars 5 4 '0 0 0 0' @q 0 @s 0 @t 0 Macro17 c5 nDir 3 g cg fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct Spc fAutorepeatLastCommand True" "Restart Maze"
 DefineMacro 3 "fRedrawWhenBitmapEdited False @48 12 Macro12 Macro2" "Default Maze"
 DefineMacro 4 "fRedrawWhenBitmapEdited False @48 Rnd 0 65535 Macro12 Macro2" "Random Maze"
@@ -40,7 +40,7 @@ DefineMacro 8 "If fAutorepeatLastCommand {@w Div @t @u @s Mod @t @u Macro Add 17
 
 DefineMacro 9 "If GetCT nX nY {Break} @w Add 4 @v If Var @w {@x Sub 4 @q IfElse @x (Message 'You've already been to this corner.\nCorners left to find: @x') (Message 'You've already been to all four corners.\nYou need to find the exit.') Break} SetVar @w True @q Inc @q @x Sub 4 @q IfElse @x {Message 'You find corner #@q ($v)!\nCorners left to reach: @x'} {Message 'You find corner #@q ($v)!\nAll four corners have been reached! Now find the exit!'}" "Check Corner"
 DefineMacro 10 "If Equ @q 4 {Macro11 Break} IfElse Lt @q 3 {@w Sub 4 @q Message 'This is the exit to the Maze.\nYou can't leave yet, because you still have @w more corners to visit.'} {Message 'This is the exit to the Maze.\nYou can't leave yet, because you still have one more corner to visit.'} @z True" "Check Exit"
-DefineMacro 11 {@q Inc @q fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you found all four corners and exited the Maze!\nIt took you @x minutes, @y seconds. :-)\n'} "Exit Maze"
+DefineMacro 11 {@q Inc @q fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you found all four corners and exited the Maze! It took you @x minutes, @y seconds. :-)\n'} "Exit Maze"
 DefineMacro 12 "CopyTexture 3 -1 ColorPut nRandomSeed @48 PartialKruskal \ CopyMask -1 4 CopyMask 2 -2 TempOr - CopyMask 3 -2 TempAnd CopyTexture 4 -1 kWall 1 ColorXor kWall White Replace UD 251 240 UD 250 40 0 Replace UD 334 240 UD 335 40 0 k | CopyTexture -1 1 CopyTexture 2 -1 Macro14 Macro13 Macro15" "Create Maze"
 DefineMacro 13 "Replace White Blend Orange Brown 0 Replace Gray Rgb 239 119 31 0 @z Rgb 207 191 175 Replace Blue @z 0 Replace DkBlue @z 0 Replace Cyan Rgb 71 63 55 0 Replace DkCyan Rgb 143 127 111 0 Replace Magenta Rgb 123 107 91 0 Replace Red Rgb 133 117 101 0 Replace Green Rgb 143 127 111 0 Replace Purple Rgb 93 77 61 0 Replace Maroon Rgb 103 87 71 0 Replace DkGreen Rgb 113 97 81 0 ColorAnd Replace Black White 0 For (z) 0 3 {@x Mul Odd @z 58 @y Mul Gt @z 1 58 nX @x nY @y nX2 Add @x 4 nY2 Add @y 4 kWall Var Inc @z 2ndBox nX Inc nX nY Inc nY nX2 Dec nX2 nY2 Dec nY2 kWall Light kWall 2ndBlock} kWall White" "Color Maze"
 DefineMacro 14 "For (y) 26 36 {For (x) 26 36 (@z GetC @x @y  @w Add Add  Mul >> Inc And @z 255 7 9  Mul >> Inc And >> @z 8 255 7 3  >> Inc >> @z 16 7  @z Mul Sub 24 @w 7 SetC @x @y Rgb Sub 207 @z Sub 191 @z Sub 175 @z)}" "Color Center"

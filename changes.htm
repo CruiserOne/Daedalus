@@ -2,7 +2,7 @@
 
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<title>Daedalus 3.3 Changes</title>
+<title>Daedalus 3.4 Changes</title>
 <style>
 <!--
  /* Font Definitions */
@@ -214,13 +214,13 @@ style='background:silver'>A</span>     <span style='background:silver'>A</span> 
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>                         **  VERSION  3.3  **</p>
+<p class=Fixed>                         **  VERSION  3.4  **</p>
 
 <p class=Fixed>&nbsp;</p>
 
 <p class=A>This file describes the new features, changes, and bug fixes in
-Daedalus 3.3, that weren’t in the previous version. It is only useful if you’re
-already familiar with Daedalus 3.2 or before and want to know what the newest
+Daedalus 3.4, that weren’t in the previous version. It is only useful if you’re
+already familiar with Daedalus 3.3 or before and want to know what the newest
 version offers. The file is divided into four sections:</p>
 
 <p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
@@ -247,7 +247,7 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 </span></span><b>4) <a href="#script">Scripting Additions</a>:</b> New keywords
 added to the Daedalus scripting language.</p>
 
-<p class=A>For a quick demonstration of some things Daedalus 3.3 can do, start
+<p class=A>For a quick demonstration of some things Daedalus 3.4 can do, start
 the program, press Alt+1 to start the “Daedalus demos” script, then press F2 to
 animate yourself running through a Maze.</p>
 
@@ -259,52 +259,35 @@ animate yourself running through a Maze.</p>
 
 </div>
 
-<p class=A>A list of new features in Daedalus 3.3, which means new commands and
+<p class=A>A list of new features in Daedalus 3.4, which means new commands and
 settings that weren’t present in the previous version:</p>
 
-<p class=A><span class=N>1. SVG files:</span> Daedalus can save wireframes to the
-Scalable Vector Graphics (SVG) format. The new “Draw / Wireframe File / Save
-Vector” command will save the internal wireframe to this format. SVG files are
-an XML based format, and like HTML files they can be displayed in Web browsers.</p>
+<p class=A><span class=N>1. Sphere Mazes:</span> The new “Create / Omega
+(Shapes) / Omicron (Sphere)” menu command will create a Maze on the surface of
+a sphere. They are most similar to the existing “Theta (Circle)” Mazes that are
+disk shaped, except here the Maze is by default drawn flattened. That means
+passages at the top and bottom which map to the top and bottom of the sphere
+are wider, because they map to the smaller radius polar areas. To actually see
+the Maze in sphere form, turn on “Create / Create Settings / Omega (Shapes) /
+Make Wireframe Also”, which will also create a 3D spherical wireframe in memory
+of the Maze.</p>
 
-<p class=A><span class=N>2. Open Website:</span> The new “File / More Help /
-Open Website Mirror” menu command will open the alternate Daedalus website
-location at magitech.com in the default browser.</p>
+<p class=A><span class=N>2. CubeFlip transpose:</span> The “Bitmap / Flip and
+Rotate / 3D Bitmap” dialog has been extended with a “Transpose” option. That
+will apply a transpose operation along the axis specified.</p>
 
-<p class=A><span class=N>3. Infinite bitmap:</span> Infinite length Mazes can
-be saved as a sequence of bitmap files. The new “Save As Bitmaps” option in the
-File Settings dialog will make it so infinite length Mazes created by the
-commands on the “Create / Infinite” submenu will be saved to bitmap files in
-the current directory, instead of plain text files. The first file will be
-called “inf00000.bmp”, the second “inf00001.bmp”, and so on.</p>
+<p class=A><span class=N>3. Grippy Socks script:</span> Daedalus comes with a
+new script called “Grippy Socks”, which is a mental health psych ward
+simulation. You experience a hospital environment, in which your objective is
+to find the right medication and other treatments, and then use them so that
+you can get released. This is the second most extensive script that comes with
+Daedalus, in which only the Hunger Games script is larger. The new “File / Run
+Script / Grippy Socks” menu command will run it. For more details about this
+script see <a href="http://www.astrolog.org/labyrnth/daedalus/gripsox.htm">http://www.astrolog.org/labyrnth/daedalus/gripsox.htm</a>.</p>
 
-<p class=A><span class=N>4. Braid Maze method:</span> In the Create Settings
-dialog, there’s a new “Braid Creation Method” radio button group which
-determines how Mazes without dead ends are created when the “Braid” command is
-run. The three options are “Wall Added”, “Eller’s Algorithm Variation”, and
-“Tilt Template”. These three methods were available in the program before, but
-required less intuitive setting combinations to access.</p>
-
-<p class=A><span class=N>5. Maze size addition:</span> The Maze Size dialog has
-a new “Maze Total Pixel Size Even” flag. It controls whether the resized Maze
-bitmap will have an even number of horizontal and vertical pixels (in which even
-means there will a blank row and column of pixels at the right and bottom edges).
-This flag is initially set based on the whether the original bitmap has odd or
-even pixel dimensions.</p>
-
-<p class=A><span class=N>6. Gigamaze script enhanced:</span> The World’s
-Largest Maze script that comes with the program has some new features. 3D virtual
-Mazes can be generated with the 3D nested cell and 3D binary tree creation algorithms.
-(Before, nested cells and binary trees were only available for 2D virtual
-Mazes.) Also, Hilbert curve unicursal Labyrinths are now available as a
-creation algorithm for both 2D and 3D Mazes.</p>
-
-<p class=A><span class=N>7. Squared script enhanced:</span> The Survivor
-Squares Game script that comes with the program has some new features. You can
-now set the board dimensions in squares, the number of players competing,
-whether players are allowed to move diagonally, and the difficulty. Higher
-difficulty means computer players will make more intelligent moves, and notice
-larger spaces with more available squares to move into.</p>
+<p class=A><span class=N>4. Makefiles:</span> Compiling Daedalus’ source code
+is easier, since the downloads now come with Visual Studio project/solution files
+for Windows, and a Makefile file for Unix systems.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -319,50 +302,57 @@ you can now do with old features that you couldn’t do before, or ways existing
 features work better than before. Note that some change existing behavior in
 ways users of previous versions should be aware of:</p>
 
-<p class=A><span class=O>1. Color wireframes:</span> Daedalus now supports
-color wireframe rendering. The Render Wireframe commands will draw lines in
-color if the color bitmap is active. The Make Wireframe Bitmap Overview command
-will produce a color wireframe if the color bitmap is active, giving lines the
-color of adjacent on pixels. The Convert Patches To Wireframe command will
-produce a color wireframe if the patches in memory have color.</p>
+<p class=A><span class=O>1. Stereoscopic perspective renderings:</span> The wireframe
+and patch perspective renderings now support stereoscopic 3D graphics. The
+“Stereo Width” field in the Dot / Inside Settings dialog will when non-zero
+cause the bitmap to be split into two displays, showing the scene from slightly
+different viewpoints. When the two images are looked at together, with one
+image for each eye, the result is a true 3D effect. Classic 3D glasses, modern
+3D movies, Google Cardboard, and random dot stereograms work the same way. The
+value indicates the distance in coordinate units that the two views are from
+each other. If the value is negative, the leftmost image will be on the right
+half instead of on the left.</p>
 
-<p class=A><span class=O>2. Rendered stars:</span> Wireframe and patch
-renderings now have the option to show background stars. Whether stars are
-displayed and if so how many are taken from the Stars and Star Count fields in
-Inside Settings.</p>
+<p class=A><span class=O>2. Dragon curve Mazes:</span> Daedalus can generate
+deterministic fractal pattern Mazes, whose solution path is similar to a Dragon
+curve fractal. The “Create / Pattern / Hilbert Curve” menu command will
+(instead of a standard unicursal Hilbert curve) produce a fractal Maze pattern
+if “Allow Isolations in Fractal” is set. This Maze will be perfect with no
+loops or isolations. The “World’s Largest Maze” script supports these Mazes,
+such that this setting will affect the virtual Hilbert curve Labyrinth (F10
+option #5) and make it a Dragon curve Maze instead.</p>
 
-<p class=A><span class=O>3. Binary tree addition:</span> 3D binary tree
-algorithm Mazes are now affected by the Random Run setting, in the same manner
-that 2D binary tree Mazes are. Within each level, each row of cells will have its
-ending passage column flipped to the right instead of on the left, using the
-Random Run setting as a percentage.</p>
+<p class=A><span class=O>3. Zeta wireframe:</span> The “Create / Omega Shapes /
+Zeta (8 Way)” Maze creation command will now also create a wireframe of the
+Maze’s passages in memory, if “Create / Create Settings / Omega (Shapes) / Make
+Wireframe Also” is set.</p>
 
-<p class=A><span class=O>4. True Prim’s addition:</span> If Solve Fillers
-Consider Dots As Exits in Maze Settings is on, then the starting point from
-which the True Prim’s Algorithm command will begin creating the Maze will be
-taken from the coordinates of the dot. Normally its starting location is chosen
-randomly.</p>
+<p class=A><span class=O>4. Cube wireframe:</span> The “Create / 3D / Planair”
+Maze creation command will now create a wireframe of the Maze’s walls in
+memory, if “Create / Create Settings / Omega (Shapes) / Make Wireframe Also” is
+set, and also if the Planair creation string is set to generate a Maze on the
+surface of a cube (specifically set to “e2d3f0b1 e7a3f3c1 e4b3f6d1 e1c3f5a1
+c4d0a0b4 a2d6c6b2”). This wireframe will depict a cube, in which each face is a
+different color, and with arrows pointing to the middle of opposite faces to
+indicate entrance and exit points.</p>
 
-<p class=A><span class=O>5. Command line addition:</span> The Enter Command Line
-dialog has been improved, such that it will evaluate the Number field as a
-command line expression. For example, if the World’s Largest Maze script has
-been loaded, then instead of having to be a specific number, it can be an
-expression like “%FHelp”, in which case the custom constant will be evaluated,
-instead of one having to manually determine the macro slot number containing
-the command line labeled FHelp.</p>
+<p class=A><span class=O>5. Wilson/Aldous start:</span> The Wilson’s and
+Aldous-Broder Maze creation commands will pick a specific point to start
+creating the Maze from, when “Create Settings / Value Is Random Chance” is off.
+Normally these Maze creation commands start creating from a randomly chosen
+location. </p>
 
-<p class=A><span class=O>6. Setup improvement:</span> In the Windows version,
-the File Extensions setup command no longer requires Administrator privileges
-on most versions of Windows. Before, this command and the program’s initial
-install would often result in the error: “Failed to register Daedalus file
-extensions. You may need to run Daedalus as Administrator for registering to
-succeed.”</p>
+<p class=A><span class=O>6. Larger font:</span> Daedalus has a new fixed width internal
+bitmap font, containing 9x15 pixel characters. (This is 1.5x the size of the
+existing 6x10 pixel font.) The Turtle scripting operation can draw in this new
+font by specifying &quot;T3&quot;.</p>
 
-<p class=A><span class=O>7. Windows 64 bit build:</span> The source code for
-Daedalus can now compile 64 bit instances of the Windows version. The About
-dialog will indicate whether a 32 or 64 bit version of the program is running.
-Internally, the sources look for the compiler set #define _WIN64 to indicate 64
-bit specific content.</p>
+<p class=A><span class=O>7. Hunger Games improved:</span> The Hunger Games
+simulation script has been updated in several ways. Arena selection character
+&quot;9&quot; will produce a stadium similar to as seen in the 10th Hunger
+Games. Hill option “H9” will produce just a rectangular stadium effect within
+the arena. Naming setting “s5” will give tributes the names from the 10th
+Hunger Games (e.g. “Lucy Gray”).</p>
 
 <p class=A>&nbsp;</p>
 
@@ -372,52 +362,41 @@ bit specific content.</p>
 
 </div>
 
-<p class=A>A list of bugs and other problems in Daedalus 3.2, all of which have
-been fixed in Daedalus 3.3:</p>
+<p class=A>A list of bugs and other problems in Daedalus 3.3, all of which have
+been fixed in Daedalus 3.4:</p>
 
-<p class=A><span class=P>1. Planair bug:</span> Creating a Planair Maze would
-display an internal error message and produce a Maze that didn’t cover all
-panels. This bug affected the Demos script and caused the “Draw cubes Maze”
-options to produce incomplete Mazes. (The only way to prevent it would be if
-the 3D Z dimension of the Maze was at least as large as the number of Planair panels
-defined in Create Settings.)</p>
+<p class=A><span class=P>1. Inside ceiling display:</span> In the perspective
+inside view, tall variable height walls in the distance would be drawn on top
+of nearer ceiling markings. The ceiling will now act as an opaque barrier no
+different from other blocks.</p>
 
-<p class=A><span class=P>2. Infinite bug:</span> Saving an Infinite Maze to
-file as it’s being created would leave off the bottom text row in each section that
-was output.</p>
+<p class=A><span class=P>2. Stereo display:</span> The stereoscopic view would
+sometimes display garbage pixels in the rightmost column.</p>
 
-<p class=A><span class=P>3. Inside crash:</span> In the perspective inside
-view, having color wall textures present but no monochrome mask bitmaps defined
-would crash in certain circumstances.</p>
+<p class=A><span class=P>3. X11 bitmap error:</span> Saving to X11 bitmap
+format would leave off the filename within the file produced, which could produce
+an invalid file that the Unix xsetroot command wouldn’t understand.</p>
 
-<p class=A><span class=P>4. Wireframe display:</span> In Wireframe renderings,
-long lines that face you and extend behind you would be clipped incorrectly,
-resulting in them appearing at wrong angles.</p>
+<p class=A><span class=P>4. Unix editing bugs:</span> When compiling Daedalus
+on some Unix systems (e.g. with the g++ compiler) some bitmap operations would
+only operate on the first part of the bitmap, such as inverting the bitmap.
+Also on some Unix systems, bitmaps with an odd vertical dimension would
+sometimes cause illegal memory accesses off the bottom of the bitmap.</p>
 
-<p class=A><span class=P>5. Copy section bug:</span> The Get Section command on
-the 2nd Dot submenu wouldn’t work right when the upper left corner of the
-section was off the top or left edge of the bitmap. In such a case the bitmap
-contents would be justified in the upper left instead of the lower right corner
-of the destination bitmap.</p>
+<p class=A><span class=P>5. Scrollbar omission:</span> Scrollbars wouldn’t
+scroll when selecting the dial and dragging it to another location. Also, right
+clicking on a scrollbar and selecting “Scroll Here”, “Left Edge”, “Right Edge”,
+“Top”, or “Bottom” wouldn’t do anything.</p>
 
-<p class=A><span class=P>6. Create random bug:</span> The Random Perfect Maze
-creation command would, if Create With Wall Adding was on, and if randomly
-trying to create a Maze with the Growing Forest algorithm, produce only the
-boundary wall of the Maze. (Creating Mazes with the Growing Forest command
-itself would always work.)</p>
-
-<p class=A><span class=P>7. Zap dot limitation:</span> The commands on the Zap
-Dot submenu wouldn’t work in 2D Mazes if the Z coordinate of the dot was
-anything other than 0.</p>
-
-<p class=A><span class=P>8. Windows shell limitation:</span> In the Windows
-shell, one can right click a Daedalus generated file and select “Open” to have
-Daedalus launch and open that file. That however would fail to open the file,
-if there were spaces in the path of the filename.</p>
-
-<p class=A><span class=P>9. Gigamaze bug:</span> In the World’s Largest Maze
-script, creating a virtual Maze with the binary tree algorithm wouldn’t produce
-a perfect Maze if the Random Run random setting was non-zero.</p>
+<p class=A><span class=P>6. Script text display:</span> Some Daedalus scripts
+would display bad line breaks in text, i.e. would show multiple line breaks
+close to each other, which looked bad. In old versions of Windows, displaying
+message boxes would require programmers to insert line breaks at appropriate
+points, to avoid message boxes as wide as the screen. In newer versions of
+Windows, message boxes are kept to a certain width, and line breaks are
+automatically inserted. The manually inserted line breaks would sometimes be
+placed right after an automatic line break, resulting in a line with just a few
+words in it.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -433,147 +412,92 @@ or scripts, and should be ignored by everybody else:</p>
 
 <p class=Section2>********************  Operations  ********************</p>
 
-<p class=A><span class=N>VirtualPerfect &lt;edges&gt;:</span> Creates or adds
-on to part of a Maze in memory using the hunt and kill algorithm, in which only
-part of the Maze is stored in the main bitmap. The dot indicates the current
-coordinates, and will be updated upon return. The &lt;edges&gt; parameter is a
-group of flags indicating which edges the current section being worked upon is
-adjacent to, in which 1 means top, 2 means left, 3 bottom, and 4 right. This
-operation will create the Maze until one of the edges is reached. Afterward,
-custom variable @z will contain how many cells were created. This operation can
-be used to compose a Maze larger than will fit in memory at once, by creating
-one section at a time, although it’s the responsibility of the caller to save
-created sections to disk and load other sections appropriately for the next
-phase of creation.</p>
+<p class=A><span class=N>DlgOpenDB:</span> Brings up a dialog allowing one to
+select a file, and then loads that file as a Daedalus bitmap.</p>
 
-<p class=A><span class=N>VirtualAldous &lt;edges&gt;:</span> Like
-VirtualPerfect except creates or adds on to part of a Maze using the Aldous
-Broder algorithm.</p>
+<p class=A><span class=N>SaveVector &lt;file&gt;:</span> Saves the wireframe
+data in memory to a Scalable Vector Graphics (SVG) format file in the string
+&lt;file&gt;. This accesses the functionality of the “Draw / Wireframe File / Save
+Vector...” command without bringing up a dialog.</p>
 
-<p class=A><span class=N>VirtualRecurs &lt;edges&gt; &lt;stack&gt;:</span> Like
-VirtualPerfect except creates or adds on to part of a Maze using the recursive
-backtracking algorithm. The stack used by this algorithm is stored in the
-temporary bitmap, which should be n by 1 pixels, where n is two times the
-number of entries in the stack. (Because the stack stores directions, two bits
-are needed to represent four possible numbers.) The &lt;stack&gt; parameter
-indicates the initial stack offset in the temporary bitmap. This operation will
-create the Maze until one of the edges is reached, or one of the ends of the
-stack is reached. Afterward, custom variable @y will contain the new stack
-offset. The “Virtual Mazes” script that comes with the program uses this operation
-to create large recursive backtracking Mazes in a grid of bitmaps (along with
-using other bitmaps temporarily for the stack). This script doesn’t have its
-own menu option, but it is available in the sources subdirectory of the
-installation.</p>
+<p class=A><span class=N>SetY &lt;x&gt; &lt;y&gt; &lt;dir&gt; &lt;num&gt;:</span>
+Set texture. Sets the texture on the block at the given coordinates facing the
+given direction, in a manner that assumes fTextureDual is set. This means
+setting the appropriate bits of a pixel on the custom color bitmap indicated by
+nTextureWall to &lt;num&gt;. If &lt;dir&gt; is -1, both texture pairs (i.e. all
+four sides) are set to the texture number. If &lt;dir&gt; is -2, all four sides
+are set to the texture number, in a manner that assumes fTextureDual is off.</p>
 
-<p class=A><span class=N>GetWireframe &lt;num&gt; &lt;var&gt;:</span> Fetches
-line number &lt;num&gt; from the wireframe scene in memory and stores it in 7 custom
-variables starting with index &lt;var&gt;. For example, “GetWireframe 0 10”
-will store the X, Y, and Z coordinates of the two endpoints of the first line
-in custom variables #10 through #15, and its color in variable #16.</p>
+<p class=A><span class=N>Set3Y &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;dir&gt;
+&lt;num&gt;:</span> Set 3D texture. Like SetY but for 3D bitmaps. Sets the
+texture on the block at the given coordinates facing the given direction. This
+means setting the appropriate bits of a pixel on the 3D custom color bitmap
+indicated by nTextureWall to &lt;num&gt;.</p>
 
-<p class=A><span class=N>SetWireframe &lt;num&gt; &lt;var&gt;:</span> Defines
-line number &lt;num&gt; in the wireframe scene in memory with the 7 custom
-variables starting with index &lt;var&gt;. For example, “SetWireframe 0 10”
-will set the X, Y, and Z coordinates of the two endpoints of the first line
-with custom variables #10 through #15, and set color from variable #16. This
-does nothing if &lt;num&gt; is outside the limit of the number of lines in the
-wireframe, so set nWireframeSize if you want to change the number of lines in
-memory.</p>
+<p class=A><span class=N>BlendN:</span> Sets the color bitmap to an equal
+blending together of N other color bitmaps. The other bitmaps are assumed to be
+stacked vertically within the temporary color bitmap, in which N is determined
+by the bitmap’s overall height. Black pixels in any bitmap are skipped, and
+make that subbitmap not contribute to the result.</p>
 
-<p class=A><span class=N>GetPatch &lt;num&gt; &lt;var&gt;:</span> Fetches patch
-number &lt;num&gt; from the patch scene in memory and stores it in 19 custom
-variables starting with index &lt;var&gt;. The first 16 variables store the
-four vertexes of the patch, in X, Y, and Z coordinates, and then whether the
-edge connected with the point is highlighted. The 17th variable stores the
-number of vertexes used in the patch (which is always either 3 or 4), the 18th
-stores the color, and the 19th the patch’s transparency.</p>
+<p class=A><span class=N>ZoomBiasPic:</span> Zooms the monochrome bitmap, such
+that each 2x2 pixel area becomes a 3x3 pixel area. The middle column areas of
+each cell will be set based on the brightness of the color bitmap’s
+corresponding pixels. This is used to zoom a Maze such that its passage and
+wall thicknesses look similar to a background picture.</p>
 
-<p class=A><span class=N>SetPatch &lt;num&gt; &lt;var&gt;:</span> Defines patch
-number &lt;num&gt; in the patch scene in memory with the 19 custom variables
-starting with index &lt;var&gt;. The 19 custom variables define the three or
-four vertexes, the number of vertexes in use, the color, and transparency, in
-the same layout as GetPatch. This does nothing if &lt;num&gt; is outside the
-limit of the number of patches in the scene, so set nPatchSize if you want to change
-the number of patches in memory.</p>
+<p class=A><span class=N>GetStar &lt;num1&gt; &lt;num2&gt; &lt;num3&gt;:</span>
+Fetches the horizontal and vertical coordinates, along with the RGB color, of
+star number &lt;num2&gt; displayed in the perspective view. If &lt;num1&gt; is
+0, gets the star from the perspective inside view, otherwise gets the star from
+the wireframe or patch view. The three values are stored in custom variables
+starting with index &lt;num3&gt;.</p>
+
+<p class=A><span class=N>SetStar &lt;num1&gt; &lt;num2&gt; &lt;numx&gt;
+&lt;numy&gt; &lt;string&gt;:</span> Sets the horizontal and vertical
+coordinates, along with the color, of star number &lt;num2&gt; displayed in the
+perspective view. If &lt;num1&gt; is 0, sets the star in the perspective inside
+view, otherwise sets the star in the wireframe or patch view.</p>
 
 <p class=Section2>********************  Variables  ********************</p>
 
-<p class=A><span class=P>nIgnorePrint:</span> Determines the types of message
-boxes that are suppressed when the Skip Message Display setting is on. Setting
-this to -1 ignores nothing, and is the same as if Skip Message Display is off.
-Setting this to 0 ignores standard messages. Setting this to 1 ignores notice
-category messages too, such as the result of commands. Setting this to 2
-ignores warnings as well, such as bad user input. Setting this to 3 ignores
-serious error conditions, such as out of memory.</p>
+<p class=A><span class=O>nStarSize:</span> Determines the maximum brightness of
+stars in the background of the perspective views, before they’re displayed
+larger than one pixel. Standard values can range between 0 and 765 (the latter
+of which is 255x3, or the maximum RGB brightness). If less than 0, then every
+other star is large (regardless of its brightness).</p>
 
-<p class=A><span class=P>nWireWidth:</span> Determines the maximum width of
-lines drawn in the wireframe display. Setting this to 0 always draws hairline
-thin one pixel wide lines, no matter their distance from the viewer. Setting
-this to 1 draws close lines one pixel wider horizontally, and the remainder as
-with setting 0. Setting this to 2 draws closer lines one pixel wider
-horizontally and vertically, and farther lines as with settings 1 and 0.
-Setting this to 3 draws the closest lines two pixels wider horizontally and
-vertically, and farther lines as with lower settings.</p>
+<p class=A><span class=O>fTextureDual2:</span> This only plays a role when
+fTextureDual is set. This causes the two textures to be duplicated on the
+north/west and south/east faces of blocks. Normally the two textures are
+duplicated on the north/south and west/east faces.</p>
 
-<p class=A><span class=P>nWireDistance:</span> This setting only plays a role
-when the wireframe width setting nWireWidth is more than zero. It determines
-how many coordinate units away from the viewer the midpoint of lines must get
-before they’re displayed in the next narrower category.</p>
+<p class=A><span class=O>fStereo3D:</span> This only plays a role when nStereo
+is non-zero, and stereoscopic graphics are being displayed. When this is set,
+the stereoscopic image will be made for classic 3D glasses, with red and cyan monochrome
+images for each eye overlapping. (This is in contrast to the completely separate
+left eye and right eye images drawn side by side as is normal.)</p>
 
-<p class=A><span class=P>fWireSort:</span> Determines whether lines in the
-wireframe display are sorted by distance before being drawn, to ensure that far
-away lines aren’t drawn on top of close lines. This generally isn’t necessary
-when the wireframe line width stored in nWireWidth is low, because intersecting
-lines will have little if any overlapping area. Sorting may slow down the
-rendering time, which is why there’s an option to turn it off.</p>
+<p class=Section2>********************  Functions  ********************</p>
 
-<p class=A><span class=P>fArrowKeysFree:</span> This setting only plays a role
-when Move With Arrow Keys in Draw Settings is on. It causes movement in the
-wireframe and patch renderings to feel more fluid, like playing a video game.
-You don’t have to wait for key repeat to kick in, which means holding down a
-key immediately continuously moves, and you can also hold down two keys at once
-(e.g. move forward plus rotate) and have them both take effect. The speed at
-which continuous movement happens is controlled by the Repeat Delay In Msec
-field in Display Settings. This is like the Very Free Movement Inside Display
-Mode, but applied to the wireframe and patch renderings.</p>
+<p class=A><span class=P>&amp;&amp; &lt;num1&gt; &lt;num2&gt;:</span> Logical
+and. Returns whether both &lt;num1&gt; and &lt;num2&gt; are non-zero. This
+function does not do short circuit evaluation, in that both arguments are
+always evaluated even if the first is false. Like the “&amp;&amp;” operator in
+C.</p>
 
-<p class=A><span class=P>nDrawFaceOrigin:</span> Determines whether the
-wireframe and patch displays force the rendering to face the origin, pointing
-at X, Y, Z coordinate 0, 0, 0. Setting this to 0 doesn’t face the origin at
-all. Setting 1 makes the rendering face the origin, but doesn’t affect the
-actual direction one is moving in Draw Settings, which allows one to move along
-one trajectory while continually facing the origin. Setting 2 makes the
-rendering face the origin, and also updates the actual direction one is facing
-in Draw Settings, which allows one to sidestep in order to continually circle
-around the origin.</p>
+<p class=A><span class=P>|| &lt;num1&gt; &lt;num2&gt;:</span> Logical or.
+Returns whether either &lt;num1&gt; or &lt;num2&gt; are non-zero. This function
+does not do short circuit evaluation, in that both arguments are always
+evaluated even if the first is true. Like the “||” operator in C.</p>
 
-<p class=A><span class=P>nWireframeSize:</span> Contains the current number of
-line segments in the wireframe scene in memory. This variable can be changed to
-truncate the list or add space for new lines at the end of the list.</p>
+<p class=A><span class=P>Tween &lt;num&gt; &lt;num1&gt; &lt;num2&gt;:</span>
+Between. Returns whether Num lies within the range of Num1 to Num2. This is
+basically a shorthand version of “And Gte &lt;Num&gt; &lt;Num1&gt; Lte
+&lt;Num&gt; &lt;Num2&gt;”.</p>
 
-<p class=A><span class=P>nPatchSize:</span> Contains the current number of
-patches in the patch scene in memory. This variable can be changed to truncate
-the list or add space for new patches at the end of the list.</p>
-
-<p class=A><span class=P>nFileLock:</span> Points to a custom string variable
-naming a mutex to use when reading files. A mutex is an operating system
-feature which ensures mutual exclusion, so that two processes aren’t accessing
-a file at the same time. If the file is locked by another program using the
-same mutex, then Daedalus won’t just fail right away, but will rather wait up
-to one second for the other process to release the mutex. This is used in the
-creation of videos such as <a href="https://www.youtube.com/watch?v=UdRaDGXBV-0">https://www.youtube.com/watch?v=UdRaDGXBV-0</a>
-in which Daedalus is continually reloading a file and rendering a scene, while
-another process is continually updating and rewriting the contents of that
-file.</p>
-
-<p class=A><span class=P>nHuntType:</span> Determines how the hunt and kill
-Maze generation algorithm command hunts for cells that aren’t yet part of the
-Maze. Setting this to 0 searches horizontal row by row until a new cell is
-found, which is simple but can result in a horizontal bias. Setting this to 1
-alternates searching in both rows and columns until a new cell is found, which
-is more balanced. Setting this to 2 searches outward from the last cell in a
-spiral pattern until a new cell is found, which appears even smoother but can
-be slower.</p>
+<p class=A><span class=P>Ln &lt;num1&gt; &lt;num2&gt;:</span> Logarithm.
+Returns &lt;num1&gt; times the natural or base “e” logarithm of &lt;num2&gt;.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -584,7 +508,7 @@ be slower.</p>
 </div>
 
 <p class=A>IMPORTANT NOTICE: Daedalus and all Maze generation and general
-graphics routines used in this program are Copyright (C) 1998-2018 by Walter D.
+graphics routines used in this program are Copyright (C) 1998-2023 by Walter D.
 Pullen. Permission is granted to freely use, modify, and distribute these
 routines provided these credits and notices remain unmodified with any altered
 or distributed versions of the program. The user does have all rights to Mazes

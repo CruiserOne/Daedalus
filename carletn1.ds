@@ -1,5 +1,5 @@
 DS
-// Carleton Farm Corn Maze 2009 - A script file for Daedalus 3.3
+// Carleton Farm Corn Maze 2009 - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -24,7 +24,7 @@ DS
 
 If Lt Version 2400 {Message 'This script requires Daedalus 2.4 or later to run.' Halt}
 
-DefineMacro 1 {Message 'Welcome to Carleton Farm Corn Maze 2009!\nAlso visit Carleton Farm at http://www.carletonfarm.com :-)\n\nUse the arrow keys to move through the Maze. Find 10\ncheckpoints to reveal a hidden message. Hint: "The world\nkeeps turning as..."\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: View map of Maze.\nF4: Toggle leaving breadcrumbs as you move around.\n\nF5: Switch between day and night.\nF6: Teleport to bridge in middle of Maze.\n\nPress "Ctrl+g" to teleport to start of Maze.\nPress "e" to start and stop running mode.'} "Help Text"
+DefineMacro 1 {Message 'Welcome to Carleton Farm Corn Maze 2009!\nAlso visit Carleton Farm at http://www.carletonfarm.com :-)\n\nUse the arrow keys to move through the Maze. Find 10 checkpoints to reveal a hidden message. Hint: "The world keeps turning as..."\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: View map of Maze.\nF4: Toggle leaving breadcrumbs as you move around.\n\nF5: Switch between day and night.\nF6: Teleport to bridge in middle of Maze.\n\nPress "Ctrl+g" to teleport to start of Maze.\nPress "e" to start and stop running mode.'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False fShowColorBitmap False = Del _ ExtraDelete k If fStars {CopyTexture 23 -1} Macro7 nX 197 nY 661 nDir 0 nHorizontalOffset 0 nVerticalOffset 0 nDirectionOffset 0 nViewHeight 0 @k 0 $1 '??????????' g fRedrawWhenBitmapEdited True n Macro1 ct" "Restart"
 DefineMacro 3 "fRedrawWhenBitmapEdited False fShowColorBitmap True nInside 0 SwapTexture -1 2 fRedrawWhenBitmapEdited True n Message 'You look at your map of the Maze.\n\nRed dot: You are here\nNumbers: Locations of checkpoints' fRedrawWhenBitmapEdited False SwapTexture -1 2 i fRedrawWhenBitmapEdited True n" "View Map"
 DefineMacro 4 "If fDragMoveDot {a Message 'You stop marking your path.' Break} If Gte nY SizeCY {Message 'You need to be inside the Maze before you can mark your path.' Break} a Message 'You start marking your path.\nPlaces you visit will now have a red color on the ground.'" "Breadcrumbs"
@@ -34,7 +34,7 @@ DefineMacro 7 "kInsideWall DkGreen kSky Cyan kSky2 Gray kGround Rgb 140 115 104 
 DefineMacro 8 "kInsideWall Dark DkGreen kSky Black kSky2 Dark DkGray kGround Dark Rgb 140 115 104 kGround2 Dark Dark kGround kMountain kGround2 kMountain2 Dark DkGreen kCloud DkGray kCloud2 Dark kCloud fStars True nFogDistance 2000" "Night"
 DefineMacro 9 "MessageInside 'Hidden Message (Checkpoints @k/10): $1' -1" "Inside Event"
 DefineMacro 10 "@z False @h GetCE @x @y If Not @h {Break} @h Sub @h 100 $0 '?' SetChar 0 0 Char $2 Dec @h @w Add 2 @h If Neq Char $1 Dec @h 63 {Message 'You've already been to checkpoint #@h.\nThis checkpoint revealed hidden letter $0 at position @h.\nThis checkpoint also had a picture of a: $w.' Break} SetChar 1 Dec @h Char $2 Dec @h @k inc @k Spc Message 'You find checkpoint #@h! Number of checkpoints found so far: @k\nThis checkpoint reveals hidden letter $0 at position @h.\nThis checkpoint also has a picture of a: $w.' If Gte @k 10 {Macro11}" "Wall Event"
-DefineMacro 11 "@z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all checkpoints and revealed the\ncomplete message: The world keeps turning as "Time Goes On".\nYou finished the Maze in @x minutes, @y seconds. :-)'" "Finish Maze"
+DefineMacro 11 "@z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all checkpoints and revealed the complete message: The world keeps turning as "Time Goes On". You finished the Maze in @x minutes, @y seconds. :-)'" "Finish Maze"
 
 fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Carleton Farm Corn Maze 1" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
 SetVars 27 20 "119 263 702 77 464 493 655 518 499 291 269 378 80 549 116 97 367 104 806 388" SetVars 47 20 "107 253 690 61 451 486 645 521 501 276 265 361 68 552 118 99 356 89 804 392" SetStrings 2 21 ",TIMEGOESON,Cow,Turkey,Duck,Rooster,Pig,Cat,Sheep,Goat,Dog,Horse,COW,TURKEY,DUCK,ROOSTER,PIG,CAT,SHEEP,GOAT,DOG,HORSE"

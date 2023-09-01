@@ -1,5 +1,5 @@
 DS
-// Survivor Maze game #4 - A script file for Daedalus 3.3
+// Survivor Maze game #4 - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -14,7 +14,7 @@ DS
 
 If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
 
-DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the\nfinal four in "Survivor VIII: All Stars". Your goal is to navigate the\nMaze, finding and touching eight poles in any order, and also\ntouching the center after each pole. Note some passages are\nclogged with obstacles you have to weave through.\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Switch background between day and night.\n\nWhen you touch the center, it must be on the side of the color\nyou're playing as. In this game you're the $x player. That was\nthe position $y had on Survivor.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
+DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the final four in "Survivor VIII: All Stars". Your goal is to navigate the Maze, finding and touching eight poles in any order, and also touching the center after each pole. Note some passages are clogged with obstacles you have to weave through.\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Switch background between day and night.\n\nWhen you touch the center, it must be on the side of the color you're playing as. In this game you're the $x player. That was the position $y had on Survivor.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False SetVars 1 8 '0 0 0 0 0 0 0 0' @p Rnd 0 3 @q 1 fShowColorBitmap False = Del _ ExtraDelete k c5 IfElse Odd @p {nX Add nX Mul 7 Sgn Sub @p 2} {nY Add nY Mul 7 Sgn Dec @p} nDir @p g cg nDirectionOffset -20 fRedrawWhenBitmapEdited True Spc Macro1 fPauseTimer False ct" "Restart Maze"
 DefineMacro 3 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {Macro8} {fStars True nFogDistance 800 kSky Black kGround Rgb 95 119 0 kMountain Dark DkGreen kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"
 
@@ -22,7 +22,7 @@ DefineMacro 4 "@w GetC @x @y If Neq @w Blend Gray Brown {If Lte Add Abs Sub @x 1
 DefineMacro 5 "If Gt @q 16 {Break} IfElse Odd @q {@w Div Inc @q 2 MessageInside 'Seeking: Pole #@w' -1} {MessageInside 'Seeking: Center' -1}" "Inside Event"
 
 DefineMacro 6 "If Gt @q 16 {nViewHeight nWallHeight @z True Break} If Odd @q {@w Div Inc @q 2 Message 'You don't need to be at the center now. You need to go find pole #@w.' Break} For (v) 1 3 {If Equ @w Var Add 8 @v 'Break'} IfElse Equ Var Add 9 @p Var Add 8 @v {@q Inc @q If Gt @q 16 'Macro7 Break' @w Div Inc @q 2 Message 'You've reached the center! Now go find pole #@w.'} {@w Inc @p Message 'You don't want to be at the $v color wall of the center.\nRather you want to touch the $w wall.'}" "Hit Center"
-DefineMacro 7 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you've found all the poles and returned to the\ncenter! :-) You solved it in @x minutes, @y seconds.\n\nWith the immunity necklace around your neck, you can't be voted\noff the island in Tribal Council. Having made it from the final four\nto the final three, you now have a 1 in 3 chance of winning the\nmillion dollar prize!' nViewHeight nWallHeight @z True" "Win Game"
+DefineMacro 7 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you've found all the poles and returned to the center! :-) You solved it in @x minutes, @y seconds.\n\nWith the immunity necklace around your neck, you can't be voted off the island in Tribal Council. Having made it from the final four to the final three, you now have a 1 in 3 chance of winning the million dollar prize!' nViewHeight nWallHeight @z True" "Win Game"
 DefineMacro 8 "fStars False nFogDistance 0 kSky Cyan kGround Rgb 191 239 0 kMountain DkGreen kCloud White kCloud2 -1" "Day Settings"
 
 fRedrawWhenBitmapEdited False ResetProgram EmbedDB

@@ -1,5 +1,5 @@
 DS
-// Daedalus Demonstrations - A script file for Daedalus 3.3
+// Daedalus Demonstrations - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -12,6 +12,7 @@ DS
 // o: Evolution/Life number of generations near end
 // p: Spree pixels per cell (constant)
 // q: Whether solids.dp has been loaded yet
+// r: Day/night mode slowdown rate
 // s: Day/night mode fraction/second
 // t: Day/night current time/total
 // u: Day/night time increment rate (constant)
@@ -21,9 +22,9 @@ DS
 
 If Gte Version 3300 {Break} Message 'This script requires Daedalus 3.3 or later to run.' Break
 
-DefineMacro 1 "Message 'Daedalus Feature Demonstrations\n\nF1: Display this help menu.\tShift+F1: Stop any animation.\nF2: Random Maze walk.\tShift+F2: Random 3D Maze walk.\nF3: Maze creation spree.\tShift+F3: Spree (see generation).\nF4: Draw Maze overview.\tShift+F4: Aerial Maze overview.\nF5: Draw cubes Maze.\tShift+F5: Draw cubes Maze #2.\nF6: View Chartres Labyrinth.\tShift+F6: View classical Labyrinth.\nF7: Animate over Maze.\tShift+F7: Animate wireframe Maze.\nF8: Display Escher room.\tShift+F8: Display castle.\nF9: Evolution patterns.\tShift+F9: Life patterns.\nF10: Geometrical shapes.\tShift+F10: Animate shapes.'" "Help Text"
+DefineMacro 1 "Message 'Daedalus Feature Demonstrations\n\nF1: Display this help menu.\tShift+F1: Stop any animation.\nF2: Random Maze walk.\tShift+F2: Random 3D Maze walk.\nF3: Maze creation spree.\tShift+F3: Spree (see generation).\nF4: Draw Maze overview.\tShift+F4: Aerial Maze overview.\nF5: Draw cubes Maze.\tShift+F5: Draw cubes Maze #2.\nF6: View Chartres Labyrinth.\tShift+F6: View classical Labyrinth.\nF7: Animate over Maze.\tShift+F7: Animate flat Maze.\nF8: Display Escher room.\tShift+F8: Display castle.\nF9: Evolution patterns.\tShift+F9: Life patterns.\nF10: Geometrical shapes.\tShift+F10: Animate shapes.'" "Help Text"
 DefineMacro 13 "Macro48 If fWindowAlwaysOnTop {sTab} Macro1" "Stop"
-DefineMacro 2 "Macro48 fRedrawWhenBitmapEdited False fShowColorBitmap False TempDelete ExtraDelete cF an CollapseToSet Quo Replace White '\' 0 c8 nY -1 nDir 0 fShowDot True fWallsImpassable True fNarrowWalls True fStars False nWallHeight 100 fRedrawWhenBitmapEdited True nInside 2 @t 1536 nAfterRedrawInside 25 n If Not fWindowAlwaysOnTop {sTab} 0 fAutorepeatLastCommand True" "Maze Walk"
+DefineMacro 2 "Macro48 fRedrawWhenBitmapEdited False fShowColorBitmap False TempDelete ExtraDelete cF an CollapseToSet Quo Replace White '\' 0 c8 nY -1 nDir 0 fShowDot True fWallsImpassable True fNarrowWalls True fStars False nWallHeight 100 fRedrawWhenBitmapEdited True nInside 2 @t Mul 1536 @r nAfterRedrawInside 25 n If Not fWindowAlwaysOnTop {sTab} 0 fAutorepeatLastCommand True" "Maze Walk"
 DefineMacro 14 "Macro48 fRedrawWhenBitmapEdited False ColorDelete TempDelete ExtraDelete Size3X 15 Size3Y 15 Size3Z 15 Size3W 4 Q c8 nY -1 nDir 0 fShowDot True fWallsImpassable True kSky Black kCloud DkGray kCloud2 Dark DkGray fNarrowWalls True fStars True nWallHeight 100 nStarCount 768 fRedrawWhenBitmapEdited True nInside 2 n If Not fWindowAlwaysOnTop {sTab} 0 fAutorepeatLastCommand True" "3D Maze Walk"
 DefineMacro 3 "Macro32 fShowIndividualPixelEdits False" "Spree"
 DefineMacro 15 "Macro32 fShowIndividualPixelEdits True" "Spree Process"
@@ -44,7 +45,7 @@ DefineMacro 22 "Macro48 @d 90 fHourglassCursorOnRedraw False fShowColorBitmap Tr
 DefineMacro 11 "Macro10" "Shapes"
 DefineMacro 23 "Macro22" "Animate Shapes"
 
-DefineMacro 25 "fRedrawWhenBitmapEdited False @t Add @t @u If Gte @t 1536 {@t 0} @m Div @t 256 @s Mod @t 256 Macro Add 26 @m fRedrawWhenBitmapEdited True" "Inside Event"
+DefineMacro 25 "fRedrawWhenBitmapEdited False @t Add @t @u If Gte @t Mul 1536 @r {@t 0} @m Div @t Mul 256 @r @s Div Mod @t Mul 256 @r @r Macro Add 26 @m fRedrawWhenBitmapEdited True" "Inside Event"
 DefineMacro 26 "If Equ @s 0 {kSky Aqua kCloud White kCloud2 Light LtGray kMountain Brown kMountain2 Gray nFogDistance 0 kGround2 -1 nSunMoonY 333}" "Midday"
 DefineMacro 27 "kSky Rgb 0 Sub 255 @s 255 kCloud GrayN Sub 255 Div Mul @s 3 8 kCloud2 GrayN Sub 223 Div Mul @s 3 8 kMountain Rgb Sub 127 Div @s 8 Sub 63 Div @s 16 0 kMountain2 GrayN Sub 127 Div Mul @s 52 256 nFogDistance Sub 5290 Mul @s 20 kGround2 GrayN Sub 128 Div @s 4 nSunMoonY Add 333 Div Mul @s 667 256" "Late Day"
 DefineMacro 28 "If Equ @s 0 {fStars True} kSky Rgb 0 0 Sub 255 @s kCloud GrayN Sub 159 Div Mul @s 3 8 kCloud2 GrayN Sub 127 Div Mul @s 3 8 kMountain Rgb Sub 95 Div @s 8 Sub 47 Div @s 16 0 kMountain2 GrayN Sub 75 Div Mul @s 52 256 nStarCount Mul @s 3 nFogDistance Sub 170 Div @s 2 kGround2 GrayN Sub 64 Div @s 4 nSunMoonY Sub 1000 Div Mul @s 667 256" "Early Night"
@@ -53,7 +54,7 @@ DefineMacro 30 "kSky Rgb 0 0 @s nStarCount Mul Sub 255 @s 3 kCloud GrayN Add 64 
 DefineMacro 31 "If Equ @s 0 {fStars False} kSky Rgb 0 @s 255 kCloud GrayN Add 160 Div Mul @s 3 8 kCloud2 GrayN Add 128 Div Mul @s 3 8 kMountain Rgb Add 95 Div @s 8 Add 47 Div @s 16 0 kMountain2 GrayN Add 76 Div Mul @s 52 256 nFogDistance Add 170 Mul @s 20 kGround2 GrayN Add 64 Div @s 4 nSunMoonY Sub 1000 Div Mul @s 667 256" "Early Day"
 
 DefineMacro 32 "Macro48 If Not fWindowAlwaysOnTop {sTab} Size Div nWindowHorizontalSize @p Div nWindowVerticalSize @p 0 1 fHourglassCursorOnRedraw False fSkipMessageDisplay True fAutorepeatRandomizesWallColor True kBorder Black fShowDot False nInside 0 Macro33 fAutorepeatLastCommand True" "Spree Initialize"
-DefineMacro 33 "fCreateWithWallAdding Rnd 0 1 @z Rnd 0 16 If Lte @z 8 {an} If Equ @z 9 {aj} If Equ @z 10 {as} If Equ @z 11 {S} If Equ @z 12 {av} If Equ @z 13 {K} If Gte @z 14 {nBraidMethod Sub @z 14 B}" "Random Maze"
+DefineMacro 33 "fCreateWithWallAdding Rnd 0 1 @z Rnd 0 16 If Lte @z 8 {an Return} If Equ @z 9 {aj Return} If Equ @z 10 {as Return} If Equ @z 11 {S Return} If Equ @z 12 {av Return} If Equ @z 13 {K Return} nBraidMethod Sub @z 14 B" "Random Maze"
 DefineMacro 34 "fShowDot False nInside 0 = \ fShadeSky True fShadeObjects False Overview _ fShadeSky False fShadeGround True Overview - fShadeGround False fShadeObjects True Overview - Blend3 Replace Yellow @c 0 Replace Magenta Light @c 0 Replace White Dark @c 0 Replace Cyan @b 0 kBorder @b" "Draw Overview"
 DefineMacro 35 "@l @z Evolution @v 1 If Or Lte @z 0 Gte @z @n {Evolution @v 0 Break} IfElse Or Gte @z Div Mul @n 4 5 Equ @z @l {@o Inc @o If Gte @o 128 'Evolution @v 0'} {@o 0}" "Next Evolution"
 DefineMacro 36 "fRedrawWhenBitmapEdited False fShowColorBitmap False AllRandom Quo TempDelete fRedrawWhenBitmapEdited True aL" "Life Start"
@@ -72,7 +73,7 @@ DefineMacro 48 "fShowIndividualPixelEdits False fAutoRepeatLastCommand False fHo
 WindowTitle "- Demos" True fRedrawWhenBitmapEdited False
 ResetProgram fShowColorBitmap False nHorizontalScroll 8 nVerticalScroll 8
 fTiltLinesMakeNoDiamonds True
-kGround Gray fSealedEntrances False fMountains True nPeakHeight 20 fSunAndMoon True nCellSize 160 nNarrowCellSize 40 rLightFactor 50 nMotionFrames 45 nRotationFrames 45 nUpDownFrames 45 fShadeObjects True fSkyAll False
+kGround Gray fSealedEntrances False fMountains True nPeakHeight 20 fSunAndMoon True nCellSize 160 nNarrowCellSize 40 rLightFactor 50 nMotionFrames 90 nRotationFrames 90 nUpDownFrames 45 fShadeObjects True fSkyAll False
 TempDelete ExtraDelete
-@p 2 @q False @u 1 @v 17 @w 8
+@p 2 @q False @r 3 @u 1 @v 17 @w 8
 fRedrawWhenBitmapEdited True n Macro13

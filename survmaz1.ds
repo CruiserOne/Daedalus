@@ -1,5 +1,5 @@
 DS
-// Survivor Maze game #1 - A script file for Daedalus 3.3
+// Survivor Maze game #1 - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -16,7 +16,7 @@ DS
 
 If Gte Version 2300 {Break} Message 'This script requires Daedalus 2.3 or later to run.' Break
 
-DefineMacro 1 "Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the episode 5 immunity\nchallenge in "Survivor II: The Australian Outback". Your goal is to\nnavigate the Maze, find and touch five poles in order, and then\nreach the exit.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in random Maze.\nF5: Switch background between day and night.\n\nA message will be displayed when you run into each pole.\nThe poles progress through the colors of the rainbow:\nPole #1: Red, #2: Yellow, #3: Green, #4: Blue, #5: Purple.\n\nJeff Probst says: "Survivors ready? Go!"'" "Help Text"
+DefineMacro 1 "Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the episode 5 immunity challenge in "Survivor II: The Australian Outback". Your goal is to navigate the Maze, find and touch five poles in order, and then reach the exit.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in random Maze.\nF5: Switch background between day and night.\n\nA message will be displayed when you run into each pole.\nThe poles progress through the colors of the rainbow:\nPole #1: Red, #2: Yellow, #3: Green, #4: Blue, #5: Purple.\n\nJeff Probst says: "Survivors ready? Go!"'" "Help Text"
 DefineMacro 2 "Macro15 Macro19" "Restart Maze"
 DefineMacro 3 "Macro15 Macro16 Macro18 Macro19" "Start Survivor's Maze"
 DefineMacro 4 "Macro15 Macro17 Macro18 Macro19" "Start Random Maze"
@@ -28,7 +28,7 @@ DefineMacro 8 "If Lt @q 6 {MessageInside 'Seeking: Pole #@q ($q)' -1 Break} If E
 
 DefineMacro 9 "@r Sub 6 @q SwitchSgn Dec @r {Message 'This is the entrance.\n\nJeff Probst says: "You can't leave the Maze here! You have to find the exit. You're almost done!"'} {Message 'This is the entrance.\n\nJeff Probst says: "Hey, you can't leave the Maze here! You still have one more pole to find."'} {Message 'This is the entrance.\n\nJeff Probst says: "Hey, you can't leave the Maze here! You still have @r more poles to find."'}" "Leave Entrance"
 DefineMacro 10 "@r Sub 6 @q SwitchSgn Dec @r {@z False @q Inc @q fPauseTimer True Macro11} {Message 'This is the exit.\n\nJeff Probst says: "Hey, you can't leave the Maze yet! You still have one more pole to find."'} {Message 'This is the exit.\n\nJeff Probst says: "Hey, you can't leave the Maze yet! You still have @r more poles to find."'}" "Leave Exit"
-DefineMacro 11 "If Lte @q 6 {Break} @z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all poles and exited the Maze! :-)\nYou solved it in @x minutes, @y seconds.\n\nYour tribe wins immunity, and Jeff Probst hands you the coveted\nimmunity idol. You try to conceal a grin as Jeff tells the other tribe\nhe'll see them that evening in Tribal Council. Your tribemates cheer\nyou! With your new respect, you know you're safe from the vote\nuntil at least the merge.'" "Win Game"
+DefineMacro 11 "If Lte @q 6 {Break} @z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all poles and exited the Maze! :-) You solved it in @x minutes, @y seconds.\n\nYour tribe wins immunity, and Jeff Probst hands you the coveted immunity idol. You try to conceal a grin as Jeff tells the other tribe he'll see them that evening in Tribal Council. Your tribemates cheer you! With your new respect, you know you're safe from the vote until at least the merge.'" "Win Game"
 DefineMacro 12 "SwitchSgn Sub @q 6 {Message 'You've already been to this pole.\nThis is pole #@p ($p). You need to find pole #@q ($q).'} {Message 'You've already been to this pole.\nThis is pole #@p ($p). You need to find the exit.'} {Break}" "Pole Past"
 DefineMacro 13 "@q Inc @q IfElse Lte @q 5 {Message 'You find a pole!\nThis is pole #@p ($p). Now find pole #@q ($q).'} {Message 'You find a pole!\nThis is pole #@p ($p), the last pole! Now find the exit!'}" "Pole Present"
 DefineMacro 14 "IfElse Lte Sub @p @q 1 {Message 'You need to find another pole first before you can visit this one.\nThis is pole #@p ($p). You need to first find pole #@q ($q).'} {@r Dec @p Message 'You need to find other poles first before you can visit this one.\nThis is pole #@p ($p). You need to first find poles #@q ($q) though #@r ($r).'}" "Pole Future"

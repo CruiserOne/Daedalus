@@ -1,5 +1,5 @@
 DS
-// Glacier Maze - A script file for Daedalus 3.3
+// Glacier Maze - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -46,7 +46,7 @@ DS
 
 If Gte Version 3000 {Break} Message 'This script requires Daedalus 3.0 or later to run.' Break
 
-DefineMacro 1 {Message 'Welcome to Glacier Maze!\n\nThis simulates random Mazes in the original layout of Glacier Maze,\na life size Maze located outside Glacier National Park, MT. Your\ngoal is to enter the Maze, find your way to each of the four\ncorners in any order, then to the exit. The exit can be seen on the\nwest side of the inner courtyard. Note there are a couple of\nemergency exits if you need to cheat. ;-) There are also clues on\ncertain walls in the Maze which can be read by touching the wall.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Create new Maze.\nF4: Switch between day and night.\n\nPress "e" to start and stop running mode.\nPress "x" to mark your path with a darker color square on ground.'} "Help Text"
+DefineMacro 1 {Message 'Welcome to Glacier Maze!\n\nThis simulates random Mazes in the original layout of Glacier Maze, a life size Maze located outside Glacier National Park, MT. Your goal is to enter the Maze, find your way to each of the four corners in any order, then to the exit. The exit can be seen on the west side of the inner courtyard. Note there are a couple of emergency exits if you need to cheat. ;-) There are also clues on certain walls in the Maze which can be read by touching the wall.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Create new Maze.\nF4: Switch between day and night.\n\nPress "e" to start and stop running mode.\nPress "x" to mark your path with a darker color square on ground.'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False CopyTexture 5 -2 Macro27 If fStars {_ Brightness -50 0 _} fRedrawWhenBitmapEdited True n Macro1 ct" "Restart Maze"
 DefineMacro 3 "fRedrawWhenBitmapEdited False Macro22 Macro27 If fStars {_ Brightness -50 0 _} fRedrawWhenBitmapEdited True n Macro1 ct" "New Maze"
 DefineMacro 4 "fRedrawWhenBitmapEdited False fShowColorBitmap True If Equ nInside 0 {i} IfElse fStars {_ Brightness 200 2 _ Macro30} {_ Brightness -50 0 _ fStars True nFogDistance 100 kSky Black kGround Dark kGround kMountain Dark DkGreen kCloud DkGray kMountain2 Dark DkGray kCloud2 Dark kCloud} @z Rgb 223 191 63 SetCT 47 60 @z SetCT 50 55 @z SetCT 47 50 @z fRedrawWhenBitmapEdited True Spc" "Day And Night"

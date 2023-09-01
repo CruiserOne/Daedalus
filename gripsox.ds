@@ -1,0 +1,1550 @@
+DS
+// Grippy Socks - A script file for Daedalus 3.4
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+// Created: April 20, 2023 - August 29, 2023
+
+// Variable usage:
+// d: If it's dark out
+// e: Energy level
+// f: Number of friends
+// h: Hour and minute of day (0-1439)
+// i-j: Temporary indexes
+// m-n: Coordinates facing
+// p: Wellness level (0-10)
+// r: Room staying in (0-9)
+// t: Time in hospital
+// w-z: Temporary variables
+
+// Custom variable prefixes:
+// A: Setting (adventure quests)
+// B: Bitmap (general)
+// F: Macro (function for user command)
+// I: Macro (initialize hospital)
+// K: Color
+// M: Bitmap (texture that gets displayed)
+// Q: Setting (boolean query)
+// S: Setting (user visible)
+// T: Setting (chat timing)
+// V: Macro (event)
+// Y: Identity data
+// Z: String
+
+// Real med names: Aripiprazole (Abilify), Clozapine (Clozaril), Olanzapine (Zyprexa), Quetiapine (Seroquel), Risperidone (Risperdal), Haloperidol (Haldol), Chlorpromazine (Thorazine)
+// Script med names: Aridicerazole (pip->dice), Clozafir (pine->fir), Olanzacone (pine->cone), Loudapine (quiet->loud), Risperistart (done->start), Hornperidol (halo->horn), Chlorpromag (zine->mag)
+// Quests: Do laundry, Pick up package from lobby, Pick up games from closet, Visit in room at night, Count 19 motivational posters, Pick up tofu from pantry, Visit trees, Pick a dozen flowers, Find lost ring, Clean restroom
+
+If Lt Version 3400 {Message 'This script requires Daedalus 3.4 or later to run.' Halt}
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Grippy Socks" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
+
+SetString 0 "1 FHelp FStart FName FUse FRest FRest2 FRest3 FUp FDown FLeft FRight FLeft2 FRight2 VInside VMove VMoved Wait Next Well Catch Facing Energy Look LookS Hear Door DoorP Dress Shelf John Sink Shower Wash Poster Tree Bush Study Chat Chat0 Chat1 Chat2 Chat3 Chat4 Chat5 Chat6 Chat7 Chat8 ChatP ChatN ChatM ChatF ChatG ChatR ChatO Done IRandom IRoom ISchedH ISchedR IChar IMove IPeople Move0 Move1 MoveOne MoveBed Day0 Day1 Day2 Day3 Day4 Day5 Day6 " // Macros
+AppendString 0 "10 BID MTree MBush MBush2 MBed MTable MTable0 MDoor MDoor2 MDoor0 MDoorP MDoorP2 MPad +3 MPad0 +3 MDress MShelf MJohn MJohnP MSink MShower MWash MSwitch0 MSwitch1 MFire +2 MTele +2 MPic +2 MChain MRoom +10 MSignL +13 MSignR +9 MSignO +2 MQuote +19 MSched +2 MSchedR +10 MBody +40 " // Bitmaps
+AppendString 0 "13 SignL 9 SignR 19 Quote 12 Sched 21 Name 7 Role 10 Room " // Constants
+AppendString 0 "10 ZYou ZSignL +26 ZSignR +18 ZQuote +38 ZSched +12 ZSched2 +12 ZSchedR +10 ZName +10 ZNameF +21 ZNameM +21 ZRole +7 ZHair +20 ZMed +7 " // Strings
+AppendString 0 "27 KSky +6 KGrd +6 KMtn +6 KCld +6 KFog +6 KFloor KCeil KWall KDoor YCoor +32 YBody +16 YTall +16 YColor +16 YName +16 YID +16 Day Gend SGend SMist QDone QOne QNaked QPsych QMed QMedNew QCBT QStudy QBrea QLunc QDinn QHunger QGrp1 QGrp2 QJohn QJohn2 QHands QShower QStink TChat0 TChat1 TChat2 TChat3 TChat4 TChat5 TChat6 TChat7 TChat8 TPsych TNurse TRecep TOne A0 A1 A2 A3 A4 A4Data A4Num A5 A6 A6Data A7 A7Data A7Num A8 A8Chat A8X A8Y A9 A9Data MedTim MedNam Fire Pad Echo1 Echo2 Echo3 XPrev YPrev" // Variables 
+DefineConst $0 If @z {Message 'Initialization failed!' Halt}
+
+// ///////////// //
+// Main Commands //
+// ///////////// //
+
+EmbedMacro %FHelp "Help Text"
+MessageAsk "Grippy Socks: A mental health simulation\n\nYou are a patient in a psychiatric hospital. Your goal is to find the right medication and other treatments, and then use them, in order to get yourself released.\n\nF1: Display this help text (shortcut: '?')\nF2: Restart simulation from beginning (shortcut: '~')\nF3: Restart after setting your name and gender (shortcut: '`')\nF4: Interact with whatever's in front of you (shortcut: 'e')\n\nF5: Rest for a minute (shortcut: 'z')\nF6: Rest for 15 minutes (shortcut: 'Shift+Z')\nF7: Rest for an hour (shortcut: 'Ctrl+z')\n\nUse arrow keys or 'w/a/s/d' keys to move and rotate.\nUse Shift+left/right arrow or 'x/c' keys to sidestep.\n\nSelect OK for more help, or Cancel to start playing." 1
+If Neq @z 1 {@z True Return}
+Message "Grippy Socks is a turn based simulation, which means that only when you move or take action, will other things happen. At the bottom of the screen is the status line, which contains the following:\n\nEnergy: If falls to 0 you're too depressed to interact or chat.\nWellness: You can leave hospital grounds once it reaches 10.\nFriends: Do favors for people and they'll like you more.\nTime: Advances one minute whenever you move or interact.\n\nThe key to getting released is to raise your 'wellness level'. The hospital staff evaluates your actions and updates your wellness level at the start of each new day. To raise your wellness, engage in self-care and follow your schedule to the best of your ability."
+@z True
+
+EmbedMacro %FStart "Start Game"
+fRedrawWhenBitmapEdited False
+@p 3 @e 250 @f 0
+@QDone 0 @QOne 0 @QNaked 0 @QPsych 0 @QMed 0 @QMedNew 0 @QCBT 0 @QStudy 0 @QBrea 0 @QLunc 0 @QDinn 0 @QHunger 0 @QGrp1 0 @QGrp2 0 @QJohn 0 @QJohn2 0 @QHands 0 @QShower 0 @QStink 0
+@TChat0 0 @TChat1 0 @TChat2 0 @TChat3 0 @TChat4 0 @TChat5 0 @TChat6 0 @TChat7 0 @TChat8 0 @TPsych 0 @TNurse 0 @TRecep 0 @TOne 0
+@A0 0 @A1 0 @A2 0 @A3 0 @A4 0 @A4Data 0 @A4Num 0 @A5 0 @A6 0 @A6Data 0 @A7 0 @A7Data 0 @A7Num 0 @A8 0 @A8Chat 0 @A8X 0 @A8Y 0 @A9 0 @A9Data 0
+@MedTim 0 @Fire 0 @Pad 0 @Echo1 0 @Echo2 0 @Echo3 0 @XPrev 0 @YPrev 0
+@MedNam Rnd 0 6
+*IChar *IRandom *IRoom *ISchedH *ISchedR
+SetY 3 14 0 %MFire
+CopyMask 7 -1
+k
+For (i) 0 Sub %Quote 2 {@z Rnd @i Dec %Quote SwapMask Add %MQuote @i Add %MQuote @z}
+@z Not Odd @r
+nX ?: @z 41 23
+nY Add Add 23 Mul @z 2 Mul Div @r 2 4
+nDir ?: @z 0 2 g
+@t 0 *Day0
+fRedrawWhenBitmapEdited True n
+*FHelp
+@z True
+
+EmbedMacro %FName "Set Name"
+$0 $ZYou
+@z Inc @SGend SetString 1 "@z"
+GetString2 'Enter your name (?=Random):' 'Enter gender of people (1=Women, 2=Men, 3=Either):' 0
+If @z {Return}
+$ZYou $0
+@z True
+@y Num $1 If Not Tween @y 1 3 {Message 'Bad gender!\nNumber must be between 1-3.' Return}
+@SGend Dec @y
+*FStart
+@z True
+
+EmbedMacro %FUse "Interact"
+fRedrawWhenBitmapEdited False
+*Facing
+*Chat
+*Wait
+@z -1 *Energy
+fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FRest "Rest"
+fRedrawWhenBitmapEdited False
+IfElse Equ GetCE nX nY Maize {@z 1 *Energy $8 "You briefly rest."} {$8 "You wait for a bit."}
+If And And Equ @A8 1 Equ nX @A8X Equ nY @A8Y {$8 "You find a ring lying next to the path!" @A8 2}
+*Wait
+fRedrawWhenBitmapEdited True Spc
+@z True
+
+EmbedMacro %FRest2 "Rest While"
+fRedrawWhenBitmapEdited False
+IfElse Equ GetCE nX nY Maize {@z 15 *Energy $8 "You get some rest."} {$8 "You wait for a while."}
+@w 15
+@z Sub 360 @h
+If Tween @z 1 14 {@w @z}
+DoCount @w {*Wait}
+fRedrawWhenBitmapEdited True Spc
+@z True
+
+EmbedMacro %FRest3 "Rest Lots"
+fRedrawWhenBitmapEdited False
+IfElse Equ GetCE nX nY Maize {@z 60 *Energy $8 "You get a lot of rest."} {$8 "You wait for a long while."}
+@w 60
+@z Sub 360 @h
+If Tween @z 1 59 {@w @z}
+DoCount @w {*Wait}
+fRedrawWhenBitmapEdited True Spc
+@z True
+
+DefineMacro %FUp     "8 @z True" "Move Forward"
+DefineMacro %FDown   "2 @z True" "Move Backward"
+DefineMacro %FLeft   "$8 '' 4 @z True" "Rotate Left"
+DefineMacro %FRight  "$8 '' 6 @z True" "Rotate Right"
+DefineMacro %FLeft2  "$ @z True" "Sidestep Left"
+DefineMacro %FRight2 "^ @z True" "Sidestep Right"
+
+// ////// //
+// Events //
+// ////// //
+
+EmbedMacro %VInside "Inside Event"
+Local 'imnwxyz'
+@z Mul @Day 6
+@y Add @t Div Mul @Day 3 2
+@w Inc Div @y @z
+@x Mod @y @z
+@h Div Mul @x 1440 @z
+@y Mod @h 60
+@x Div @h 60
+@z Mod @y 10
+@y Div @y 10
+IfElse Lt @x 12 ($0 "am") ($0 "pm")
+@x Mod @x 12
+If Not @x (@x 12)
+@i Add %ZName @r
+IfElse @QNaked {$1 "_(NAKED)" SetChar 1 0 32} {$1 ""}
+IfElse @QDone {$2 "_(DISCHARGED)" SetChar 2 0 32} {$2 ""}
+IfElse @QDone {$3 "LOTS"} {SetString 3 "@e"}
+MessageInside "Name: $i$1, Energy: $3, Wellness: @p/10$2, Friends: @f/10, Day: @w, Time: @x:@y@z$0" -1
+*Facing
+*Look
+If NeqStr $9 "" {MessageInside $9 0}
+If NeqStr $8 "" {MessageInside $8 1}
+
+EmbedMacro %VMove "Before Move Event"
+@XPrev nX @YPrev nY
+
+EmbedMacro %VMoved "After Move Event"
+fRedrawWhenBitmapEdited False
+$8 "" $9 ""
+If And And @QOne Not GetE @XPrev @YPrev Neq GetCE @XPrev @YPrev Olive {*MoveOne}
+*Wait
+@z -1 *Energy
+fRedrawWhenBitmapEdited True Spc
+
+// ////////////// //
+// Other Routines //
+// ////////////// //
+
+EmbedMacro %Wait "Advance Time"
+@t Inc @t
+@h Inc @h
+*Day0 MoveCloud -1 30000
+If Equ @h 1290 {
+  *MoveBed
+  @d 1
+}
+If @QDone {
+  If Equ @h 360 (*IMove @d 0)
+  return
+}
+If @Pad {
+  @Pad Dec @Pad
+  If And Lte @Pad 1 Lte @p 0 (@p 2)
+}
+If Equ @h 360 {
+  *Next
+  @d 0
+}
+If Or Not Tween nX 0 Dec SizeX Not Tween nY 0 Dec SizeY {
+  If Gte @p 10 (
+    If Not @QDone "*Done"
+    $7 ""
+    return
+  )
+  Message "You escaped the hospital grounds without being released! The nurses chase you down, grab you, and throw you into a safety room! :-("
+  *Catch
+  return
+}
+If Gt @Fire 0 {
+   @Fire Dec @Fire
+   If Equ @Fire 0 (
+     Message "The nurses noticed you pull the fire alarm, when there's no fire. For causing such a disruption, they grab you and throw you into a safety room! :-("
+     *Catch
+     return
+   )
+}
+If And @QNaked Tween nX 31 33 {
+  Message "You're running around the hospital naked! For causing such a disruption, the nurses grab you, and throw you into a safety room! :-("
+  If Or Gt @h 1320 Lt @h 360 (@Pad ?: Gt @h 1320 Sub 420 Sub @h 1320 Sub 300 @h)
+  *Catch
+}
+If And And Or Gt @h 1320 Lt @h 360 Lte @Pad 0 Not And Tween nX 22 42 Tween nY 22 42 {
+  Message "You're running around the hospital at night! For causing a disruption, the nurses grab you, and throw you into a safety room! :-("
+  @Pad ?: Gt @h 1320 Sub 420 Sub @h 1320 Sub 300 @h
+  *Catch
+}
+*Hear
+
+EmbedMacro %Next "Next Day"
+@w @p
+*Well
+SwitchSgn Sub @p @w {SetString 2 "decreased from @w to @p. :-("} {SetString 2 "stayed at @p."} {SetString 2 "increased from @w to @p! :-)"}
+$3 ""
+If And And Gt @w 1 Lte @p 1 Not @QOne {SetString 3 "\n\nYour wellness has fallen enough that you are in crisis! For your safety you have been placed on a one-on-one continual observation. :-(" @QOne 1 *MoveOne}
+If And And Lte @w 1 Gt @p 1 @QOne {SetString 3 "\n\nYour wellness has improved enough that you are no longer in crisis. You are trusted to no longer need to be on one-on-one continual observation. :-)" @QOne 0 @XPrev 39 @YPrev 17 *MoveOne}
+If And Lte @w 10 Gte @p 10 {SetString 3 "\n\nYou have reached wellness level 10, the maximum level of wellness! You've been assessed to be well enough that you no longer need to be a patient. You are being discharged and may now leave the hospital grounds! :-)"}
+Message "You made it through another day on the psych ward! Here's a summary of your actions the previous day:\n\n$1\nAs a result of your actions yesterday, your wellness level has $2$3"
+If And And Not @QBrea Not @QLunc Not @QDinn {@QHunger 1}
+If Not @QShower {@QStink 1}
+If Not @QJohn {@QJohn2 1}
+@QPsych 0 @QMed 0 @QMedNew 0 @QBrea 0 @QLunc 0 @QDinn 0 @QGrp1 0 @QGrp2 0 @QJohn 0 @QShower 0
+*IMove
+
+EmbedMacro %Well "Wellness Adjust"
+$1 ""
+$3 "_[+1]" SetChar 3 0 32
+If And And @QBrea @QLunc @QDinn {IfElse Lt @p 9 (@p Inc @p $2 $3) ($2 "") SetString 1 "$1Positive: Ate breakfast, lunch, and dinner.$2\n"}
+If @QShower {IfElse Lt @p 9 (@p Inc @p $2 $3) ($2 "") SetString 1 "$1Positive: Took a shower at some point.$2\n"}
+If And @QGrp1 @QGrp2 {IfElse Lt @p 9 (@p Inc @p $2 $3) ($2 "") SetString 1 "$1Positive: Attended all daily therapy groups.$2\n"}
+If @QPsych {IfElse Lt @p 9 (@p Inc @p $2 $3) ($2 "") SetString 1 "$1Positive: Checked in with your psychiatrist.$2\n"}
+If And @QMed Not @QMedNew {IfElse Lt @p 9 (@p Inc @p $2 $3) ($2 "") SetString 1 "$1Positive: Took your medication.$2\n"}
+If @QStudy {IfElse Lt @p 10 (@p Inc @p $2 $3) ($2 "") SetString 1 "$1Positive: Studied Cognitive Behavioral Therapy (CBT).$2\n"}
+$3 "_[-1]" SetChar 3 0 32
+If And And Not @QBrea Not @QLunc Not @QDinn {IfElse Gt @p 1 (@p Dec @p $2 $3) ($2 "") SetString 1 "$1Negative: Didn't eat anything all day.$2\n"}
+If Not @QShower {IfElse Gt @p 1 (@p Dec @p $2 $3) ($2 "") SetString 1 "$1Negative: Never showered.$2\n"}
+If And Not @QGrp1 Not @QGrp2 {IfElse Gt @p 1 (@p Dec @p $2 $3) ($2 "") SetString 1 "$1Negative: Skipped all daily therapy groups.$2\n"}
+If Not @QPsych {IfElse Gt @p 1 (@p Dec @p $2 $3) ($2 "") SetString 1 "$1Negative: Didn't check in with your psychiatrist.$2\n"}
+If And And Not @QMed Gt @MedTim 0 Not @QMedNew {IfElse Gt @p 1 (@p Dec @p $2 $3) ($2 "") SetString 1 "$1Negative: Avoided taking your medication.$2\n"}
+If EquStr $1 "" {SetString 1 "Nothing out of the ordinary.\n"}
+
+EmbedMacro %Catch "Safety Room"
+@z Add 5 Mul Rnd 0 1 2
+Set @z 10 On
+nX @z nY 9 nDir 0
+@p 0
+@Fire 0 @Pad Add @Pad 60
+SetY 3 14 0 %MFire
+@QOne 0 @QNaked 0
+ForStep (i) 31 33 2 {ForStep (j) 8 10 2 (Set @i @j On)}
+Set 2 11 On Set 2 13 On
+
+EmbedMacro %Facing "Facing Texture"
+@x Add nX ?: Odd nDir Sub nDir 2 0
+@y Add nY ?: Odd nDir 0 Dec nDir
+@m Add nX Mul Sub @x nX 2
+@n Add nY Mul Sub @y nY 2
+@z GetCA 0 @x @y
+@z ?: Lt nDir 2 UdD @z UdU @z
+
+EmbedMacro %Energy "Adjust Energy"
+@e Add @e @z
+@e Min Max @e 0 1000
+
+EmbedMacro %Look "See Environment"
+$9 ""
+If Equ GetCE nX nY Maize {
+  If Equ GetCA 6 nX nY %MChain ($9 "You are lying on a safety room bed with restraints. Press 'z' to rest and regain energy." return)
+  IfElse Lt nY 16 ($9 "You are lying on a couch. Press 'z' to rest and regain energy.") ($9 "You are lying on a bed with anti-suffocation sheets. Press 'z' to rest and regain energy.")
+  return
+}
+If Or Equ @z %MDoor Equ @z %MDoor2 {IfElse Get @x @y ($9 "A closed door is before you. Press 'e' to open it.") ($9 "An open door is before you. Press 'e' to close it.") return}
+If Or Equ @z %MDoorP Equ @z %MDoorP2 {IfElse Get @x @y ($9 "The closed door to this safety room is before you. Press 'e' to open it.") ($9 "The open door to this safety room is before you. Press 'e' to close it.") return}
+If Or Equ @z %MPad Equ @z Inc %MPad {$9 "A padded wall is before you. Press 'e' to beat your head against it." return}
+If Equ @z %MDress {$9 "A dresser is before you. Press 'e' to change clothes." return}
+If Equ @z %MShelf {*LookS return}
+If Equ @z %MJohn {$9 "A toilet is before you. Press 'e' to use it." return}
+If Equ @z %MJohnP {$9 "A special can't-hurt-yourself-with-it toilet is before you. Press 'e' to use it." return}
+If Equ @z %MSink {$9 "A sink is before you. Press 'e' to wash your hands." return}
+If Equ @z %MShower {$9 "A shower is before you. Press 'e' to use it." return}
+If Equ @z %MWash {$9 "A washer/dryer is before you. Press 'e' to use it." return}
+If Equ @z %MSwitch0 {$9 "A light switch is before you. Press 'e' to turn it on." return}
+If Equ @z %MSwitch1 {$9 "A light switch is before you. Press 'e' to turn it off." return}
+If Equ @z %MFire {$9 "The fire alarm is before you. Press 'e' to pull it!" return}
+If Equ @z Inc %MFire {$9 "It looks like somebody pulled the fire alarm!" return}
+If Equ @z %MTele {$9 "The television is before you. Press 'e' to turn it on." return}
+If Equ @z Inc %MTele {$9 "The television is before you. Press 'e' to turn it off." return}
+If Tween @z %MQuote Add %MQuote Dec %Quote {IfElse Equ @A4 1 ($9 "A motivational poster is before you. Press 'e' to count it.") ($9 "A motivational poster is before you. Don't give up, you've got this!") return}
+If And And Tween @m 11 13 Tween @n 31 33 Equ @A6 1 {$9 "A tree is before you. Press 'e' to check its branches." return}
+If And And Equ GetCE @m @n Green Not Get @x @y Equ @A7 1 {$9 "A bush is before you. Press 'e' to check it for flowers." return}
+@z GetCA %BID @m @n If And Gt @z 0 Or Not Get @x @y GetE @x @y {@z RgbB @z @z ?: Lt @z %Room Add %ZName @z Add %ZRole Sub @z %Room SetString 9 "$z is before you. Press 'e' to chat." return}
+If And Equ GetCE @m @n Yellow Not Get @x @y {$9 "A table is before you. Press 'e' to study." return}
+If EquStr $9 "" {$9 $7}
+
+EmbedMacro %LookS "See Shelf"
+If And Tween nX 37 41 Equ nY 19 {$9 "A shelf is before you, containing towels, linens, and cleaning supplies." return}
+If And Equ nX 29 Equ nY 21 {$9 "A shelf is before you, containing various games, puzzles, and coloring books." return}
+If And Tween nX 25 29 Equ nY 9 {$9 "A shelf is before you, containing books on Cognitive Behavioral Therapy (CBT) and other psychology topics." return}
+If And Tween nX 15 23 Equ nY 9 {$9 "A shelf is before you, containing craft supplies and other group therapy materials." return}
+If And Equ nX 7 Tween nY 15 21 {$9 "A kitchen shelf is before you, containing various utensils and cooking supplies." return}
+If And Equ nX 3 Equ nY 15 {$9 "A pantry shelf is before you, containing various dried and canned foods, along with baking supplies." return}
+If And Equ nX 3 Equ nY 21 {$9 "A coldroom shelf is before you, containing various refrigerated and frozen items." return}
+If And Tween nX 37 41 Tween nY 11 13 {$9 "A shelf is before you, containing various papers and office supplies." return}
+If And Equ nX 41 Equ nY 9 {$9 "A shelf is before you, containing various antidepressant, antipsychotic, and anti-anxiety medications." return}
+
+EmbedMacro %Hear "Hear Environment"
+$7 ""
+If Gt @Fire 0 {$7 "You hear the fire alarm sounding loudly throughout the hospital!" return}
+If Tween @h 1260 1261 {$7 "You hear an announcement over the loadspeaker: All patients please return to your rooms for the evening." return}
+If Tween @h 1290 1291 {$7 "You hear an announcement over the loadspeaker: All patients must return to their rooms immediately." return}
+If Tween @h 1305 1306 {$7 "You hear an announcement over the loadspeaker: Any patients still out after 10pm will spend the night in a safety room!" return}
+If Equ @Pad 1 {$7 "You hear a click as the door to this safety room is unlocked. You are free to go!" return}
+If And @QHunger Equ Rnd 1 10 10 {$7 "You feel hungry! You haven't eaten in a long while." return}
+If And @QStink Equ Rnd 1 10 10 {$7 "You smell your own body odor! You haven't showered in a long while." return}
+If And @QJohn2 Equ Rnd 1 10 10 {$7 "You can barely hold it in! You haven't gone to the bathroom in a long while." return}
+If @QHands {$7 "Your hands feel dirty. You should wash them!" return}
+If Or Equ Rnd 1 200 200 @Echo1 {$7 "You hear someone shouting down the hall. They sound upset." @Echo1 Not @Echo1 return}
+If Or Equ Rnd 1 200 200 @Echo2 {$7 "You hear crying coming from one of the rooms. Somebody's not too happy about their situation." @Echo2 Not @Echo2 return}
+If Or Equ Rnd 1 200 200 @Echo3 {$7 "You hear a hospital buzzer sound for a bit. Perhaps somebody's having a crisis?" @Echo3 Not @Echo3 return}
+
+EmbedMacro %Door "Open Door"
+$8 ""
+If Not Get @x @y {Set @x @y On return}
+If And And Equ @x 19 Equ @y 22 Lt @p 3 {$8 "Your hospital bracelet won't let you go outside, until you're wellness level 3 or above." return}
+If And And Equ @x 28 Equ @y 19 Lt @p 4 {$8 "Your hospital bracelet won't let you access the game closet, until you're wellness level 4 or above." return}
+If And And Equ @x 34 Equ @y 19 Lt @p 5 {$8 "Your hospital bracelet won't let you access the laundry room, until you're wellness level 5 or above." return}
+If And And Equ @x 5 Equ @y 14 Lt @p 6 {$8 "Your hospital bracelet won't let you access the kitchen, until you're wellness level 6 or above." return}
+If And And Equ @x 4 Or Equ @y 15 Equ @y 21 Lt @p 7 {$8 "Your hospital bracelet won't let you access the food closets, until you're wellness level 7 or above." return}
+If And And Tween @x 31 33 Equ @y 10 Lt @p 8 {$8 "Your hospital bracelet won't let you leave the ward, until you're wellness level 8 or above." return}
+If And And Equ @x 39 Equ @y 8 Lt @p 9 {$8 "Your hospital bracelet won't let you access the staff area, until you're wellness level 9." return}
+If And And Equ @x 41 Equ @y 19 Lt @p 10 {$8 "Your hospital bracelet won't let you access the medicine closet, until you're wellness level 10." return}
+If And And Tween @x 31 33 Equ @y 10 Or Not Get 31 8 Not Get 33 8 {$8 "To prevent patients escaping, you must close the outer doors, before opening the inner doors." return}
+If And And Tween @x 31 33 Equ @y 8 Or Not Get 31 10 Not Get 33 10 {$8 "To prevent patients escaping, you must close the inner doors, before opening the outer doors." return}
+If And And Equ @x 2 Tween @y 11 13 Lte @Fire 0 {$8 "You can't open the emergency exit, unless there's an emergency." return}
+Set @x @y Off
+
+EmbedMacro %DoorP "Open Safety Door"
+If Lt @p 1 {
+  IfElse Gt @Pad 60 
+    ($8 "You can't open the door, because you're locked within this safety room until morning.")
+    ($8 "You can't open the door, because you're locked within this safety room for the next hour.")
+  return
+}
+Set @x @y Not Get @x @y
+$8 ""
+
+EmbedMacro %Dress "Use Dresser"
+If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to change clothes. Try eating or resting first." return}
+If Equ nY Add Var Inc %YCoor ?: Odd Var %YID -2 2 {
+  @x Add %ZName Var Add %YID 0
+  If Equ @A0 1 (SetString 8 "You pick up $x's dirty clothes from their dresser." @A0 2 return)
+  If Equ @A0 3 (SetString 8 "You put $x's freshly washed clothes back in their dresser." @A0 4 return)
+}
+If Neq nY nY2 {$8 "You can't use the dresser in somebody else's room!" return}
+IfElse @QNaked {$8 "You put clothes on."} {$8 "You take your clothes off."}
+@QNaked Not @QNaked
+
+EmbedMacro %Shelf "Use Shelf"
+If And And Equ @A2 1 Equ nX 29 Equ nY 21 {@x Add %ZName Var Add %YID 2 SetString 8 "You get some games from the shelf for $x." @A2 2 return}
+If And And Equ @A5 1 Equ nX 3 Equ nY 15 {@x Add %ZName Var Add %YID 5 SetString 8 "You get some tofu from the pantry for $x." @A5 2 return}
+$8 "You don't need anything from the shelf at this time."
+
+EmbedMacro %John "Use Toilet"
+If And And Equ @A9 1 Not And @A9Data 1 Equ nY 3 {$8 "You scrub the toilet, cleaning it nicely!" @A9Data Or @A9Data #1 return}
+If And And Equ @A9 1 Not And @A9Data 2 Equ nY 5 {$8 "You scrub the toilet, cleaning it nicely!" @A9Data Or @A9Data #2 return}
+If @QJohn {$8 "You've already used the toilet today." return}
+IfElse Equ @z %MJohn
+  {$8 "Ah, that feels much better. Don't forget to wash your hands!" @QHands 1}
+  {$8 "The safety room toilet isn't very comfortable, but you still manage to go."}
+@QJohn 1 @QJohn2 0
+
+EmbedMacro %Sink "Use Sink"
+If And And Equ @A9 1 Not And @A9Data 4 Equ nY 7 {$8 "You scrub the sink, cleaning it nicely!" @A9Data Or @A9Data #4 return}
+If And And Equ @A9 1 Not And @A9Data 8 Equ nY 9 {$8 "You scrub the sink, cleaning it nicely!" @A9Data Or @A9Data #8 return}
+$8 "Your hands are nice and clean now."
+@QHands 0
+
+EmbedMacro %Shower "Use Shower"
+If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to take a shower. Try eating or resting first." return}
+If Not @QNaked {$8 "You should take your clothes off first if you want to take a shower!" return}
+If Or Not Get Dec nX nY Not Get Inc nX nY {$8 "You should close the bathroom door first before turning on the shower!" return}
+$8 "Your body is nice and clean now."
+@QShower 1 @QStink 0 @QHands 0
+
+EmbedMacro %Wash "Use Wash"
+If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to wash clothes. Try eating or resting first." return}
+If Equ @A0 2 {@x Add %ZName Var Add %YID 0 SetString 8 "You wash and dry $x's clothes." @A0 3 return}
+$8 "You wash and dry your clothes."
+
+EmbedMacro %Poster "Count Poster"
+If Neq @A4 1 {return}
+@z 0
+If And Equ @x 39 Equ @y 22 {@z #1}
+If And Equ @x 25 Equ @y 26 {@z #2}
+If And Equ @x 39 Equ @y 26 {@z #4}
+If And Equ @x 25 Equ @y 30 {@z #8}
+If And Equ @x 39 Equ @y 30 {@z #10}
+If And Equ @x 25 Equ @y 34 {@z #20}
+If And Equ @x 39 Equ @y 34 {@z #40}
+If And Equ @x 25 Equ @y 38 {@z #80}
+If And Equ @x 39 Equ @y 38 {@z #100}
+If And Equ @x 25 Equ @y 42 {@z #200}
+If And Equ @x 30 Equ @y 21 {@z #400}
+If And Equ @x 30 Equ @y 19 {@z #800}
+If And Equ @x 16 Equ @y 17 {@z #1000}
+If And Equ @x 16 Equ @y 19 {@z #2000}
+If And Equ @x 28 Equ @y 17 {@z #4000}
+If And Equ @x 25 Equ @y 22 {@z #8000}
+If And Equ @x 17 Equ @y 10 {@z #10000}
+If And Equ @x 15 Equ @y 10 {@z #20000}
+If And Equ @x 35 Equ @y 18 {@z #40000}
+If Equ @A4Data Or @z @A4Data {$8 "You've already counted this poster." return}
+@A4Data Or @A4Data @z
+@A4Num Inc @A4Num
+If Gte @A4Num 19 {@A4 2}
+@x @A4Num SetString 8 "You count poster #@x/19."
+
+EmbedMacro %Tree "Check Tree"
+If Neq @A6 1 {return}
+@z << 1 Add Sub @n 31 Div Sub @m 11 2
+If Equ @A6Data Or @z @A6Data {$8 "You've already checked this tree." return}
+@A6Data Or @A6Data @z
+If Equ @A6Data #f {@A6 2}
+$8 "You examine this tree closely, and see that all its branches are smooth."
+
+EmbedMacro %Bush "Check Bush"
+If Neq @A7 1 {return}
+@z 0
+If And Tween @m 3 21 Tween @n 23 41 {@z << 1 Add Mul Div Sub @n 23 6 4 Div Sub @m 3 6}
+If Equ @A7Data Or @z @A7Data {$8 "This bush has no more flowers in it." return}
+@A7Data Or @A7Data @z
+@A7Num Inc @A7Num
+If Gte @A7Num 12 {@A7 2}
+@x @A7Num SetString 8 "You collect flower #@x/12 from this bush."
+
+EmbedMacro %Study "Use Desk"
+If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to study. Try eating or resting first." return}
+If And Equ @A1 1 Equ @n 7 {@x Add %ZName Var Add %YID 1 SetString 8 "You pick up $x's care package." @A1 2 return}
+If Not @QCBT {$8 "You haven't been given any advanced materials to study yet." return} 
+$8 "You study Cognitive Behavioral Therapy (CBT)."
+@QStudy 1
+
+EmbedMacro %Chat "Do Chat"
+If Or Equ @z %MDoor Equ @z %MDoor2 {*Door return}
+If Or Equ @z %MDoorP Equ @z %MDoorP2 {*DoorP return}
+If Or Equ @z %MPad Equ @z Inc %MPad {$8 "You beat your head against the wall, which doesn't hurt you because the wall is padded." return}
+If Equ @z %MDress {*Dress return}
+If Equ @z %MShelf {*Shelf return}
+If Or Equ @z %MJohn Equ @z %MJohnP {*John return}
+If Equ @z %MSink {*Sink return}
+If Equ @z %MShower {*Shower return}
+If Equ @z %MWash {*Wash return}
+If Equ @z %MSwitch0 {SetY @x @y Lt nDir 2 %MSwitch1 $8 "" return}
+If Equ @z %MSwitch1 {SetY @x @y Lt nDir 2 %MSwitch0 $8 "" return}
+If Equ @z %MFire {SetY @x @y Lt nDir 2 Inc %MFire $8 "You pull the fire alarm! You do realize there's no fire, right?" @Fire 6 return}
+If Equ @z %MTele {SetY @x @y 0 Inc %MTele $8 "" return}
+If Equ @z Inc %MTele {SetY @x @y 0 %MTele $8 "" return}
+If Tween @z %MQuote Add %MQuote Dec %Quote {*Poster return}
+If And Tween @m 11 13 Tween @n 31 33 {*Tree return}
+If And Equ GetCE @m @n Green Not Get @x @y {*Bush return}
+If And Equ GetCE @m @n Yellow Not Get @x @y {*Study return}
+@w GetCA %BID @m @n
+If Not And Gt @w 0 Or Not Get @x @y GetE @x @y {Return}
+@x RgbB @w
+@y RgbG @w
+@z ?: Lt @x %Room Add %ZName @x Add %ZRole Sub @x %Room
+If Equ @x 13 {*ChatF Return}
+If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to chat right now. Try eating or resting first." return}
+If Equ @y 0 {*Chat0 Return}
+If Equ @y 1 {*Chat1 Return}
+If Equ @y 2 {*Chat2 Return}
+If Equ @y 3 {*Chat3 Return}
+If Equ @y 4 {*Chat4 Return}
+If Equ @y 5 {*Chat5 Return}
+If Equ @y 6 {*Chat6 Return}
+If Equ @y 7 {*Chat7 Return}
+If Equ @y 8 {*Chat8 Return}
+If Equ @x 10 {*ChatP Return}
+If Equ @x 11 {*ChatN Return}
+If Equ @x 12 {*ChatM Return}
+If Equ @x 14 {*ChatG Return}
+If Equ @x 15 {*ChatR Return}
+If Equ @x 16 {*ChatO Return}
+
+EmbedMacro %Chat0 "Chat Patient 0"
+If Equ @A0 4 {@x Add %ZName @r SetString 8 "$z says: Wow $x, you actually did my laundry! I suppose I should say thank you." @A0 5 @TChat0 8 @f Inc @f return}
+If Equ @TChat0 0 {SetString 8 "$z says: What are you doing in my room?"}
+If Equ @TChat0 1 {SetString 8 "$z says: Go away before I call the nurse to throw you into the so-called 'safety room'!"}
+If Equ @TChat0 2 {SetString 8 "$z says: You must be a new patient! Not that I care."}
+If Equ @TChat0 3 {SetString 8 "$z says: To survive here, you need to make friends. You're doing a poor job so far!"}
+If Equ @TChat0 4 {SetString 8 "$z says: If you're looking for friends, try the cafeteria. Just leave me alone!"}
+If Equ @TChat0 5 {@x Add %ZName Var Add %YID 3 SetString 8 "$z says: Perhaps $x will like you, although beware because they get super attached easily!"}
+If Equ @TChat0 6 {SetString 8 "$z says: Tell your sob story in group therapy. Don't tell it to me!"}
+If Equ @TChat0 7 {SetString 8 "$z says: Yes, you technically can use somebody else's toilet. Don't you dare use mine!"}
+If Equ @TChat0 8 {
+  IfElse Lt @A0 5
+    (SetString 8 "$z says: If you're going to be here, you should do something useful, like my laundry for me..." If Not @A0 "@A0 1")
+    (SetString 8 "$z says: Ok, because you did do my laundry for me, I'll say that I don't dislike you.")
+}
+If Equ @TChat0 9 {SetString 8 "$z says: Why are you still here?"}
+If Equ @TChat0 10 {SetString 8 "$z has nothing to say to you."}
+@TChat0 Inc @TChat0
+If Gte @TChat0 11 {@TChat0 0}
+
+EmbedMacro %Chat1 "Chat Patient 1"
+If Equ @A1 2 {@x Add %ZName @r SetString 8 "$z says: Thank you $x for my care package! You don't just heal yourself, but you help others too!" @A1 3 @f Inc @f return}
+If Equ @TChat1 0 {SetString 8 "$z says: Are you new here? Hi, my name's $z!"}
+If Equ @TChat1 1 {SetString 8 "$z says: It's ok to be nervous or scared. I was too my first few days here!"}
+If Equ @TChat1 2 {SetString 8 "$z says: As long as you don't run around naked or anything like that, you'll be fine."}
+If Equ @TChat1 3 {SetString 8 "$z says: What are you in here for? I'm here because I was hearing voices!"}
+If Equ @TChat1 4 {SetString 8 "$z says: My symptoms started getting better once I got prescribed antipsychotic medication."}
+If Equ @TChat1 5 {SetString 8 "$z says: I'm now at wellness level 7. I hope to be discharged from here soon!"}
+If Equ @TChat1 6 {SetString 8 "$z says: Once your wellness level is high enough, the psychiatrist will let you study Cognitive Behavioral Therapy (CBT)."}
+If Equ @TChat1 7 {SetString 8 "$z says: Alas, after a certain point most positive actions stop giving you additional wellness points."}
+If Equ @TChat1 8 {
+  IfElse Lt @A1 3
+    (SetString 8 "$z says: I wish somebody with high enough wellness would pick up my care package from the front desk for me..." If Not @A1 "@A1 1")
+    (SetString 8 "$z says: Since you have high wellness, you should be released after just a bit more effort.")
+}
+If Equ @TChat1 9 {SetString 8 "$z says: Some people treat the hospital like being on vacation. You're not one of those people, are you?"}
+If Equ @TChat1 10 {@x Add %ZName Var Add %YID 4 SetString 8 "$z says: I'm so ashamed! I stupidly told $x that they should just 'hang in there'."}
+@TChat1 Inc @TChat1
+If Gte @TChat1 11 {@TChat1 1}
+
+EmbedMacro %Chat2 "Chat Patient 2"
+If Equ @A2 2 {@x Add %ZName @r SetString 8 "$z says: $x, thank you so much for these new games! I bet I can beat you if we play them." @A2 3 @f Inc @f return}
+If Equ @TChat2 0 {SetString 8 "$z says: Hey there! Do you want to play Uno with me?"}
+If Equ @TChat2 1 {@x Add %ZName Var Add %YID 3 SetString 8 "$z says: Hopefully you'll be a better player than $x, who's so easy to beat!"}
+If Equ @TChat2 2 {SetString 8 "$z says: If you don't like Uno, we can play Jenga instead. I'm good at that, too."}
+If Equ @TChat2 3 {SetString 8 "$z says: Sometimes I like just coloring, although the pens they let you use here are lame."}
+If Equ @TChat2 4 {SetString 8 "$z says: I wish I had a high enough wellness level to be able to go into the game closet..." If Not @A2 "@A2 1"}
+If Equ @TChat2 5 {SetString 8 "$z says: Sometimes they play movies on the television here."}
+If Equ @TChat2 6 {SetString 8 "$z says: For me the worst part about being inpatient is the continual and mind crushing boredom."}
+If Equ @TChat2 7 {SetString 8 "$z says: Wanna see my fidget toy and stuffie collections? I have tons of both here!"}
+If Equ @TChat2 8 {SetString 8 "$z says: It's too bad they don't let you have your phone while you're a patient here."}
+If Equ @TChat2 9 {SetString 8 "$z says: If I had my phone, I'd totally record a room tour of my room and then post it on TikTok!"}
+@TChat2 Inc @TChat2
+If Gte @TChat2 10 {@TChat2 0}
+
+EmbedMacro %Chat3 "Chat Patient 3"
+If And Equ @A3 1 @d {@x Add %ZName @r SetString 8 "$z says: Wow, I didn't think you'd have the guts to actually come visit me at night! You're a true friend, $x!" @A3 2 @f Inc @f return}
+If @d {SetString 8 "$z says: Wow, you're bold to come visit me at night!" return}
+If Equ @TChat3 0 {@x Add %ZName @r SetString 8 "$z says: $x, there you are! I've been watching you move around the ward, but not in a creepy way, ha ha!"}
+If Equ @TChat3 1 {SetString 8 "$z says: You're like the coolest person ever. We should totally be best friends!"}
+If Equ @TChat3 2 {SetString 8 "$z says: I mean it, you're like my favorite person here! You are my light in this dark place."}
+If Equ @TChat3 3 {SetString 8 "$z says: I have no idea who I am anymore, but I know you've got to hang out with me!"}
+If Equ @TChat3 4 {SetString 8 "$z says: 'I'm nuts, baby, I'm mad, the craziest friend that you've ever had.' I love that song!"}
+If Equ @TChat3 5 {@x Add %ZName Var Add %YID 2 SetString 8 "$z says: Just ignore $x, who's always bragging about their gaming skills!"}
+If Equ @TChat3 6 {SetString 8 "$z says: Tell me your social media usernames, and we can continue our friendship after we get out of here."}
+If Equ @TChat3 7 {SetString 8 "$z says: We're not supposed to share contact information with other patients, but I won't tell if you don't tell!"}
+If Equ @TChat3 8 {SetString 8 "$z says: You should sneak into my room tonight, and then we can really stir things up..." If Not @A3 "@A3 1"}
+If Equ @TChat3 9 {SetString 8 "$z says: 'All the best people are crazy. All the best people are.' Hee hee, I know 'Mad Hatter' by heart!"}
+@TChat3 Inc @TChat3
+If Gte @TChat3 10 {@TChat3 0}
+
+EmbedMacro %Chat4 "Chat Patient 4"
+If Equ @A4 2 {@x Add %ZName @r SetString 8 "$z says: 19? I guess that's 19 reasons why to stick around. Thank you, $x, for trying to help." @A4 3 @f Inc @f return}
+If Equ @TChat4 0 {SetString 8 "$z says: Ok look, another patient to join me in the meaninglessness of existence."}
+If Equ @TChat4 1 {SetString 8 "$z says: I'm surprised I made it in here. I could barely get out of bed this morning."}
+If Equ @TChat4 2 {SetString 8 "$z says: Sometimes I wish I could go to bed, and just never wake up."}
+If Equ @TChat4 3 {SetString 8 "$z says: I often think the world would be better off if I just weren't in it."}
+If Equ @TChat4 4 {SetString 8 "$z says: I didn't ask to be born, and I can't see anything worth living for."}
+If Equ @TChat4 5 {SetString 8 "$z says: I was on a one-on-one the other day, because they didn't trust me to be by myself anymore."}
+If Equ @TChat4 6 {SetString 8 "$z says: I'm so depressed that I don't even have the energy to do anything to harm myself."}
+If Equ @TChat4 7 {SetString 8 "$z says: I'm just sick and tired of being sick and tired!"}
+If Equ @TChat4 8 {SetString 8 "$z says: I would cry if I could, but I can't because I feel totally empty and numb inside."}
+If Equ @TChat4 9 {SetString 8 "$z says: I don't know how much longer I can go on. I'm hanging by a thread here!"}
+If Equ @TChat4 10 {
+  IfElse Lt @A4 3
+    (SetString 8 "$z says: Have you seen all those motivational posters on the walls? I wonder how many there are..." If Not @A4 "@A4 1")
+    (SetString 8 "$z says: The 19 different motivational posters around here do help me at least somewhat.")
+}
+@TChat4 Inc @TChat4
+If Gte @TChat4 11 {@TChat4 0}
+
+EmbedMacro %Chat5 "Chat Patient 5"
+If Equ @A5 2 {@x Add %ZName @r SetString 8 "$z says: I appreciate you getting some tofu for me, $x! You're a good friend!" @A5 3 @f Inc @f return}
+If @d {SetString 8 "$z looks embarrassed as they quickly hide some food under their bed as you enter." return}
+If Equ @TChat5 0 {SetString 8 "$z says: Are you getting something to eat here? If so please don't eat in front of me."}
+If Equ @TChat5 1 {SetString 8 "$z says: Food is a very triggering area for me, but I'm trying to get over it."}
+If Equ @TChat5 2 {SetString 8 "$z says: The food here tastes horrible, which makes it harder for me to overcome my eating disorder."}
+If Equ @TChat5 3 {SetString 8 "$z says: They refuse to tell me how many calories the food here has, which makes it harder to track my diet."}
+If Equ @TChat5 4 {SetString 8 "$z says: Eating just once is hard enough, but you have to eat three times a day in order to get wellness points!"}
+If Equ @TChat5 5 {SetString 8 "$z says: I swear, if one more person tells me to 'just eat', I will act out in a way that gets me sent to the safety room!"}
+If Equ @TChat5 6 {SetString 8 "$z says: I like pacing the halls, or circling the trees in the courtyard, which is a way to burn off calories."}
+If Equ @TChat5 7 {SetString 8 "$z says: Taking cold showers can burn off calories too."}
+If Equ @TChat5 8 {@x Add %ZName Var Add %YID 4 SetString 8 "$z says: Would you tell $x to stop staring at me. I feel like I'm so fat!"}
+If Equ @TChat5 9 {SetString 8 "$z says: I'm almost up to 100 pounds now. That's nearly in the triple digits, yuck!"}
+If Equ @TChat5 10 {
+  IfElse Lt @A5 3
+    (SetString 8 "$z says: One thing I can eat is tofu, but they're not serving it today. I wish someone could get some from the kitchen..." If Not @A5 "@A5 1")
+    (SetString 8 "$z says: I was at least able to eat some tofu, which helped a lot.")
+}
+@TChat5 Inc @TChat5
+If Gte @TChat5 11 {@TChat5 0}
+
+EmbedMacro %Chat6 "Chat Patient 6"
+If Equ @A6 2 {@x Add %ZName @r SetString 8 "$z says: The trees are all smooth? Thanks for checking, $x, that was kind of you!" @A6 3 @TChat6 10 @f Inc @f return}
+If Equ @TChat6 0 {SetString 8 "$z says: Why were you committed here? The bandages on my arms should tell you enough about me."}
+If Equ @TChat6 1 {SetString 8 "$z says: This is the 10th time I've been inpatient! How many times have you been in the hospital?"}
+If Equ @TChat6 2 {SetString 8 "$z says: They told me to not hurt myself anymore. I told them okay I'd 'cut it out', heh!"}
+If Equ @TChat6 3 {SetString 8 "$z says: Did you manage to smuggle in anything sharp when you were admitted?"}
+If Equ @TChat6 4 {SetString 8 "$z says: I'm sure I have the most scars as well as the deepest scars of anybody in here."}
+If Equ @TChat6 5 {SetString 8 "$z says: If I want to unalive, I'll just eat the food in the cafeteria to poison myself, heh!"}
+If Equ @TChat6 6 {SetString 8 "$z says: They took out my shoelaces, and the string from my hoodie, because of ligature risk."}
+If Equ @TChat6 7 {SetString 8 "$z says: I don't need to hurt myself. These group therapies are painful enough, heh!"}
+If Equ @TChat6 8 {SetString 8 "$z says: If I want to hurt myself I'll just take my meds. Their side effects should do the trick."}
+If Equ @TChat6 9 {@x Add %ZName Var Add %YID 7 SetString 8 "$z says: I'm actually impressed by $x. Their mental attitude must feel like continuous self-harm."}
+If Equ @TChat6 10 {
+  IfElse Lt @A6 3
+    (SetString 8 "$z says: I wonder if any of the trees in the courtyard have branches I can scratch myself with..." If Not @A6 "@A6 1")
+    (SetString 8 "$z says: It's hard to recover, but since there's nothing to harm myself with here I should give it a try.")
+}
+@TChat6 Inc @TChat6
+If Gte @TChat6 11 {@TChat6 0}
+
+EmbedMacro %Chat7 "Chat Patient 7"
+If Equ @A7 2 {@x Add %ZName @r SetString 8 "$z says: Wow $x, you made me a bouquet of flowers, you must actually like me!" @A7 3 @TChat7 10 @f Inc @f return}
+If Equ @TChat7 0 {SetString 8 "$z says: Hi, do you like me? I think everybody here hates me!"}
+If Equ @TChat7 1 {SetString 8 "$z says: I have severe anxiety, and I'm worried I'll never be able to overcome it."}
+If Equ @TChat7 2 {SetString 8 "$z says: You don't think I'm faking anxiety, do you? I know many people here are much sicker than me."}
+If Equ @TChat7 3 {SetString 8 "$z says: Do I seem less anxious to you? I just took my meds, so maybe they're working already?"}
+If Equ @TChat7 4 {SetString 8 "$z says: I've been thinking about how I overthink things too much, so am wondering how I can think less."}
+If Equ @TChat7 5 {SetString 8 "$z says: The windmills of my mind are 'like a circle in a spiral, like a wheel within a wheel'."}
+If Equ @TChat7 6 {SetString 8 "$z says: I'd study Cognitive Behavioral Therapy (CBT), if I could just quiet my mind enough to concentrate."}
+If Equ @TChat7 7 {SetString 8 "$z says: My head hurts, and it feels like it's about to explode."}
+If Equ @TChat7 8 {SetString 8 "$z says: Am I annoying you? I probably am, because I'm definitely annoyed by myself!"}
+If Equ @TChat7 9 {@x Add %ZName Var Add %YID 6 SetString 8 "$z says: Would you tell $x that I'm sorry for being annoying? It's annoying being so annoying!"}
+If Equ @TChat7 10 {
+  IfElse Lt @A7 3
+    (SetString 8 "$z says: A bouquet of flowers might relax me, but I have no idea how to get one..." If Not @A7 "@A7 1")
+    (SetString 8 "$z smells their bouquet of flowers, and looks like they're finally starting to relax.")
+}
+@TChat7 Inc @TChat7
+If Gte @TChat7 11 {@TChat7 0}
+
+EmbedMacro %Chat8 "Chat Patient 8"
+If @d {
+  @x Add %ZName @r
+  If Equ @A8 2 (SetString 8 "$z says: My ring! Thank you $x for finding it, and for not giving up on me!" @A8 3 @A8Chat 1 @f Inc @f return)
+  If Not @A8Chat (SetString 8 "$z says: Hello $x, my condition often gets better at night, so I can understand you now." @A8Chat 1 return)
+  IfElse Neq @A8 3
+    (SetString 8 "$z says: I lost my ring somewhere on the path in the courtyard, and wish someone could help me search for it..." If Not @A8 "@A8 1 @A8X ?: Rnd 0 1 7 17 @A8Y Add 27 Mul Rnd 0 4 2")
+    (SetString 8 "$z says: Thanks again for finding my ring! Hopefully I'll find myself too and get better soon.")
+  @A8Chat 0
+  return
+}
+If Equ @A8 2 {SetString 8 "$z doesn't seem to understand that you found their ring for them." return}
+If Equ @TChat8 0 {SetString 8 "$z says: How dare are you?"}
+If Equ @TChat8 1 {SetString 8 "$z says: Look, a tilted convex glass disk moving through the forest!"}
+If Equ @TChat8 2 {SetString 8 "$z says: I got you one about the totally pinned types!"}
+If Equ @TChat8 3 {SetString 8 "$z says: We see a grid pattern of small black octagonish shapes with red and green trim."}
+If Equ @TChat8 4 {SetString 8 "$z says: Is there such a thing as too much sleep... and every matter will wake up better."}
+If Equ @TChat8 5 {SetString 8 "$z says: I smell lemon Girl Scout cookies, and something metallic, don't you?"}
+If Equ @TChat8 6 {SetString 8 "$z says: I'll take you through my system and make you sign it today!"}
+If Equ @TChat8 7 {SetString 8 "$z says: I peeled back a label, but underneath was an identical label."}
+If Equ @TChat8 8 {SetString 8 "$z says: I hope you've been able to understand me? It's tough having a mental condition."}
+If Equ @TChat8 9 {SetString 8 "$z says: ..."}
+@TChat8 Inc @TChat8
+If Gte @TChat8 10 {@TChat8 0}
+
+EmbedMacro %ChatP "Chat Psychiatrist"
+@x Mul Add Add 18 @r ?: Gt @r 3 8 0 30
+@y Add Add %ZSched2 @r 2
+If Lt @h @x {SetString 8 "$z says: It's not time for us to meet yet. Come back later between $y for our session." return}
+If Not Lt @h Add @x 30 {SetString 8 "$z says: Our time together today has passed. Come back tomorrow between $y for our next session." return}
+If Not Equ GetCE nX nY Maize {SetString 8 "$z says: You should lie down on this couch here, and then we can talk." return}
+@QPsych 1
+If And And Not @QCBT Gte @p 5 Gt @MedTim 0 {SetString 8 "$z says: Beyond medication, you should also study this book about Cognitive Behavioral Therapy (CBT) at your desk." @QCBT 1 return}
+@x Add %ZMed @MedNam
+If Gt @MedTim 0 {
+  If And @QCBT Equ @TPsych 1 (SetString 8 "$z says: Studying Cognitive Behavioral Therapy (CBT_ is an important step toward eventually getting released." SetChar 8 65 41 @TPsych 0 return)
+  SwitchSgn Sub @MedTim 2 ($0 "morning") ($0 "afternoon") ($0 "evening")
+  SetString 8 "$z says: You should take your $x medication every day in the $0."
+  @TPsych 1
+  return
+}
+@MedTim Rnd 1 3
+SwitchSgn Sub @MedTim 2 ($0 "morning") ($0 "afternoon") ($0 "evening")
+SetString 8 "$z says: I'm prescribing you the medication $x. Pick it up at the nurse's station in the $0."
+@QMedNew 1
+
+EmbedMacro %ChatN "Chat Nurse"
+If And Equ @A9 1 Equ @A9Data #f {@x Add %ZName @r SetString 8 "$z says: $x, thank you for cleaning the restroom for me! You are such a helpful patient!" @A9 2 @TNurse 10 @f Inc @f return}
+If @d {@x Add %ZName @r SetString 8 "$z says: $x, you should return to your room immediately!" return}
+If Equ @TNurse 0 {SetString 8 "$z says: Welcome to Daedalus Psychiatric Hospital!"}
+If Equ @TNurse 1 {SetString 8 "$z says: We're here to help you, so please ask any questions you might have."}
+If Equ @TNurse 2 {SetString 8 "$z says: For best results during your stay here, please follow the various hospital rules!"}
+If Equ @TNurse 3 {SetString 8 "$z says: Immature behavior or acting out in various ways will have consequences!"}
+If Equ @TNurse 4 {SetString 8 "$z says: You should follow your personal schedule in your room to the best of your ability."}
+If Equ @TNurse 5 {SetString 8 "$z says: This is a locked ward, so you won't be able to leave here until you're discharged."}
+If Equ @TNurse 6 {SetString 8 "$z says: Your 'wellness level' determines how many places in the hospital you're allowed to access."}
+If Equ @TNurse 7 {SetString 8 "$z says: Self-care such as eating and showering is an important part of showing wellness."}
+If Equ @TNurse 8 {SetString 8 "$z says: Please be properly dressed when venturing out of your room into group areas."}
+If Equ @TNurse 9 {SetString 8 "$z says: Patients with high wellness can pass through the lobby, and even walk the Labyrinth outside."}
+If Equ @TNurse 10 {SetString 8 "$z says: We regret if we seem overly busy. The hospital is understaffed today!"}
+If Equ @TNurse 11 {
+  IfElse Lt @A9 2
+    (SetString 8 "$z says: I'm too busy to clean the restroom! I wish somebody would do it for me..." If Not @A9 "@A9 1")
+    (SetString 8 "$z says: At least the restroom has been cleaned, which makes my job a lot easier!")
+}
+@TNurse Inc @TNurse
+If Gte @TNurse 12 {@TNurse 1}
+
+EmbedMacro %ChatM "Chat Meds"
+IfElse @QMed {SetString 8 "$z says: You've already taken your meds today."} {SetString 8 "$z says: Here are your meds. You take them with a cup of water."}
+If Lt @h 480 {SetString 8 "$z says: We're not open yet. Come back later at 8am to take morning meds." return}
+If Lt @h 540 {IfElse Equ @MedTim 1 (@QMed 1) (SetString 8 "$z says: You haven't been prescribed any medication to take in the morning. Talk to your psychiatrist first.") return}
+If Lt @h 780 {SetString 8 "$z says: We're not open at this time. Come back later at 1pm to take afternoon meds." return}
+If Lt @h 840 {IfElse Equ @MedTim 2 (@QMed 1) (SetString 8 "$z says: You haven't been prescribed any medication to take in the afternoon. Talk to your psychiatrist first.") return}
+If Lt @h 1140 {SetString 8 "$z says: We're not open at this time. Come back later at 7pm to take evening meds." return}
+If Lt @h 1200 {IfElse Equ @MedTim 3 (@QMed 1) (SetString 8 "$z says: You haven't been prescribed any medication to take in the evening. Talk to your psychiatrist first.") return}
+SetString 8 "$z says: We're closed for the day. Come back tomorrow at 8am to take morning meds."
+
+EmbedMacro %ChatF "Chat Food"
+If Lt @h 420 {SetString 8 "$z says: We're not open yet. Come back later at 7am for breakfast." return}
+If Lt @h 480 {
+  IfElse @QBrea
+    (SetString 8 "$z says: You've already had breakfast today!")
+    (SetString 8 "$z hands you breakfast. It tastes yummy, at least for hospital food!" @QBrea 1 @QHunger 0 @z 250 *Energy)
+  return
+}
+If Lt @h 720 {SetString 8 "$z says: We're not open at this time. Come back later at 12pm for lunch." return}
+If Lt @h 780 {
+  IfElse @QLunc
+    (SetString 8 "$z says: You've already had lunch today!")
+    (SetString 8 "$z hands you lunch. It tastes yummy, at least for hospital food!" @QLunc 1 @QHunger 0 @z 250 *Energy)
+  return
+}
+If Lt @h 1080 {SetString 8 "$z says: We're not open at this time. Come back later at 6pm for dinner." return}
+If Lt @h 1140 {
+  IfElse @QDinn
+    (SetString 8 "$z says: You've already had dinner today!")
+    (SetString 8 "$z hands you dinner. It tastes yummy, at least for hospital food!" @QDinn 1 @QHunger 0 @z 250 *Energy)
+  return
+}
+SetString 8 "$z says: We're closed for the day. Come back tomorrow at 7am for breakfast."
+
+EmbedMacro %ChatG "Chat Group Therapy"
+If Lt @h 660 {SetString 8 "$z says: We're not set up yet. Come back later at 11am for morning group therapy." return}
+If Lt @h 720 {SetString 8 "$z listens while you talk about how you're doing and what you're feeling." @QGrp1 1 return}
+If Lt @h 840 {SetString 8 "$z says: We're not ready yet. Come back later at 2pm for afternoon group therapy." return}
+If Lt @h 900 {SetString 8 "$z listens while you talk about how you're doing and what you're feeling." @QGrp2 1 return}
+SetString 8 "$z says: We're done for the day. Come back tomorrow at 11am for our next group therapy."
+
+EmbedMacro %ChatR "Chat Receptionist"
+If Equ @TRecep 0 {SetString 8 "$z says: How did you get back here?"}
+If Equ @TRecep 1 {SetString 8 "$z says: If you can access the staff area, you must have been discharged."}
+If Equ @TRecep 2 {SetString 8 "$z says: We hope you were able to recover during your stay here."}
+If Equ @TRecep 3 {SetString 8 "$z says: Have you seen the Labyrinth yet? It located outside the front doors."}
+If Equ @TRecep 4 {SetString 8 "$z says: A hospital is more than just nurses for patients, and also involves various administration duties."}
+If Equ @TRecep 5 {SetString 8 "$z says: If you're looking for a job, we are hiring, so feel free to fill out an application."}
+If Equ @TRecep 6 {SetString 8 "$z says: It's not uncommon for former psych ward patients to seek careers in health care themselves."}
+If Equ @TRecep 7 {SetString 8 "$z says: Mental health is an underfunded area, but it's rewarding to have the opportunity to help people in need."}
+If Equ @TRecep 8 {SetString 8 "$z says: Farewell, and we hope you don't have to come back as a patient anytime soon!"}
+If Equ @TRecep 9 {SetString 8 "$z says: But if you do need mental health care again, we will be here and ready. We don't judge anybody!"}
+If Equ @TRecep 10 {SetString 8 "$z says: Now if you'll excuse me, I need to get back to work."}
+@TRecep Inc @TRecep
+If Gte @TRecep 11 {@TRecep 1}
+
+EmbedMacro %ChatO "Chat 1:1"
+If Equ @TOne 0 {SetString 8 "$z says: My job is to keep an eye on those in crisis at all times."}
+If Equ @TOne 1 {SetString 8 "$z says: I always stay within five feet, to ensure your safety."}
+If Equ @TOne 2 {SetString 8 "$z says: It may be annoying that I'm always near, but it's for the best."}
+If Equ @TOne 3 {SetString 8 "$z says: Raise your wellness level even slightly, and I'll leave you and return to the nurse's station."}
+If Equ @TOne 4 {SetString 8 "$z says: Here's a funny one! Why did Waldo go to therapy? Answer: To find himself!"}
+If Equ @TOne 5 {SetString 8 "$z says: How many therapists does it take to change a lightbulb? Only one, but the bulb must genuinely want to change!"}
+If Equ @TOne 6 {SetString 8 "$z says: Why did the phone go to counseling? Answer: To work on its hang-ups."}
+If Equ @TOne 7 {SetString 8 "$z says: Why can't you hear psychiatrists when they go to the bathroom? Answer: The 'p' is silent."}
+If Equ @TOne 8 {SetString 8 "$z says: Someone thought they were a group of crows. The psychiatrist had to 'commit a murder'."}
+If Equ @TOne 9 {SetString 8 "$z says: Of course mental illness is 'all in your head'. Where's it going to be, in your kidneys?"}
+@TOne Inc @TOne
+If Gte @TOne 10 {@TOne 0}
+
+EmbedMacro %Done "Finish Simulation"
+$1 "That means you struck a balance between getting to know your fellow patients and working on yourself."
+If Equ @f 0 {$1 "Not making any friends isn't a bad thing, as it shows you were totally focused on getting better yourself."}
+If Equ @f 10 {$1 "Wow, you made friends with every person possible! That means you accomplished everything it's possible to do in this simulation. :-)"}
+Message "Congratulations, you've completed the Grippy Socks simulation! :-) You successfully reached wellness level 10, got discharged from the hospital, and then exited the hospital grounds.\n\nYou finished the simulation with @f out of 10 possible friends. $1\n\nYour journey here is complete, however for many people it's a much longer ordeal, and can involve multiple hospitalizations over time. Mental health is a gift, so let's take care of ourselves, and be patient with the struggles of others! <3"
+@QDone 1
+
+// ////////////// //
+// Setup Routines //
+// ////////////// //
+
+EmbedMacro %IRandom "Randomize Strings"
+For (i) 0 Sub %Room 2 {
+  @z Rnd @i Dec %Name
+  SwapString Add %ZNameF @i Add %ZNameF @z
+  @z Rnd @i Dec %Name
+  SwapString Add %ZNameM @i Add %ZNameM @z
+}
+For (i) 0 Dec %Room {
+  @z ?: Lte @SGend 0 0 ?: Equ @SGend 1 1 Gt And @Gend << 1 @i 0
+  @j Add ?: Not @z %ZNameF %ZNameM @i
+  If And Equ @i @r NeqStr $ZYou "?" (@j %ZYou)
+  SetString Add %ZName @i "$j"
+}
+
+EmbedMacro %IRoom "Room Signs"
+For (i) 0 Dec %Room {
+  Size 300 500 0 1
+  @z Inc @i SetString 0 "C1S3BM0,200T1T_Room @z_" Turtle $0
+  @z Add %ZName @i SetString 0 "BM0,230T_$z_S1" Turtle $0
+  Thicken Thicken cDel
+  CopyMask -1 Add %MRoom @i
+}
+
+EmbedMacro %ISchedH "Hall Schedules"
+Size 600 1000 0 1
+@x Sub 300 Mul 25 9
+For (i) 0 Dec %Sched {
+  @y Add 270 Mul @i 30
+  @z Add %ZSched @i
+  SetString 0 "C1S3BM@x,@yT1T_$z_" Turtle $0
+}
+@x Sub @x 20
+SetString 0 "S1BM@x,250D390R482U390L482" Turtle $0
+Thicken Thicken cDel
+CopyMask -1 %MSched
+Del
+@x Sub 300 Mul 25 9
+For (i) 0 Inc %Room {
+  @y Add 270 Mul @i 30
+  @z Add %ZSched2 @i
+  SetString 0 "S3BM@x,@yT_$z_" Turtle $0
+  If Gt @i 1 (
+    @w Add %ZName Sub @i 2
+    SetString 0 "T_: $w_"
+  )
+  Turtle $0
+}
+@x Sub Sub 300 Mul 25 9 20
+SetString 0 "S1BM@x,250D390R482U390L482" Turtle $0
+Thicken Thicken cDel
+CopyMask -1 Inc %MSched
+
+EmbedMacro %ISchedR "Room Schedules"
+For (i) 0 Dec %Room {
+  Size 600 1000 0 1
+  @w ?: Lt @i 4 5 9
+  For (j) 0 %Sched (
+    @x Sub 300 Mul 25 9
+    @y Add 270 Mul @j 30
+    SetString 0 "C1S3BM@x,@yT1" Turtle $0
+    If Lte @j 0 "@z Add %ZName @i SetString 1 '* $z's Schedule *'"
+    If Equ @j @w "@z Add %ZSchedR @i SetString 1 '$z: Psychiatrist'"
+    If And Gt @j 0 Neq @j @w "@z Add %ZSched Sub @j Gte @j @w SetString 1 $z"
+    SetString 0 "T_$1_" Turtle $0
+  )
+  @x Sub @x 20
+  SetString 0 "S1BM@x,250D420R482U420L482" Turtle $0
+  Thicken Thicken cDel
+  CopyMask -1 Add %MSchedR @i
+}
+
+EmbedMacro %IChar "Init People"
+@r Rnd 0 Dec %Room
+For (i) 0 15
+  {SetVar Add %YID @i Add @i Gte @i @r}
+For (i) 0 Sub %Room 2
+  {SwapVar Add %YID @i Add %YID Rnd @i Sub %Room 2}
+@Gend Rnd 0 Dec << 1 16
+For (i) 0 15 {
+  @z ?: Lte @SGend 0 0 ?: Equ @SGend 1 1 Gt And @Gend << 1 Var Add %YID @i 0
+  SetVar Add %YBody @i Add Add Add %MBody Rnd 0 9 ?: Lt @i 9 0 20 ?: Not @z 0 10
+  SetVar Add %YTall @i Rnd 150 200
+  SetVar Add %YColor @i Shade Brown Rnd -90 90
+}
+*IMove
+
+EmbedMacro %IMove "Move People"
+For (i) 0 15 {*Move0}
+*IPeople
+
+EmbedMacro %IPeople "Set People"
+For (i) 0 15 {
+  @j Var Add %YID @i
+  If Equ @i 0 (
+    @z Not Odd @j
+    @x Add ?: @z 37 23 Mul Rnd 0 2 2
+    @y Add Sub 25 Mul @z 2 Mul Div @j 2 4
+  )
+  If Equ @i 1 (@x Add 31 Mul Rnd 0 1 2 @y Add 11 Mul Rnd 0 2 2)
+  If Equ @i 2 (@x Add 19 Mul Rnd 0 1 6 @y 15)
+  If Equ @i 3 (@x 17 @y Add 17 Mul Rnd 0 1 2)
+  If Equ @i 4 (@x 15 @y Add 17 Mul Rnd 0 1 2)
+  If Equ @i 5 (@x Add 11 Mul Rnd 0 1 2 @y 21)
+  If Equ @i 6 (@x Add 15 Mul Rnd 0 2 4 @y 5)
+  If Equ @i 7 (@x Add 15 Mul Div Mul Rnd 0 3 3 2 2 @y 7)
+  If Equ @i 8 (@x Add 7 Mul Rnd 0 5 2 @y 37)
+  If Equ @i 9 (@x 27 @y 5)
+  If Equ @i 10 (@x 31 @y Add 19 Mul Rnd 0 2 2)
+  If Equ @i 11 (@x 37 @y Add 13 Mul Rnd 0 1 2)
+  If Equ @i 12 (@x 7 @y Add 17 Mul Rnd 0 1 2)
+  If Equ @i 13 (@x 19 @y 3)
+  If Equ @i 14 (@x 35 @y 9)
+  If Equ @i 15 (@x 39 @y 17)
+  SetVar Add %YCoor Mul @i 2 @x
+  SetVar Add %YCoor Inc Mul @i 2 @y
+}
+For (i) 0 15 {*Move1}
+
+EmbedMacro %Move0 "Reset Person"
+@x Var Add %YCoor Mul @i 2
+@y Var Add %YCoor Inc Mul @i 2
+SetC @x @y Black
+SetE @x @y Off
+SetA 1 @x @y Off
+SetCA 1 @x @y 0
+SetY @x @y -1 0
+SetCA %BID @x @y 0
+
+EmbedMacro %Move1 "Set Person"
+@x Var Add %YCoor Mul @i 2
+@y Var Add %YCoor Inc Mul @i 2
+SetC @x @y Var Add %YColor @i
+SetE @x @y On
+SetA 1 @x @y On
+@z ?: Equ GetCE @x @y Maroon 5 0
+SetCA 1 @x @y UD @z Add Var Add %YTall @i @z
+SetY @x @y -1 Var Add %YBody @i
+SetCA %BID @x @y Rgb 255 @i Var Add %YID @i
+
+EmbedMacro %MoveOne "Move 1:1"
+@i 15
+*Move0
+SetVar Add %YCoor Mul @i 2 @XPrev
+SetVar Add %YCoor Inc Mul @i 2 @YPrev
+*Move1
+
+EmbedMacro %MoveBed "Move to Bed"
+For (i) 1 8 {
+  *Move0
+  @j Var Add %YID @i
+  @z Not Odd @j
+  @x Add ?: @z 37 23 Mul Rnd 0 2 2
+  @y Add Sub 25 Mul @z 2 Mul Div @j 2 4
+  SetVar Add %YCoor Mul @i 2 @x
+  SetVar Add %YCoor Inc Mul @i 2 @y
+  *Move1
+}
+
+// ///////////// //
+// Day and Night //
+// ///////////// //
+
+EmbedMacro %Day0 "Day and Night"
+Local 'iz'
+@i Mod Add @t Mul @Day 5 Mul @Day 6
+@z Mod @i @Day
+Macro Add %Day1 Div @i @Day
+
+EmbedMacro %Day1 "Midday"
+fStars False
+kSky       @KSky
+kSky2      Var Add %KSky 3
+kGround    @KGrd
+kGround2   Var Add %KGrd 3
+kMountain  @KMtn
+kMountain2 Var Add %KMtn 3
+kCloud     @KCld
+kCloud2    Var Add %KCld 3
+kFog Var Add %KFog 3
+nFogDistance @SMist
+nSunMoonY 333
+
+EmbedMacro %Day2 "Late Day"
+fStars False
+kSky       Blend2 @KSky           Var Inc %KSky   @z @Day
+kSky2      Blend2 Var Add %KSky 3 Var Add %KSky 4 @z @Day
+kGround    Blend2 @KGrd           Var Inc %KGrd   @z @Day
+kGround2   Blend2 Var Add %KGrd 3 Var Add %KGrd 4 @z @Day
+kMountain  Blend2 @KMtn           Var Inc %KMtn   @z @Day
+kMountain2 Blend2 Var Add %KMtn 3 Var Add %KMtn 4 @z @Day
+kCloud     Blend2 @KCld           Var Inc %KCld   @z @Day
+kCloud2    Blend2 Var Add %KCld 3 Var Add %KCld 4 @z @Day
+kFog Blend2 Var Add %KFog 3 Var Add %KFog 4 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Add @KFog Div Mul Sub Var Inc %KFog @KFog @z @Day
+nSunMoonY Add 333 Div Mul @z 767 @Day
+
+EmbedMacro %Day3 "Early Night"
+fStars Equ @SMist 0
+kSky       Blend2 Var Inc %KSky   Var Add %KSky 2 @z @Day
+kSky2      Blend2 Var Add %KSky 4 Var Add %KSky 5 @z @Day
+kGround    Blend2 Var Inc %KGrd   Var Add %KGrd 2 @z @Day
+kGround2   Blend2 Var Add %KGrd 4 Var Add %KGrd 5 @z @Day
+kMountain  Blend2 Var Inc %KMtn   Var Add %KMtn 2 @z @Day
+kMountain2 Blend2 Var Add %KMtn 4 Var Add %KMtn 5 @z @Day
+kCloud  Blend2 Var Inc %KCld   Var Add %KCld 2 @z @Day
+kCloud2 Blend2 Var Add %KCld 4 Var Add %KCld 5 @z @Day
+kFog Blend2 Var Add %KFog 4 Var Add %KFog 5 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Blend2 Var Inc %KFog Var Add %KFog 2 @z @Day
+nSunMoonY Sub 1100 Div Mul @z 767 @Day
+nStarCount Div Mul @z 768 @Day
+
+EmbedMacro %Day4 "Midnight"
+fStars Equ @SMist 0
+kSky       Var Add %KSky 2
+kSky2      Var Add %KSky 5
+kGround    Var Add %KGrd 2
+kGround2   Var Add %KGrd 5
+kMountain  Var Add %KMtn 2
+kMountain2 Var Add %KMtn 5
+kCloud     Var Add %KCld 2
+kCloud2    Var Add %KCld 5
+kFog Var Add %KFog 5
+nFogDistance Min ?: Not @SMist 9999 @SMist Var Add %KFog 2
+nSunMoonY 333
+nStarCount 768
+
+EmbedMacro %Day5 "Late Night"
+fStars Equ @SMist 0
+kSky       Blend2 Var Add %KSky 2 Var Inc %KSky   @z @Day
+kSky2      Blend2 Var Add %KSky 5 Var Add %KSky 4 @z @Day
+kGround    Blend2 Var Add %KGrd 2 Var Inc %KGrd   @z @Day
+kGround2   Blend2 Var Add %KGrd 5 Var Add %KGrd 4 @z @Day
+kMountain  Blend2 Var Add %KMtn 2 Var Inc %KMtn   @z @Day
+kMountain2 Blend2 Var Add %KMtn 5 Var Add %KMtn 4 @z @Day
+kCloud     Blend2 Var Add %KCld 2 Var Inc %KCld   @z @Day
+kCloud2    Blend2 Var Add %KCld 5 Var Add %KCld 4 @z @Day
+kFog Blend2 Var Add %KFog 5 Var Add %KFog 4 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Blend2 Var Add %KFog 2 Var Inc %KFog @z @Day
+nSunMoonY Add 333 Div Mul @z 767 @Day
+nStarCount Sub 768 Div Mul @z 768 @Day
+
+EmbedMacro %Day6 "Early Day"
+fStars False
+kSky       Blend2 Var Inc %KSky   @KSky           @z @Day
+kSky2      Blend2 Var Add %KSky 4 Var Add %KSky 3 @z @Day
+kGround    Blend2 Var Inc %KGrd   @KGrd           @z @Day
+kGround2   Blend2 Var Add %KGrd 4 Var Add %KGrd 3 @z @Day
+kMountain  Blend2 Var Inc %KMtn   @KMtn           @z @Day
+kMountain2 Blend2 Var Add %KMtn 4 Var Add %KMtn 3 @z @Day
+kCloud     Blend2 Var Inc %KCld   @KCld           @z @Day
+kCloud2    Blend2 Var Add %KCld 4 Var Add %KCld 3 @z @Day
+kFog Blend2 Var Add %KFog 4 Var Add %KFog 3 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Add Var Inc %KFog Div Mul Sub @KFog Var Inc %KFog @z @Day
+nSunMoonY Sub 1100 Div Mul @z 767 @Day
+
+// ///////////////////////// //
+// Initial Setup (Variables) //
+// ///////////////////////// //
+
+@Day 240
+@SMist False
+@SGend 2
+@KFloor Gray @KCeil Light Light Brown @KWall DkCyan @KDoor Brown
+$ZYou "?"
+
+SetStrings %ZQuote Mul %Quote 2 ";All this hard work will;be worth it in the end;Be kind;to your mind;Be proud of;how far you've come;Believe in;yourself;I'm not perfect;and that's ok;It's okay;to not be ok;My emotions don't;define me;Recovery;isn't linear;This is a safe place;to be who you are;You;Matter;You're doing your best;and that is enough;Your feelings;are valid;Broken crayons;still color;Stay strong, your story;isn't over yet;Mental illness is not;a personal failure;You are strong;for surviving;Work on yourself;but not by yourself;You are worthy;of help and support;You are not;your illness"
+SetStrings %ZSignL Mul %SignL 2 ";Laundry;Room;Nurse's;Station;To;Lobby;Psychiatrist's;Office;Group;Therapy Room;Safety;Room A;Day;Room;Cafeteria;;Game;Closet;Food;Pickup;Exit;;  Medicine;  Closet; To Patient; Ward"
+SetStrings %ZSignR Mul %SignR 2 ";Nurse's;Station;Rest;Room;Safety;Room B;Day;Room;Cafeteria;;Kitchen;;Food;Pickup;Staff;Only;Exit;"
+SetStrings %ZSched %Sched ";   * Daily Schedule *;; 6am- 7am: Wake up; 7am- 8am: Breakfast; 8am- 9am: Morning meds;11am-12pm: Group Therapy;12pm- 1pm: Lunch; 1pm- 2pm: Afternoon meds; 2pm- 3pm: Group therapy; 6pm- 7pm: Dinner; 7pm- 8pm: Evening meds; 9pm-10pm: Return to room"
+SetStrings %ZSched2 Add %Room 2 ";* Psychiatrist Schedule *;; 9:00am- 9:30am; 9:30am-10:00am;10:00am-10:30am;10:30am-11:00am; 3:00pm- 3:30pm; 3:30pm- 4:00pm; 4:00pm- 4:30pm; 4:30pm- 5:00pm; 5:00pm- 5:30pm; 5:30pm- 6:00pm"
+SetStrings %ZSchedR %Room "; 9-9:30am;9:30-10am;10-10:30a;10:30-11a; 3-3:30pm;3:30- 4pm; 4-4:30pm;4:30- 5pm; 5-5:30pm;5:30- 6pm"
+SetStrings %ZNameF %Name ";Ashley;Brin;Carla;Dawn;Edith;Fern;Gail;Hannah;Isabelle;Jennifer;Kate;Louise;Marissa;Noelle;Olga;Priya;Rachel;Susie;Tara;Veronica;Wanda"
+SetStrings %ZNameM %Name ";Aaron;Bob;Craig;David;Eric;Frank;Gordon;Harold;Ian;John;Karl;Larry;Mark;Ned;Owen;Patrick;Richard;Samuel;Thomas;Vince;William"
+SetStrings %ZRole %Role ";The psychiatrist;A nurse;The medication nurse;The chef;The group therapist;The receptionist;The one-on-one nurse"
+SetStrings %ZHair 20 ";OEL3D2OE;OEL3D4BLD2;OEL3OHOFD3EBDOBU2;OEL3ND6BD2BLNM-1,+4BD2D2;OEL3OHOFD5EBUOBU2;OEL3ND7BD2BLNM-1,+5BD2D3;OEL3OHOFD6EBEU4;OEL3ND8BD2BLNM-1,+6BD2D4;OEL3D8BLU4;OEL3D8LU4;;BDHGHG2;BDL2U;DBLUBLDBLUBLD;BDL4G;DBLUBLDBLUBLD2;BDL4DG;DBLUBLDBLUBLD3;BDL4D2G;DBLUBLDBLUBLD4"
+SetStrings %ZMed 7 ";Aridicerazole;Clozafir;Olanzacone;Loudapine;Risperistart;Hornperidol;Chlorpromag"
+
+// //////////////////////// //
+// Initial Setup (Textures) //
+// //////////////////////// //
+
+Embed // Tree side
+Size 100 300 0 1
+nX 45 nY 0 nX2 52 nY2 299 2ndBlock
+For (i) 0 9 {
+  nX 0 nY Add 45 Mul @i 20
+  nX2 45 nY2 Mul @i 20
+  2ndLine
+  nX 97 nX2 53
+  nY2 Inc nY2
+  2ndLine
+}
+Thicken Thicken cDel
+For (i) 1 200 {
+  @x Rnd 46 53 @y Rnd 0 Dec SizeY
+  SetString 0 "BM@x,@yS1D" Turtle $0
+}
+@y SizeY @j 1
+For (i) 1 7 {
+  @x Add 37 @i
+  SetString 0 "C0BM@x,@yU@j" Turtle $0
+  @x Sub 62 @i
+  SetString 0 "BM@x,@yU@jC1" Turtle $0
+  @j Mul @j 2
+}
+For (i) 1 5000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  If Neq Get @x @y Get @x Add @y 2
+    (SetString 0 "C0BM@x,@yD2" Turtle $0)
+}
+CopyMask -1 %MTree
+
+Embed // Bush side
+Size 300 150 0 1
+For (i) 0 1 {
+  nX Mul @i 150 nY 0 nX2 Add nX 148 nY2 148 2ndCircle
+}
+Thicken Thicken cDel
+For (i) 1 5000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  If Neq Get @x @y Get @x Add @y 2
+    (SetString 0 "C0BM@x,@yD2" Turtle $0)
+}
+For (i) 1 1000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  SetString 0 "C0BM@x,@yD" Turtle $0
+}
+CopyMask -1 %MBush
+
+Embed // Bush top
+Size 300 300 0 1
+For (j) 0 1 {
+  For (i) 0 1 (
+    nX Mul @i 150 nY Mul @j 150 nX2 Add nX 148 nY2 Add nY 148 2ndCircle
+  )
+}
+Thicken Thicken cDel
+For (i) 1 10000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  If Neq Get @x @y Get @x Add @y 2
+    (SetString 0 "C0BM@x,@yD2" Turtle $0)
+}
+For (i) 1 2000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  SetString 0 "C0BM@x,@yD" Turtle $0
+}
+CopyMask -1 %MBush2
+
+Embed // Bed side
+Size 300 100 0 1
+Turtle "C1BM0,0R295D45L295NU45ND50R25NG25R245NF25R25D50"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MBed
+
+Embed // Table side
+Size 300 100 0 1
+Turtle "C1BM0,0F25D72NL3NR3BU72E25NL50R247G25D72NL3NR3BU72H25"
+Thicken Thicken cDel
+CopyMask -1 %MTable
+Size 1 100 0 1
+Turtle "BM0,0R0"
+Thicken Thicken cDel
+CopyMask -1 %MTable0
+
+Embed // Doors
+Size 300 500 0 1
+Turtle "C1BM0,0R295D495L295U495BM100,100R95D60L95U60BD15R95BD15L95BD15R95"
+nX 260 nY 270 nX2 280 nY2 290 2ndCircle
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MDoor
+Quo Replace White Shade Pink Neg rLightFactor 0 CopyTexture -1 %MDoorP
+k FlipHorizontal CopyMask -1 %MDoor2
+Quo Replace White Shade Pink Neg rLightFactor 0 CopyTexture -1 %MDoorP2
+Size 1 500 0 1
+Turtle "BM0,0ND4BD495D4"
+cDel
+CopyMask -1 %MDoor0
+
+Embed // Padded walls
+Size 67 105 0 1
+For (i) 0 3 {
+  For (j) 0 3 (
+    @x Mul @i 25 @y Add Mul @j 24 8
+    SetString 0 "BM@x,@yBR8D7RDNR7DLND7LUNL7UR" Turtle $0
+  )
+}
+cDel
+Quo Replace White Pink 0 CopyTexture -1 %MPad
+Quo Replace White Shade Pink rLightFactor 0 CopyTexture -1 Inc %MPad
+Quo Replace White Shade Pink Neg rLightFactor 0 CopyTexture -1 Add %MPad 2
+Size 1 105 0 1
+Quo Replace Black Pink 0 CopyTexture -1 %MPad0
+Quo Replace Black Shade Pink rLightFactor 0 CopyTexture -1 Inc %MPad0
+Quo Replace Black Shade Pink Neg rLightFactor 0 CopyTexture -1 Add %MPad0 2
+
+Embed // Shelves
+Size 300 500 0 1
+Turtle "C1BM100,45NOF50R95OC50D25NL195D75NL195D75ND225L98NU75D75NR98D75NR98D75NR98L97U400"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MDress
+Size 300 500 0 1
+Turtle "C1BM50,45NR195D75NR195D75NR195D75NR195D75NR195D75NR195D75R195U450"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MShelf
+
+Embed // Toilets
+Size 300 500 0 1
+Turtle "C1BM75,295NR145D15NR145BF15R15BL30BU15D50NR145L15D15NR175D10OD40NR95D55OF15R125OH15U55OB40U25L15U65"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MJohn
+Quo Replace White Shade Pink Neg rLightFactor 0
+CopyTexture -1 %MJohnP
+
+Embed // Sink
+Size 300 500 0 1
+Turtle "C1BM90,120R120D120L120U120BF`BHBD180OD40R40OB40L120BU35BR30OC5OE5OG5OA5BR25D20R10U20L10BR35OC5OE5OG5OA5"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MSink
+
+Embed // Shower
+Size 300 500 0 1
+Turtle "C1BM140,100D30NR15G15NR45BD15D30BR15U30BR15D30BR15U30BU15H15U30L15"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MShower
+
+Embed // Washing machine
+Size 300 500 0 1
+Turtle "C1BM10,225D270R275U270NL275BL15U45L245D45BD15BF10D200R225U200L225BF15BR85OF85OD85OB85OH85BR100BD50D70R10U70L10BU120D15R15U15L15BL35D15R15U15L15BL35D15R15U15L15"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MWash
+
+Embed // Switches
+Size 300 500 0 1
+Turtle "C1BM150,250D30R15U30L15"
+= Turtle "BD20R15BD5L15"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MSwitch1
++ Turtle "BU20R15BD5L15"
+DoCount 4 {Thicken} cDel
+CopyMask -1 %MSwitch0
+
+Embed // Fire alarm
+For (i) 0 1 {
+  Size 600 1000 0 1
+  Turtle "C1BM280,540D50R40U50L40BF10"
+  IfElse Not @i
+    "Turtle 'ND15R20D15'"
+    "Turtle 'BD15D15R20U15'"
+  @x Sub 300 Mul 10 9 SetString 0 "S3BM@x,500T1T_Fire Alarm_S1" Turtle $0
+  Thicken Thicken cDel
+  CopyMask -1 Add %MFire @i
+}
+
+Embed // Television
+Size 300 500 0 1
+Turtle "C1BM50,100D150R200U150L200BL20D150OD20D20R200U20NL200OB20U150OH20L200OF20"
+Thicken Thicken cDel
+CopyMask -1 %MTele
+Turtle "BF40C0`C1BL19BD50E20F30NF15E50F20NF5E10F40NG10E10F20BU75BL150OA7NU10OC7NR10OE7ND10OG7L10"
+CopyMask -1 Inc %MTele
+
+Embed // Pictures
+Size 300 500 0 1
+$1 "U25NG15NF15U15NG15NF15U15NG15NF15U15NG15NF15BD70"
+SetString 0 "C1BM55,120D150R190U150L190BF15D120R160U120L160BD105R35$1R45U20$1BD20R45$1R35" Turtle $0
+Thicken Thicken cDel
+CopyMask -1 %MPic
+Size 300 500 0 1
+Turtle "C1BM55,120D150R190U150L190BF15D120R160U120L160BD45OB20OD20OB20OD20OB20OD20OB20OD20BD40BL100H20D40E40R20OC20NL5OE20L20H20BR25D10E10BR5BU10D0"
+Thicken Thicken cDel
+CopyMask -1 Inc %MPic
+
+Embed // Restraints
+Size 300 300 0 1
+Turtle "C1BM0,0F20BU5BR10OC15OE15OG15OA15"
+Thicken Thicken cDel
+= FlipHorizontal TempAnd = FlipVertical TempAnd
+CopyMask -1 %MChain
+
+Embed // Signs
+For (i) 0 Dec %SignL {
+  Size 300 500 0 1
+  @z Add %ZSignL Mul @i 2
+  SetString 0 "C1S3BM0,200T1T_$z_" Turtle $0
+  @z Add %ZSignL Inc Mul @i 2
+  SetString 0 "S3BM0,230T1T_$z_S1" Turtle $0
+  Thicken Thicken cDel
+  CopyMask -1 Add %MSignL @i
+}
+For (i) 0 Dec %SignR {
+  Size 300 500 0 1
+  @z Add %ZSignR Mul @i 2
+  @x Sub 300 Mul Len $z 18
+  SetString 0 "C1S3BM@x,200T1T_$z_" Turtle $0
+  @z Add %ZSignR Inc Mul @i 2
+  @x Sub 300 Mul Len $z 18
+  SetString 0 "S3BM@x,230T1T_$z_S1" Turtle $0
+  Thicken Thicken cDel
+  CopyMask -1 Add %MSignR @i
+}
+Size 300 500 0 1
+@x Sub 150 Mul 8 9
+SetString 0 "C1S3BM@x,200T1T_Daedalus_" Turtle $0
+@x Sub 150 Mul 11 9
+SetString 0 "BM@x,230T_Psychiatric_" Turtle $0
+@x Sub 150 Mul 8 9
+SetString 0 "BM@x,260T_Hospital_S1" Turtle $0
+Thicken Thicken cDel
+CopyMask -1 %MSignO
+Size 300 500 0 1
+@x Sub 150 Mul 4 9
+SetString 0 "C1S3BM@x,200T1T_Keep_" Turtle $0
+@x Sub 150 Mul 5 9
+SetString 0 "BM@x,230T_Doors_" Turtle $0
+@x Sub 150 Mul 6 9
+SetString 0 "BM@x,260T_Closed_S1" Turtle $0
+Thicken Thicken cDel
+CopyMask -1 Inc %MSignO
+
+Embed // Quotes
+For (i) 0 Dec %Quote {
+  Size 600 1000 0 1
+  @x Add %ZQuote Mul @i 2
+  @z Sub 300 Mul Len $x 9
+  SetString 0 "C1S3BM@z,400T1T_$x_" Turtle $0
+  @y Add %ZQuote Inc Mul @i 2
+  @z Sub 300 Mul Len $y 9
+  SetString 0 "BM@z,430T1T_$y_S1" Turtle $0
+  @x Sub 300 Mul Inc Max Len $x Len $y 9
+  @z Sub 595 Mul @x 2
+  SetString 0 "BM@x,385OF10D60OD10R@zOB10U60OH10L@z" Turtle $0
+  Thicken Thicken cDel
+  CopyMask -1 Add %MQuote @i
+}
+
+Embed // Bodies
+Size 222 294 0 1
+For (i) 0 3 {
+  For (j) 0 9 (
+    Del Turtle "BM110,2S9"
+    IfElse Odd @i
+      "Turtle 'L4GD6FLDNR5BUL5G2D9NR4D2RDR2URNU8FD6NR7DGL2GDR11U11BU3NL8BU11LHRNDRNDBULEBHUL2DRNUR'"
+      "Turtle 'L2OF3D2OD3LODNR3BHL4OF5D6NR4D2RODOBRNU8OCD7NR6OEOF2R9U10OABU3NL8BU11LHRNDRBULEBHOHOFRNUR'"
+    IfElse Gte @i 2
+      "Turtle 'BM110,2S9BD10LD2L2D2R2D2RBD16BL3U'"
+      "Turtle 'BM110,2S9BD31BL2D0BLD0BLD0BLD0BLD0BLD0BLD0BUBR2D0BRD0BRD0BRD0BRD0'"
+    If Equ @i 1
+      "Turtle 'BFD0BUD0BUD0BLD0BLD0BLD0BLD0BLD0BGD0BDBL2D0BLD0'"
+    Turtle "BM110,2S9"
+    @z Add Add %ZHair Mul Odd @i 10 @j Turtle $z
+    Thicken2 6
+    = FlipHorizontal TempOr cDel
+    CopyMask -1 Add %MBody Add Mul @i 10 @j
+  )
+}
+
+// /////////////////////// //
+// Initial Setup (Bitmaps) //
+// /////////////////////// //
+
+EmbedDB
+DB
+67 45 24
+
+zagabjna{j
+da{gda{gda{gda{gda{gdabjna{jda{d
+aal{{cb{{cb{{cb{{cb{{cb{{eaib{{c{{ia{j
+aa{{{maw{{aw{m{{{n{e{n{{hn{{dn{{jn{ccadj{a{j{ahj
+aa{{bw{{bwb{{n{{hn{{dn{{jn{{ca{jba{j{a{j{a{jfa{j
+{a{g{{bw{{bw{{{n{e{n{{an{ybn{yan{{{ybn{m{{jn{{{gba{j{abj{a{j{a{j{adj{a{j
+aa{{bw{{bwb{{n{{hn{{dn{{jn{{ca{j{a{jba{j{a{j{a{jba{j{a{j
+aa{{bw{{bw{{bn{{hn{{dn{{bndybn{cca{j{a{j{abj{a{j{abj{a{j{a{j
+aa{{bw{{bw{{bn{{hn{{dn{{{eai{{bn{{{eb{ca{j{a{j{a{jba{jba{j{a{j{a{j
+aa{{bw{{bw{{bn{{hn{{dn{{bn{{bn{{{n{{{n{{ca{j{a{j{a{jba{jba{j{abj
+aab{{i{{{ed{{id{{ef{{eb{{eaib{{i{{{n{{{i{{ca{j{a{j{a{jfa{j
+aa{iznen{{dn{{{gba{j{abjba{dba{j{abj
+aa{iznen{{dn{{ca{jja{j{a{j{a{j
+aa{eznen{cdn{{ca{j{abjfa{j{a{j{a{j{a{d
+aab{{ed{{eaid{{c{{{eai{{{cb{fn{{dn{{ca{j{a{j{a{jfa{j{a{j{a{j
+aa{{{n{ibn{{{ydn{y{{{yhn{y{{{men{cdn{cca{j{a{j{adj{abj{a{j{a{j
+aab{bn{{fn{{jn{{fn{{dn{{ca{j{a{jda{j{a{jba{j{a{j
+aa{c{ycn{cfn{{jn{{{yen{{{ybn{y{{{gba{j{adj{a{j{adj{a{j
+aa{{{ycn{{fn{{jnb{bnh{ca{jda{j{a{jfa{j
+{a{g{c{ycn{cfn{{jn{i{n{{bn{ifn{{cafj{ahj
+aab{bn{{fn{{jn{{{n{{bn{{fn{{
+aa{{{n{ebn{{{ydn{y{{{yhn{y{{{n{{bn{{{yen{{qa{d
+aah{{c{{{cb{{c{{{i{{{ch{bnh{
+aa{u{gda{gda{gba{j{a{g{{{m{n{yan{e{n{{bn{ifn{c{gha{d
+aa{soa{jaa{{dnb{bnb{dn{{
+aa{uoa{jaa{cfn{ebn{{{n{ian{y{n{m{{
+aa{soa{jaah{bnh{
+aa{ucaljaa{{{m{n{yan{e{n{{bn{ifn{c
+aa{sca{jha{jca{{dnb{bnb{dn{{
+aa{u{gba{jha{jba{g{cfn{ebn{{{n{ian{y{n{m{{{gfa{d
+aa{sca{jha{jcah{bnh{
+aa{uca{jba{d{a{dba{jca{{{m{n{yan{e{n{{bn{ifn{csa{d
+aa{sca{jha{jca{{dnb{bnb{dn{{
+aa{uca{jba{d{a{dba{jca{cfn{ebn{{{n{ian{y{n{m{{ka{d
+aa{sca{jha{jcah{bnh{
+aa{u{gba{jha{jba{g{{{m{n{yan{e{n{{bn{ifn{c{gna{d
+aa{sca{jha{jca{{dnb{bnb{dn{{
+aa{ucajjca{cfn{ebn{{{n{ian{y{n{m{{ca{d
+aa{srah{bnh{
+aa{ura{{{m{n{yan{e{n{{bn{ifn{cua{d
+aa{sra{{dnb{bnb{dn{{
+aa{u{gda{gda{gda{g{cfn{ebn{{{n{ian{y{n{m{{{gla{d
+aa{s{u{s{u{s{u{s{u{s{u{s{u{s{u{s{u{s{u{s{uh{{c{{{ch{
+va{gda{gda{gda{g
+
+  // Texture 0: Block side textures
+\ Replace DkGreen UD %MTree %MTree 0 Replace Green UD %MBush %MBush 0 Replace Yellow UD %MTable %MTable 0 Replace Cyan UD %MDoor %MDoor2 0 Replace DkCyan UD %MDoor2 %MDoor 0 CopyTexture -1 0
+  // Mask 1: Where variable height walls are
+| Replace Black LtGray 0 Replace Red Black 0 Replace Magenta Black 0 Replace Green Black 0 Replace DkGreen Black 0 Replace Yellow Black 0 Replace White Black 0 Replace Blue Black 0 ColorPut cDel CopyMask -1 1
+  // Texture 1: Height of variable height walls
+k | Replace Yellow 72 0 Replace Green 80 0 Replace DkGreen 400 0 Replace Red 220 0 Replace Magenta 200 0 Replace White 280 0 Replace Blue 280 0 CopyTexture -1 1
+  // Texture 2: Height of elevated floor areas
+| Replace White 0 0 Replace Gray 0 0 Replace Pink 0 0 Replace Red 0 0 Replace Magenta 0 0 Replace Green 0 0 Replace DkGreen 0 0 Replace Yellow 0 0 Replace Cyan 0 0 Replace DkCyan 0 0 Replace Blue 96 0 Replace Maize 64 0 Replace Maroon 5 0 CopyTexture -1 2
+  // Mask 3: Where ceiling marks are
+| Replace Red Black 0 Replace Magenta Black 0 Replace Green Black 0 Replace DkGreen Black 0 Replace Maroon Black 0 ColorPut CopyMask -1 3
+  // Texture 3: Color of ceiling marks
+k | Replace Gray @KCeil 0 Replace Pink Light Pink 0 Replace Blue @KCeil 0 Replace Cyan @KDoor 0 Replace DkCyan @KDoor 0 Replace Maize @KCeil 0 Replace Yellow @KCeil 0 CopyTexture -1 3
+  // Texture 4: Block top textures
+| Replace Green UD %MBush2 %MBush2 0 CopyTexture -1 4
+  // Texture 5: Elevation side textures
+| Replace Maize UD %MBed %MBed 0 Replace Maroon 0 0 CopyTexture -1 5
+  // Texture 5: Elevation top textures
+Del CopyTexture -1 6 CopyTexture -1 %BID
+  // Mask -3: Where transparent walls are
+| Replace Black White 0 Replace Blue Black 0 Replace Magenta Black 0 Replace Green Black 0 Replace DkGreen Black 0 ColorPut cDel \
+  // Texture -2: Color of floor marks
+k | Replace Black Brown 0 Replace Pink Blend Pink Dark Pink 0 Replace Maroon LtGray 0 Replace Cyan @KFloor 0 Replace DkCyan @KFloor 0 Replace Blue DkCyan 0 Replace Maize Maroon 0 Replace Magenta Brown 0 =
+  // Mask -1: Where walls are
+| Replace Gray Black 0 Replace Pink Black 0 Replace Maize Black 0 Replace Maroon Black 0 ColorPut
+  // Mask -2: Where floor marks are
+= sDel _
+  // Texture -1: Color of walls
+k | Replace Black DkGray 0 Replace Cyan @KDoor 0 Replace DkCyan @KDoor 0 Replace White @KWall 0 Replace Blue @KWall 0 Replace Yellow Orange 0 Replace Red DkGray 0 Replace Magenta DkGray 0
+
+For (i) 0 2 {SetY Add 34 Mul @i 2 7 -1 %MTable0}
+SetY 3 18 1 %MTable0
+SetY 32 8 -1 %MDoor0 SetY 32 10 -1 %MDoor0 SetY 12 14 -1 %MDoor0 SetY 22 14 -1 %MDoor0 SetY 36 2 -1 %MDoor0 SetY 2 12 -1 %MDoor0
+SetY 5 10 0 %MDoorP SetY 7 10 0 %MDoorP2
+For (i) 0 3 {SetY Add 3 Mul @i 2 2 1 Inc %MPad SetY 2 Add 3 Mul @i 2 1 %MPad SetY 6 Add 3 Mul @i 2 -1 %MPad SetY 10 Add 3 Mul @i 2 0 %MPad}
+For (i) 0 1 {SetY Add 4 Mul @i 4 2 1 Inc %MPad0 SetY Add 4 Mul @i 4 10 0 Add %MPad0 2}
+For (i) 0 2 {SetY 2 Add 4 Mul @i 2 1 %MPad0 SetY 6 Add 4 Mul @i 2 -1 %MPad0 SetY 10 Add 4 Mul @i 2 0 %MPad0}
+For (i) 0 4 {SetY 27 Add 22 Mul @i 4 1 %MDress SetY 37 Add 26 Mul @i 4 0 %MDress}
+SetY 28 21 1 %MShelf SetY 30 21 0 %MShelf SetY 29 22 0 %MShelf
+SetY 41 8 1 %MShelf SetY 40 9 1 %MShelf SetY 42 9 0 %MShelf
+For (i) 0 1 {SetY 3 Add 14 Mul @i 6 1 %MShelf SetY 2 Add 15 Mul @i 6 1 %MShelf SetY 3 Add 16 Mul @i 6 0 %MShelf SetY Add 15 Mul @i 8 10 0 %MShelf}
+SetY 14 9 1 %MShelf SetY 24 9 0 %MShelf SetY 24 9 1 %MShelf SetY 30 9 0 %MShelf
+SetY 42 13 0 %MShelf SetY 36 11 1 %MShelf SetY 8 15 0 %MShelf SetY 8 21 0 %MShelf
+For (i) 0 2 {SetY Add 37 Mul @i 2 18 1 %MShelf}
+For (i) 0 4 {SetY 34 Add 25 Mul @i 4 1 %MJohn SetY 30 Add 23 Mul @i 4 0 %MJohn}
+For (i) 0 1 {SetY 10 Add 3 Mul @i 2 1 %MJohn SetY Add 3 Mul @i 6 10 0 %MJohnP}
+For (i) 0 4 {SetY 35 Add 24 Mul @i 4 1 %MSink SetY 29 Add 24 Mul @i 4 0 %MSink}
+For (i) 0 1 {SetY 10 Add 7 Mul @i 2 1 %MSink SetY 42 Add 19 Mul @i 2 0 %MSink}
+SetY 7 22 0 %MSink
+For (i) 0 4 {SetY 35 Add 26 Mul @i 4 0 %MShower SetY 29 Add 22 Mul @i 4 1 %MShower}
+For (i) 0 2 {SetY Add 37 Mul @i 2 22 0 %MWash}
+For (i) 0 4 {SetY 29 Add 24 Mul @i 4 1 %MSwitch1 SetY 35 Add 24 Mul @i 4 0 %MSwitch1}
+SetY 35 18 1 %MSwitch1 SetY 29 10 0 %MSwitch1 SetY 21 10 0 %MSwitch1 SetY 11 10 0 %MSwitch1 SetY 29 18 1 %MSwitch1 SetY 40 9 0 %MSwitch1 SetY 35 10 0 %MSwitch1 SetY 7 14 1 %MSwitch1
+SetY 3 14 0 %MFire
+SetY 23 22 0 %MTele
+SetY 14 5 1 %MPic SetY 24 5 0 Inc %MPic SetY 24 3 1 %MPic SetY 24 7 1 Inc %MPic SetY 16 17 0 %MPic SetY 16 19 0 Inc %MPic SetY 39 18 0 %MPic SetY 30 5 1 Inc %MPic
+For (i) 0 4 {SetY 37 Add 22 Mul @i 4 1 Inc %MPic SetY 27 Add 26 Mul @i 4 0 %MPic}
+For (i) 0 4 {SetY 34 Add 25 Mul @i 4 0 Add %MRoom Mul @i 2 SetY 30 Add 23 Mul @i 4 1 Add %MRoom Inc Mul @i 2}
+SetY 34 21 0 %MSignL SetY 36 17 0 Inc %MSignL SetY 35 10 1 Add %MSignL 2 SetY 29 10 1 Add %MSignL 3 SetY 21 10 1 Add %MSignL 4 SetY 9 10 1 Add %MSignL 5 SetY 9 14 0 Add %MSignL 7 SetY 17 14 0 Add %MSignL 6 SetY 28 21 0 Add %MSignL 8 SetY 8 15 1 Add %MSignL 9 SetY 39 2 1 Add %MSignL 10 SetY 42 11 0 Add %MSignL 11 SetY 30 7 1 Add %MSignL 12
+SetY 36 11 0 %MSignR SetY 11 10 1 Inc %MSignR SetY 3 10 1 Add %MSignR 2 SetY 27 14 0 Add %MSignR 3 SetY 15 14 0 Add %MSignR 4 SetY 7 14 0 Add %MSignR 5 SetY 8 21 1 Add %MSignR 6 SetY 41 8 0 Add %MSignR 7 SetY 33 2 1 Add %MSignR 8
+SetY 33 2 0 %MSignO SetY 39 2 0 %MSignO
+SetY 30 9 1 Inc %MSignO SetY 34 9 0 Inc %MSignO
+For (i) 0 4 {SetY 39 Add 22 Mul @i 4 1 Add %MQuote @i SetY 25 Add 26 Mul @i 4 0 Add %MQuote Add @i 5}
+For (i) 0 1 {SetY 30 Add 19 Mul @i 2 1 Add Add %MQuote 10 @i SetY Add 15 Mul @i 2 10 1 Add Add %MQuote 12 @i SetY 16 Add 17 Mul @i 2 1 Add Add %MQuote 14 @i}
+SetY 28 17 0 Add %MQuote 16 SetY 25 22 0 Add %MQuote 17 SetY 35 18 0 Add %MQuote 18
+SetY 23 10 1 %MSched SetY 25 10 1 Inc %MSched
+For (i) 0 4 {SetY 41 Add 22 Mul @i 4 1 Add %MSchedR Mul @i 2 SetY 23 Add 26 Mul @i 4 0 Add Inc %MSchedR Mul @i 2}
+
+For (i) 0 1 {SetCA 3 Add 3 Mul @i 6 3 Light Pink SetCA 6 Add 3 Mul @i 6 3 %MChain}
+For (i) 0 1 {For (j) 0 1 (@x Add 11 Mul @i 2 @y Add 31 Mul @j 2 SetCA 1 @x @y Add GetCA 1 @x @y Rnd -20 20)}
+For (i) 0 4 {Set 36 Add 25 Mul @i 4 Off Set 28 Add 23 Mul @i 4 Off} CopyMask -1 7
+For (i) 0 15 {SetVar Add %YCoor Mul @i 2 -1 SetVar Add %YCoor Inc Mul @i 2 -1}
+
+kSky Cyan kSky2 kSky
+kGround Blend Maize Green kGround2 Blend Maize LtGray
+kMountain2 DkGreen kMountain kGround2
+kCloud White kCloud2 LtGray
+nCloudCount 16
+SetVar Add %KSky 0 kSky
+SetVar Add %KSky 1 Blue
+SetVar Add %KSky 2 Black
+SetVar Add %KSky 3 kSky2
+SetVar Add %KSky 4 Orange
+SetVar Add %KSky 5 Black
+SetVar Add %KGrd 0 kGround
+SetVar Add %KGrd 1 Dark kGround
+SetVar Add %KGrd 2 Dark Dark kGround
+SetVar Add %KGrd 3 kGround2
+SetVar Add %KGrd 4 Dark kGround2
+SetVar Add %KGrd 5 Dark Dark kGround2
+SetVar Add %KMtn 0 kMountain
+SetVar Add %KMtn 1 Dark kMountain
+SetVar Add %KMtn 2 Dark Dark kMountain
+SetVar Add %KMtn 3 kMountain2
+SetVar Add %KMtn 4 Dark kMountain2
+SetVar Add %KMtn 5 Dark Dark kMountain2
+SetVars %KFog 6 "2500 250 25 Gray DkGray Black" // Fog
+@x White @y Dark DkGray @KCld @x SetVar Add %KCld 2 @y SetVar Inc %KCld Blend @x @y // Cloud
+@x Light LtGray @y Dark Dark DkGray SetVar Add %KCld 3 @x SetVar Add %KCld 5 @y SetVar Add %KCld 4 Blend @x @y // Cloud2
+
+DisableAll
+Enable 'Ent' Enable 'Esc'
+Enable (F1) Enable (F2) Enable (F3) Enable (F4) Enable (F5) Enable (F6) Enable (F7)
+OnCommand (?) %FHelp
+OnCommand (~) %FStart
+OnCommand (`) %FName
+OnCommand (e) %FUse
+OnCommand (Spc) %FUse
+OnCommand (z) %FRest
+OnCommand (Z) %FRest2
+OnCommand (cz) %FRest3
+OnCommand (8) %FUp
+OnCommand (2) %FDown
+OnCommand (4) %FLeft
+OnCommand (6) %FRight
+OnCommand (w) %FUp
+OnCommand (s) %FDown
+OnCommand (a) %FLeft
+OnCommand (d) %FRight
+OnCommand (x) %FLeft2
+OnCommand (c) %FRight2
+OnCommand (MoveU) %FUp
+OnCommand (MoveD) %FDown
+OnCommand (MoveL) %FLeft
+OnCommand (MoveR) %FRight
+OnCommand (JumpL) %FLeft2
+OnCommand (JumpR) %FRight2
+
+kWall Light Yellow
+fShowDot True fWallsImpassable True
+nInside 2 fNarrowWalls True nCellSize 60 nNarrowCellSize 8 nFogDistance 100
+nTextureWall 0 nWallVariable 1 nMarkElev 2 nSkyMark 3 nTextureBlock 4 nTextureElev 5 nTextureGround 6
+fFogGround True fMarkColor True fMarkBlock True fTextureDual True fTextureDual2 True
+nAfterRedrawInside %VInside
+nOnMoveToNewCell %VMove
+nAfterMoveToNewCell %VMoved
+fRedrawWhenBitmapEdited True
+
+*FStart

@@ -1,5 +1,5 @@
 DS
-// Stocker Farms Corn Maze 2003 - A script file for Daedalus 3.3
+// Stocker Farms Corn Maze 2003 - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -10,15 +10,15 @@ DS
 
 If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
 
-DefineMacro 1 {Message 'Welcome to Stocker Farms Corn Maze 2003, as hosted on\nhttp://www.cornfieldmaze.com. Also visit Stocker Farms in\nSnohomish, WA or at http://www.stockerfarms.com :-)\n\nUse the arrow keys to move through the Maze. There are\ntwo different Mazes. Maze #1 is easier than Maze #2.\nAlso go through the "Field of Screams", if you dare!\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Switch between inside and overhead views.\nF4: Start leaving breadcrumbs as you move around.'} "Help Text"
+DefineMacro 1 {Message 'Welcome to Stocker Farms Corn Maze 2003, as hosted on http://www.cornfieldmaze.com. Also visit Stocker Farms in Snohomish, WA or at http://www.stockerfarms.com :-)\n\nUse the arrow keys to move through the Maze. There are two different Mazes. Maze #1 is easier than Maze #2. Also go through the "Field of Screams", if you dare!\n\nF1: Display this help text.\nF2: Restart Maze.\nF3: Switch between inside and overhead views.\nF4: Start leaving breadcrumbs as you move around.'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False @m 0 fShowColorBitmap False = Del _ ExtraDelete k Macro7 nX 100 nY 346 nDir 0 nHorizontalOffset 0 nVerticalOffset 0 nDirectionOffset 0 nViewHeight 0 g fRedrawWhenBitmapEdited True n Macro1 ct" "Restart"
 DefineMacro 3 (IfElse nInside {i Message 'This is an overhead view of the Maze. Press F3 to return to first person view.\n\nGreen: walls, White: passages, Brown: bridges, Red dot: your current location.\n\nThe arrow keys can be used to move around in this view too.\nPress "}" to zoom in, and press "{" to zoom out.'} {i}) "Overhead"
 DefineMacro 4 "IfElse fDragMoveDot {a Message 'You stop marking your path.'} {a Message 'You start marking your path.\nPlaces you visit will now have a lighter color on the ground.'}" "Breadcrumbs"
 
 DefineMacro 5 "@z False @m GetCE nX nY If Lt nViewHeight nStepHeight {Break} If Gt nViewHeight nWallHeight {Break} If And Equ GetC nX nY @b Neq GetC @x @y @b {@z True Break}" "Before Move"
 DefineMacro 6 "@n GetCE @x @y If Equ @m @n {Break} If And Equ @m 0 Gt @n 0 {fRedrawWhenBitmapEdited False Macro8 fRedrawWhenBitmapEdited True n Message 'You enter the Field of Screams!\nCan you make it through the darkness?' Break} If And Gt @m 0 Equ @n 0 {fRedrawWhenBitmapEdited False Macro7 fRedrawWhenBitmapEdited True n Message 'You exit the Field of Screams.\nIt feels good to be back in the light!'}" "After Move"
-DefineMacro 7 "kBorder White kInsideWall DkGreen kSky Cyan kGround Blend Light Brown DkGray k3DWall kBorder kMountain Gray kCloud White kCloud2 Light LtGray fStars False nFogDistance 1000 Replace GrayN 23 White 0" "Day"
-DefineMacro 8 "kBorder GrayN 23 kInsideWall Dark DkGreen kSky Black kGround Dark Dark Dark kGround kMountain GrayN 15 kCloud GrayN 23 kCloud2 Dark kCloud k3DWall kBorder fStars True nFogDistance 25 Replace White kBorder 0" "Night"
+DefineMacro 7 "kBorder White kInsideWall DkGreen kSky Cyan kGround Blend Light Brown DkGray kGround2 -1 k3DWall kBorder kMountain Gray kCloud White kCloud2 Light LtGray fStars False nFogDistance 1000 Replace GrayN 23 White 0" "Day"
+DefineMacro 8 "kBorder GrayN 23 kInsideWall Dark DkGreen kSky Black kGround Dark Dark Dark kGround kGround2 Black kMountain GrayN 15 kCloud GrayN 23 kCloud2 Dark kCloud k3DWall kBorder fStars True nFogDistance 25 Replace White kBorder 0" "Night"
 
 fRedrawWhenBitmapEdited False ResetProgram EmbedDB
 DB

@@ -1,5 +1,5 @@
 DS
-// Sokoban game - A script file for Daedalus 3.3
+// Sokoban game - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -22,7 +22,7 @@ DS
 
 If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
 
-DefineMacro 1 {Message 'Welcome to 3D Sokoban!\n\nThis implements the game Sokoban (Japanese for "warehouse\nkeeper") but with a first person view. :-) Your job is to push all the\nblue boxes onto the yellow finish squares. Boxes can only be\npushed from behind, so make sure you don't get them stuck in\ncorners.\n\nF1: Display this help text.\nF2: Restart current level.\nF3: Load previous level.\nF4: Load next level.\nF5: Undo last box push.\nF6: Switch background between day and night.\n\nPress "i" to toggle to overhead view (much easier :-)'} "Help Text"
+DefineMacro 1 {Message 'Welcome to 3D Sokoban!\n\nThis implements the game Sokoban (Japanese for "warehouse keeper") but with a first person view. :-) Your job is to push all the blue boxes onto the yellow finish squares. Boxes can only be pushed from behind, so make sure you don't get them stuck in corners.\n\nF1: Display this help text.\nF2: Restart current level.\nF3: Load previous level.\nF4: Load next level.\nF5: Undo last box push.\nF6: Switch background between day and night.\n\nPress "i" to toggle to overhead view (much easier :-)'} "Help Text"
 DefineMacro 2 "Macro16" "Restart Level"
 DefineMacro 3 "@l Dec @l If Lt @l 1 {@l @k} Macro16" "Previous Level"
 DefineMacro 4 "@l Inc @l If Gt @l @k {@l 1} Macro16" "Next Level"

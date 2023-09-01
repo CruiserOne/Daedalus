@@ -1,5 +1,5 @@
 DS
-// Survivor Maze game #9 - A script file for Daedalus 3.3
+// Survivor Maze game #9 - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 // For actual Maze see http://www.youtube.com/watch?v=_x6HVvdOq5g
 
@@ -26,7 +26,7 @@ DS
 
 If Gte Version 2400 {Break} Message 'This script requires Daedalus 2.4 or later to run.' Break
 
-DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the\nfinal four in "Survivor XXII: Redemption Island". Your goal is to\nvisit the four checkpoints in the Maze in any order, then go to the\n$x station in the raised finish area. $x was the color $y had.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in random Maze.\n\nF5: Put on or remove blindfold.\nF6: Switch background between day and night.\nF7: Toggle cloud movement.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
+DefineMacro 1 {@x Inc @p @y Add @x 4 Message 'Welcome to Survivor!\n\nThis game simulates the Maze from the immunity challenge for the final four in "Survivor XXII: Redemption Island". Your goal is to visit the four checkpoints in the Maze in any order, then go to the $x station in the raised finish area. $x was the color $y had.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in random Maze.\n\nF5: Put on or remove blindfold.\nF6: Switch background between day and night.\nF7: Toggle cloud movement.\n\nJeff Probst says: "Survivors ready? Go!"'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False CopyTexture 2 -1 ColorAnd CopyTexture 3 1 k = Del _ k Macro13 SetVars 5 4 '0 0 0 0' @p Rnd 0 3 @q 0 nX 1 nY 21 nZ 0 nDir 3 g cg @z Var Inc @p SetC 29 3 @z SetC 55 3 @z SetC 29 39 @z SetC 55 39 @z k3DWall @z fShowColorBitmap True fRedrawWhenBitmapEdited True n Macro1 fPauseTimer False ct" "Restart Maze"
 DefineMacro 3 "fRedrawWhenBitmapEdited False CopyMask 2 -1 Macro2" "Restart Survivor"
 DefineMacro 4 "fRedrawWhenBitmapEdited False Macro14 Macro2" "Restart Random"
@@ -39,7 +39,7 @@ DefineMacro 9 "@z False If Gt @q 4 {Break} @w GetCE @x @y If Not @w {Break} If E
 DefineMacro 10 "@z False If Gte @q 4 {Break} @w GetCE @x @y If Or Or Neq @w Gray Gte nX @x Gt nViewHeight 48 {Break} Message 'Jeff Probst says: "Hey, you can't go up there yet! You need to visit all the checkpoints first."' @z True" "Move Event"
 DefineMacro 11 "If @k {MoveCloud -1 @r} If Gt @q 4 {Break} IfElse Lt @q 4 {@z Sub 4 @q MessageInside 'Checkpoints needed: @z' -1} {MessageInside 'Checkpoints needed: None - Go to finish!' -1}" "Inside Event"
 
-DefineMacro 12 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you found all checkpoints and made it to the end\nof the Maze! :-) You solved it in @x minutes, @y seconds.\n\nJeff Probst gives you the immunity necklace, meaning you can't be\nvoted off the island at Tribal Council. Only you are safe! With this\nwin you find yourself in the final three, and in good position to do\nthe most a-Maze-ing thing in Survivor: Win the million dollar prize!'" "Win Game"
+DefineMacro 12 "fPauseTimer True @w Timer @x Div @w 60 @y Mod @w 60 Message 'Congratulations, you found all checkpoints and made it to the end of the Maze! :-) You solved it in @x minutes, @y seconds.\n\nJeff Probst gives you the immunity necklace, meaning you can't be voted off the island at Tribal Council. Only you are safe! With this win you find yourself in the final three, and in good position to do the most a-Maze-ing thing in Survivor: Win the million dollar prize!'" "Win Game"
 DefineMacro 13 "@l False fStars False fMountains True fSunAndMoon True nFogDistance 900 kSky Cyan k3DCeiling kSky kGround Rgb 202 177 147 kGround2 -1 kMountain kGround kMountain2 DkGreen kCloud White kCloud2 Light LtGray" "Day Settings"
 DefineMacro 14 "CopyMask 3 -1 DoWhile (Not Get nX nY) {nX Or Rnd 0 Sub SizeX 2 1 nY Or Rnd 0 Dec Sub SizeY 2 1} PartialRecursive If Not Or Or Or Or Or Get 49 20 Get 53 20 Get 57 20 Get 49 22 Get 53 22 Get 57 22 {Turtle 'C0BM23,18D0BM30,19D0BM23,24D0BM30,23D0C1BM29,3`BM55,3`BM29,39`BM55,39`BM3,3`BM3,39`' nX 30 nY 20 nX2 58 nY2 22 2ndBlock nX 59 nY 10 nX2 74 nY2 32 2ndBlock Break} Restart" "Create Random"
 

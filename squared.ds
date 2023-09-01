@@ -1,5 +1,5 @@
 DS
-// Survivor Squared Off game - A script file for Daedalus 3.3
+// Survivor Squared Off game - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -29,7 +29,7 @@ If @z {Message 'Initialization failed!' Halt}
 EmbedMacro %FHelp "Help Text"
 @w Inc @q @z Dec @g
 IfElse Lte @g 1 {$0 'player'} {SetString 0 '@g players'}
-Message 'Welcome to Survivor!\n\nThis simulates the Squared Off game from the episode 9 immunity\nchallenge in the original "Survivor" series. Your goal is to be the\nlast player standing, by running the other $0 out of room.\nOn your turns, move to an adjacent square that hasn't yet been\nvisited, for as long as you're able.\n\nF1: Display this help text.\nF2: Start new game.\nF3: Let other players continue (if you've lost).\n\nF4: Set game board dimensions, and number of players.\nF5: Set game difficulty, and number of move directions.\n\nIn this game you are player #@w ($w).\nJeff Probst says: "Survivors ready? Go!"'
+Message 'Welcome to Survivor!\n\nThis simulates the Squared Off game from the episode 9 immunity challenge in the original "Survivor" series. Your goal is to be the last player standing, by running the other $0 out of room. On your turns, move to an adjacent square that hasn't yet been visited, for as long as you're able.\n\nF1: Display this help text.\nF2: Start new game.\nF3: Let other players continue (if you've lost).\n\nF4: Set game board dimensions, and number of players.\nF5: Set game difficulty, and number of move directions.\n\nIn this game you are player #@w ($w).\nJeff Probst says: "Survivors ready? Go!"'
 
 EmbedMacro %FNew "Restart Game"
 fRedrawWhenBitmapEdited False
@@ -173,7 +173,7 @@ SetVar Add 9 @r -1
 If Gt @s 1 {Break}
 IfElse Equ Var Add 9 @q -1
   {Message 'One player left, we have a winner!\n\nUnfortunately the winner wasn't you. You overhear the other\nplayers plotting to vote you off the island this Tribal Council. :-('}
-  {fRainbow True Message 'You win! You are the sole surviving player left standing! :-)\n\nJeff congratulates you, and hands you the coveted immunity\nnecklace. You try to keep from laughing as the other tribemates\nfrantically try to form an alliance with you.'}
+  {fRainbow True Message 'You win! You are the sole surviving player left standing! :-)\n\nJeff congratulates you, and hands you the coveted immunity necklace. You try to keep from laughing as the other tribemates frantically try to form an alliance with you.'}
 *End
 
 DefineMacro %End "ClearEvents nMotionVelocity 50" "Disengage User"

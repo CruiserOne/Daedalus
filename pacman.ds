@@ -1,5 +1,5 @@
 DS
-// Pac-Man game - A script file for Daedalus 3.3
+// Pac-Man game - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -23,7 +23,7 @@ DS
 
 If Gte Version 2000 {Break} Message 'This script requires Daedalus 2.0 or later to run.' Break
 
-DefineMacro 1 {Message 'Welcome to 3D Pac-Man!\n\nThis simulates the old arcade video game Pac-Man, but with a first\nperson view. :-) Your goal is to eat all the dots in the Maze,\navoiding the red monsters which chase you. If caught, you lose a\nlife. If you eat a green energizer dot, the monsters turn blue for a\nshort while and you can eat them instead.\n\nF1: Display this help text.\nF2: Restart game.\nF3: Pause and give monsters an extra move.\nF4: Switch background between night and day.\n\nEating a dot: 10 points.\nEating a green energizer dot: 50 points.\nEating the purple fruit: 100 points per level.\nEating a monster: 200, 400, 800, or 1600 points.\n\nPress "i" to toggle to overhead view (much easier :-)'} "Help Text"
+DefineMacro 1 {Message 'Welcome to 3D Pac-Man!\n\nThis simulates the old arcade video game Pac-Man, but with a first person view. :-) Your goal is to eat all the dots in the Maze, avoiding the red monsters which chase you. If caught, you lose a life. If you eat a green energizer dot, the monsters turn blue for a short while and you can eat them instead.\n\nF1: Display this help text.\nF2: Restart game.\nF3: Pause and give monsters an extra move.\nF4: Switch background between night and day.\n\nEating a dot: 10 points.\nEating a green energizer dot: 50 points.\nEating the purple fruit: 100 points per level.\nEating a monster: 200, 400, 800, or 1600 points.\n\nPress "i" to toggle to overhead view (much easier :-)'} "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False Macro28 Macro16 Macro29 Macro31 Macro26 Macro18 fRedrawWhenBitmapEdited True n Macro1" "Restart Game"
 DefineMacro 3 "fRedrawWhenBitmapEdited False Macro15 fRedrawWhenBitmapEdited True n Macro12" "Empty Move"
 DefineMacro 4 "fRedrawWhenBitmapEdited False If Equ nInside 0 {i} IfElse fStars {fStars False nFogDistance 0 kSky Cyan kGround Gray kCloud White kCloud2 Light Light LtGray} {fStars True nFogDistance 600 kSky Black kGround DkGray kCloud DkGray kCloud2 Dark kCloud} fRedrawWhenBitmapEdited True Spc" "Day And Night"

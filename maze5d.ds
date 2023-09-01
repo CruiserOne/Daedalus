@@ -1,5 +1,5 @@
 DS
-// N-Dimensional Mazes - A script file for Daedalus 3.3
+// N-Dimensional Mazes - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -42,7 +42,7 @@ DefineMacro 13 "fRedrawWhenBitmapEdited False Macro23 Macro20 fRedrawWhenBitmapE
 DefineMacro 14 "For (x) 0 Dec @d {@y Mul @x 5 SetVar Add 105 @y Neg Var Add 105 @y} Macro12" "Reverse Direction"
 DefineMacro 15 "fRedrawWhenBitmapEdited False fShowDot Not fShowDot If Not @e {fShowDot2 fShowDot} fRedrawWhenBitmapEdited True Spc @z True" ". Hook"
 DefineMacro 16 "fRedrawWhenBitmapEdited False @z kPassage kPassage kWall kWall @z kBorder kPassage If fShowColorBitmap {Macro20} fRedrawWhenBitmapEdited True Spc @z True" "/ Hook"
-DefineMacro 17 "If Not fShowDot {Macro15 Break} MoveND 59 27 Sub @x @m Sub @y @n nX Add nX @m nY Add nY @n If And @z Not fPauseTimer {fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 Message 'You reach the finish vertex! :-)\nCongratulations, you solved it in @x minutes, @y seconds.'} @z True" "Left Event"
+DefineMacro 17 "If Not fShowDot {Macro15 Break} MoveND 59 27 Sub @x @m Sub @y @n fRedrawWhenBitmapEdited False nX Add nX @m nY Add nY @n fRedrawWhenBitmapEdited True Spc If And @z Not fPauseTimer {fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 Message 'You reach the finish vertex! :-)\nCongratulations, you solved it in @x minutes, @y seconds.'} @z True" "Left Event"
 
 DefineMacro 18 "SizeWindow Del \ k SizeWindow Del \ k @m Div SizeX 2 @n Div SizeY 2 @v Dec Min SizeX SizeY @w @v For (x) 0 Dec @d {@y Mul @x 5 IfElse Lt @x Dec @d '@z Rnd 1 Div @v Dec Sub @d @x @v Sub @v @z' '@z @v' SetVar Add 101 @y @z IfElse Lt @x Dec @d '@z Rnd 1 Div @w Dec Sub @d @x @w Sub @w @z' '@z @w' SetVar Add 102 @y @z @z Add @f Rnd 0 2000 SetVar Add 103 @y @z SetVar Add 104 @y Rnd 0 Dec @z @z Rnd 1 40 If Rnd 0 1 '@z Neg @z' SetVar Add 105 @y @z}" "New Sizes"
 DefineMacro 19 "For (x) 0 Dec @d {@y Mul @x 5 @w Var Add 103 @y @z Var Add 104 @y @z Add @z Var Add 105 @y If Gte @z @w '@z Sub @z @w' If Lt @z 0 '@z Add @z @w' SetVar Add 104 @y @z SetVar Add 27 Mul @x 2 Cos2 Var Add 101 @y Var Add 104 @y @w SetVar Add 28 Mul @x 2 Sin2 Var Add 102 @y Var Add 104 @y @w}" "Animate Sizes"
@@ -65,7 +65,7 @@ DefineMacro 34 "@d 10 Macro25" "10D Cube"
 DefineMacro 35 "@d 11 Macro25" "11D Cube"
 DefineMacro 36 "@d 12 Macro25" "12D Cube"
 
-DefineMacro 37 {Message 'Welcome to N-Dimensional Mazes!\n\nSolve the Maze by moving the red dot to the finish (green dot)\nalong the lines (i.e. passages) by clicking on vertices adjacent to\nthe red dot. This is a @d dimensional Maze with @b cells per side,\ncontaining @u vertices. A @d dimensional cube contains:\n@w points, @x edges, @y faces, @z solids.\n\nF1: Display this help text.\nF2: Create new @d dimensional Maze.\nF3: View current Maze from different angle.\nF4: Toggle animation of Maze rotating.\n\nF5: Create Maze in lower dimension.\nF6: Create Maze in higher dimension.\nF7: Create easier Maze with fewer cells.\nF8: Create harder Maze with more cells.\n\nF9: Show solution.\nF10: Draw a @d dimensional cube instead of Maze.\nF11: Toggle vertex tracking.\nF12: Rotate Maze slightly.\n\nPress "Ctrl+g" to teleport to start.\nPress "/" to toggle colors.\nPress "a" to toggle axis vs. nearness coloring.\nPress "b" to toggle vertex highlighting.'} "Help Text"
+DefineMacro 37 {Message 'Welcome to N-Dimensional Mazes!\n\nSolve the Maze by moving the red dot to the finish (green dot) along the lines (i.e. passages) by clicking on vertices adjacent to the red dot. This is a @d dimensional Maze with @b cells per side, containing @u vertices. A @d dimensional cube contains: @w points, @x edges, @y faces, @z solids.\n\nF1: Display this help text.\nF2: Create new @d dimensional Maze.\nF3: View current Maze from different angle.\nF4: Toggle animation of Maze rotating.\n\nF5: Create Maze in lower dimension.\nF6: Create Maze in higher dimension.\nF7: Create easier Maze with fewer cells.\nF8: Create harder Maze with more cells.\n\nF9: Show solution.\nF10: Draw a @d dimensional cube instead of Maze.\nF11: Toggle vertex tracking.\nF12: Rotate Maze slightly.\n\nPress "Ctrl+g" to teleport to start.\nPress "/" to toggle colors.\nPress "a" to toggle axis vs. nearness coloring.\nPress "b" to toggle vertex highlighting.'} "Help Text"
 DefineMacro 38 "nRandomSeed Inc nRandomSeed Macro3" "Random View"
 
 DefineMacro 39 "@p Dec @p If Lt @p 0 {@p Dec @d}" "Decrease axis"

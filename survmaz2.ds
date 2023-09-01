@@ -1,5 +1,5 @@
 DS
-// Survivor Maze game #2 - A script file for Daedalus 3.3
+// Survivor Maze game #2 - A script file for Daedalus 3.4
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 
 // Variable usage:
@@ -19,7 +19,7 @@ DS
 
 If Gte Version 2300 {Break} Message 'This script requires Daedalus 2.3 or later to run.' Break
 
-DefineMacro 1 "Message 'Welcome to Survivor!\n\nThis game sumulates the Maze from the episode 6 immunity\nchallenge in "Survivor IV: Marquesas". Your goal is to navigate\nthe Maze, finding and touching five poles in order, and also\ntouching the center after each pole.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in Maze with random pole positions.\nF5: Switch background between day and night.\n\nA message will be displayed when you run into each pole.\nThe poles progress through the colors of the rainbow:\nPole #1: Red, #2: Yellow, #3: Green, #4: Blue, #5: Purple.\n\nJeff Probst says: "Survivors ready? Go!"'" "Help Text"
+DefineMacro 1 "Message 'Welcome to Survivor!\n\nThis game sumulates the Maze from the episode 6 immunity challenge in "Survivor IV: Marquesas". Your goal is to navigate the Maze, finding and touching five poles in order, and also touching the center after each pole.\n\nF1: Display this help text.\nF2: Restart current Maze.\nF3: Start in same Maze the Survivors did.\nF4: Start in Maze with random pole positions.\nF5: Switch background between day and night.\n\nA message will be displayed when you run into each pole.\nThe poles progress through the colors of the rainbow:\nPole #1: Red, #2: Yellow, #3: Green, #4: Blue, #5: Purple.\n\nJeff Probst says: "Survivors ready? Go!"'" "Help Text"
 DefineMacro 2 "fRedrawWhenBitmapEdited False fShowColorBitmap False TempDelete k Macro19" "Restart Maze"
 DefineMacro 3 "Macro16 Macro18 Macro19" "Start Survivor's Maze"
 DefineMacro 4 "Macro16 Macro17 Macro18 Macro19" "Start Random Pole Maze"
@@ -35,7 +35,7 @@ DefineMacro 11 "@r GetC Sub 178 @x @y For (p) 1 5 {If Equ @r Var Mul @p 3 'Break
 DefineMacro 12 "IfElse Neq @p @s {Message 'You don't need to find a pole now.\nThis is pole #@p ($p). You need to return to the center after having reached pole #@s ($s).'} {Message 'You don't need to find a pole now.\nThis is pole #@p ($p). You need to return to the center after having reached this pole.'}" "Pole No"
 DefineMacro 13 "If Gt @q 10 {nViewHeight nWallHeight @z True Break} If And @q 1 {Message 'You don't need to be at the center now. You need to go find pole #@s ($s).' Break} @q Inc @q If Gt @q 10 {Macro15 Break} @s Inc @s Message 'You've reached the center! Now go find pole #@s ($s).'" "Center"
 DefineMacro 14 "If Gt @q 10 {@z True Break} Message 'Jeff Probst says: "Hey, you can't leave the Maze! You haven't finished it yet."'" "Exit"
-DefineMacro 15 "If Lte @q 10 {Break} fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all the poles and returned to the\ncenter! :-) You solved it in @x minutes, @y seconds.\n\nYour tribe wins immunity, and Jeff Probst hands you the coveted\nimmunity idol. You can't help but feel sorry for the other tribe as\nthey try to decide who to vote off the island in Tribal Council.\nWith your new leadership position, you're able to form an alliance\nthat has a good chance of making it to the final four!' nViewHeight nWallHeight @z True" "Win Game"
+DefineMacro 15 "If Lte @q 10 {Break} fPauseTimer True @z Timer @x Div @z 60 @y Mod @z 60 Message 'Congratulations, you've found all the poles and returned to the center! :-) You solved it in @x minutes, @y seconds.\n\nYour tribe wins immunity, and Jeff Probst hands you the coveted immunity idol. You can't help but feel sorry for the other tribe as they try to decide who to vote off the island in Tribal Council. With your new leadership position, you're able to form an alliance that has a good chance of making it to the final four!' nViewHeight nWallHeight @z True" "Win Game"
 
 DefineMacro 16 "fRedrawWhenBitmapEdited False @a 30 @b 93 @d 111 @e 167 @g 117 @h 53 @j 133 @k 128 @m 57 @n 27" "Draw Start"
 DefineMacro 17 "For (r) 0 4 {@s Rnd 0 4 SwapVar Inc Mul @r 3 Inc Mul @s 3 SwapVar Add Mul @r 3 2 Add Mul @s 3 2} For (r) 0 4 {If Rnd 0 1 'SetVar Inc Mul @r 3 Sub 177 Var Inc Mul @r 3'}" "Random Poles"
