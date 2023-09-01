@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: maze.h
+** Daedalus (Version 3.4) File: maze.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** algorithms, and other Maze utilities.
 **
 ** Created: 11/22/1996.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 
@@ -319,6 +319,7 @@ public:
   long DoCrackIsland(int, int, flag);
   long DoCrackIslands(flag);
   long DoMakeSymmetric(int nOp, flag fBraid);
+  flag MazeZoomWithPicture(CONST CCol *);
   void BlockMoveMaze(CONST CMaz &, int, int, int, int, int, int,
     int, int, int, int);
   void BlockMoveMaze3(CONST CMaz &, int, int, int, int, int, int,
@@ -411,6 +412,7 @@ public:
   flag CreateMazeSigma();
   flag CreateMazeTheta();
   flag CreateMazeUpsilon();
+  flag CreateMazeOmicron();
   void FractalSet(CMazK *c, KV kv, int x, int y);
   flag FFractalLine(CMaz *, CMazK *, KV, int, int, int, int);
   int CreateMazeFractal2(CMazK *);
@@ -498,10 +500,12 @@ extern int RndDir(void);
 extern ulong MazeCountPossible(int, int);
 
 // Function hooks implemented elsewhere
-extern flag FInitCoordinates(int);
+extern int InitCoordinates(int);
 extern flag FSetCoordinates(int, int, int, int, int, int, KV);
-extern flag FInitPatch(int);
+extern int InitPatch(int);
 extern flag FSetPatch(int, int, int, int, int, int, KV);
+extern int InitCoorPatch(flag, int);
+extern flag FSetCoorPatch(flag, int, int, int, int, int, int, KV);
 
 
 /*

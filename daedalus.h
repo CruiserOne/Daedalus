@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: daedalus.h
+** Daedalus (Version 3.4) File: daedalus.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains system independent definitions for Daedalus as a whole.
 **
 ** Created: 11/22/1993.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 
@@ -34,7 +34,7 @@
 */
 
 #define szDaedalus "Daedalus"
-#define szVersion "3.3"
+#define szVersion "3.4"
 #define cchSzMaxFile 128
 #define cchSzOpr (cchSzMax*4)
 #define cMacro 48
@@ -45,13 +45,13 @@
 #define szFileTempCore "daedalus.tmp"
 
 #define icmdBase 1001
-#define cmdScriptLast cmdScript29
+#define cmdScriptLast cmdScript30
 #define cmdSizeLast cmdSize19
 #define iActionMax ccmd
-#define ccmd 467
-#define copr 173
-#define cvar 325
-#define cfun 121
+#define ccmd 469
+#define copr 181
+#define cvar 328
+#define cfun 125
 
 enum _edgebehavior {
   nEdgeVoid  = 0,
@@ -366,6 +366,7 @@ typedef struct _transparentwall {
   int yLo2;      // Scaled pixel height of bottom of back wall
   int yHi2;      // Scaled pixel height of top of back wall
   int yElev;     // Pixel height of ground elevation clipping
+  int yElev2;    // Pixel height of ceiling elevation clipping
   int nFog;      // Fog percentage at depth of this wall
   int iTexture;  // What color texture to apply to this wall, if any
   int iMask;     // What monochrome texture to apply to this wall, if any
@@ -452,6 +453,7 @@ typedef struct _dotrendering {
   int nFog;
   int nClip;
   real dInside;
+  //int nStereo;  // Stored in DS structure
   int nTrans;
 
   // Inside dialog Settings - Smooth & Free Movement
@@ -536,17 +538,18 @@ typedef struct _dotrendering {
   int nTextureVar;
   int nTextureElev;
   flag fTextureDual;
+  flag fTextureDual2;
   flag fTextureBlend;
   int nMarkElevX1;
   int nMarkElevY1;
   int nMarkElevX2;
   int nMarkElevY2;
-  int nStereo;
   int nStretchMode;
 
   // Internal settings
 
   flag fInSmooth;
+  int xCalc;
   real rdCalc;
   CALC *rgcalc;
   int ccalc;
@@ -557,6 +560,7 @@ typedef struct _dotrendering {
   int nTransPct;
   int nTransPct2;
   int yElevMax;
+  int yElevMin;
 } DR;
 
 
@@ -663,6 +667,7 @@ char *ReadEmbedLines(FILE *);
 
 int AFromInside(long);
 long InsideFromA(int);
+flag FCreateInsideStars(CMazK *, real, int, flag);
 flag FMoveCloud(int, int);
 void ResetInside();
 void FormatCompass(char *, flag, int *);

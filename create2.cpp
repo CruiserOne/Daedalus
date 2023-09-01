@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: create2.cpp
+** Daedalus (Version 3.4) File: create2.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** produce orthogonal Mazes, however which aren't standard 2D Mazes.
 **
 ** Created: 11/22/1996.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -2208,6 +2208,8 @@ flag CMaz::FValidPlanair(CONST char *sz) CONST
 }
 
 
+CONST KV rgkvCube[6] = {kvGreen, kvBlue, kvMagenta, kvYellow, kvRed, kvOrange};
+
 // Create a new planair Maze in a bitmap, or a Maze on the surface of a set of
 // rectangles, whose edges can connect in arbitrary ways. Like a 3D Maze this
 // is technically a 3D construct stored as a sequence of levels, where the
@@ -2219,6 +2221,7 @@ flag CMaz::CreateMazePlanair()
   int jx = Even(m_x3), jy = Even(m_y3), jz, jw = m_w3,
     fHunt = fFalse, pass = 0, x, y, z, xnew, ynew, znew,
     xInc = 2, yInc = 2, zInc = 1, d, e, i, iMax, j;
+  int a0, b0, c0, ax, bx, cx, ay, by, cy;
   long count;
 
   if (!FValidPlanair(ms.szPlanair))
@@ -2312,6 +2315,54 @@ LNext:
     }
   }
 LDone:
+
+  // Create a wireframe for this Planair Maze if it's making a cube.
+  if (!(ms.nOmegaDraw == 1 && FEqSz(ms.szPlanair,
+    "e2d3f0b1 e7a3f3c1 e4b3f6d1 e1c3f5a1 c4d0a0b4 a2d6c6b2")))
+    return fTrue;
+  if (InitCoordinates((jx + jy) / 2 * jz) < 0)
+    return fFalse;
+  d = 25; e = d << 1;
+  i = (Max(jx, jy)-2)*d;
+  for (z = 0; z < jz; z++) {
+    ax = bx = cx = ay = by = cy = 0;
+    switch (z) {
+    case 0: a0=0; b0=1; c0=1; ax=1;  by=-1; break;
+    case 1: a0=1; b0=1; c0=1; cx=-1; by=-1; break;
+    case 2: a0=1; b0=1; c0=0; ax=-1; by=-1; break;
+    case 3: a0=0; b0=1; c0=0; cx=1;  by=-1; break;
+    case 4: a0=0; b0=1; c0=0; ax=1;  cy=1;  break;
+    case 5: a0=0; b0=0; c0=1; ax=1;  cy=-1; break;
+    }
+    a0 = ((a0 << 1) - 1) * i;
+    b0 = ((b0 << 1) - 1) * i;
+    c0 = ((c0 << 1) - 1) * i;
+    ax *= e; ay *= e; bx *= e; by *= e; cx *= e; cy *= e;
+    for (y = 0; y < jy; y += 2)
+      for (x = 0; x < jx; x += 2) {
+        if (x+2 < jx && JG(x+1, y, z) && (y > 0 || PZTo(ms.szPlanair, z, 0) <
+          z) && (y < jy-2 || PZTo(ms.szPlanair, z, 2) < z))
+          FSetCoordinates(a0 + x*ax + y*ay, b0 + x*bx + y*by, c0 + x*cx + y*cy,
+            a0 + (x+2)*ax + y*ay, b0 + (x+2)*bx + y*by, c0 + (x+2)*cx + y*cy,
+            KvBlend(rgkvCube[z], rgkvCube[y <= 0 ? PZTo(ms.szPlanair, z, 0) :
+            (y >= jy-2 ? PZTo(ms.szPlanair, z, 2) : z)]));
+        if (y+2 < jy && JG(x, y+1, z) && (x > 0 || PZTo(ms.szPlanair, z, 1) <
+          z) && (x < jx-2 || PZTo(ms.szPlanair, z, 3) < z))
+          FSetCoordinates(a0 + x*ax + y*ay, b0 + x*bx + y*by, c0 + x*cx + y*cy,
+            a0 + x*ax + (y+2)*ay, b0 + x*bx + (y+2)*by, c0 + x*cx + (y+2)*cy,
+            KvBlend(rgkvCube[z], rgkvCube[x <= 0 ? PZTo(ms.szPlanair, z, 1) :
+            (x >= jx-2 ? PZTo(ms.szPlanair, z, 3) : z)]));
+      }
+  }
+  // Draw two arrows for the entrance and exit to the cube Maze.
+  for (j = -1; j <= 1; j += 2) {
+    zInc = j < 0 ? kvWhite : kvDkGray;
+    FSetCoordinates((i+d)*j, 0, 0, (i+d*10)*j, 0, 0, zInc);
+    e = j < 0 ? -i-d*10 : i+d;
+    FSetCoordinates(e, 0, 0, e+d*3, d*3, 0, zInc);
+    FSetCoordinates(e, 0, 0, e+d*3, -d*3, 0, zInc);
+  }
+  InitCoordinates(0);
   return fTrue;
 }
 

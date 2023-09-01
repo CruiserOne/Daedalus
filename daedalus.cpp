@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: daedalus.cpp
+** Daedalus (Version 3.4) File: daedalus.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** underlying operating system.
 **
 ** Created: 11/18/1993.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -94,9 +94,9 @@ DR dr = {
     -1, -1, -1, -1, -1, -1, fFalse, 94001225, 0, 0, 50, 333,
     fFalse, fFalse, -1, fFalse, fFalse, fFalse, fFalse, fFalse, fFalse,
     fFalse, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1,
-    fFalse, fFalse, 11, 3412, 4, 427, 0, 0,
+    fFalse, fFalse, fFalse, 11, 3412, 4, 427, 0,
   // Internal settings
-  fFalse, 0.0, NULL, 0, NULL, NULL, NULL, NULL, 50, 40, 99999};
+  fFalse, 0, 0.0, NULL, 0, NULL, NULL, NULL, NULL, 50, 40, 99999, 0};
 
 // Constant data
 
@@ -119,7 +119,7 @@ CONST char *rgszScript[cmdScriptLast - cmdScript01 + 1] = {
   "survmaz0.ds", "survmaz1.ds", "survmaz2.ds", "survmaz3.ds", "survmaz4.ds",
   "survmaz5.ds", "survmaz6.ds", "survmaz7.ds", "survmaz8.ds", "survmaz9.ds",
   "carletn1.ds", "carletn2.ds", "stocker.ds",  "glacier.ds",  "safari.ds",
-  "mousemaz.ds", "squared.ds",  "mandy.ds",    "pentris.ds"};
+  "mousemaz.ds", "squared.ds",  "mandy.ds",    "pentris.ds",  "gripsox.ds"};
 CONST char *rgszShortcut[cmdScriptLast - cmdScript01 + 1] = {
   "Daedalus demos",        "Word Mazes",            "World's largest Maze",
   "4D Mazes",              "5D Mazes",              "Dragonslayer",
@@ -130,7 +130,8 @@ CONST char *rgszShortcut[cmdScriptLast - cmdScript01 + 1] = {
   "Survivor Maze game #7", "Survivor Maze game #8", "Survivor Maze game #9",
   "Carleton Farm Maze #1", "Carleton Farm Maze #2", "Stocker Farms Maze",
   "Glacier Maze game",     "Safari Maze",           "Mouse Maze game",
-  "Survivor Squares game", "Mandelbrot set",        "Pentris"};
+  "Survivor Squares game", "Mandelbrot set",        "Pentris",
+  "Grippy Socks"};
 
 // Command lines to run on startup. When embedding a complex script file, in
 // it first delete the leading DS, then replace \ with \\, " with \", and ?
@@ -188,14 +189,27 @@ byte BRead(FILE *file)
 
 // Initialize a new wireframe list in memory of the specified size.
 
-flag FInitCoordinates(int cCoor)
+int InitCoordinates(int cCoor)
 {
+  COOR *coor;
+  flag fExtend = cCoor < 0;
+
+  if (cCoor == 0)
+    cCoor = ds.cCoorPatch;
+  else if (fExtend)
+    cCoor = NAbs(cCoor);
+  if (cCoor == bm.ccoor)
+    return bm.ccoor;
+  coor = (COOR *)ReallocateArray(bm.coor, bm.ccoor, sizeof(COOR), cCoor);
+  if (coor == NULL)
+    return -1;
   if (bm.coor != NULL)
     DeallocateP(bm.coor);
-  bm.coor = RgAllocate(cCoor, COOR);
+  bm.coor = coor;
   bm.ccoor = cCoor;
-  ds.cCoorPatch = 0;
-  return bm.coor != NULL;
+  if (!fExtend)
+    ds.cCoorPatch = 0;
+  return bm.ccoor;
 }
 
 
@@ -203,6 +217,9 @@ flag FInitCoordinates(int cCoor)
 
 flag FSetCoordinates(int x1, int y1, int z1, int x2, int y2, int z2, KV kv)
 {
+  if (ds.cCoorPatch >= bm.ccoor && InitCoordinates(bm.ccoor * -2) < 0)
+    return fFalse;
+  Assert(ds.cCoorPatch < bm.ccoor);
   WriteCoordinates(bm.coor, x1, y1, z1, x2, y2, z2, kv < 0 ? ds.kvTrim : kv);
   return fTrue;
 }
@@ -210,14 +227,27 @@ flag FSetCoordinates(int x1, int y1, int z1, int x2, int y2, int z2, KV kv)
 
 // Initialize a new patch list in memory of the specified size.
 
-flag FInitPatch(int cPat)
+int InitPatch(int cPat)
 {
+  PATCH *patch;
+  flag fExtend = cPat < 0;
+
+  if (cPat == 0)
+    cPat = ds.cCoorPatch;
+  else if (fExtend)
+    cPat = NAbs(cPat);
+  if (cPat == bm.cpatch)
+    return bm.cpatch;
+  patch = (PATCH *)ReallocateArray(bm.patch, bm.cpatch, sizeof(PATCH), cPat);
+  if (patch == NULL)
+    return -1;
   if (bm.patch != NULL)
     DeallocateP(bm.patch);
-  bm.patch = RgAllocate(cPat, PATCH);
+  bm.patch = patch;
   bm.cpatch = cPat;
-  ds.cCoorPatch = 0;
-  return bm.patch != NULL;
+  if (!fExtend)
+    ds.cCoorPatch = 0;
+  return bm.cpatch;
 }
 
 
@@ -227,12 +257,38 @@ flag FSetPatch(int x1, int y1, int z1, int x2, int y2, int z2, KV kv)
 {
   PATN pat[cPatch];
 
+  if (ds.cCoorPatch >= bm.cpatch && InitPatch(bm.cpatch * -2) < 0)
+    return fFalse;
   pat[0].x = x1; pat[0].y = y1; pat[0].z = z1; pat[0].fLine = fTrue;
   pat[1].x = x1; pat[1].y = y1; pat[1].z = z2; pat[1].fLine = fTrue;
   pat[2].x = x2; pat[2].y = y2; pat[2].z = z2; pat[2].fLine = fTrue;
   pat[3].x = x2; pat[3].y = y2; pat[3].z = z1; pat[3].fLine = fTrue;
+  Assert(ds.cCoorPatch < bm.cpatch);
   WritePatch(bm.patch, pat, fFalse, kv < 0 ? ds.kvObject : kv);
   return fTrue;
+}
+
+
+// Initialize either the wireframe or patch list in memory to a given size.
+
+int InitCoorPatch(flag fPatch, int cCoorPatch)
+{
+  if (!fPatch)
+    return InitCoordinates(cCoorPatch);
+  else
+    return InitPatch(cCoorPatch);
+}
+
+
+// Append either a line or patch to the wireframe or patch list in memory.
+
+flag FSetCoorPatch(flag fPatch, int x1, int y1, int z1, int x2, int y2, int z2,
+  KV kv)
+{
+  if (!fPatch)
+    return FSetCoordinates(x1, y1, z1, x2, y2, z1/*z2*/, kv);
+  else
+    return FSetPatch(x1, y1, z1, x2, y2, z2, kv);
 }
 
 
@@ -295,6 +351,7 @@ flag FReadDaedalusBitmap(FILE *file)
     skipcrlf();
   } else {
     ws.iszStartup++;
+    ws.ichStartup = 0;
   }
   if (z == 1) {
     if (bm.b.FReadDaedalusBitmapCore(file, x, y))
@@ -687,8 +744,7 @@ CMaz *BitmapGetMask(int ib)
     if (pbT == NULL)
       return NULL;
     for (iT = ws.cbMask; iT <= ib; iT++)
-      new(&pbT[iT]) CMaz();
-      //pbT[iT].CMaz::CMaz();
+      new(&pbT[iT]) CMaz();  // Effectively does: pbT[iT].CMaz::CMaz();
     if (ws.rgbMask != NULL)
       DeallocateP(ws.rgbMask);
     ws.rgbMask = pbT;
@@ -725,8 +781,7 @@ CMazK *ColmapGetTexture(int ic)
     if (pcT == NULL)
       return NULL;
     for (iT = ws.ccTexture; iT <= ic; iT++)
-      new(&pcT[iT]) CMazK();
-      //pcT[iT].CMazK::CMazK();
+      new(&pcT[iT]) CMazK();  // Effectively does: pcT[iT].CMazK::CMazK();
     if (ws.rgcTexture != NULL)
       DeallocateP(ws.rgcTexture);
     ws.rgcTexture = pcT;
@@ -3008,6 +3063,10 @@ void *PAllocate(long lcb)
   char sz[cchSzMax];
   void *pv;
 
+#ifndef PC
+  // For Unix systems in which longs are 8 bytes instead of 4 bytes.
+  lcb += 4;
+#endif
 #ifdef DEBUG
   pv = malloc(lcb + sizeof(dword)*3);
 #else

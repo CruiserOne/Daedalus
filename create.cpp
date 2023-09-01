@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: create.cpp
+** Daedalus (Version 3.4) File: create.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** produce standard orthogonal 2D Mazes.
 **
 ** Created: 9/4/2000.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -1695,8 +1695,8 @@ flag CMaz::CreateMazeAldousBroder()
   MazeClear(!fWall);
   MakeEntranceExit(0);
   if (!fWall) {
-    x = RndSkip(xl + 1, xh - 1);
-    y = RndSkip(yl + 1, yh - 1);
+    x = ms.fTreeRandom ? RndSkip(xl + 1, xh - 1) : xl + 1;
+    y = ms.fTreeRandom ? RndSkip(yl + 1, yh - 1) : yl + 1;
     Set0(x, y);
   } else
     x = y = 0;
@@ -1807,7 +1807,7 @@ flag CMaz::CreateMazeWilson()
   UpdateDisplay();
 
   while (count > 0) {
-    i = Rnd(0, count-1);
+    i = ms.fTreeRandom ? Rnd(0, count-1) : count-1;
     x = x0 = wils[i].zList % xs; y = y0 = wils[i].zList / xs;
 
     // From a random uncreated location, do a random walk until run into part

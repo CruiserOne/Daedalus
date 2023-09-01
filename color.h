@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: color.h
+** Daedalus (Version 3.4) File: color.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** on a color bitmap, unrelated to Mazes.
 **
 ** Old last code change: 6/29/1990.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 /*
@@ -104,9 +104,12 @@ enum _colorreplace {
 #define UdD(l) ((int)((dword)(l) >> 12))
 #define ITextureWall(kv, d) ((int)(((kv) >> ((d) * 6)) & (cTexture-1)))
 #define ITextureWall2(kv, d) ((int)(((kv) >> (FOdd(d) * 12)) & 4095))
+#define ITextureWall3(kv, d) ((int)(((kv) >> (((d) > 1) * 12)) & 4095))
 #define GetT(c, x, y, d) ITextureWall((c).Get(x, y), d)
 #define SetT(c, x, y, d, t) ((c).Get(x, y) & \
   ~((KV)(cTexture-1) << ((d) * 6)) | ((KV)(t) << ((d) * 6)))
+#define SetU(c, x, y, f, t) ((c).Get(x, y) & \
+  ~((KV)4095 << ((f) * 12)) | ((KV)(t) << ((f) * 12)))
 
 
 /*
@@ -214,6 +217,7 @@ public:
   flag FColmapPutToBitmap(CMon &, int) CONST;
   void ColmapOrAndFromBitmap(CONST CMon &, KV, KV, int);
   flag FColmapBlendFromBitmap(CONST CMon *, CONST CMon *, CONST CMon *);
+  void ColmapBlendBitmaps(CONST CCol &);
 
   flag FColmapBlur(flag);
   void ColmapContrast(flag);

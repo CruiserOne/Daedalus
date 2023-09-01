@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: wdriver.h
+** Daedalus (Version 3.4) File: wdriver.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains Windows specific definitions for Daedalus as a whole.
 **
 ** Created: 4/8/2013.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 
@@ -58,9 +58,6 @@
 
 // Dialog Macros
 
-#define HourglassOn \
-  if (ws.fHourglass) hcurPrev = SetCursor(LoadCursor(NULL, IDC_WAIT))
-#define HourglassOff if (hcurPrev != NULL) SetCursor(hcurPrev)
 #define CheckMenu(cmd, f) \
   CheckMenuItem(wi.hmenu, cmd, f ? MF_CHECKED : MF_UNCHECKED);
 #define SetCheck(id, f) CheckDlgButton(hdlg, id, f)

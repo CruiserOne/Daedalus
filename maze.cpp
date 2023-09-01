@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: maze.cpp
+** Daedalus (Version 3.4) File: maze.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** actual creation and solving.
 **
 ** Created: 4/11/1991.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -1757,6 +1757,34 @@ long CMaz::DoMakeSymmetric(int nOp, flag fBraid)
 }
 
 
+// Zoom an orthogonal Maze so passages and walls become 1 or 2 pixels wide,
+// based on the brightness of corresponding pixels in a color bitmap.
+
+flag CMaz::MazeZoomWithPicture(CONST CCol *c1)
+{
+  int x, y, n;
+  flag f1, f2;
+
+  if (!FBitmapBias(1, 2, 1, 2))
+    return fFalse;
+  for (y = 0; y < m_y; y += 3)
+    for (x = 0; x < m_x; x += 3) {
+      n = c1->Get(x/3, y/3);
+      n = (RgbR(n) + RgbG(n) + RgbB(n)) / 192;
+      f1 = Get(x, y+1); f2 = Get(x+1, y);
+      if (n > 0) {
+        Set1(x+1, y+1-(!f1 && !f2));
+        if (n > 1) {
+          Set1(x+f1, y+1+f1);
+          if (n > 2)
+            Set1(x+1+f2, y+f2);
+        }
+      }
+    }
+  return fTrue;
+}
+
+
 // Render a section of Maze on a bitmap. Walls are always one pixel thick and
 // it's assumed no cells are solid blocks, however passages can be of greater
 // sizes and displayed in different orientations. Used in the rendering of
@@ -2131,7 +2159,7 @@ ulong MazeCountPossible(int x, int y)
         t = RSin(((real)j*rPi) / (2.0*ry));
         r *= (4.0 * (s*s + t*t));
         if (r > rMax)
-          return (ulong)~0L;
+          return dwSet;
       }
     }
   return (ulong)(r / (rx*ry) + rRound);

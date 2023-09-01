@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: threed.cpp
+** Daedalus (Version 3.4) File: threed.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** or color bitmap being treated as a 3D or 4D bitmap, unrelated to Mazes.
 **
 ** Created: 3/12/1990.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -320,20 +320,23 @@ flag CMap3::FCubeFlip2(int nAxis, int nOp)
 {
   CONST char *pch;
 
-  Assert(FBetween(nAxis, 0, 2) && FBetween(nOp, 0, 3));
-  switch (nAxis*4 + nOp) {
+  Assert(FBetween(nAxis, 0, 2) && FBetween(nOp, 0, 4));
+  switch (nAxis*5 + nOp) {
   case 0:  pch = "Xyz"; break; // X Flip
   case 1:  pch = "xzY"; break; // X Rotate right
   case 2:  pch = "xZy"; break; // X Rotate left
   case 3:  pch = "xYZ"; break; // X Rotate across
-  case 4:  pch = "xYz"; break; // Y Flip
-  case 5:  pch = "zyX"; break; // Y Rotate right
-  case 6:  pch = "Zyx"; break; // Y Rotate left
-  case 7:  pch = "XyZ"; break; // Y Rotate across
-  case 8:  pch = "xyZ"; break; // Z Flip
-  case 9:  pch = "Yxz"; break; // Z Rotate right
-  case 10: pch = "yXz"; break; // Z Rotate left
-  case 11: pch = "XYz"; break; // Z Rotate across
+  case 4:  pch = "xzy"; break; // X Transpose
+  case 5:  pch = "xYz"; break; // Y Flip
+  case 6:  pch = "zyX"; break; // Y Rotate right
+  case 7:  pch = "Zyx"; break; // Y Rotate left
+  case 8:  pch = "XyZ"; break; // Y Rotate across
+  case 9:  pch = "zyx"; break; // Y Transpose
+  case 10: pch = "xyZ"; break; // Z Flip
+  case 11: pch = "Yxz"; break; // Z Rotate right
+  case 12: pch = "yXz"; break; // Z Rotate left
+  case 13: pch = "XYz"; break; // Z Rotate across
+  case 14: pch = "yxz"; break; // Z Transpose
   default: Assert(fFalse); return fFalse;
   }
   return FCubeFlip(pch);

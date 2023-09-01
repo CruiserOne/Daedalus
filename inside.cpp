@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: inside.cpp
+** Daedalus (Version 3.4) File: inside.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** from inside a Maze's passages.
 **
 ** Created: 6/2/2001.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -115,6 +115,8 @@ void LineYGradient(CMazK &c, int x, int y1, int y2, KV kv1, KV kv2)
     yClip1 = 0;
   if (yClip2 > c.m_y)
     yClip2 = c.m_y;
+  if (yClip1 < dr.yElevMin)
+    yClip1 = dr.yElevMin;
   if (yClip2 > dr.yElevMax)
     yClip2 = dr.yElevMax;
   if (yClip2 <= yClip1)
@@ -170,6 +172,8 @@ void LineYTrans(CMazK &c, int x, int y1, int y2, KV kv, int nTrans)
     y1 = 0;
   if (y2 > c.m_y)
     y2 = c.m_y;
+  if (y1 < dr.yElevMin)
+    y1 = dr.yElevMin;
   if (y2 > dr.yElevMax)
     y2 = dr.yElevMax;
 
@@ -219,6 +223,8 @@ void LineYTexture(
     y1 = 0;
   if (y2 > cDst.m_y)
     y2 = cDst.m_y;
+  if (y1 < dr.yElevMin)
+    y1 = dr.yElevMin;
   if (y2 > dr.yElevMax)
     y2 = dr.yElevMax;
 
@@ -405,6 +411,8 @@ void LineYMask(
     y1 = 0;
   if (y2 > cDst.m_y)
     y2 = cDst.m_y;
+  if (y1 < dr.yElevMin)
+    y1 = dr.yElevMin;
   if (y2 > dr.yElevMax)
     y2 = dr.yElevMax;
 
@@ -486,6 +494,8 @@ void LineYFloor(CMazK &c, int x, int yb, int dy1, int dy2,
     y1 = 0;
   if (y2 > c.m_y)
     y2 = c.m_y;
+  if (y1 < dr.yElevMin)
+    y1 = dr.yElevMin;
   if (y2 > dr.yElevMax)
     y2 = dr.yElevMax;
 
@@ -582,6 +592,8 @@ void LineYFloorTexture(CMazK &cDst, int x, int yb, int dy1, int dy2,
     rdy1 = (real)dy1;
   if (y2 > cDst.m_y)
     y2 = cDst.m_y;
+  if (y1 < dr.yElevMin)
+    y1 = dr.yElevMin;
   if (y2 > dr.yElevMax)
     y2 = dr.yElevMax;
   rddy = (real)(dy2 - dy1);
@@ -683,8 +695,9 @@ LNext:
 
 flag FCreateInsideStars(CMazK *c, real rd, int yAdd, flag fPerspective)
 {
-  int i, x, y;
+  int i, x, y, d;
   real rx, dInside2 = dr.dInside*2.0, rT;
+  KV kv;
 
   // If the list of stars hasn't been generated yet, do so first.
   if (dr.rgstar == NULL) {
@@ -718,8 +731,14 @@ flag FCreateInsideStars(CMazK *c, real rd, int yAdd, flag fPerspective)
       x = c->m_x-1 - (int)((real)c->m_x * rx);
       y = yAdd + (int)((real)(c->m_y >> (int)!ds.fSkyAll) *
         (real)dr.rgstar[i].y / 16384.0);
+      kv = dr.rgstar[i].kv;
       if (fPerspective || c->Get(x, y) == dr.kvInSky)
-        c->Set(x, y, dr.rgstar[i].kv);
+        c->Set(x, y, kv);
+      if (ds.nStarSize < 0 ? FOdd(i) :
+        RgbR(kv) + RgbG(kv) + RgbB(kv) >= ds.nStarSize)
+        for (d = 0; d < DIRS; d++)
+          if (fPerspective || c->Get(x+xoff[d], y+yoff[d]) == dr.kvInSky)
+            c->Set(x+xoff[d], y+yoff[d], kv);
     }
   }
   return fTrue;
@@ -1521,8 +1540,10 @@ void ComputeTexture(int *piTexture, int *piMask, real *prTexture, int ic,
   // Determine the color and monochrome texture to apply to this wall.
   if (!dr.fTextureDual)
     iTexture = ITextureWall(kv, k);
-  else
+  else if (!dr.fTextureDual2)
     iTexture = ITextureWall2(kv, k);
+  else
+    iTexture = ITextureWall3(kv, k);
   if (iTexture > 0) {
     if (iTexture < ws.cbMask && !ws.rgbMask[iTexture].FNull())
       iMask = iTexture;
@@ -1731,6 +1752,7 @@ void DrawTransVar(CMazK &c, int x, int yb, int cTrans, TRANS *trans,
     yLo1 = ptrans->yLo1; yHi1 = ptrans->yHi1;
     yLo2 = ptrans->yLo2; yHi2 = ptrans->yHi2;
     dr.yElevMax = yb+IO(ptrans->yElev);
+    dr.yElevMin = yb+IO(ptrans->yElev2);
     fWall = !(dr.nTrans == nTransFast && ptrans->fTrans && i > 0 &&
       trans[i-1].fTrans && ptrans->y == trans[i-1].y2 &&
       yHi == trans[i-1].yHi && yLo == trans[i-1].yLo &&
@@ -1928,7 +1950,7 @@ flag RedrawInsidePerspective(CMazK &c)
     fTrans = (dr.nTrans != nTransNone && !bm.b3.FNull()), fInTrans = fFalse;
   int zEye = ((dr.zElev + (dr.zWall >> 1)) << iVarScale) / dr.zWall,
     yExtra, yExtra2, yExtraK, yExtra2K,
-    yElevMax, itransMac = 10, cTrans, kElev = 1, nFogT;
+    yElevMax, yElevMin, itransMac = 10, cTrans, kElev = 1, nFogT;
   flag fMarkAll = dr.fMarkAll, fColorMark = !cMark->FNull(), fColorMark2,
     fDoCompute = fFalse, fDoEnd = fFalse, fDoWall = fFalse,
     fDoSeal = fFalse, fDoTrans = fFalse, fDoWallVar = fFalse,
@@ -1960,7 +1982,7 @@ flag RedrawInsidePerspective(CMazK &c)
 
   // Prepare the bitmap for drawing.
   rT = RTanD(dr.dInside); rd = (real)xc / rT;
-  if (c.m_x > dr.ccalc || rd != dr.rdCalc) {
+  if (c.m_x != dr.xCalc || rd != dr.rdCalc) {
     if (c.m_x > dr.ccalc) {
       if (dr.rgcalc != NULL)
         DeallocateP(dr.rgcalc);
@@ -1974,9 +1996,10 @@ flag RedrawInsidePerspective(CMazK &c)
       dr.rgcalc[x].rAngleColumn = RAtnD((real)(x - xc) / rd);
       dr.rgcalc[x].rDistCorrect = RCosD(dr.rgcalc[x].rAngleColumn);
     }
+    dr.xCalc = c.m_x;
     dr.rdCalc = rd;
   }
-  dr.yElevMax = ypWallMax;
+  dr.yElevMax = ypWallMax; dr.yElevMin = -ypWallMax;
 
   // Initialize a bunch of variables.
   if (f3D) {
@@ -2088,6 +2111,7 @@ flag RedrawInsidePerspective(CMazK &c)
   // Loop over each column in the bitmap, to draw each column separately.
   for (x = 0; x < c.m_x; x++) {
     dr.yElevMax = yElevMax = ypWallMax;
+    dr.yElevMin = yElevMin = -ypWallMax;
 
     // Figure out the angle of this ray, the corresponding horizontal and
     // vertical increments to get from cell to cell, and the characteristics
@@ -2404,6 +2428,7 @@ LNotSet:
               }
               yElevMax = yElev1;
               dr.yElevMax = yb+IO(yElevMax);
+              dr.yElevMin = yb+IO(yElevMin);
             }
           }
           fInMark = fDoExitMark = fFalse;
@@ -2427,6 +2452,8 @@ LNotSet:
               rx3, ry3, rx4, ry4,
               FFogDirt(xo, yo), GetP(bTextureDirt, xo, yo), fFalse, rScale);
           }
+          if (y > yElevMin)
+            yElevMin = -y;
           fInMark2 = fDoExitMark2 = fFalse;
         }
 
@@ -2579,6 +2606,7 @@ LNotSet:
             ptransCur->y = ptransCur->y2 = y;
             ptransCur->yk = ptransCur->yk2 = yk;
             ptransCur->yElev = yElevMax;
+            ptransCur->yElev2 = yElevMin;
             ptransCur->fTrans = fDoTrans;
             ptransCur->nFog = nFogT;
             ptransCur->kvOrig = kvT;
@@ -2610,6 +2638,7 @@ LNotSet:
       if (fDoEnd) {
         if (fDoSeal) {
           dr.yElevMax = yb+IO(yElevMax);
+          dr.yElevMin = yb+IO(yElevMin);
           LineI(yb+IO(y - (yk << 1)), yb+IO(y), dr.kvInEdge);
           fDoSeal = fFalse;
         }
@@ -2659,6 +2688,7 @@ LNotSet:
 
       // Actually draw the wall for the current column here.
       dr.yElevMax = yb+IO(yElevMax);
+      dr.yElevMin = yb+IO(yElevMin);
       LineYGradient(c, x, yb-IO(y), yb+IO(y), kv2, dr.kvInWall2);
 
       // Do texture mapping on top of the drawn wall at the current column.
@@ -2684,32 +2714,44 @@ LNext:
 
 flag RedrawInsidePerspectiveStereo(CMazK &c, CMazK &cs)
 {
-  int x = c.m_x >> 1, f = FOdd(c.m_x), mSav = dr.nOffsetX, nSav = dr.nOffsetY,
-    m, n, d;
+  int mSav = dr.nOffsetX, nSav = dr.nOffsetY, dSav = dr.nOffsetD,
+    x, f, m, n, d;
 
+  x = !ds.fStereo3D ? c.m_x >> 1 : c.m_x;
   if (!cs.FBitmapSizeSet(x, c.m_y))
     return fFalse;
+  f = FOdd(c.m_x) && !ds.fStereo3D;
   d = 180 - (dr.dir*90 + dr.nOffsetD);
   if (d >= nDegMax)
     d -= nDegMax;
-  m = NCosRD(dr.nStereo, d); n = NSinRD(dr.nStereo, d);
+  m = NCosRD(ds.nStereo, d); n = NSinRD(ds.nStereo, d);
 
   // Draw left eye view of scene.
-  dr.nOffsetX += m; dr.nOffsetY += n;
+  dr.nOffsetX += m; dr.nOffsetY += n; //dr.nOffsetD += 1;
   if (!RedrawInsidePerspective(cs))
     return fFalse;
-  c.BlockMove(cs, 0, 0, x, c.m_y-1, 0, 0);
+  if (ds.fStereo3D) {
+    cs.ColmapGrayscale();
+    cs.ColmapOrAndKv(kvCyan, 0);
+  }
+  c.BlockMove(cs, 0, 0, x-1, c.m_y-1, 0, 0);
 
   // Draw right eye view of scene.
-  dr.nOffsetX -= m*2; dr.nOffsetY -= n*2;
+  dr.nOffsetX -= m*2; dr.nOffsetY -= n*2; //dr.nOffsetD -= 1*2;
   if (!RedrawInsidePerspective(cs))
     return fFalse;
-  c.BlockMove(cs, 0, 0, x, c.m_y-1, x+f, 0);
+  if (!ds.fStereo3D)
+    c.BlockMove(cs, 0, 0, x-1, c.m_y-1, x+f, 0);
+  else {
+    cs.ColmapGrayscale();
+    cs.ColmapOrAndKv(kvRed, 0);
+    c.ColmapOrAnd(cs, 1);
+  }
 
   // Draw line down middle if outer bitmap is odd sized.
   if (f)
     c.LineY(x, 0, c.m_y-1, dr.kvInEdge);
-  dr.nOffsetX = mSav; dr.nOffsetY = nSav;
+  dr.nOffsetX = mSav; dr.nOffsetY = nSav; dr.nOffsetD = dSav;
   return fTrue;
 }
 

@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: wdriver.cpp
+** Daedalus (Version 3.4) File: wdriver.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** code to execute menu commands and Windows events.
 **
 ** Created: 4/8/2013.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <windows.h>
@@ -472,6 +472,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE hPrevInstance,
       FBootExternal("daedalus.ds", fTrue);
       ws.fQuitting = fTrue;
     } else if (!FBootExternal("daedalus.ds", fTrue)) {
+      dr.nFrameXY = dr.nFrameD = dr.nFrameZ = 90;
       DoCommand(cmdInsideView);
       DoCommand(cmdGoMiddle);
       DoCommand(cmdMoveRandom);
@@ -634,7 +635,8 @@ flag DoCommandW(int wCmd)
   case cmdSetupAll:
   case cmdSetupUser:
     if (!FCreateProgramGroup(wCmd == cmdSetupAll))
-      PrintSz_E("Failed to create program group.");
+      PrintSz_E("Failed to create program group.\nDaedalus "
+        "can still be run from other icons or directly from its folder.");
     break;
 
   case cmdSetupDesktop:
@@ -1248,7 +1250,13 @@ LTimer:
   case WM_HSCROLL:
     if (ws.fSaverRun)
       goto LClose;
-    switch (wParam) {
+    switch (LOWORD(wParam)) {
+    case SB_LEFT:
+      ws.xScroll = 0;
+      break;
+    case SB_RIGHT:
+      ws.xScroll = nScrollDiv;
+      break;
     case SB_LINEUP:
       ws.xScroll = max(0, ws.xScroll - 1);
       break;
@@ -1262,7 +1270,7 @@ LTimer:
       ws.xScroll = min(nScrollDiv, ws.xScroll + nScrollPage);
       break;
     case SB_THUMBPOSITION:
-      ws.xScroll = LOWORD(lParam);
+      ws.xScroll = HIWORD(wParam);
       break;
     default:
       return fFalse;
@@ -1276,7 +1284,13 @@ LTimer:
   case WM_VSCROLL:
     if (ws.fSaverRun)
       goto LClose;
-    switch(wParam) {
+    switch (LOWORD(wParam)) {
+    case SB_TOP:
+      ws.yScroll = 0;
+      break;
+    case SB_BOTTOM:
+      ws.yScroll = nScrollDiv;
+      break;
     case SB_LINEUP:
       ws.yScroll = max(0, ws.yScroll - 1);
       break;
@@ -1290,7 +1304,7 @@ LTimer:
       ws.yScroll = min(nScrollDiv, ws.yScroll + nScrollPage);
       break;
     case SB_THUMBPOSITION:
-      ws.yScroll = LOWORD(lParam);
+      ws.yScroll = HIWORD(wParam);
       break;
     default:
       return fFalse;
@@ -1381,7 +1395,7 @@ void Redraw(HWND hwnd)
         goto LDone;
 
     if (dr.nInside != nInsideSimple) {
-      if (dr.nStereo == 0)
+      if (ds.nStereo == 0)
         RedrawInsidePerspective(bm.kI);
       else
         RedrawInsidePerspectiveStereo(bm.kI, bm.kS);

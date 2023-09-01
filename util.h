@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: util.h
+** Daedalus (Version 3.4) File: util.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** related to graphics or any other part of Daedalus.
 **
 ** Created: 6/4/1993.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 // Compile options
@@ -33,6 +33,10 @@
 #define WIN
 #define PC
 #define ASSERT
+
+// WIN: Comment out to produce command line version with no Windows interface.
+// PC: Comment out if not using a Microsoft Visual Studio compiler.
+// ASSERT: Comment out to avoid useful debugging checks and error messages.
 
 #ifdef PC
 #define SECURECRT
@@ -101,6 +105,7 @@
 #define chNull   '\0'
 #define chTab    '\t'
 #define chMost   '\377'
+#define dwSet    0xFFFFFFFF
 #define dwCanary 0x12345678
 
 #define cchSzDef 80
@@ -155,9 +160,9 @@ enum _printmode {
 #define RSinD(r) RSin(RFromD(r))
 #define RCosD(r) RCos(RFromD(r))
 #define RTanD(r) RTan(RFromD(r))
-#define RAtnD(r) DFromR(RAtn(r))
 #define RAsinD(r) DFromR(RAsin(r))
 #define RAcosD(r) DFromR(RAcos(r))
+#define RAtnD(r) DFromR(RAtn(r))
 #define NSinRD(r, d) ((int)((r)*RSinD(d) + rRound))
 #define NCosRD(r, d) ((int)((r)*RCosD(d) + rRound))
 #define RFromD(r) ((r)/rDegRad)

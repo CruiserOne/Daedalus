@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: wutil.cpp
+** Daedalus (Version 3.4) File: wutil.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains Windows specific utilities and operations for Daedalus.
 **
 ** Created: 11/16/2002.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <windows.h>
@@ -355,7 +355,7 @@ void DrawTextLine(HDC hdc, CONST char *sz, int cch, int y)
   if (dr.kvOff == dr.kvOn)
     nSav = SetBkMode(hdc, TRANSPARENT);
   yp = size.cy*y + (y < 0)*ws.ypClient;
-  if (dr.nStereo == 0) {
+  if (ds.nStereo == 0 || ds.fStereo3D) {
     TextOut(hdc, (ws.xpClient >> 1) - (size.cx >> 1), yp, sz, cch);
   } else {
     TextOut(hdc, (ws.xpClient >> 2) - (size.cx >> 1), yp, sz, cch);
@@ -520,6 +520,7 @@ flag FCreateDesktopIcon()
   DeleteShortcut(szDir, "Daedalus 3.0");
   DeleteShortcut(szDir, "Daedalus 3.1");
   DeleteShortcut(szDir, "Daedalus 3.2");
+  DeleteShortcut(szDir, "Daedalus 3.3");
 
   // Check whether hunger subdirectory exists with texture in it.
   GetModuleFileName(wi.hinst, szExe, cchSzMax);
@@ -567,7 +568,9 @@ flag FCreateProgramGroup(flag fAll)
   DeleteShortcut(szDir, "Daedalus 3.0");
   DeleteShortcut(szDir, "Daedalus 3.1");
   DeleteShortcut(szDir, "Daedalus 3.2");
-  DeleteShortcut(szDir, "Daedalus homepage");
+  DeleteShortcut(szDir, "Daedalus 3.3");
+  DeleteShortcut(szDir, "Daedalus homepage");   // Now Daedalus website
+  DeleteShortcut(szDir, "Carleton Farm Maze");  // Now Carleton Farm Maze #1
 
   // Add main shortcuts in folder.
   sprintf(S(szName), "%s %s", szDaedalus, szVersion);
@@ -593,15 +596,13 @@ flag FCreateProgramGroup(flag fAll)
       return fFalse;
   }
 
-  // Delete old previous version script shortcuts from subfolder.
-  DeleteShortcut(szDir, "Carleton Farm Maze");  // Now Carleton Farm Maze #1
-
   // Add script shortcuts in subfolder
   for (iScript = 0; iScript <= cmdScriptLast - cmdScript01; iScript++) {
     if (!FCreateShortcut(szDir, rgszShortcut[iScript], rgszScript[iScript],
       NULL, iScript != 5/*Dragonslayer*/ && iScript != 8/*Hunger*/ &&
       iScript != 25/*Squares*/ && iScript != 26/*Mandelbrot*/ &&
-      iScript != 27/*Pentris*/ ? 1 : 2))
+      iScript != 27/*Pentris*/ && iScript != 28/*Grippy*/ ? 1 :
+      (iScript != 28/*Grippy*/ ? 2 : 5)))
       return fFalse;
   }
   return fTrue;

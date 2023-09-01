@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: graphics.h
+** Daedalus (Version 3.4) File: graphics.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** on a monochrome bitmap, unrelated to Mazes.
 **
 ** Created: 7/1/1993.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 /*
@@ -160,7 +160,7 @@ public:
   INLINE void BitmapOff()
     { BitmapSet(0); }
   INLINE void BitmapOn()
-    { BitmapSet(~0); }
+    { BitmapSet(dwSet); }
   INLINE void Edge(int x1, int y1, int x2, int y2, KV kv)
     { Box(x1, y1, x2, y2, 1, 1, kv); }
   INLINE void BoxAll(int xsiz, int ysiz, KV kv)

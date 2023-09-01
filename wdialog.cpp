@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: wdialog.cpp
+** Daedalus (Version 3.4) File: wdialog.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** dialog utilities.
 **
 ** Created: 2/11/2001.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <windows.h>
@@ -54,18 +54,21 @@ enum _extension {
   iextDS  = 8,
   iextDW  = 9,
   iextDP  = 10,
-  iextAll = 11,
-  iextMax = 12,
+  iextDB  = 11,
+  iextAll = 12,
+  iextMax = 13,
 };
 
 CONST char *rgszOpen[iextMax] = {"Open Bitmap", "Open Text",
   "Open X11 Bitmap", "Open Targa Bitmap", "Open Paint Bitmap",
   "" /* Open Picture */, "" /* Open Vector */, "Open 3D Bitmap",
-  "Open Script", "Open Wireframe", "Open Patches", "Open File"};
+  "Open Script", "Open Wireframe", "Open Patches",
+  "Open Daedalus Bitmap", "Open File"};
 CONST char *rgszSave[iextMax] = {"Save Bitmap", "Save Text",
   "Save X11 Bitmap", "Save Targa Bitmap", "" /* Save Paint Bitmap */,
   "Save Picture", "Save Vector", "Save 3D Bitmap",
-  "" /* Save Script */, "Save Wireframe", "Save Patches", "" /* Save File */};
+  "" /* Save Script */, "Save Wireframe", "Save Patches",
+  "Save Daedalus Bitmap", "" /* Save File */};
 CONST char *rgszFilter[iextMax] = {
   "Windows Bitmaps (*.bmp)\0*.bmp\0All Files (*.*)\0*.*\0",
   "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0",
@@ -78,10 +81,11 @@ CONST char *rgszFilter[iextMax] = {
   "Daedalus Scripts (*.ds)\0*.ds\0All Files (*.*)\0*.*\0",
   "Wireframe Files (*.dw)\0*.dw\0All Files (*.*)\0*.*\0",
   "Patch Files (*.dp)\0*.dp\0All Files (*.*)\0*.*\0",
+  "Daedalus Bitmaps (*.db)\0*.db\0All Files (*.*)\0*.*\0",
   "All Daedalus Files\0*.bmp;*.txt;*.d?;*.pcx\0All Files (*.*)\0*.*\0"};
 CONST char *rgszExt[iextMax] = {
-  "bmp", "txt", "xbm", "tga", "pcx", "wmf", "svg", "d3", "ds", "dw", "dp",
-  ""};
+  "bmp", "txt", "xbm", "tga", "pcx", "wmf", "svg",
+  "d3", "ds", "dw", "dp", "db", ""};
 
 
 /*
@@ -248,7 +252,6 @@ flag FFileOpen(int wCmd, CONST char *szFile, FILE *fileIn)
 
   switch (wCmd) {
   case cmdOpen:
-  case cmdOpenDB:
     isz = iextAll;
     break;
   case cmdOpenBitmap:
@@ -277,6 +280,9 @@ flag FFileOpen(int wCmd, CONST char *szFile, FILE *fileIn)
     break;
   case cmdOpenPatch:
     isz = iextDP;
+    break;
+  case cmdOpenDB:
+    isz = iextDB;
     break;
   default:
     Assert(fFalse);
@@ -1402,7 +1408,7 @@ flag API DlgInside(HWND hdlg, uint msg, WORD wParam, LONG lParam)
     SetEditN(deIn_fd, dr.nFog);
     SetEditN(deIn_cp, dr.nClip);
     SetEditR(deIn_vs, dr.dInside);
-    SetEditN(deIn_sw, dr.nStereo);
+    SetEditN(deIn_sw, ds.nStereo);
     SetRadio(dr7 + dr.nTrans, dr7, dra);
     SetEditN(deIn_fm, dr.nFrameXY);
     SetEditN(deIn_fr, dr.nFrameD);
@@ -1483,7 +1489,7 @@ flag API DlgInside(HWND hdlg, uint msg, WORD wParam, LONG lParam)
         dr.nFog = nfd;
         dr.nClip = ncp;
         dr.dInside = rvs;
-        dr.nStereo = nsw;
+        ds.nStereo = nsw;
         dr.nTrans = GetRadio(dr7, dra);
         dr.nFrameXY = nfm;
         dr.nFrameD = nfr;
@@ -1633,14 +1639,14 @@ flag API DlgCubeFlip(HWND hdlg, uint msg, WORD wParam, LONG lParam)
   switch (msg) {
   case WM_INITDIALOG:
     SetRadio(dr1, dr1, dr3);
-    SetRadio(dr4, dr4, dr7);
+    SetRadio(dr4, dr4, dr8);
     SetFocus(GetDlgItem(hdlg, dr1));
     return fFalse;
   case WM_COMMAND:
     if (wParam == IDOK || wParam == IDCANCEL) {
       if (wParam == IDOK) {
         i = GetRadio(dr1, dr3);
-        j = GetRadio(dr4, dr7);
+        j = GetRadio(dr4, dr8);
         PbFocus()->FCubeFlip2(i, j);
         DirtyView();
       }

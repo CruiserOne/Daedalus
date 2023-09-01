@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: util.cpp
+** Daedalus (Version 3.4) File: util.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** or any other part of Daedalus.
 **
 ** Created: 6/4/1993.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -58,7 +58,6 @@ void operator delete(void *pv)
   DeallocateP(pv); 
 }
 
-#ifndef PC
 void *operator new(size_t cb, void *pv)
 {
   return pv;
@@ -67,7 +66,6 @@ void *operator new(size_t cb, void *pv)
 void operator delete(void *pv, void *pv2)
 {
 }
-#endif
 
 
 // Change the size of a memory allocation, containing a list of cElem items of
@@ -82,7 +80,7 @@ void *ReallocateArray(void *rgElem, int cElem, int cbElem, int cElemNew)
     return NULL;
   ClearPb(rgElemNew, cElemNew * cbElem);
   if (rgElem != NULL)
-    CopyPb(rgElem, rgElemNew, cElem * cbElem);
+    CopyPb(rgElem, rgElemNew, Min(cElem, cElemNew) * cbElem);
   return rgElemNew;
 }
 
@@ -609,7 +607,7 @@ real CVector::Angle(CONST CVector &v2) CONST
       return rPiHalf;
     else if (angle <= -1.0)
       return rPi;
-    angle = RAtn(RSqr(1.0 - angle*angle)/angle);
+    angle = RAtn(RSqr(1.0 - Sq(angle)) / angle);
     if (angle >= 0.0)
       return angle;
     else
@@ -1052,6 +1050,7 @@ int Rnd(int n1, int n2)
   int d, r, n, nT;
 
   if (n1 > n2) {
+    // Special parameters allow returning any 32 bit number.
     if (n1 == lHighest && n2 == (int)0x80000000)
       return LRnd();
     SwapN(n1, n2);

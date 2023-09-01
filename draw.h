@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: draw.h
+** Daedalus (Version 3.4) File: draw.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** graphics routines, unrelated to Mazes.
 **
 ** Created: 6/15/1990.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 /*
@@ -39,6 +39,8 @@
   ((int)(((c).Get3(x, y, z) >> ((d) * 6)) & (cTexture-1)))
 #define SetT3(c, x, y, z, d, t) ((c).Get3(x, y, z) & \
   ~((KV)(cTexture-1) << ((d) * 6)) | ((KV)(t) << ((d) * 6)))
+#define SetU3(c, x, y, z, f, t) ((c).Get3(x, y, z) & \
+  ~((KV)4095 << ((f) * 12)) | ((KV)(t) << ((f) * 12)))
 
 
 /*
@@ -98,12 +100,14 @@ typedef struct _drawsettings {
 
   // Inside settings
 
-  flag fStar;
-  int cStar;
+  flag fStar;       // Used by Inside view too
+  int cStar;        // Used by Inside view too
+  int nStereo;      // Used by Inside view too
 
   // Macro accessible only settings
 
   long lStarColor;  // Used by Inside view too
+  int nStarSize;    // Used by Inside view too
   flag fSkyAll;     // Used by Inside view too
   flag fArrowFree;
   int nTrans;
@@ -112,6 +116,7 @@ typedef struct _drawsettings {
   int nWireDistance;
   flag fWireSort;
   int nFaceOrigin;
+  flag fStereo3D;   // Used by Inside view too
 
   // Internal settings
 
@@ -210,7 +215,9 @@ extern flag CreateSolids(CONST char *);
 
 extern KV KvStarRandom(void);
 extern void CalculateCoordinate(int *, int *, real, real, real);
+extern flag FRenderPerspectiveWireCore(CMap &, COOR *, long);
 extern flag FRenderPerspectiveWire(CMap &, COOR *, long);
+extern flag FRenderPerspectivePatchCore(CMap &, PATCH *, long);
 extern flag FRenderPerspectivePatch(CMap &, PATCH *, long);
 extern flag FRenderAerial(CMap &, CONST COOR *, long);
 extern long ConvertPatchToWire(COOR **, CONST PATCH *, long);

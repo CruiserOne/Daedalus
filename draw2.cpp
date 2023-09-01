@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: draw2.cpp
+** Daedalus (Version 3.4) File: draw2.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** Mazes.
 **
 ** Created: 7/17/1990.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -119,7 +119,8 @@ flag FRenderInitialize(CMap &b, real theta, real phi)
       CalculateCoordinate(&x, &y, rx, ry, rz);
       kv = fColor ? ds.rgstar[i].kv : fOff;
       b.Set(x, y, kv);
-      if (FOdd(i))
+      if (ds.nStarSize < 0 ? FOdd(i) :
+        RgbR(kv) + RgbG(kv) + RgbB(kv) >= ds.nStarSize)
         for (d = 0; d < DIRS; d++)
           b.Set(x+xoff[d], y+yoff[d], kv);
     }
@@ -141,6 +142,64 @@ void RenderFinalize(CMap &b)
 
   if (ds.nBorder > 0)
     b.BoxAll(ds.nBorder, ds.nBorder, !fColor ? fOff : ds.kvTrim);
+}
+
+
+// Draw a stereoscopic 3D version of a wireframe or patch list to a color or
+// monochrome bitmap. This involves drawing "left eye" and "right eye"
+// versions of the scene from slightly different points of view.
+
+flag FRenderPerspectiveStereo(CMap &b, COOR *coor, long ccoor,
+  PATCH *patch, long cpatch)
+{
+  int mSav = ds.hormin, nSav = ds.vermin, dSav = ds.theta, x, f, m, n;
+  flag fWire = coor != NULL, fRet = fFalse;
+  CMap *bs = NULL;
+  CCol *c, *cs;
+
+  x = !ds.fStereo3D ? b.m_x >> 1 : b.m_x;
+  bs = b.Create();
+  if (bs == NULL || !bs->FBitmapSizeSet(x, b.m_y))
+    goto LExit;
+  f = FOdd(b.m_x) && !ds.fStereo3D;
+  m = NCosRD(ds.nStereo, ds.theta); n = NSinRD(ds.nStereo, ds.theta);
+
+  // Draw left eye view of scene.
+  ds.hormin += m; ds.vermin += n; //ds.theta += 1;
+  if (!(fWire ? FRenderPerspectiveWireCore(*bs, coor, ccoor) :
+    FRenderPerspectivePatchCore(*bs, patch, cpatch)))
+    goto LExit;
+  if (ds.fStereo3D && b.FColor()) {
+    c = dynamic_cast<CCol *>(&b);
+    cs = dynamic_cast<CCol *>(bs);
+    cs->ColmapGrayscale();
+    cs->ColmapOrAndKv(kvCyan, 0);
+  }
+  b.BlockMove(*bs, 0, 0, x-1, b.m_y-1, 0, 0);
+
+  // Draw right eye view of scene.
+  ds.hormin -= m*2; ds.vermin -= n*2; //ds.theta -= 1*2;
+  if (!(fWire ? FRenderPerspectiveWireCore(*bs, coor, ccoor) :
+    FRenderPerspectivePatchCore(*bs, patch, cpatch)))
+    goto LExit;
+  if (!ds.fStereo3D)
+    b.BlockMove(*bs, 0, 0, x-1, b.m_y-1, x+f, 0);
+  else if (b.FColor()) {
+    cs->ColmapGrayscale();
+    cs->ColmapOrAndKv(kvRed, 0);
+    c->ColmapOrAnd(*cs, 1);
+  }
+
+  // Draw line down middle if outer bitmap is odd sized.
+  if (f)
+    b.LineY(x, 0, b.m_y-1, ds.kvTrim);
+  ds.hormin = mSav; ds.vermin = nSav; ds.theta = dSav;
+
+  fRet = fTrue;
+LExit:
+  if (bs != NULL)
+    bs->Destroy();
+  return fRet;
 }
 
 
@@ -342,7 +401,7 @@ void PushdownWire(COOR *coor, long p, long size)
 // Implements the Render Wireframe Perspective command for both monochrome and
 // color bitmaps.
 
-flag FRenderPerspectiveWire(CMap &b, COOR *coor, long ccoor)
+flag FRenderPerspectiveWireCore(CMap &b, COOR *coor, long ccoor)
 {
   COOR *coorT, coorSwap;
   long ccoor2 = 0, ccoor3 = 0, i;
@@ -491,6 +550,17 @@ flag FRenderPerspectiveWire(CMap &b, COOR *coor, long ccoor)
 }
 
 
+// Like FRenderPerspectiveWireCore but handles stereoscopic rendering of two
+// images side by side if that setting is in effect.
+
+flag FRenderPerspectiveWire(CMap &b, COOR *coor, long ccoor)
+{
+  if (ds.nStereo != 0)
+    return FRenderPerspectiveStereo(b, coor, ccoor, NULL, 0);
+  return FRenderPerspectiveWireCore(b, coor, ccoor);
+}
+
+
 /*
 ******************************************************************************
 ** Render Perspective Patches
@@ -521,7 +591,7 @@ void PushdownPatch(PATCH *patch, long p, long size)
 // patches in 3D space. Implements the Render Wireframe Perspective command
 // for both monochrome and color bitmaps.
 
-flag FRenderPerspectivePatch(CMap &b, PATCH *patch, long cpatch)
+flag FRenderPerspectivePatchCore(CMap &b, PATCH *patch, long cpatch)
 {
   PATCH *patchT, patT;
   PATR patrT;
@@ -806,6 +876,17 @@ flag FRenderPerspectivePatch(CMap &b, PATCH *patch, long cpatch)
   RenderFinalize(b);
   DeallocateP(patchT);
   return fTrue;
+}
+
+
+// Like FRenderPerspectivePatchCore but handles stereoscopic rendering of two
+// images side by side if that setting is in effect.
+
+flag FRenderPerspectivePatch(CMap &b, PATCH *patch, long cpatch)
+{
+  if (ds.nStereo != 0)
+    return FRenderPerspectiveStereo(b, NULL, 0, patch, cpatch);
+  return FRenderPerspectivePatchCore(b, patch, cpatch);
 }
 
 

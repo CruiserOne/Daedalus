@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: command.cpp
+** Daedalus (Version 3.4) File: command.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** execute macros and script files.
 **
 ** Created: 11/26/2001.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -184,6 +184,7 @@ CONST CMD rgcmd[ccmd] = {
 {cmdCreateInfinite3,       "InfiniteRestart", "",     MZ      | M2},
 {cmdCreateKruskal,         "Kruskal",         "al",   MZ | ME | M2},
 {cmdCreateLabyrinth,       "Labyrinth",       "C",    MZ | ME | M2},
+{cmdCreateOmicron,         "Omicron",         "",     MZ | ME | M2},
 {cmdCreatePatchOverview,   "MakePatch",       "",     HG},
 {cmdCreatePerfect,         "Perfect",         "P",    MZ | ME | M2},
 {cmdCreatePlanair,         "Planair",         "J",    MZ      | M2},
@@ -445,6 +446,7 @@ CONST CMD rgcmd[ccmd] = {
 {cmdScript27,              "Script27",        "ac7",  0},
 {cmdScript28,              "Script28",        "ac8",  0},
 {cmdScript29,              "Script29",        "ac9",  0},
+{cmdScript30,              "Script30",        "ac0",  0},
 {cmdScrollDown,            "ScrollDown",      "aPgDn",R2},
 {cmdScrollEnd,             "ScrollEnd",       "aEnd", R2},
 {cmdScrollHome,            "ScrollHome",      "aHome",R2},
@@ -556,6 +558,7 @@ enum _operationindex {
   oprOpenPaint,
   oprOpenWire,
   oprOpenPatch,
+  oprDlgDB,
   oprDlgPaint,
   oprEmbedXbm,
   oprEmbed3D,
@@ -578,6 +581,7 @@ enum _operationindex {
   oprSaveOverview,
   oprSavePatch,
   oprSavePicture,
+  oprSaveVector,
   oprSaveSolids,
   oprSize,
   oprSizeC,
@@ -659,6 +663,7 @@ enum _operationindex {
   oprSetCE,
   oprSetCA,
   oprSetX,
+  oprSetY,
   oprSet3,
   oprSet3T,
   oprSet3E,
@@ -668,6 +673,7 @@ enum _operationindex {
   oprSet3CE,
   oprSet3CA,
   oprSet3X,
+  oprSet3Y,
   oprZapTexture,
   oprMark2,
   oprUnmark2,
@@ -676,6 +682,7 @@ enum _operationindex {
   oprTextFont,
   oprPerimeter,
   oprThicken2,
+  oprBlendN,
   oprConvex,
   oprAllMoire,
   opr2ndLine2,
@@ -701,12 +708,15 @@ enum _operationindex {
   oprSymmetricX,
   oprSymmetricY,
   oprSymmetricZ,
+  oprZoomPic,
   oprOverview2,
   oprAltitude,
   oprGetWire,
   oprSetWire,
   oprGetPatch,
   oprSetPatch,
+  oprGetStar,
+  oprSetStar,
   oprStereogram,
   oprSetLife,
   oprEvolution,
@@ -735,6 +745,7 @@ CONST OPR rgopr[copr] = {
 {oprOpenPaint,   "OpenPaint",     1, SZ | R2 |      C2},
 {oprOpenWire,    "OpenWire",      1, SZ},
 {oprOpenPatch,   "OpenPatch",     1, SZ},
+{oprDlgDB,       "DlgOpenDB",     0, R2},
 {oprDlgPaint,    "DlgOpenPaint",  0, R2 |      C2},
 {oprEmbedXbm,    "EmbedX11",      0, R2 |      B2},
 {oprEmbed3D,     "Embed3D",       0, R2 |      B2 | M3},
@@ -757,6 +768,7 @@ CONST OPR rgopr[copr] = {
 {oprSaveOverview,"SaveWire",      1, SZ},
 {oprSavePatch,   "SavePatch",     1, SZ},
 {oprSavePicture, "SavePicture",   1, SZ},
+{oprSaveVector,  "SaveVector",    1, SZ},
 {oprSaveSolids,  "SaveSolids",    1, SZ},
 {oprSize,        "Size",          4, R2      | B1},
 {oprSizeC,       "SizeC",         4, R2      | C1},
@@ -838,6 +850,7 @@ CONST OPR rgopr[copr] = {
 {oprSetCE,       "SetCE",         3, 0},
 {oprSetCA,       "SetCA",         4, R1},
 {oprSetX,        "SetX",          4, R1},
+{oprSetY,        "SetY",          4, R1},
 {oprSet3,        "Set3",          4, R2},
 {oprSet3T,       "Set3T",         4, R1},
 {oprSet3E,       "Set3E",         4, R1},
@@ -847,6 +860,7 @@ CONST OPR rgopr[copr] = {
 {oprSet3CE,      "Set3CE",        4, 0},
 {oprSet3CA,      "Set3CA",        5, R1},
 {oprSet3X,       "Set3X",         5, R1},
+{oprSet3Y,       "Set3Y",         5, R1},
 {oprZapTexture,  "ZapTexture",    1, R1},
 {oprMark2,       "MarkX2",        0, R1},
 {oprUnmark2,     "EraseX2",       0, R1},
@@ -855,6 +869,7 @@ CONST OPR rgopr[copr] = {
 {oprTextFont,    "TextFont",      3, SZ},
 {oprPerimeter,   "Perimeter",     0, 0},
 {oprThicken2,    "Thicken2",      1, R2 | HG | B1},
+{oprBlendN,      "BlendN",        0, R2 | HG},
 {oprConvex,      "Convex",        0, R2 | HG | B1},
 {oprAllMoire,    "AllMoire",      0, R2 | HG | B2},
 {opr2ndLine2,    "2ndLineUntil",  1, R2 |      B2},
@@ -880,12 +895,15 @@ CONST OPR rgopr[copr] = {
 {oprSymmetricX,  "SymmetricX",    0, R2 | HG | B1 |      M2},
 {oprSymmetricY,  "SymmetricY",    0, R2 | HG | B1 |      M2},
 {oprSymmetricZ,  "SymmetricZ",    0, R2 | HG | B1 |      M2},
+{oprZoomPic,     "ZoomBiasPic",   0, R2 | HG | B1 |      M2},
 {oprOverview2,   "Overview2",     0, R2 | HG},
 {oprAltitude,    "Altitude",      2, R2 | HG |      NC | M2},
 {oprGetWire,     "GetWireframe",  2, 0},
 {oprSetWire,     "SetWireframe",  2, 0},
 {oprGetPatch,    "GetPatch",      2, 0},
 {oprSetPatch,    "SetPatch",      2, 0},
+{oprGetStar,     "GetStar",       3, 0},
+{oprSetStar,     "SetStar",       5, R2},
 {oprStereogram,  "Stereogram",    2, R2 | HG},
 {oprSetLife,     "SetLife",       1, 0},
 {oprEvolution,   "Evolution",     2, R2 | HG | C1},
@@ -1192,6 +1210,7 @@ enum _variableindex {
   varSunMoon2,
   varSunMoonY,
   varStarColor,
+  varStarSize,
   varSkyAll,
   varSky3D,
   varShowDelay,
@@ -1215,6 +1234,7 @@ enum _variableindex {
   varTextureVar,
   varTextureElev,
   varTextureDual,
+  varTextureDual2,
   varTextureBlend,
   varMarkElevX1,
   varMarkElevY1,
@@ -1235,6 +1255,7 @@ enum _variableindex {
   varLineSort,
   varLineDistance,
   varFaceOrigin,
+  varStereo3D,
   varWireCount,
   varPatchCount,
   varMandelbrot,
@@ -1534,6 +1555,7 @@ CONST VAR rgvar[cvar] = {
 {varSunMoon2,      "nSunMoon",        R1},
 {varSunMoonY,      "nSunMoonY",       R1},
 {varStarColor,     "nStarColor",      0},
+{varStarSize,      "nStarSize",       R1},
 {varSkyAll,        "fSkyAll",         R1},
 {varSky3D,         "fSky3D",          R1},
 {varShowDelay,     "fFrameDelay",     R1},
@@ -1557,6 +1579,7 @@ CONST VAR rgvar[cvar] = {
 {varTextureVar,    "nTextureBlock",   R1},
 {varTextureElev,   "nTextureElev",    R1},
 {varTextureDual,   "fTextureDual",    R1},
+{varTextureDual2,  "fTextureDual2",   R1},
 {varTextureBlend,  "fTextureBlend",   R1},
 {varMarkElevX1,    "nMarkElevX1",     0},
 {varMarkElevY1,    "nMarkElevY1",     0},
@@ -1577,6 +1600,7 @@ CONST VAR rgvar[cvar] = {
 {varLineSort,      "fWireSort",       R1},
 {varLineDistance,  "nWireDistance",   R1},
 {varFaceOrigin,    "nDrawFaceOrigin", R1},
+{varStereo3D,      "fStereo3D",       R1},
 {varWireCount,     "nWireframeSize",  0},
 {varPatchCount,    "nPatchSize",      0},
 {varMandelbrot,    "fMandelbrotShip", 0},
@@ -1619,15 +1643,19 @@ enum _functionindex {
   funInv,
   funShftL,
   funShftR,
+  funAndL,
+  funOrL,
   funOdd,
   funAbs,
   funSgn,
   funMin,
   funMax,
+  funTween,
   funRnd,
   funIf,
   funSqr,
   funDist,
+  funLn,
   funSin,
   funCos,
   funTan,
@@ -1746,15 +1774,19 @@ CONST FUN rgfun[cfun] = {
 {funInv,   "Inv",   1},
 {funShftL, "<<",    2},
 {funShftR, ">>",    2},
+{funAndL,  "&&",    2},
+{funOrL,   "||",    2},
 {funOdd,   "Odd",   1},
 {funAbs,   "Abs",   1},
 {funSgn,   "Sgn",   1},
 {funMin,   "Min",   2},
 {funMax,   "Max",   2},
+{funTween, "Tween", 3},
 {funRnd,   "Rnd",   2},
 {funIf,    "?:",    3},
 {funSqr,   "Sqr",   1},
 {funDist,  "Dist",  4},
+{funLn,    "Ln",    2},
 {funSin,   "Sin",   2},
 {funCos,   "Cos",   2},
 {funTan,   "Tan",   2},
@@ -2014,6 +2046,7 @@ void DoSetVariable(int ivar, CONST char *sz, int cch, long l)
   case varFogLength:  dr.nFog          = n; break;
   case varClipPlane:  dr.nClip         = n; break;
   case varViewSpan:   dr.dInside       = (real)n / 100.0; break;
+  case varStereo:     ds.nStereo       = n; break;
   case varTrans:      dr.nTrans        = n; break;
   case varFrameMove:  dr.nFrameXY      = n; break;
   case varFrameTurn:  dr.nFrameD       = n; break;
@@ -2168,6 +2201,7 @@ void DoSetVariable(int ivar, CONST char *sz, int cch, long l)
   case varSunMoon2:      dr.nSunMoon      = n; break;
   case varSunMoonY:      dr.ySunMoon      = n; break;
   case varStarColor:     ds.lStarColor    = n; break;
+  case varStarSize:      ds.nStarSize     = n; break;
   case varSkyAll:        ds.fSkyAll       = f; break;
   case varSky3D:         dr.fSky3D        = f; break;
   case varShowDelay:     dr.fDelay        = f; break;
@@ -2191,12 +2225,12 @@ void DoSetVariable(int ivar, CONST char *sz, int cch, long l)
   case varTextureVar:    dr.nTextureVar   = n; break;
   case varTextureElev:   dr.nTextureElev  = n; break;
   case varTextureDual:   dr.fTextureDual  = f; break;
+  case varTextureDual2:  dr.fTextureDual2 = f; break;
   case varTextureBlend:  dr.fTextureBlend = f; break;
   case varMarkElevX1:    dr.nMarkElevX1   = n; break;
   case varMarkElevY1:    dr.nMarkElevY1   = n; break;
   case varMarkElevX2:    dr.nMarkElevX2   = n; break;
   case varMarkElevY2:    dr.nMarkElevY2   = n; break;
-  case varStereo:        dr.nStereo       = n; break;
   case varMazeCellMax:   ms.nCellMax      = n; break;
   case varHuntType:      ms.nHuntType     = n; break;
   case varFractalDepth:  ms.nFractalD     = n; break;
@@ -2212,6 +2246,7 @@ void DoSetVariable(int ivar, CONST char *sz, int cch, long l)
   case varLineSort:      ds.fWireSort     = f; break;
   case varLineDistance:  ds.nWireDistance = n; break;
   case varFaceOrigin:    ds.nFaceOrigin   = n; break;
+  case varStereo3D:      ds.fStereo3D     = f; break;
   case varWireCount:
     if (FSetWireSize(&bm.coor, bm.ccoor, n)) bm.ccoor = n; break;
   case varPatchCount:
@@ -2377,6 +2412,7 @@ void GetVariable(int ivar, char **psz, int *pcch, long *pl)
   case varFogLength:  n = dr.nFog;          break;
   case varClipPlane:  n = dr.nClip;         break;
   case varViewSpan:   n = (int)(dr.dInside * 100.0);      break;
+  case varStereo:     n = ds.nStereo;       break;
   case varTrans:      n = dr.nTrans;        break;
   case varFrameMove:  n = dr.nFrameXY;      break;
   case varFrameTurn:  n = dr.nFrameD;       break;
@@ -2530,6 +2566,7 @@ void GetVariable(int ivar, char **psz, int *pcch, long *pl)
   case varSunMoon2:      n = dr.nSunMoon;      break;
   case varSunMoonY:      n = dr.ySunMoon;      break;
   case varStarColor:     n = ds.lStarColor;    break;
+  case varStarSize:      n = ds.nStarSize;     break;
   case varSkyAll:        n = ds.fSkyAll;       break;
   case varSky3D:         n = dr.fSky3D;        break;
   case varShowDelay:     n = dr.fDelay;        break;
@@ -2553,12 +2590,12 @@ void GetVariable(int ivar, char **psz, int *pcch, long *pl)
   case varTextureVar:    n = dr.nTextureVar;   break;
   case varTextureElev:   n = dr.nTextureElev;  break;
   case varTextureDual:   n = dr.fTextureDual;  break;
+  case varTextureDual2:  n = dr.fTextureDual2; break;
   case varTextureBlend:  n = dr.fTextureBlend; break;
   case varMarkElevX1:    n = dr.nMarkElevX1;   break;
   case varMarkElevY1:    n = dr.nMarkElevY1;   break;
   case varMarkElevX2:    n = dr.nMarkElevX2;   break;
   case varMarkElevY2:    n = dr.nMarkElevY2;   break;
-  case varStereo:        n = dr.nStereo;       break;
   case varMazeCellMax:   n = ms.nCellMax;      break;
   case varHuntType:      n = ms.nHuntType;     break;
   case varFractalDepth:  n = ms.nFractalD;     break;
@@ -2574,6 +2611,7 @@ void GetVariable(int ivar, char **psz, int *pcch, long *pl)
   case varLineSort:      n = ds.fWireSort;     break;
   case varLineDistance:  n = ds.nWireDistance; break;
   case varFaceOrigin:    n = ds.nFaceOrigin;   break;
+  case varStereo3D:      n = ds.fStereo3D;     break;
   case varWireCount:     n = bm.ccoor;         break;
   case varPatchCount:    n = bm.cpatch;        break;
   case varMandelbrot:    n = cs.fMandelbrot;   break;
@@ -2630,15 +2668,19 @@ long EvalFunction(int ifun, char *rgsz[], CONST int *rgcch, CONST long *rgl)
   case funInv:   n = ~n1;      break;
   case funShftL: n = n1 << n2; break;
   case funShftR: n = n1 >> n2; break;
+  case funAndL:  n = n1 && n2; break;
+  case funOrL:   n = n1 || n2; break;
   case funOdd:   n = FOdd(n1); break;
   case funAbs:   n = NAbs(n1); break;
   case funSgn:   n = NSgn(n1); break;
   case funMin:   n = Min(n1, n2); break;
   case funMax:   n = Max(n1, n2); break;
+  case funTween: n = FBetween(n1, n2, n3); break;
   case funRnd:   n = Rnd(n1, n2); break;
   case funIf:    n = n1 ? n2 : n3; break;
   case funSqr:   n = NSqr(NAbs(n1)); break;
   case funDist:  n = (int)LengthN(n1, n2, n3, n4); break;
+  case funLn:    n = (int)((real)n1 * log((real)n2)); break;
   case funSin:   n = (int)(((real)n1 + rRound) * RSinD((real)n2)); break;
   case funCos:   n = (int)(((real)n1 + rRound) * RCosD((real)n2)); break;
   case funTan:   n = (int)(((real)n1 + rRound) * RTanD((real)n2)); break;
@@ -2766,7 +2808,7 @@ long EvalFunction(int ifun, char *rgsz[], CONST int *rgcch, CONST long *rgl)
     PchGetParameter(sz, NULL, NULL, (long *)&n, 1);
     break;
   case funEvent:  n = NGetVariableW(n1 ? vosEventMouse : vosEventKey); break;
-  case funVer:    n = 3300;                           break;  // Daedalus 3.3
+  case funVer:    n = 3400;                           break;  // Daedalus 3.4
 
   case funFileOpen:
     CopyRgchToSz(rgsz[0], rgcch[0], sz, cchSzMax);
@@ -2966,6 +3008,7 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
 {
   size_t cursorPrev = NULL;
   CMap3 *pbSrc, *pbDst, *bT;
+  STAR *pstar;
   char sz[cchSzOpr], szT[cchSzMax], sz3[cchSzDef];
   char *pch, *pchT;
   int nRet = 0, n1, n2, n3, n4, n5, n6, n7, x, y, cch, i;
@@ -3042,6 +3085,10 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
   case oprOpenPatch:
     FFileOpen(cmdOpenPatch, sz, NULL);
     break;
+
+  case oprDlgDB:
+    FFileOpen(cmdOpenDB, NULL, NULL);
+    break;
   case oprDlgPaint:
     FFileOpen(cmdOpenColmapPaint, NULL, NULL);
     break;
@@ -3109,6 +3156,9 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
     break;
   case oprSavePicture:
     FFileSave(cmdSavePicture, sz);
+    break;
+  case oprSaveVector:
+    FFileSave(cmdSaveVector, sz);
     break;
   case oprSaveSolids:
     CreateSolids(sz);
@@ -3475,7 +3525,8 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
     pbDst = BitmapGetMask(n2);
     if (iopr == oprMaskSwap &&
       (n1 != -1 || !pbDst->FNull()) && (n2 != -1 || !pbSrc->FNull())) {
-      pbSrc->SwapWith(*pbDst);
+      if (pbSrc != pbDst)
+        pbSrc->SwapWith(*pbDst);
       break;
     }
     if (!pbSrc->FNull())
@@ -3493,7 +3544,8 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
     pbSrc = ColmapGetTexture(n1);
     pbDst = ColmapGetTexture(n2);
     if (iopr == oprTextureSwap) {
-      pbSrc->SwapWith(*pbDst);
+      if (pbSrc != pbDst)
+        pbSrc->SwapWith(*pbDst);
       if (bm.k.FNull())
         FShowColmap(fFalse);
       break;
@@ -3608,7 +3660,8 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
     bm.b.Turtle("_");
     ws.fSpree = dr.fDot2 = dr.fSky3D = dr.fNoCompass = dr.fNoLocation =
       dr.fPolishMaze = dr.fFogFloor = dr.fMarkColor = dr.fMarkAll =
-      dr.fMarkBlock = dr.fTextureDual = dr.fTextureBlend = fFalse;
+      dr.fMarkBlock = dr.fTextureDual = dr.fTextureDual2 = dr.fTextureBlend =
+      fFalse;
     ms.nCellMax = ws.nTitleMessage = dr.zStep =
       dr.kvInWall2 = dr.kvInSky2 = dr.kvInDirt2 = dr.kvInCeil2 = dr.kvInMtn2 =
       dr.kvInCld2 = dr.nMarkSky = dr.nWallVar = dr.nFogLit = -1;
@@ -3680,6 +3733,18 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
       l = UD(n4, n4);
     bT->Set(n1, n2, l);
     break;
+  case oprSetY:
+    bT = ColmapGetTexture(dr.nTextureWall);
+    if (bT == NULL)
+      break;
+    if (n3 >= 0)
+      l = SetU(*bT, n1, n2, n3, n4);
+    else if (n3 == -1)
+      l = UD(n4, n4);
+    else
+      l = NWSE(n4, n4, n4, n4);
+    bT->Set(n1, n2, l);
+    break;
   case oprSet3:
     bm.b.Set3(n1, n2, n3, n4);
     break;
@@ -3727,6 +3792,18 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
       l = UD(n5, n5);
     bT->Set3(n1, n2, n3, l);
     break;
+  case oprSet3Y:
+    bT = ColmapGetTexture(dr.nTextureWall);
+    if (bT == NULL)
+      break;
+    if (n4 >= 0)
+      l = SetU3(*bT, n1, n2, n3, n4, n5);
+    else if (n4 == -1)
+      l = NWSE(n5, n5, n5, n5);
+    else
+      l = UD(n5, n5);
+    bT->Set3(n1, n2, n3, l);
+    break;
   case oprZapTexture:
     DotZap(cmdZapTexture, n1);
     break;
@@ -3762,6 +3839,9 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
   case oprThicken2:
     l = bm.b.BitmapThicken2(n1, !dr.fNoCorner);
     SetMacroReturn(l);
+    break;
+  case oprBlendN:
+    bm.k.ColmapBlendBitmaps(bm.k2);
     break;
   case oprConvex:
     bm.b.FBitmapConvex(xl, yl, xh, yh);
@@ -3875,6 +3955,9 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
     SetMacroReturn(l);
     PrintSzL("Asymmetries in Maze: %ld\n", l);
     break;
+  case oprZoomPic:
+    bm.b.MazeZoomWithPicture(&bm.k);
+    break;
   case oprOverview2:
     if (!dr.f3D)
       DrawOverview2(bm.b);
@@ -3937,6 +4020,25 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
       bm.patch[n1].cpt    = (ws.rglVar[y] <= 3 ? 3 : 4);
       bm.patch[n1].kv     =        ws.rglVar[y+1];
       bm.patch[n1].nTrans = (short)ws.rglVar[y+2];
+    }
+    break;
+  case oprGetStar:
+    pstar = !n1 ? dr.rgstar : ds.rgstar;
+    if (pstar != NULL && FBetween(n2, 0, istarMax-1) &&
+      FEnsureLVar(n3 + 2)) {
+      ws.rglVar[n3]   = pstar[n2].x;
+      ws.rglVar[n3+1] = pstar[n2].y;
+      ws.rglVar[n3+2] = pstar[n2].kv;
+    }
+    break;
+  case oprSetStar:
+    if (dr.rgstar == NULL)
+      FCreateInsideStars(NULL, 0.0, 0, fFalse);
+    pstar = !n1 ? dr.rgstar : ds.rgstar;
+    if (pstar != NULL && FBetween(n2, 0, istarMax-1)) {
+      pstar[n2].x = n3;
+      pstar[n2].y = n4;
+      pstar[n2].kv = ParseColor(rgsz[4], fFalse);
     }
     break;
   case oprStereogram:
@@ -5480,6 +5582,10 @@ LBitmapError:
     bm.b.CreateMazeUpsilon();
     break;
 
+  case cmdCreateOmicron:
+    bm.b.CreateMazeOmicron();
+    break;
+
   case cmdCreateZeta:
     bm.b.CreateMazeZeta();
     break;
@@ -6305,10 +6411,10 @@ char *ReadEmbedLines(FILE *file)
   char szLine[cchSzOpr], ch, *sz = NULL, *szNew = NULL;
   int cch = 0, i, j, fSpace;
 
-  if (file == NULL)
+  if (file == NULL && ws.rgszStartup == NULL)
     return NULL;
   loop {
-    for (i = 0; i < cchSzOpr && !feof(file) &&
+    for (i = 0; i < cchSzOpr && (file == NULL || !feof(file)) &&
       (ch = getbyte()) >= ' '; i++)
       szLine[i] = ch;
     skiplf();

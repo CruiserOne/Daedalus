@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: color.cpp
+** Daedalus (Version 3.4) File: color.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** bitmap, unrelated to Mazes.
 **
 ** Old last code change: 6/29/1990.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -227,6 +227,8 @@ KV KvBlendR(KV kv1, KV kv2, real r)
 KV KvBlendN(KV kv1, KV kv2, int n1, int n2)
 {
   Assert(FBetween(n1, 0, n2));
+  if (n2 == 0)
+    n2 = 1;
   return Rgb((RgbR(kv2) - RgbR(kv1)) * n1 / n2 + RgbR(kv1),
     (RgbG(kv2) - RgbG(kv1)) * n1 / n2 + RgbG(kv1),
     (RgbB(kv2) - RgbB(kv1)) * n1 / n2 + RgbB(kv1));
@@ -646,7 +648,7 @@ void CCol::BitmapSet(KV kv)
   if (kv == kvBlack || kv == kvWhite || kv == ~0) {
 
     // For the simplest colors, set 32 bits at a time.
-    l = kv == kvBlack ? 0 : ~0;
+    l = kv == kvBlack ? 0 : dwSet;
     pl = (dword *)_Pb(0);
     for (il = m_y * m_clRow; il > 0; il--)
       *pl++ = l;
@@ -976,7 +978,7 @@ void CCol::ColmapExchange(KV kv1, KV kv2)
 
   for (y = 0; y < m_y; y++)
     for (x = 0; x < m_x; x++) {
-      kv = Get(x, y);
+      kv = _Get(x, y);
       if (kv == kv1)
         Set(x, y, kv2);
       else if (kv == kv2)
@@ -994,7 +996,7 @@ void CCol::ColmapOrAndKv(KV kv, int nOp)
 
   for (y = 0; y < m_y; y++)
     for (x = 0; x < m_x; x++) {
-      kvT = Get(x, y);
+      kvT = _Get(x, y);
       switch (nOp) {
 
       // Boolean bit combining
@@ -2120,6 +2122,42 @@ flag CCol::FColmapBlendFromBitmap(CONST CMon *b1, CONST CMon *b2,
 }
 
 
+// Make a color bitmap an equal blending together of N other color bitmaps.
+// The N other bitmaps are stacked vertically within a second bitmap. Black
+// pixels are skipped, and make that subbitmap not contribute to the result.
+
+void CCol::ColmapBlendBitmaps(CONST CCol &c)
+{
+  int cc, x, y, i, nT, ccol, nR, nG, nB;
+  KV kv;
+
+  BitmapOff();
+  cc = c.m_y + (m_y - 1) / m_y;
+  for (y = 0; y < m_y; y++)
+    for (x = 0; x < m_x; x++) {
+      ccol = nR = nG = nB = 0;
+      for (i = 0; i < cc; i++) {
+        kv = c.Get(x, i * m_y + y);
+        if (kv == kvBlack)
+          continue;
+        ccol++;
+        nR += RgbR(kv);
+        nG += RgbG(kv);
+        nB += RgbB(kv);
+      }
+      if (ccol <= 0)
+        continue;
+      nT = ccol >> 1;
+      nR = (nR + nT) / ccol;
+      nG = (nG + nT) / ccol;
+      nB = (nB + nT) / ccol;
+      kv = Rgb(nR, nG, nB);
+      if (kv != kvBlack)
+        Set(x, y, kv);
+    }
+}
+
+
 // Copy a monochrome bitmap to a color bitmap, where off and on pixels in the
 // monochrome bitmap are mapped to the passed in colors. All off pixels
 // reachable from a start point or points will be filled with a blend of
@@ -2503,6 +2541,8 @@ flag CCol::FReadColmapTarga(FILE *file)
 
   for (i = 0; i < 12; i++)
     skipbyte();
+  if (feof(file))
+    return fFalse;
   fscanf(file, "%c%c", S1(&ch), S1(&chR));
   x = (int)(chR)*256 + (int)ch;
   fscanf(file, "%c%c", S1(&ch), S1(&chR));
@@ -2512,6 +2552,8 @@ flag CCol::FReadColmapTarga(FILE *file)
   skipword();
   for (y = m_y-1; y >= 0; y--) {
     for (x = 0; x < m_x; x++) {
+      if (feof(file))
+        return fFalse;
       fscanf(file, "%c%c%c%c", S1(&chB), S1(&chG), S1(&chR), S1(&ch));
       Set(x, y, Rgb(chR, chG, chB));
     }

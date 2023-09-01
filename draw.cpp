@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: draw.cpp
+** Daedalus (Version 3.4) File: draw.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** Mazes.
 **
 ** Created: 6/15/1990.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -44,9 +44,9 @@ DS ds = {
   fTrue, fFalse, fFalse, fTrue, fFalse, fFalse, 1, 1, 200.0, 20.0, 20.0, 20.0,
     kvBlack, kvBlue, kvYellow, kvGray, kvGreen, kvRed, {100.0, 75.0, 50.0},
   // Inside settings
-  fFalse, 500,
+  fFalse, 500, 0,
   // Macro accessible only settings
-  10990099, fFalse, fFalse, 0, 0, 0, 1000, fTrue, 0,
+  10990099, -1, fFalse, fFalse, 0, 0, 0, 1000, fTrue, 0, fFalse,
   // Internal settings
   fFalse, xStart, 0.0, 0, NULL};
 
@@ -1273,7 +1273,7 @@ void WriteWireframeMetafile(FILE *file, CONST COOR *coor, long ccoor)
   MetaLong(14);                           // Bytes in string
   MetaLong(LFromBB('D', 'a', 'e', 'd'));  // "Daed"
   MetaLong(LFromBB('a', 'l', 'u', 's'));  // "alus"
-  MetaLong(LFromBB(' ', '3', '.', '3'));  // " 3.3"
+  MetaLong(LFromBB(' ', '3', '.', '4'));  // " 3.4"
   MetaWord(WFromBB('0', 0));              // "0"
   MetaSaveDc();
   MetaWindowOrg(xmin, ymin);

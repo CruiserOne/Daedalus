@@ -1,5 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -15,20 +17,17 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-menu MENU 
+menu MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -66,6 +65,7 @@ BEGIN
             MENUITEM "Survivor S&quares Game\tAlt+Ctrl+7", cmdScript27
             MENUITEM "&Mandelbrot Set Fractal\tAlt+Ctrl+8", cmdScript28
             MENUITEM "P&entris Game\tAlt+Ctrl+9",   cmdScript29
+            MENUITEM "Gr&ippy Socks\tAlt+Ctrl+0",   cmdScript30
         END
         MENUITEM SEPARATOR
         MENUITEM "Open &Bitmap...\tAlt+o",      cmdOpenBitmap
@@ -94,7 +94,7 @@ BEGIN
             MENUITEM "Save &Normal...",             cmdSave3DN
             MENUITEM "Save &Supercompressed...",    cmdSave3DS
         END
-        POPUP "Save As &Wallpaper"
+        POPUP "Save as &Wallpaper"
         BEGIN
             MENUITEM "&Center Bitmap",              cmdSaveWallCenter
             MENUITEM "&Tile Bitmap",                cmdSaveWallTile
@@ -110,21 +110,22 @@ BEGIN
         MENUITEM "Open Do&cumentation\t)",      cmdShellHelp
         POPUP "More &Help"
         BEGIN
+            MENUITEM "Open &Documentation\t)",      cmdShellHelp
             MENUITEM "Open &Scripting",             cmdShellScript
             MENUITEM "Open &Changes",               cmdShellChange
             MENUITEM "Open &License",               cmdShellLicense
             MENUITEM SEPARATOR
             MENUITEM "Open &Website",               cmdShellWeb
-            MENUITEM "Open Website Mirror",         cmdShellWeb2
+            MENUITEM "Open Website &Mirror",        cmdShellWeb2
         END
         POPUP "&Setup"
         BEGIN
-            MENUITEM "Program Group (&User)",       cmdSetupUser
-            MENUITEM "Program Group (&All)",        cmdSetupAll
-            MENUITEM "&Desktop Icon",               cmdSetupDesktop
-            MENUITEM "File &Extensions",            cmdSetupExtension
+            MENUITEM "Create Program Group (&User)", cmdSetupUser
+            MENUITEM "Create Program Group (&All)", cmdSetupAll
+            MENUITEM "Create &Desktop Icon",        cmdSetupDesktop
+            MENUITEM "Install File &Extensions",    cmdSetupExtension
             MENUITEM SEPARATOR
-            MENUITEM "Uninstall E&xtensions",       cmdUnsetup
+            MENUITEM "Uninstall File E&xtensions",  cmdUnsetup
         END
         MENUITEM "&About Daedalus...\tAlt+0",   cmdAbout
         MENUITEM "E&xit\tEsc",                  cmdExit
@@ -209,24 +210,24 @@ BEGIN
         MENUITEM "&Display Settings...\tTab",   cmdDlgDisplay
         POPUP "Cell &Viewport Span"
         BEGIN
-            MENUITEM "&Decrease By 1\t{",           cmdCellDec1
-            MENUITEM "&Increase By 1\t}",           cmdCellInc1
-            MENUITEM "D&ecrease By 10\t[",          cmdCellDec10
-            MENUITEM "I&ncrease By 10\t]",          cmdCellInc10
+            MENUITEM "&Decrease by 1\t{",           cmdCellDec1
+            MENUITEM "&Increase by 1\t}",           cmdCellInc1
+            MENUITEM "D&ecrease by 10\t[",          cmdCellDec10
+            MENUITEM "I&ncrease by 10\t]",          cmdCellInc10
         END
         POPUP "&Window"
         BEGIN
             MENUITEM "Size Window &Full Screen\tShift+Tab", cmdWindowFull
-            MENUITEM "Size Window To &Bitmap\tCtrl+Shift+Tab", cmdWindowBitmap
-            MENUITEM "Size Bitmap To &Window\tCtrl+Tab", cmdSizeWindow
+            MENUITEM "Size Window to &Bitmap\tCtrl+Shift+Tab", cmdWindowBitmap
+            MENUITEM "Size Bitmap to &Window\tCtrl+Tab", cmdSizeWindow
             MENUITEM SEPARATOR
             MENUITEM "&Update Window\tn",           cmdRedrawNow
             MENUITEM "&Redraw Window\tSpace",       cmdRepaintNow
             MENUITEM SEPARATOR
             MENUITEM "Scroll &Page Up\tAlt+PgUp",   cmdScrollUp
             MENUITEM "Scroll Page &Down\tAlt+PgDn", cmdScrollDown
-            MENUITEM "&Scroll To Beginning\tAlt+Home", cmdScrollHome
-            MENUITEM "Scroll To &End\tAlt+End",     cmdScrollEnd
+            MENUITEM "&Scroll to Beginning\tAlt+Home", cmdScrollHome
+            MENUITEM "Scroll to &End\tAlt+End",     cmdScrollEnd
         END
         MENUITEM "Set &Colors...\tCtrl+k",      cmdDlgColor
         MENUITEM "&Ignore Messages\t?",         cmdMessage
@@ -299,12 +300,12 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "S&how Dot\t.",                cmdDotShow
         MENUITEM "Walls &Impassable\t,",        cmdDotWall
-        MENUITEM "Move By T&wo\te",             cmdDotTwo
+        MENUITEM "Move by T&wo\te",             cmdDotTwo
         MENUITEM "&Drag Move Dot\ta",           cmdDotDrag
         MENUITEM "Dra&g Is Erase\tc",           cmdDotOn
         MENUITEM "Drag &Big Dot\tb",            cmdDotBig
-        MENUITEM "Drag B&y Two\tf",             cmdDotBoth
-        MENUITEM "Set At D&ot\th",              cmdDotSet
+        MENUITEM "Drag b&y Two\tf",             cmdDotBoth
+        MENUITEM "Set at D&ot\th",              cmdDotSet
         POPUP "&Zap Dot"
         BEGIN
             MENUITEM "&Destroy Wall\tCtrl+z",       cmdDotZap
@@ -313,7 +314,7 @@ BEGIN
         END
         POPUP "&2nd Dot"
         BEGIN
-            MENUITEM "&Set To Dot\tg",              cmd2nd
+            MENUITEM "&Set to Dot\tg",              cmd2nd
             MENUITEM SEPARATOR
             MENUITEM "Draw &Line",                  cmd2ndLine
             MENUITEM "Draw Bloc&k",                 cmd2ndBlock
@@ -322,17 +323,17 @@ BEGIN
             MENUITEM "Draw &Circle",                cmd2ndCircle
             MENUITEM SEPARATOR
             MENUITEM "&Get Section\tAlt+g",         cmd2ndGet
-            MENUITEM "&Put At Dot\tAlt+G",          cmd2ndPut
+            MENUITEM "&Put at Dot\tAlt+G",          cmd2ndPut
             MENUITEM SEPARATOR
-            MENUITEM "Put With &Or",                cmd2ndOr
-            MENUITEM "Put With &And",               cmd2ndAnd
-            MENUITEM "Put With &Xor",               cmd2ndXor
+            MENUITEM "Put with &Or",                cmd2ndOr
+            MENUITEM "Put with &And",               cmd2ndAnd
+            MENUITEM "Put with &Xor",               cmd2ndXor
         END
         MENUITEM SEPARATOR
         MENUITEM "&View Inside\ti",             cmdInsideView
         MENUITEM "Ma&p Inside\t:",              cmdInsideMap
-        MENUITEM "Mark '&X' At Dot\tx",         cmdMark
-        MENUITEM "&Erase 'X' At Dot\ty",        cmdUnmark
+        MENUITEM "Mark '&X' at Dot\tx",         cmdMark
+        MENUITEM "&Erase 'X' at Dot\ty",        cmdUnmark
         MENUITEM "I&nside Settings...\tq",      cmdDlgInside
     END
     POPUP "&Bitmap"
@@ -370,7 +371,7 @@ BEGIN
             MENUITEM "&Random All",                 cmdAllRandom
         END
         MENUITEM "&Zoom...\tz",                 cmdDlgZoom
-        POPUP "Flip And &Rotate"
+        POPUP "Flip and &Rotate"
         BEGIN
             MENUITEM "Flip &Horizontal",            cmdFlipX
             MENUITEM "Flip &Vertical",              cmdFlipY
@@ -404,27 +405,27 @@ BEGIN
             MENUITEM "&Delete",                     cmdDrawDel
         END
         MENUITEM SEPARATOR
-        MENUITEM "Colla&pse To Set",            cmdCollapse
+        MENUITEM "Colla&pse to Set",            cmdCollapse
         MENUITEM "S&mooth Zoomed",              cmdSmooth
         MENUITEM "Smooth Cor&ners",             cmdCorner
         MENUITEM "Thic&ken",                    cmdThicken
         MENUITEM "Make T&hinner",               cmdThinner
         MENUITEM "Accent &Boundaries",          cmdAccentBoundary
         MENUITEM SEPARATOR
-        MENUITEM "&Fill At Dot\t`",             cmdFloodDot
-        MENUITEM "Floo&d At Dot\t~",            cmdFloodDot2
-        MENUITEM "Sl&ide To Dot",               cmdSlide
+        MENUITEM "&Fill at Dot\t`",             cmdFloodDot
+        MENUITEM "Floo&d at Dot\t~",            cmdFloodDot2
+        MENUITEM "Sl&ide to Dot",               cmdSlide
         POPUP "Ro&w Column Edits"
         BEGIN
-            MENUITEM "Insert &Column At Dot",       cmdAddX
-            MENUITEM "Delete Co&lumn At Dot",       cmdDelX
-            MENUITEM "Insert &Row At Dot",          cmdAddY
-            MENUITEM "Delete Ro&w At Dot",          cmdDelY
+            MENUITEM "Insert &Column at Dot",       cmdAddX
+            MENUITEM "Delete Co&lumn at Dot",       cmdDelX
+            MENUITEM "Insert &Row at Dot",          cmdAddY
+            MENUITEM "Delete Ro&w at Dot",          cmdDelY
             MENUITEM SEPARATOR
-            MENUITEM "Insert Col&umns At Dots",     cmdAddX2
-            MENUITEM "Delete Colu&mns At Dots",     cmdDelX2
-            MENUITEM "Insert R&ows At Dots",        cmdAddY2
-            MENUITEM "Delete Row&s At Dots",        cmdDelY2
+            MENUITEM "Insert Col&umns at Dots",     cmdAddX2
+            MENUITEM "Delete Colu&mns at Dots",     cmdDelX2
+            MENUITEM "Insert R&ows at Dots",        cmdAddY2
+            MENUITEM "Delete Row&s at Dots",        cmdDelY2
         END
         MENUITEM SEPARATOR
         MENUITEM "Bitmap Is &3D\tj",            cmd3D
@@ -441,20 +442,20 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "&Bitmap"
         BEGIN
-            MENUITEM "&Get From Bitmap\t''",        cmdColmapGet
-            MENUITEM "&Put To Bitmap",              cmdColmapPut
-            MENUITEM "Put To Bitmap (&Nearest)",    cmdColmapPutNearest
-            MENUITEM "Put To Bitmap (&Dither)",     cmdColmapPutDither
+            MENUITEM "&Get from Bitmap\t''",        cmdColmapGet
+            MENUITEM "&Put to Bitmap",              cmdColmapPut
+            MENUITEM "Put to Bitmap (&Nearest)",    cmdColmapPutNearest
+            MENUITEM "Put to Bitmap (&Dither)",     cmdColmapPutDither
             MENUITEM SEPARATOR
-            MENUITEM "&Or From Bitmap",             cmdColmapOr
-            MENUITEM "&And From Bitmap",            cmdColmapAnd
-            MENUITEM "&Xor From Bitmap",            cmdColmapXor
+            MENUITEM "&Or from Bitmap",             cmdColmapOr
+            MENUITEM "&And from Bitmap",            cmdColmapAnd
+            MENUITEM "&Xor from Bitmap",            cmdColmapXor
         END
-        MENUITEM "Blend From &2 Bitmaps",       cmdColmapBlend
-        MENUITEM "Blend From &3 Bitmaps",       cmdColmapBlend2
+        MENUITEM "Blend from &2 Bitmaps",       cmdColmapBlend
+        MENUITEM "Blend from &3 Bitmaps",       cmdColmapBlend2
         MENUITEM "&Graph Distance",             cmdColmapDistance
         MENUITEM "Graph &Walls",                cmdColmapDistance2
-        POPUP "&Antialias From Bitmap"
+        POPUP "&Antialias from Bitmap"
         BEGIN
             MENUITEM "&2x2",                        cmdColmapAntialias2
             MENUITEM "&3x3",                        cmdColmapAntialias3
@@ -467,23 +468,23 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "&Dot Color"
         BEGIN
-            MENUITEM "&Set To Color",               cmdColmapDotSet
-            MENUITEM "&Or With Color",              cmdColmapDotOr
-            MENUITEM "&And With Color",             cmdColmapDotAnd
-            MENUITEM "&Xor With Color",             cmdColmapDotXor
+            MENUITEM "&Set to Color",               cmdColmapDotSet
+            MENUITEM "&Or with Color",              cmdColmapDotOr
+            MENUITEM "&And with Color",             cmdColmapDotAnd
+            MENUITEM "&Xor with Color",             cmdColmapDotXor
             MENUITEM SEPARATOR
-            MENUITEM "A&dd With Color",             cmdColmapDotAdd
-            MENUITEM "S&ubtract With Color",        cmdColmapDotSub
-            MENUITEM "Mu&ltiply With Color",        cmdColmapDotMul
-            MENUITEM "M&in With Color",             cmdColmapDotMin
-            MENUITEM "&Max With Color",             cmdColmapDotMax
-            MENUITEM "&Blend With Color",           cmdColmapDotBlend
+            MENUITEM "A&dd with Color",             cmdColmapDotAdd
+            MENUITEM "S&ubtract with Color",        cmdColmapDotSub
+            MENUITEM "Mu&ltiply with Color",        cmdColmapDotMul
+            MENUITEM "M&in with Color",             cmdColmapDotMin
+            MENUITEM "&Max with Color",             cmdColmapDotMax
+            MENUITEM "&Blend with Color",           cmdColmapDotBlend
         END
         POPUP "C&olor Bitmap"
         BEGIN
-            MENUITEM "&Add With Temp",              cmdTempAdd
-            MENUITEM "&Subtract With Temp",         cmdTempSub
-            MENUITEM "A&lpha With Temp",            cmdTempAlpha
+            MENUITEM "&Add with Temp",              cmdTempAdd
+            MENUITEM "&Subtract with Temp",         cmdTempSub
+            MENUITEM "A&lpha with Temp",            cmdTempAlpha
             MENUITEM SEPARATOR
             MENUITEM "&Delete",                     cmdColmapDel
         END
@@ -551,8 +552,8 @@ BEGIN
         MENUITEM "Room &Thinned",               cmdRoomThin
         MENUITEM "Tweak &Endpoints\tE",         cmdTweakEndpoint
         MENUITEM "Tweak Passa&ges\tH",          cmdTweakPassage
-        MENUITEM "Wea&ve To 3D",                cmdWeave3D
-        MENUITEM "Weave To &Inside",            cmdWeaveInside
+        MENUITEM "Wea&ve to 3D",                cmdWeave3D
+        MENUITEM "Weave to &Inside",            cmdWeaveInside
         MENUITEM "Clari&fy Weave",              cmdClarifyWeave
         MENUITEM "Clarify &3D",                 cmdClarify3D
         MENUITEM "Clarify &4D",                 cmdClarify4D
@@ -581,7 +582,7 @@ BEGIN
             MENUITEM "Recursive &Division\tAlt+j",  cmdCreateDivision
             MENUITEM "&Binary Tree\tAlt+y",         cmdCreateBinary
             MENUITEM "&Sidewinder\tAlt+s",          cmdCreateSidewinder
-            MENUITEM "&Hunt And Kill\tP",           cmdCreatePerfect
+            MENUITEM "&Hunt and Kill\tP",           cmdCreatePerfect
             MENUITEM SEPARATOR
             MENUITEM "Ra&ndom Perfect\tAlt+n",      cmdCreateRandom
         END
@@ -622,6 +623,8 @@ BEGIN
             MENUITEM "&Delta (Triangle)\tY",        cmdCreateDelta
             MENUITEM "&Sigma (Hexagon)\tX",         cmdCreateSigma
             MENUITEM "&Upsilon (Octagon)\tAlt+u",   cmdCreateUpsilon
+            MENUITEM "&Omicron (Sphere)",           cmdCreateOmicron
+            MENUITEM SEPARATOR
             MENUITEM "&Zeta (8 Way)\tZ",            cmdCreateZeta
         END
         POPUP "&Labyrinth"
@@ -632,7 +635,7 @@ BEGIN
             MENUITEM "&Classical",                  cmdLabyrinthClassical
             MENUITEM "C&hartres",                   cmdLabyrinthChartres
             MENUITEM "Cre&tan",                     cmdLabyrinthCretan
-            MENUITEM "&Man In The Maze",            cmdLabyrinthMan
+            MENUITEM "&Man in the Maze",            cmdLabyrinthMan
             MENUITEM "&Flat Classical",             cmdLabyrinthClassicalF
             MENUITEM "Fl&at Chartres",              cmdLabyrinthChartresF
             MENUITEM "Chartres &Replica",           cmdLabyrinthChartresR
@@ -641,19 +644,19 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "Partial &Create"
         BEGIN
-            MENUITEM "&Perfect At Dot\tCtrl+P",     cmdPartPerfect
+            MENUITEM "&Perfect at Dot\tCtrl+P",     cmdPartPerfect
             MENUITEM "&Braid Add Walls\tAlt+B",     cmdPartBraid
             MENUITEM "&Unicursal Thinned\tCtrl+U",  cmdPartUnicursal
             MENUITEM SEPARATOR
-            MENUITEM "&Recursive At Dot",           cmdPartRecursive
-            MENUITEM "Pri&m's At Dot",              cmdPartPrim
+            MENUITEM "&Recursive at Dot",           cmdPartRecursive
+            MENUITEM "Pri&m's at Dot",              cmdPartPrim
             MENUITEM "&Kruskal Passages",           cmdPartKruskal
-            MENUITEM "&Tree At Dot",                cmdPartTree
+            MENUITEM "&Tree at Dot",                cmdPartTree
             MENUITEM SEPARATOR
-            MENUITEM "&Weave At Dot\tCtrl+V",       cmdPartWeave
+            MENUITEM "&Weave at Dot\tCtrl+V",       cmdPartWeave
             MENUITEM "&Crack Add Walls\tCtrl+K",    cmdPartCrack
-            MENUITEM "Ca&vern At Dot",              cmdPartCavern
-            MENUITEM "&Zeta At Dot",                cmdPartZeta
+            MENUITEM "Ca&vern at Dot",              cmdPartCavern
+            MENUITEM "&Zeta at Dot",                cmdPartZeta
         END
         MENUITEM "Polished Ma&zes\t/",          cmdPolishMaze
         MENUITEM "Create &Settings...\tM",      cmdDlgCreate
@@ -664,7 +667,7 @@ BEGIN
         MENUITEM "Fill Cul-De-&Sacs",           cmdSolveCuldsac
         MENUITEM "Fill &Blind Alleys",          cmdSolveBlindAlley
         MENUITEM "Fill &Collisions",            cmdSolveCollision
-        MENUITEM "Find A &Path",                cmdSolveRecursive
+        MENUITEM "Find a &Path",                cmdSolveRecursive
         MENUITEM "Find S&hortest Path",         cmdSolveShortest
         MENUITEM "Find Sh&ortest Paths",        cmdSolveShortest2
         POPUP "&Wall Following"
@@ -710,8 +713,8 @@ BEGIN
         MENUITEM "Save W&ireframe...",          cmdSaveWire
         POPUP "Wireframe &File"
         BEGIN
-            MENUITEM "&Save Picture...",            cmdSavePicture
-            MENUITEM "&Copy Picture",               cmdCopyPicture
+            MENUITEM "&Save Metafile...",           cmdSavePicture
+            MENUITEM "&Copy Metafile",              cmdCopyPicture
             MENUITEM SEPARATOR
             MENUITEM "Save &Vector...",             cmdSaveVector
         END
@@ -723,7 +726,7 @@ BEGIN
         MENUITEM "&Save Patches...",            cmdSavePatch
         MENUITEM "&Make Patch Bitmap Overview", cmdCreatePatchOverview
         MENUITEM "&Render Patch Perspective",   cmdRenderPatchPerspective
-        MENUITEM "&Convert Patches To Wireframe", cmdPatchToWire
+        MENUITEM "&Convert Patches to Wireframe", cmdPatchToWire
     END
 END
 
@@ -736,9 +739,17 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 icon                    ICON                    "DAEICON1.ICO"
+
 icon2                   ICON                    "DAEICON2.ICO"
+
 icon3                   ICON                    "DAEICON3.ICO"
+
 icon4                   ICON                    "DAEICON4.ICO"
+
+icon5                   ICON                    "DAEICON5.ICO"
+
+icon6                   ICON                    "DAEICON6.ICO"
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -781,7 +792,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,60,120,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,5,120,50,14
     CONTROL         "&Set Lower Right Bound",dr1,"Button",BS_AUTORADIOBUTTON,5,5,105,10
-    CONTROL         "Shift Down And Right &By",dr2,"Button",BS_AUTORADIOBUTTON,5,15,105,10
+    CONTROL         "Shift Down and Right &By",dr2,"Button",BS_AUTORADIOBUTTON,5,15,105,10
     EDITTEXT        deSi_x,65,30,45,13,ES_AUTOHSCROLL
     EDITTEXT        deSi_y,65,45,45,13,ES_AUTOHSCROLL
     CONTROL         "&Clear Bitmap After Sizing",dxSi_c,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,60,105,10
@@ -808,13 +819,13 @@ BEGIN
     ICON            icon2,IDC_STATIC,172,4,20,20
     ICON            icon3,IDC_STATIC,196,4,20,20
     LTEXT           "",ds1,4,4,135,8
-    LTEXT           "Created November 1993 - November 2018",IDC_STATIC,4,12,139,8
+    LTEXT           "Created November 1993 - August 2023",IDC_STATIC,4,12,139,8
     LTEXT           "By Walter D. Pullen (Astara@msn.com)",IDC_STATIC,4,20,135,8
     LTEXT           "Daedalus Website: http://www.astrolog.org/labyrnth.htm",IDC_STATIC,4,28,211,8
     LTEXT           "Website mirror: http://www.magitech.com/astrolog/labyrnth.htm",IDC_STATIC,4,36,211,8
     LTEXT           "IMPORTANT NOTICE: Daedalus and all Maze generation and",IDC_STATIC,4,52,212,8
     LTEXT           "general graphics routines used in this program are Copyright (C)",IDC_STATIC,4,60,212,8
-    LTEXT           "1998-2018 by Walter D. Pullen. Permission is granted to freely",IDC_STATIC,4,68,212,8
+    LTEXT           "1998-2023 by Walter D. Pullen. Permission is granted to freely",IDC_STATIC,4,68,212,8
     LTEXT           "use, modify, and distribute these routines provided these credits",IDC_STATIC,4,76,212,8
     LTEXT           "and notices remain with any altered or distributed versions of the",IDC_STATIC,4,84,212,8
     LTEXT           "program. The user does have all rights to Mazes and other output",IDC_STATIC,4,92,215,8
@@ -829,8 +840,8 @@ BEGIN
     LTEXT           "PARTICULAR PURPOSE. See the GNU General Public License",IDC_STATIC,4,172,212,8
     LTEXT           "for more details, in File / More Help / Open License command.",IDC_STATIC,4,180,212,8
     LTEXT           "Dedicated to my father Kent, who drew me many Mazes as a",IDC_STATIC,4,196,212,8
-    LTEXT           "child and inspired me to be the most a-Maze-ing person I can. :)",IDC_STATIC,4,204,212,8
-    LTEXT           "Remember, life is a Maze. Think Labyrinth! :)",IDC_STATIC,4,220,152,8
+    LTEXT           "child and inspired me to be the most a-Maze-ing person I can. :-)",IDC_STATIC,4,204,212,8
+    LTEXT           "Remember, life is a Maze. Think Labyrinth! :-)",IDC_STATIC,4,220,152,8
 END
 
 dlgRandom DIALOGEX 32, 32, 159, 55
@@ -855,13 +866,13 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,60,95,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,5,95,50,14
-    CONTROL         "Zoom &By Factor",dr1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,5,5,65,10
-    CONTROL         "Zoom &To Size",dr2,"Button",BS_AUTORADIOBUTTON,5,15,65,10
+    CONTROL         "Zoom &by Factor",dr1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,5,5,65,10
+    CONTROL         "Zoom &to Size",dr2,"Button",BS_AUTORADIOBUTTON,5,15,65,10
     EDITTEXT        deZo_x,70,30,40,13,ES_AUTOHSCROLL
     EDITTEXT        deZo_y,70,45,40,13,ES_AUTOHSCROLL
     CONTROL         "&Drop Lines When Shrinking",dr3,"Button",BS_AUTORADIOBUTTON | WS_GROUP,5,60,105,10
     CONTROL         "&Preserve On When Shrinking",dr4,"Button",BS_AUTORADIOBUTTON,5,70,105,10
-    CONTROL         "Tessellate &Instead Of Zoom",dr5,"Button",BS_AUTORADIOBUTTON,5,80,105,10
+    CONTROL         "Tessellate &Instead of Zoom",dr5,"Button",BS_AUTORADIOBUTTON,5,80,105,10
     LTEXT           "Horizontal Zoom:",IDC_STATIC,5,30,60,8
     LTEXT           "Vertical Zoom:",IDC_STATIC,5,45,60,8
 END
@@ -915,12 +926,12 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,290,165,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,235,165,50,14
     CONTROL         "&Entire Bitmap",dr1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,15,95,10
-    CONTROL         "Certain &Number Of Pixels",dr2,"Button",BS_AUTORADIOBUTTON,10,25,95,10
-    CONTROL         "Certain Si&ze Of Pixels",dr3,"Button",BS_AUTORADIOBUTTON,10,35,95,10
-    CONTROL         "&Fixed Size Of Pixels",dr4,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,65,95,10
+    CONTROL         "Certain &Number of Pixels",dr2,"Button",BS_AUTORADIOBUTTON,10,25,95,10
+    CONTROL         "Certain Si&ze of Pixels",dr3,"Button",BS_AUTORADIOBUTTON,10,35,95,10
+    CONTROL         "&Fixed Size of Pixels",dr4,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,65,95,10
     CONTROL         "Largest &Square Size",dr5,"Button",BS_AUTORADIOBUTTON,10,75,95,10
     CONTROL         "Largest &Rectangular Size",dr6,"Button",BS_AUTORADIOBUTTON,10,85,95,10
-    CONTROL         "Stretch To &Window",dr7,"Button",BS_AUTORADIOBUTTON,10,95,95,10
+    CONTROL         "Stretch to &Window",dr7,"Button",BS_AUTORADIOBUTTON,10,95,95,10
     EDITTEXT        deRe_x,80,115,30,13,ES_AUTOHSCROLL
     EDITTEXT        deRe_y,80,130,30,13,ES_AUTOHSCROLL
     CONTROL         "Show &Color Bitmap",dxRe_c,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,145,105,10
@@ -931,7 +942,7 @@ BEGIN
     EDITTEXT        deRe_sx,180,85,35,13,ES_AUTOHSCROLL
     EDITTEXT        deRe_sy,180,100,35,13,ES_AUTOHSCROLL
     CONTROL         "Size Is Drawa&ble Area",dxRe_wc,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,115,95,10
-    CONTROL         "Window Always On &Top",dxRe_wt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,125,95,10
+    CONTROL         "Window Always on &Top",dxRe_wt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,125,95,10
     CONTROL         "Hide &Menu",dxRe_wm,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,135,95,10
     CONTROL         "Hide Scro&ll Bars",dxRe_ws,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,145,95,10
     CONTROL         "Re&draw When Bitmap Edited",dxRe_d,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,15,105,10
@@ -939,7 +950,7 @@ BEGIN
     CONTROL         "Show &Individual Pixel Edits",dxRe_td,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,35,105,10
     EDITTEXT        deRe_td,310,45,25,13,ES_AUTOHSCROLL
     CONTROL         "Error Check Pi&xel Operations",dxRe_ec,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,60,105,10
-    CONTROL         "&Hourglass Cursor On Redraw",dxRe_hg,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,70,105,10
+    CONTROL         "&Hourglass Cursor on Redraw",dxRe_hg,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,70,105,10
     CONTROL         "&Autorepeat Last Command",dxRe_ar,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,100,105,10
     EDITTEXT        deRe_ti,310,110,25,13,ES_AUTOHSCROLL
     CONTROL         "&Pause Timer",dxRe_pt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,125,105,10
@@ -954,9 +965,9 @@ BEGIN
     LTEXT           "Horizontal Scroll:",IDC_STATIC,120,85,60,8
     LTEXT           "Vertical Scroll:",IDC_STATIC,120,100,55,8
     LTEXT           "Pixel Display Delay:",IDC_STATIC,230,45,75,8
-    LTEXT           "Repeat Delay In Msec:",IDC_STATIC,230,110,75,8
-    GROUPBOX        "What To Draw",IDC_STATIC,5,5,105,45
-    GROUPBOX        "How To Draw It",IDC_STATIC,5,55,105,55
+    LTEXT           "Repeat Delay in Msec:",IDC_STATIC,230,110,75,8
+    GROUPBOX        "What to Draw",IDC_STATIC,5,5,105,45
+    GROUPBOX        "How to Draw It",IDC_STATIC,5,55,105,55
     GROUPBOX        "Window Information",IDC_STATIC,115,5,105,155
     GROUPBOX        "Redraw",IDC_STATIC,225,5,115,80
     GROUPBOX        "System",IDC_STATIC,225,90,115,70
@@ -970,7 +981,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,280,185,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,225,185,50,14
     CONTROL         "Create With ""&River""",dxCr_r,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,95,10
-    CONTROL         "Have ""River"" At &Edges",dxCr_re,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,25,95,10
+    CONTROL         "Have ""River"" at &Edges",dxCr_re,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,25,95,10
     CONTROL         "No ""River"" &Flowback",dxCr_rf,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,35,95,10
     EDITTEXT        deCr_o,70,60,35,13,ES_AUTOHSCROLL
     EDITTEXT        deCr_o2,70,75,35,13,ES_AUTOHSCROLL
@@ -981,7 +992,7 @@ BEGIN
     CONTROL         "Make &Patches Also",dr3,"Button",BS_AUTORADIOBUTTON,10,140,80,10
     EDITTEXT        deCr_j,40,160,70,13,ES_AUTOHSCROLL
     EDITTEXT        deCr_l,40,175,70,13,ES_AUTOHSCROLL
-    CONTROL         "Create With &Wall Adding",dxCr_tw,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,15,95,10
+    CONTROL         "Create with &Wall Adding",dxCr_tw,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,15,95,10
     CONTROL         "&Value Is Random Chance",dxCr_tr,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,25,95,10
     EDITTEXT        deCr_t,180,35,35,13,ES_AUTOHSCROLL
     EDITTEXT        deCr_fi,180,50,35,13,ES_AUTOHSCROLL
@@ -992,7 +1003,7 @@ BEGIN
     EDITTEXT        deCr_fx,135,155,25,13,ES_AUTOHSCROLL
     EDITTEXT        deCr_fy,190,155,25,13,ES_AUTOHSCROLL
     EDITTEXT        deCr_fn,180,170,35,13,ES_AUTOHSCROLL
-    CONTROL         "&Allow Isolations In Fractal",dxCr_fi,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,185,95,10
+    CONTROL         "&Allow Isolations in Fractal",dxCr_fi,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,185,95,10
     CONTROL         "&Lines May Head Off",dxCr_c,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,15,95,10
     EDITTEXT        deCr_cl,290,25,35,13,ES_AUTOHSCROLL
     EDITTEXT        deCr_cp,290,40,35,13,ES_AUTOHSCROLL
@@ -1001,7 +1012,7 @@ BEGIN
     CONTROL         "Eller's Al&gorithm Variation",dr5,"Button",BS_AUTORADIOBUTTON,230,95,95,10
     CONTROL         "Tilt Te&mplate",dr6,"Button",BS_AUTORADIOBUTTON,230,105,95,10
     EDITTEXT        deCr_vs,295,125,35,13,ES_AUTOHSCROLL
-    CONTROL         "&Kruskal Based On Picture",dxCr_kp,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,225,140,110,10
+    CONTROL         "&Kruskal Based on Picture",dxCr_kp,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,225,140,110,10
     CONTROL         "Weave Crossings May &Corner",dxCr_wc,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,225,150,110,10
     CONTROL         "&Tilt Lines Make No Diamonds",dxCr_t,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,225,160,110,10
     EDITTEXT        deCr_ts,295,170,35,13,ES_AUTOHSCROLL
@@ -1061,14 +1072,14 @@ BEGIN
     CONTROL         "&Follow Passages",dxDs_fp,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,110,75,10
     EDITTEXT        deDs_ra,150,120,25,13,ES_AUTOHSCROLL
     EDITTEXT        deDs_mc,150,135,25,13,ES_AUTOHSCROLL
-    CONTROL         "Move B&y Two",dxDs_mt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,15,75,10
+    CONTROL         "Move b&y Two",dxDs_mt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,15,75,10
     CONTROL         "D&rag Move Dot",dxDs_dm,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,25,75,10
     CONTROL         "Drag Is &Erase",dxDs_de,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,35,75,10
     CONTROL         "Drag &Big Dot",dxDs_db,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,45,75,10
-    CONTROL         "Drag By T&wo",dxDs_dt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,55,75,10
-    CONTROL         "Do Drag &On Temp",dxDs_et,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,65,75,10
-    CONTROL         "Move Into &Void",dr1,"Button",BS_AUTORADIOBUTTON,190,95,75,10
-    CONTROL         "&Stop At Edge",dr2,"Button",BS_AUTORADIOBUTTON,190,105,75,10
+    CONTROL         "Drag by T&wo",dxDs_dt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,55,75,10
+    CONTROL         "Do Drag &on Temp",dxDs_et,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,65,75,10
+    CONTROL         "Move into &Void",dr1,"Button",BS_AUTORADIOBUTTON,190,95,75,10
+    CONTROL         "&Stop at Edge",dr2,"Button",BS_AUTORADIOBUTTON,190,105,75,10
     CONTROL         "&Torus Wrapping",dr3,"Button",BS_AUTORADIOBUTTON,190,115,75,10
     LTEXT           "",ds1,5,155,85,8
     LTEXT           "Horizontal:",IDC_STATIC,10,15,40,8
@@ -1143,14 +1154,14 @@ BEGIN
     EDITTEXT        deDr_mx,75,90,35,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_my,75,105,35,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_mz,75,120,35,13,ES_AUTOHSCROLL
-    CONTROL         "Move With &Arrow Keys",dxDr_ak,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,140,85,10
+    CONTROL         "Move with &Arrow Keys",dxDr_ak,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,140,85,10
     EDITTEXT        deDr_vx,185,5,35,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_vy,185,20,35,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_th,190,39,30,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_ph,190,55,30,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_sm,185,75,35,13,ES_AUTOHSCROLL
     EDITTEXT        deDr_sr,185,90,35,13,ES_AUTOHSCROLL
-    CONTROL         "View From &Right",dxDr_ri,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,110,95,10
+    CONTROL         "View from &Right",dxDr_ri,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,110,95,10
     CONTROL         "&Merge Blocks Together",dxDr_mc,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,121,95,10
     LTEXT           "Horizontal Size:",IDC_STATIC,5,5,53,8
     LTEXT           "Vertical Size:",IDC_STATIC,5,20,53,8
@@ -1177,7 +1188,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,5,160,50,14
     COMBOBOX        dcRc_1,30,5,80,170,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        dcRc_2,30,20,80,150,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "&Swap Instead Of Replace",dxRc_x,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,35,105,10
+    CONTROL         "&Swap Instead of Replace",dxRc_x,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,35,105,10
     CONTROL         "&Rainbow Blend",dr1,"Button",BS_AUTORADIOBUTTON,10,70,95,10
     CONTROL         "Straight &Color Blend",dr2,"Button",BS_AUTORADIOBUTTON,10,80,95,10
     EDITTEXT        deRc_s,80,100,30,13,ES_AUTOHSCROLL
@@ -1191,7 +1202,7 @@ BEGIN
     LTEXT           "Rainbow Distance:",IDC_STATIC,5,115,70,8
     LTEXT           "Blend1:",IDC_STATIC,5,130,25,8
     LTEXT           "Blend2:",IDC_STATIC,5,145,25,8
-    GROUPBOX        "Special To Pattern Is",IDC_STATIC,5,60,105,35
+    GROUPBOX        "Special to Pattern Is",IDC_STATIC,5,60,105,35
 END
 
 dlgFile DIALOGEX 32, 32, 231, 135
@@ -1206,15 +1217,15 @@ BEGIN
     EDITTEXT        deFs_in,75,45,35,13,ES_AUTOHSCROLL
     CONTROL         "Use &Eller's Algorithm",dxFs_e,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,60,100,10
     CONTROL         "Don't &Autostart Infinite",dxFs_is,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,70,100,10
-    CONTROL         "&Don't Save To File",dr1,"Button",BS_AUTORADIOBUTTON,10,85,100,10
-    CONTROL         "Save As Te&xt",dr2,"Button",BS_AUTORADIOBUTTON,10,95,100,10
-    CONTROL         "Save As &DOS Text",dr3,"Button",BS_AUTORADIOBUTTON,10,105,100,10
-    CONTROL         "Save As &Bitmaps",dr4,"Button",BS_AUTORADIOBUTTON,10,115,100,10
+    CONTROL         "&Don't Save to File",dr1,"Button",BS_AUTORADIOBUTTON,10,85,100,10
+    CONTROL         "Save as Te&xt",dr2,"Button",BS_AUTORADIOBUTTON,10,95,100,10
+    CONTROL         "Save as &DOS Text",dr3,"Button",BS_AUTORADIOBUTTON,10,105,100,10
+    CONTROL         "Save as &Bitmaps",dr4,"Button",BS_AUTORADIOBUTTON,10,115,100,10
     EDITTEXT        deFs_2x,190,5,35,13,ES_AUTOHSCROLL
     EDITTEXT        deFs_2y,190,20,35,13,ES_AUTOHSCROLL
     EDITTEXT        deFs_3,190,35,35,13,ES_AUTOHSCROLL
     CONTROL         "Save Text Bitmaps &Clipped",dxFs_t,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,50,105,10
-    CONTROL         "&Line Chars In Text Bitmaps",dxFs_l,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,60,105,10
+    CONTROL         "&Line Chars in Text Bitmaps",dxFs_l,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,60,105,10
     CONTROL         "Save Text Bitmaps &Tabbed",dxFs_b,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,70,105,10
     LTEXT           "Current Generation:",IDC_STATIC,10,15,64,8
     LTEXT           "Generation Cutoff:",IDC_STATIC,10,30,60,8
@@ -1270,22 +1281,23 @@ BEGIN
     LTEXT           "Z Light Vector:",IDC_STATIC,90,130,55,8
 END
 
-dlgCubeFlip DIALOGEX 32, 32, 114, 116
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+dlgCubeFlip DIALOGEX 32, 32, 115, 127
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "3D Bitmap"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,60,95,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,5,95,50,14
+    DEFPUSHBUTTON   "OK",IDOK,60,105,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,5,105,50,14
     CONTROL         "&X",dr1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,15,20,10
     CONTROL         "&Y",dr2,"Button",BS_AUTORADIOBUTTON,40,15,20,10
     CONTROL         "&Z",dr3,"Button",BS_AUTORADIOBUTTON,70,15,20,10
     CONTROL         "&Flip",dr4,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,45,95,10
-    CONTROL         "Rotate &Left Or Forward",dr6,"Button",BS_AUTORADIOBUTTON,10,55,95,10
-    CONTROL         "Rotate &Right Or Backward",dr5,"Button",BS_AUTORADIOBUTTON,10,65,95,10
+    CONTROL         "Rotate &Left or Forward",dr6,"Button",BS_AUTORADIOBUTTON,10,55,95,10
+    CONTROL         "Rotate &Right or Backward",dr5,"Button",BS_AUTORADIOBUTTON,10,65,95,10
     CONTROL         "Rotate &Across",dr7,"Button",BS_AUTORADIOBUTTON,10,75,95,10
+    CONTROL         "&Transpose",dr8,"Button",BS_AUTORADIOBUTTON,10,85,95,10
     GROUPBOX        "Axis",IDC_STATIC,5,5,105,25
-    GROUPBOX        "Operation",IDC_STATIC,5,35,105,55
+    GROUPBOX        "Operation",IDC_STATIC,5,35,105,65
 END
 
 dlgBright DIALOGEX 32, 32, 115, 141
@@ -1295,16 +1307,16 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,60,120,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,5,120,50,14
-    CONTROL         "Brighten All By &Factor",dr1,"Button",BS_AUTORADIOBUTTON,10,15,95,10
-    CONTROL         "Brighten All By &Offset",dr2,"Button",BS_AUTORADIOBUTTON,10,25,95,10
-    CONTROL         "Brighten All By &Multiplier",dr3,"Button",BS_AUTORADIOBUTTON,10,35,95,10
-    CONTROL         "&Limit Brightness To Value",dr4,"Button",BS_AUTORADIOBUTTON,10,45,95,10
+    CONTROL         "Brighten All by &Factor",dr1,"Button",BS_AUTORADIOBUTTON,10,15,95,10
+    CONTROL         "Brighten All by &Offset",dr2,"Button",BS_AUTORADIOBUTTON,10,25,95,10
+    CONTROL         "Brighten All by &Multiplier",dr3,"Button",BS_AUTORADIOBUTTON,10,35,95,10
+    CONTROL         "&Limit Brightness to Value",dr4,"Button",BS_AUTORADIOBUTTON,10,45,95,10
     EDITTEXT        deBr_v,75,100,35,13,ES_AUTOHSCROLL
     LTEXT           "Transform Amount:",IDC_STATIC,5,100,65,8
     GROUPBOX        "Brightness",IDC_STATIC,5,5,105,55
     GROUPBOX        "Rotation",IDC_STATIC,5,60,105,35
-    CONTROL         "&Rotate All By Degree",dr5,"Button",BS_AUTORADIOBUTTON,10,70,95,10
-    CONTROL         "&Twist Middle By Degree",dr6,"Button",BS_AUTORADIOBUTTON,10,80,95,10
+    CONTROL         "&Rotate All by Degree",dr5,"Button",BS_AUTORADIOBUTTON,10,70,95,10
+    CONTROL         "&Twist Middle by Degree",dr6,"Button",BS_AUTORADIOBUTTON,10,80,95,10
 END
 
 dlgMaze DIALOGEX 32, 32, 297, 121
@@ -1315,13 +1327,13 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,240,100,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,240,80,50,14
     CONTROL         "Create Ma&zes Polished",dxMa_pm,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,5,140,10
-    CONTROL         "Apply Commands To Rectangle &Section",dxMa_ad,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,15,140,10
-    CONTROL         "&Teleport To Entrance On Maze Creation",dxMa_te,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,25,140,10
+    CONTROL         "Apply Commands to Rectangle &Section",dxMa_ad,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,15,140,10
+    CONTROL         "&Teleport to Entrance on Maze Creation",dxMa_te,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,25,140,10
     CONTROL         "Connect &Poles Never Adds Dead Ends",dxMa_cp,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,35,140,10
     CONTROL         "Solve Fillers Check &Every Pixel",dxMa_ep,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,45,140,10
-    CONTROL         "Solve Fillers Consider &Dots As Exits",dxMa_de,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,55,140,10
-    CONTROL         "&Find A Path Finds Random Path",dxMa_rp,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,65,140,10
-    CONTROL         "Show Count &Of Shortest Solutions",dxMa_cs,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,75,140,10
+    CONTROL         "Solve Fillers Consider &Dots as Exits",dxMa_de,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,55,140,10
+    CONTROL         "&Find a Path Finds Random Path",dxMa_rp,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,65,140,10
+    CONTROL         "Show Count &of Shortest Solutions",dxMa_cs,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,75,140,10
     EDITTEXT        deMa_tp,105,85,40,13,ES_AUTOHSCROLL
     EDITTEXT        deMa_mc,105,100,40,13,ES_AUTOHSCROLL
     EDITTEXT        deMa_ww,250,5,40,13,ES_AUTOHSCROLL
@@ -1360,7 +1372,7 @@ BEGIN
     CONTROL         "Mount&ains",dxIn_mt,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,145,80,10
     EDITTEXT        deIn_mt,65,156,25,13,ES_AUTOHSCROLL
     EDITTEXT        deIn_cl,65,170,25,13,ES_AUTOHSCROLL
-    CONTROL         "S&un And Moon",dxIn_sm,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,185,80,10
+    CONTROL         "S&un and Moon",dxIn_sm,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,185,80,10
     CONTROL         "Rain&bow",dxIn_rb,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,195,80,10
     CONTROL         "&Stars",dxIn_si,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,205,80,10
     EDITTEXT        deIn_si,65,215,25,13,ES_AUTOHSCROLL
@@ -1417,7 +1429,7 @@ BEGIN
     LTEXT           "Up Down Offset:",IDC_STATIC,205,160,60,8
     LTEXT           "Direction Offset:",IDC_STATIC,205,175,60,8
     GROUPBOX        "Inside Display Mode",IDC_STATIC,5,5,90,75
-    GROUPBOX        "What To Draw",IDC_STATIC,5,85,90,165
+    GROUPBOX        "What to Draw",IDC_STATIC,5,85,90,165
     GROUPBOX        "Wall Characteristics",IDC_STATIC,100,5,95,185
     GROUPBOX        "Semitransparent Walls",IDC_STATIC,100,195,95,55
     GROUPBOX        "Smooth Movement",IDC_STATIC,200,5,100,60
@@ -1473,11 +1485,11 @@ BEGIN
     EDITTEXT        deEv_cn,205,65,25,13,ES_AUTOHSCROLL
     EDITTEXT        deEv_mm,205,80,25,13,ES_AUTOHSCROLL
     EDITTEXT        deEv_ex,205,95,25,13,ES_AUTOHSCROLL
-    LTEXT           "On Move Off Bitmap:",IDC_STATIC,5,5,80,8
-    LTEXT           "On Move Into Wall:",IDC_STATIC,5,20,80,8
-    LTEXT           "On Move To New Cell:",IDC_STATIC,5,35,80,8
-    LTEXT           "After Move To New Cell:",IDC_STATIC,5,50,80,8
-    LTEXT           "On Follow To New Cell:",IDC_STATIC,5,65,80,8
+    LTEXT           "On Move off Bitmap:",IDC_STATIC,5,5,80,8
+    LTEXT           "On Move into Wall:",IDC_STATIC,5,20,80,8
+    LTEXT           "On Move to New Cell:",IDC_STATIC,5,35,80,8
+    LTEXT           "After Move to New Cell:",IDC_STATIC,5,50,80,8
+    LTEXT           "On Follow to New Cell:",IDC_STATIC,5,65,80,8
     LTEXT           "After Redraw Inside:",IDC_STATIC,5,80,80,8
     LTEXT           "On Redraw Inside",IDC_STATIC,5,95,80,8
     LTEXT           "On Run Command:",IDC_STATIC,5,110,80,8
@@ -1536,7 +1548,7 @@ BEGIN
     CONTROL         "&Classical",dr1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,15,70,10
     CONTROL         "C&hartres",dr2,"Button",BS_AUTORADIOBUTTON,10,25,70,10
     CONTROL         "Creta&n",dr3,"Button",BS_AUTORADIOBUTTON,10,35,70,10
-    CONTROL         "&Man In The Maze",dr4,"Button",BS_AUTORADIOBUTTON,10,45,70,10
+    CONTROL         "&Man in the Maze",dr4,"Button",BS_AUTORADIOBUTTON,10,45,70,10
     CONTROL         "Chartres &Replica",dr5,"Button",BS_AUTORADIOBUTTON,10,55,70,10
     CONTROL         "C&ustom",dr6,"Button",BS_AUTORADIOBUTTON,10,65,70,10
     CONTROL         "C&ircle",dr7,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,95,70,10
@@ -1576,7 +1588,7 @@ END
 // Accelerator
 //
 
-accelerator ACCELERATORS 
+accelerator ACCELERATORS
 BEGIN
     """",           cmdColmapGet,           ASCII,  NOINVERT
     "'",            cmdEraseCorner,         ASCII,  NOINVERT
@@ -1588,6 +1600,7 @@ BEGIN
     "0",            cmdMoveRandom,          VIRTKEY, NOINVERT
     "0",            cmdGoRandom,            VIRTKEY, CONTROL, NOINVERT
     "0",            cmdAbout,               VIRTKEY, ALT, NOINVERT
+    "0",            cmdScript30,            VIRTKEY, CONTROL, ALT, NOINVERT
     "0",            cmdShellHelp,           VIRTKEY, SHIFT, NOINVERT
     "0",            cmdScript10,            VIRTKEY, SHIFT, ALT, NOINVERT
     28,             cmdSize14,              ASCII,  NOINVERT
@@ -1910,8 +1923,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,3,0,0
- PRODUCTVERSION 3,3,0,0
+ FILEVERSION 3,4,0,0
+ PRODUCTVERSION 3,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1927,13 +1940,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "astrolog.org"
-            VALUE "FileDescription", "Daedalus 3.3 for Windows"
-            VALUE "FileVersion", "3, 3, 0, 0"
+            VALUE "FileDescription", "Daedalus 3.4 for Windows"
+            VALUE "FileVersion", "3, 4, 0, 0"
             VALUE "InternalName", "Daedalus"
-            VALUE "LegalCopyright", "Copyright (c) 2018"
+            VALUE "LegalCopyright", "Copyright (c) 2023"
             VALUE "OriginalFilename", "daedalus.exe"
             VALUE "ProductName", "Daedalus"
-            VALUE "ProductVersion", "3, 3, 0, 0"
+            VALUE "ProductVersion", "3, 4, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -1949,8 +1962,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
+    dlgCubeFlip, DIALOG
+    BEGIN
+        RIGHTMARGIN, 114
+        BOTTOMMARGIN, 116
+    END
+
     dlgMaze, DIALOG
     BEGIN
         RIGHTMARGIN, 152
@@ -1966,7 +1985,18 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (U.S.) resources
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+dlgCubeFlip AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

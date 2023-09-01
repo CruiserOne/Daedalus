@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: create3.cpp
+** Daedalus (Version 3.4) File: create3.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** produce non-orthogonal Mazes.
 **
 ** Created: 9/4/2000.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -55,6 +55,8 @@ public:
   flag FIsOnMaze(long);
   void CreateMazeGeneral();
   void GenerateWireframe();
+  virtual void WireframeLine(int, int, int, int);
+  virtual void WireframeOpening();
 
   // Creates an entrance or exit, returning the cell index next to it.
   virtual long LMakeOpening(int, flag) = 0;
@@ -241,46 +243,54 @@ void Generic::CreateMazeGeneral()
 void Generic::GenerateWireframe()
 {
   long area, test, hunt;
-  int count, d, x1, y1, x2, y2, f, cEdge = 0;
+  int count, d, x1, y1, x2, y2;
 
   if (ms.nOmegaDraw <= 0)
     return;
-  for (f = 0; f <= 1; f++) {
-    for (area = 0; !FIsOnMaze(area) || !FIsRoom(area); area = LNext(area))
-      ;
-    hunt = area;
-    loop {
-      if (!FIsOnMaze(area) || !FIsRoom(area))
+  InitCoorPatch(ms.nOmegaDraw == 2, ms.omega * ms.omega);
+  for (area = 0; !FIsOnMaze(area) || !FIsRoom(area); area = LNext(area))
+    ;
+  hunt = area;
+  loop {
+    if (!FIsOnMaze(area) || !FIsRoom(area))
+      continue;
+    count = NCount(area);
+    for (d = 0; d < count; d++) {
+      test = LEnum(area, d);
+      if (test < area && FIsOnMaze(test))
         continue;
-      count = NCount(area);
-      for (d = 0; d < count; d++) {
-        test = LEnum(area, d);
-        if (test < area && FIsOnMaze(test))
-          continue;
-        if (!FIsPassage(area, d)) {
-          if (!f)
-            cEdge++;
-          else {
-            MapDir(area, d, &x1, &y1, &x2, &y2);
-            if (ms.nOmegaDraw == 1)
-              FSetCoordinates(x1, y1, 0, x2, y2, 0, -1);
-            else
-              FSetPatch(x1, y1, 0, x2, y2, 10, -1);
-          }
-        }
+      if (!FIsPassage(area, d)) {
+        MapDir(area, d, &x1, &y1, &x2, &y2);
+        WireframeLine(x1, y1, x2, y2);
       }
-      area = LNext(area);
-      if (area == hunt)
-        break;
     }
-    if (!f) {
-      if (ms.nOmegaDraw == 1)
-        FInitCoordinates(cEdge);
-      else
-        FInitPatch(cEdge);
-    }
+    area = LNext(area);
+    if (area == hunt)
+      break;
   }
-  PrintSzN("Total number of edges generated: %d", cEdge);
+  WireframeOpening();
+  PrintSzN("Total number of edges generated: %d",
+    InitCoorPatch(ms.nOmegaDraw == 2, 0));
+}
+
+
+// Output a wireframe line given a pair of coordinates in the generic Maze.
+
+void Generic::WireframeLine(int x1, int y1, int x2, int y2)
+{
+  KV kv;
+
+  kv = -1;
+  /*if (m_c != NULL && m_c->m_x == m_b.m_x && m_c->m_y == m_b.m_y)
+    kv = CG(*m_c, (x1+x2) >> 1, (y1+y2) >> 1);*/
+  FSetCoorPatch(ms.nOmegaDraw == 2, x1, y1, 0, x2, y2, 10, kv);
+}
+
+
+// Output wireframe arrows for the start and end in the generic Maze.
+
+void Generic::WireframeOpening()
+{
 }
 
 
@@ -811,7 +821,7 @@ flag Sigma::FCreateMaze(CMaz &b)
     return fFalse;
   }
   b.BitmapOff();
-  for (y = 0; y < SYMax; y++) {
+  for (y = 0; y < SYMax; y++)
     for (x = 0; x < SXMax(y); x++) {
       m = SMapX(x, y); n = SMapY(y);
       GLine(m, n, m-ox1, n+oy1);
@@ -824,7 +834,6 @@ flag Sigma::FCreateMaze(CMaz &b)
       if ((x >= SXMax(y)-1 && y >= ms.omega-1) || y >= SYMax-1)
         GLine(m+ox1, n+oy1*3, m, n+oy1*4);
     }
-  }
   CreateMazeGeneral();
   return fTrue;
 }
@@ -990,7 +999,7 @@ int Theta::NDirBinary(long area)
 
   XYArea(x, y, area);
   if (y <= ms.omega2)
-    return 1;
+    return x > 0 ? 1 : -1;
   return Rnd(0, 1);
 }
 
@@ -1012,7 +1021,7 @@ flag Theta::FCreateMaze(CMaz &b)
     return fFalse;
   }
   b.BitmapOff();
-  for (y = ms.omega2; y <= ms.omega; y++) {
+  for (y = ms.omega2; y <= ms.omega; y++)
     for (x = 0; x < TPoint(y); x++) {
       m = (x + 1) & (TPoint(y) - 1);
       GLine(TMapX(x, y), TMapY(x, y), TMapX(m, y), TMapY(m, y));
@@ -1021,7 +1030,6 @@ flag Theta::FCreateMaze(CMaz &b)
         GLine(TMapX(x, y), TMapY(x, y), TMapX(m, y+1), TMapY(m, y+1));
       }
     }
-  }
   CreateMazeGeneral();
   return fTrue;
 }
@@ -1203,7 +1211,7 @@ flag Upsilon::FCreateMaze(CMaz &b)
     return fFalse;
   }
   b.BitmapOff();
-  for (y = 0; y <= ms.omega; y++) {
+  for (y = 0; y <= ms.omega; y++)
     for (x = 0; x <= ms.omega; x++) {
       m = UMapX(x); n = UMapY(y);
       if (((x | y) & 1) == 0) {
@@ -1222,7 +1230,6 @@ flag Upsilon::FCreateMaze(CMaz &b)
       if (y < ms.omega)
         GLine(m - ox2*(!USquare(x, y)), n, m - ox2*(!USquare(x, y)), n+oy1);
     }
-  }
   CreateMazeGeneral();
   return fTrue;
 }
@@ -1231,6 +1238,229 @@ flag CMaz::CreateMazeUpsilon()
 {
   Upsilon upsilon;
   return upsilon.FCreateMaze(*this);
+}
+
+
+// Create an Omicron Maze, or a Maze formed of concentric circles on a sphere.
+
+#define OMapX(x, y) (ox0 + (x) * ox1 * (m_x / OPoint(y)))
+#define OMapY(y) (oy0 + (y) * oy1)
+#define OPoint(y) \
+  TPoint((y) < ((ms.omega+1) >> 1) ? Max(0, y) : Max(0, ms.omega-1-(y)))
+
+class Omicron : Generic
+{
+private:
+  int m_x;
+
+  long LMakeOpening(int, flag);
+  flag FIsRoom(long);
+  int NCount(long);
+  long LEnum(long, int);
+  long LNext(long);
+  int NDirBinary(long);
+  void MapDir(long, int, int *, int *, int *, int *);
+  void WireframeLine(int, int, int, int);
+  void WireframeOpening();
+
+public:
+  flag FCreateMaze(CMaz &);
+};
+
+void Omicron::MapDir(long area, int dir, int *x1, int *y1, int *x2, int *y2)
+{
+  int x, y, d, dd, m, m1, m2, n1, n2;
+
+  XYArea(x, y, area);
+  d = y < ((ms.omega+1) >> 1) ? 1 : -1;
+  dd = d < 0;
+  n1 = y + dd;
+  n2 = y + 1 - dd;
+  m = (x + 1) & (OPoint(y) - 1);
+  m1 = x << (int)(OPoint(y) < OPoint(y + d));
+  m2 = m << (int)(OPoint(y) < OPoint(y + d));
+  switch (dir) {
+  case 0:
+    *x1 = OMapX(x, n1-dd); *y1 = OMapY(n1);
+    *x2 = OMapX(x+1, n1-dd); *y2 = *y1;
+    break;
+  case 1:
+    *x1 = OMapX(x, n1-dd); *y1 = OMapY(n1);
+    *x2 = *x1; *y2 = OMapY(n2);
+    break;
+  case 2:
+    *x1 = OMapX(m, n1-dd); *y1 = OMapY(n1);
+    *x2 = *x1; *y2 = OMapY(n2);
+    break;
+  case 3:
+    *x1 = OMapX(m1, n2-dd); *y1 = OMapY(n2);
+    *x2 = OMapX(m1+1, n2-dd); *y2 = *y1;
+    break;
+  case 4:
+    *x1 = OMapX(m1+1, n2-dd); *y1 = OMapY(n2);
+    *x2 = OMapX(m1+2, n2-dd); *y2 = *y1;
+    break;
+  }
+}
+
+long Omicron::LMakeOpening(int hint, flag fExit)
+{
+  long area;
+  int x, y, dir, x1, y1, x2, y2;
+
+  x = Rnd(0, 3);
+  y = fExit ? ms.omega-1 : 0;
+  dir = fExit && ms.omega <= 1 ? 3 : 0;
+  AreaXY(area, x, y);
+  MakePassage(area, dir);
+  if (!fExit) {
+    MapDir(area, dir, &x1, &y1, &x2, &y2);
+    ms.xEntrance = (x1 + x2) >> 1; ms.yEntrance = (y1 + y2) >> 1;
+  }
+  return area;
+}
+
+flag Omicron::FIsRoom(long area)
+{
+  int x, y, d;
+
+  XYArea(x, y, area);
+  if (y < 0 || y >= ms.omega)
+    return fTrue;
+  for (d = 0; d < NCount(area); d++)
+    if (FIsPassage(area, d))
+      return fTrue;
+  return fFalse;
+}
+
+int Omicron::NCount(long area)
+{
+  int x, y, d;
+
+  // Cells in a ring have four sides, except when the number of cells in a
+  // ring doubles, in which case the cell in smaller ring has five sides.
+  XYArea(x, y, area);
+  d = y < ((ms.omega+1) >> 1) ? 1 : -1;
+  return 4 + (OPoint(y) < OPoint(y+d));
+}
+
+long Omicron::LEnum(long area, int dir)
+{
+  int x, y, d;
+
+  XYArea(x, y, area);
+  d = y < ((ms.omega+1) >> 1) ? 1 : -1;
+  switch (dir) {
+  case 0: x = x >> (int)(OPoint(y) > OPoint(y-d)); y -= d; break;
+  case 1: x = (x - 1) & (OPoint(y) - 1); break;
+  case 2: x = (x + 1) & (OPoint(y) - 1); break;
+  case 3: x = x << (int)(OPoint(y) < OPoint(y+d)); y += d; break;
+  case 4: x = (x << (int)(OPoint(y) < OPoint(y+d))) + 1; y += d; break;
+  }
+  AreaXY(area, x, y);
+  return area;
+}
+
+long Omicron::LNext(long area)
+{
+  int x, y;
+
+  XYArea(x, y, area);
+  x++;
+  if (x >= OPoint(y)) {
+    x = 0;
+    y++;
+    if (y >= ms.omega)
+      y = 0;
+  }
+  AreaXY(area, x, y);
+  return area;
+}
+
+int Omicron::NDirBinary(long area)
+{
+  int x, y;
+
+  XYArea(x, y, area);
+  if (y <= 0 || y >= ms.omega-1)
+    return x > 0 ? 1 : -1;
+  return Rnd(0, 1);
+}
+
+flag Omicron::FCreateMaze(CMaz &b)
+{
+  int x, y, z;
+
+  m_b = &b;
+  z = ms.omega*2 + 1;
+  x = Max(b.m_x, z); y = Max(b.m_y, z);
+  if (!b.FBitmapSizeSet(x, y))
+    return fFalse;
+  m_x = OPoint(ms.omega >> 1);
+  ox1 = (b.m_x - 1) / m_x;
+  ox0 = (b.m_x - ox1 * m_x) >> 1;
+  oy1 = (b.m_y - 1) / ms.omega;
+  oy0 = (b.m_y - oy1 * ms.omega) >> 1;
+  if (ox1 < 2 || oy1 < 2) {
+    PrintSzN_W("Bitmap too small to make omicron Maze of size: %d", ms.omega);
+    return fFalse;
+  }
+  b.BitmapOff();
+  for (y = 0; y <= ms.omega; y++)
+    for (x = OPoint(y)-1; x >= 0; x--) {
+      GLine(OMapX(x, y), OMapY(y), OMapX(x+1, y), OMapY(y));
+      if (y < ms.omega)
+        GLine(OMapX(x, y), OMapY(y), OMapX(x, y), OMapY(y+1));
+    }
+  CreateMazeGeneral();
+  return fTrue;
+}
+
+void Omicron::WireframeLine(int x1, int y1, int x2, int y2)
+{
+  int z1, z2;
+  real m1, n1, m2, n2, r1, r2;
+  KV kv;
+
+  if (ms.nOmegaDraw == 2)
+    FSetPatch(x1, y1, 0, x2, y2, 10, -1);
+  else {
+    r1 = (real)OPoint(ms.omega >> 1);
+    m1 = (real)((x1 - ox0) / ox1) * rDegMax / r1;
+    m2 = (real)((x2 - ox0) / ox1) * rDegMax / r1;
+    n1 = (real)((y1 - oy0) / oy1 + 1) * rDegHalf / (ms.omega+2) - rDegQuad;
+    n2 = (real)((y2 - oy0) / oy1 + 1) * rDegHalf / (ms.omega+2) - rDegQuad;
+    r1 = RCosD(n1); r2 = RCosD(n2);
+    z1 = (int)(1000.0 * RSinD(n1));
+    z2 = (int)(1000.0 * RSinD(n2));
+    y1 = (int)(1000.0 * RSinD(m1) * r1);
+    y2 = (int)(1000.0 * RSinD(m2) * r2);
+    x1 = (int)(1000.0 * RCosD(m1) * r1);
+    x2 = (int)(1000.0 * RCosD(m2) * r2);
+    kv = Hue((int)(((n1 + n2) / 2.0 + rDegQuad) * 2.0 * 10.0));
+    FSetCoordinates(x1, y1, z1, x2, y2, z2, kv);
+  }
+}
+
+void Omicron::WireframeOpening()
+{
+  int i, j;
+  KV kv;
+
+  // Draw two arrows for the entrance and exit to the Omicron Maze.
+  for (i = -1; i <= 1; i += 2) {
+    kv = i < 0 ? kvDkGray : kvWhite;
+    FSetCoordinates(0, 0, (1000+25)*i, 0, 0, (1000+25*9)*i, kv);
+    j = i < 0 ? -1000-25 : 1000+25*9;
+    FSetCoordinates(0, 0, j, 25*3, 0, j-25*3, kv);
+    FSetCoordinates(0, 0, j, -25*3, 0, j-25*3, kv);
+  }
+}
+
+flag CMaz::CreateMazeOmicron()
+{
+  Omicron omicron;
+  return omicron.FCreateMaze(*this);
 }
 
 
@@ -2237,6 +2467,15 @@ long CMaz::CreateMazeCrack(flag fClear)
     MakeEntranceExit(1);
     UpdateDisplay();
   }
+  if (ms.nOmegaDraw) {
+    InitCoorPatch(ms.nOmegaDraw == 2, 100);
+    FSetCoorPatch(ms.nOmegaDraw == 2, xl, yl, 0, xl, yh, 10, -1);
+    FSetCoorPatch(ms.nOmegaDraw == 2, xh, yl, 0, xh, yh, 10, -1);
+    FSetCoorPatch(ms.nOmegaDraw == 2, xl, yl, 0, ms.xEntrance-1, yl, 10, -1);
+    FSetCoorPatch(ms.nOmegaDraw == 2, ms.xEntrance+1, yl, 0, xh, yl, 10, -1);
+    FSetCoorPatch(ms.nOmegaDraw == 2, xl, yh, 0, ms.xExit-1, yh, 10, -1);
+    FSetCoorPatch(ms.nOmegaDraw == 2, ms.xExit+1, yh, 0, xh, yh, 10, -1);
+  }
 
   // Draw lines appending onto what's already present.
   while (pass < ms.nCrackPass) {
@@ -2288,6 +2527,7 @@ long CMaz::CreateMazeCrack(flag fClear)
     d >>= 1;
 
     // Draw the line a pixel at a time. Stop before hitting any other wall.
+    x2 = x; y2 = y;
     for (z = 0; z <= zMax; z++) {
       x += xInc; y += yInc; d += dInc;
       if (d >= zMax) {
@@ -2300,6 +2540,9 @@ long CMaz::CreateMazeCrack(flag fClear)
         k = (k << 1) + Get(x + xoff[i], y + yoff[i]);
       if (mpgrff[k]) {
         Set1(x, y);
+        if (ms.nOmegaDraw)
+          FSetCoorPatch(ms.nOmegaDraw == 2, x2, y2, 0, x, y, 10, -1);
+        x2 = x; y2 = y;
         f = fTrue;
       } else
         break;
@@ -2315,6 +2558,8 @@ long CMaz::CreateMazeCrack(flag fClear)
     } else
       pass++;
   }
+  if (ms.nOmegaDraw)
+    InitCoorPatch(ms.nOmegaDraw == 2, 0);
   return count;
 }
 
@@ -2333,6 +2578,8 @@ flag CMaz::ZetaGenerate(flag fClear, int x, int y)
   while ((y - yl & 3) != 3)
     y--;
   count = ((xh - xl) >> 2)*((yh - yl) >> 2) - 1;
+  if (ms.nOmegaDraw)
+    InitCoorPatch(ms.nOmegaDraw == 2, count+2);
   iMax = ms.fRiver ? DIRS2 : 1;
   Set0(x, y);
   UpdateDisplay();
@@ -2359,6 +2606,8 @@ LNext:
           Set0(x + xoff2[d], y + yoff2[d]);
           Set0(xnew - xoff[d], ynew - yoff[d]);
           Set0(xnew, ynew);
+          if (ms.nOmegaDraw)
+            FSetCoorPatch(ms.nOmegaDraw == 2, x, y, 0, xnew, ynew, 10, -1);
           x = xnew; y = ynew;
           pass = 0;
           fHunt = fFalse;
@@ -2406,7 +2655,15 @@ flag CMaz::CreateMazeZeta()
   MazeClear(fOn);
   MakeEntranceExit(3);
   UpdateDisplay();
-  return ZetaGenerate(fTrue, Rnd(xl + 3, xh), Rnd(yl + 3, yh));
+  if (!ZetaGenerate(fTrue, Rnd(xl + 3, xh), Rnd(yl + 3, yh)))
+    return fFalse;
+  if (ms.nOmegaDraw) {
+    FSetCoorPatch(ms.nOmegaDraw == 2, ms.xEntrance, 0, 0, ms.xEntrance, 3, 10,
+      -1);
+    FSetCoorPatch(ms.nOmegaDraw == 2, ms.xExit, m_y-1, 0, ms.xExit, m_y-4, 10,
+      -1);
+  }
+  return fTrue;
 }
 
 

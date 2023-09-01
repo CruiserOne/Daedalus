@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.3) File: labyrnth.cpp
+** Daedalus (Version 3.4) File: labyrnth.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2018 by
+** graphics routines used in this program are Copyright (C) 1998-2023 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains unicursal Labyrinth creation algorithms.
 **
 ** Created: 7/12/2009.
-** Last code change: 11/29/2018.
+** Last code change: 8/29/2023.
 */
 
 #include <stdio.h>
@@ -153,6 +153,7 @@ flag CMaz::CreateMazeHilbert(flag f3D)
 {
   CMaz b2;
   int i, w, x, y, z;
+  flag fMaze = ms.fFractalI;
 
   if (!f3D) {
 
@@ -160,10 +161,17 @@ flag CMaz::CreateMazeHilbert(flag f3D)
     if (!FBitmapSizeSet(5, 5))
       return fFalse;
     BitmapOn();
-    for (x = 1; x <= 3; x += 2)
-      for (y = 1; y <= 3; y++)
-        Set0(x, y);
-    Set0(2, 3);
+    if (!fMaze) {
+      for (x = 1; x <= 3; x += 2)
+        for (y = 1; y <= 3; y++)
+          Set0(x, y);
+      Set0(2, 3);
+    } else {
+      for (y = 1; y <= 3; y += 2)
+        for (x = 1; x <= 3; x++)
+          Set0(x, y);
+      Set0(1, 2);
+    }
 
     // Create each new generation from four copies of the original
     for (i = 1; i < ms.zFractal; i++) {
@@ -172,19 +180,32 @@ flag CMaz::CreateMazeHilbert(flag f3D)
       if (!FBitmapSizeSet((m_x << 1) - 1, (m_y << 1) - 1))
         return fFalse;
       BitmapOn();
-      for (y = 1; y < w; y++)
-        for (x = 1; x < w; x++)
-          if (!b2.Get(x, y)) {
-            Set0(y, x);       // 1 transpose
-            Set0(x, w+y);     // 2 normal
-            Set0(w+x, w+y);   // 3 normal
-            Set0(m_x-1-y, x); // 4 transpose flipx
-          }
-      Set0(1, w); Set0(m_x-2, w);
-      Set0(w, w+1);
+      if (!fMaze) {
+        for (y = 1; y < w; y++)
+          for (x = 1; x < w; x++)
+            if (!b2.Get(x, y)) {
+              Set0(y, x);       // 1 transpose
+              Set0(x, w+y);     // 2 normal
+              Set0(w+x, w+y);   // 3 normal
+              Set0(m_x-1-y, x); // 4 transpose flipx
+            }
+        Set0(1, w); Set0(m_x-2, w);
+        Set0(w, w+1);
+      } else {
+        for (y = 1; y < w; y++)
+          for (x = 1; x < w; x++)
+            if (!b2.Get(x, y)) {
+              Set0(w-x, w-y);   // 1 flipx flipy
+              Set0(y, m_y-1-x); // 2 transpose flipy
+              Set0(w+x, w+y);   // 3 normal
+              Set0(m_x-1-y, x); // 4 transpose flipx
+            }
+        Set0(w, w-1); Set0(w, w+1);
+        Set0(1, w);
+      }
       UpdateDisplay();
     }
-    Set0(1, 0); Set0(m_x-2, 0);
+    Set0(1, 0); Set0(m_x-2, !fMaze ? 0 : m_y-1);
   } else {
 
     // Create base case generation 1
@@ -335,6 +356,7 @@ void CMaz::LabyrinthHilbertPartial(int zFactor, int m1, int n1)
 {
   int rgd[iStackMax], id = 0, zs, m2, n2, x1, y1, x2, y2, x12, y12, d;
   RC rgrc[iStackMax], rc;
+  flag fMaze = ms.fFractalI;
 
   zs = 1 << zFactor;
   m2 = m1 + (m_x >> 1); n2 = n1 + (m_y >> 1);
@@ -348,7 +370,7 @@ void CMaz::LabyrinthHilbertPartial(int zFactor, int m1, int n1)
   if (FBetween(0,  m1, m2)) LineY(VX2(0),  VY2(0),  VY2(zs), fOn);
   if (FBetween(zs, n1, n2)) LineX(VX2(0),  VX2(zs), VY2(zs), fOn);
   if (FBetween(zs, m1, m2)) LineY(VX2(zs), VY2(0),  VY2(zs), fOn);
-  Set0(1-m1*2, -n1*2); Set0((zs-m1)*2-1, -n1*2);
+  Set0(1-m1*2, -n1*2); Set0((zs-m1)*2-1, !fMaze ? -n1*2 : (zs-n1)*2);
 
   // Continue while there's at least one square on the stack.
   while (id >= 0) {
@@ -367,29 +389,56 @@ void CMaz::LabyrinthHilbertPartial(int zFactor, int m1, int n1)
     x1 = rc.x1; y1 = rc.y1; x2 = rc.x2; y2 = rc.y2;
     d = rgd[id];
     x12 = (x1 + x2) >> 1; y12 = (y1 + y2) >> 1;
-    if (!FOdd(d)) {
-      LineX(VX2(x1 + 1), VX2(x2 - 1), VY2(y12), fOn);
-      LineY(VX2(x12), d < 1 ? VY2(y1) + 1 : VY2(y2) - 1, VY2(y12), fOn);
-      if (y2 - y1 > 2)
-        LineY(VX2(x12), VY2(y12 + (d < 1 ? 1 : -1)), d < 1 ? VY2(y2) : VY2(y1),
-          fOn);
+    if (!fMaze) {
+      if (!FOdd(d)) {
+        LineX(VX2(x1 + 1), VX2(x2 - 1), VY2(y12), fOn);
+        LineY(VX2(x12), d < 1 ? VY2(y1) + 1 : VY2(y2) - 1, VY2(y12), fOn);
+        if (y2 - y1 > 2)
+          LineY(VX2(x12), VY2(y12 + (d < 1 ? 1 : -1)),
+            d < 1 ? VY2(y2) : VY2(y1), fOn);
+      } else {
+        LineY(VX2(x12), VY2(y1 + 1), VY2(y2 - 1), fOn);
+        LineX(d < 2 ? VX2(x1) + 1 : VX2(x2) - 1, VX2(x12), VY2(y12), fOn);
+        if (x2 - x1 > 2)
+          LineX(VX2(x12 + (d < 2 ? 1 : -1)), d < 2 ? VX2(x2) : VX2(x1),
+            VY2(y12), fOn);
+      }
     } else {
-      LineY(VX2(x12), VY2(y1 + 1), VY2(y2 - 1), fOn);
-      LineX(d < 2 ? VX2(x1) + 1 : VX2(x2) - 1, VX2(x12), VY2(y12), fOn);
-      if (x2 - x1 > 2)
-        LineX(VX2(x12 + (d < 2 ? 1 : -1)), d < 2 ? VX2(x2) : VX2(x1), VY2(y12),
-          fOn);
+      if (!FOdd(d)) {
+        LineX(VX2(x1 + 1) - (d > 1), VX2(x2 - 1) + (d < 1), VY2(y12), fOn);
+        if (y2 - y1 > 2) {
+          LineY(VX2(x12), VY2(y1) + 1, VY2(y12 - 1), fOn);
+          LineY(VX2(x12), VY2(y2) - 1, VY2(y12 + 1), fOn);
+        }
+      } else {
+        LineY(VX2(x12), VY2(y1 + 1) - (d < 2), VY2(y2 - 1) + (d > 2), fOn);
+        if (x2 - x1 > 2) {
+          LineX(VX2(x1) + 1, VX2(x12 - 1), VY2(y12), fOn);
+          LineX(VX2(x2) - 1, VX2(x12 + 1), VY2(y12), fOn);
+        }
+      }
     }
 
     // Divide current square's coordinates and push four subsquares on stack.
-    SetRC2(x1, y1, x12, y12);
-    rgd[id++] = d + (d <= 0) - (d == 1) & DIRS1;
-    SetRC2(x12, y1, x2, y12);
-    rgd[id++] = d + (d >= 3) - (d <= 0) & DIRS1;
-    SetRC2(x1, y12, x12, y2);
-    rgd[id++] = d + (d == 1) - (d == 2) & DIRS1;
-    SetRC2(x12, y12, x2, y2);
-    rgd[id]   = d + (d == 2) - (d >= 3) & DIRS1;
+    if (!fMaze) {
+      SetRC2(x1, y1, x12, y12);
+      rgd[id++] = d + (d == 0) - (d == 1) & DIRS1;
+      SetRC2(x1, y12, x12, y2);
+      rgd[id++] = d + (d == 1) - (d == 2) & DIRS1;
+      SetRC2(x12, y12, x2, y2);
+      rgd[id++] = d + (d == 2) - (d == 3) & DIRS1;
+      SetRC2(x12, y1, x2, y12);
+      rgd[id]   = d + (d == 3) - (d == 0) & DIRS1;
+    } else {
+      SetRC2(x1, y1, x12, y12);
+      rgd[id++] = d + (d == 3) - (d == 1) + (d == 0)*2 & DIRS1;
+      SetRC2(x1, y12, x12, y2);
+      rgd[id++] = d + (d == 0) - (d == 2) + (d == 1)*2 & DIRS1;
+      SetRC2(x12, y12, x2, y2);
+      rgd[id++] = d + (d == 1) - (d == 3) + (d == 2)*2 & DIRS1;
+      SetRC2(x12, y1, x2, y12);
+      rgd[id]   = d + (d == 2) - (d == 0) + (d == 3)*2 & DIRS1;
+    }
   }
 }
 
