@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: daedalus.cpp
+** Daedalus (Version 3.5) File: daedalus.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** underlying operating system.
 **
 ** Created: 11/18/1993.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 #include <stdio.h>
@@ -119,7 +119,8 @@ CONST char *rgszScript[cmdScriptLast - cmdScript01 + 1] = {
   "survmaz0.ds", "survmaz1.ds", "survmaz2.ds", "survmaz3.ds", "survmaz4.ds",
   "survmaz5.ds", "survmaz6.ds", "survmaz7.ds", "survmaz8.ds", "survmaz9.ds",
   "carletn1.ds", "carletn2.ds", "stocker.ds",  "glacier.ds",  "safari.ds",
-  "mousemaz.ds", "squared.ds",  "mandy.ds",    "pentris.ds",  "gripsox.ds"};
+  "mousemaz.ds", "squared.ds",  "mandy.ds",    "pentris.ds",  "gripsox.ds",
+  "jareth.ds"};
 CONST char *rgszShortcut[cmdScriptLast - cmdScript01 + 1] = {
   "Daedalus demos",        "Word Mazes",            "World's largest Maze",
   "4D Mazes",              "5D Mazes",              "Dragonslayer",
@@ -131,7 +132,7 @@ CONST char *rgszShortcut[cmdScriptLast - cmdScript01 + 1] = {
   "Carleton Farm Maze #1", "Carleton Farm Maze #2", "Stocker Farms Maze",
   "Glacier Maze game",     "Safari Maze",           "Mouse Maze game",
   "Survivor Squares game", "Mandelbrot set",        "Pentris",
-  "Grippy Socks"};
+  "Grippy Socks",          "Jareth's Labyrinth"};
 
 // Command lines to run on startup. When embedding a complex script file, in
 // it first delete the leading DS, then replace \ with \\, " with \", and ?
@@ -1350,6 +1351,97 @@ flag FGroundVariable(void)
 }
 
 
+// Make all ground marks in the perspective inside view have random hill
+// elevations, but also allows for areas to be forced to be a particular
+// height. Implements the GroundVariable2 operation.
+
+flag FGroundVariable2(void)
+{
+  CCol *pcElev, *pcVar, c1, c2, *c;
+  CMon *pbVar;
+  int xmax, ymax, x, y, z, d, n, n2, i, k, xT, yT;
+  flag fSav = cs.fGraphNumber;
+
+  if (dr.nMarkElev < 0)
+    dr.nMarkElev = NMax(Max(ws.ccTexture, ws.cbMask), 1);
+  if (ColmapGetTexture(dr.nMarkElev) == NULL)
+    return fFalse;
+  if (dr.nWallVar < 0)
+    dr.nWallVar = NMax(Max(ws.ccTexture, ws.cbMask) + 1, 1);
+  if (ColmapGetTexture(dr.nWallVar) == NULL)
+    return fFalse;
+  pcElev = ColmapGetTexture(dr.nMarkElev);
+  if (!pcElev->FBitmapSizeSet(bm.b.m_x, bm.b.m_y))
+    return fFalse;
+  pcVar = ColmapGetTexture(dr.nWallVar);
+  if (!pcVar->FBitmapSizeSet(bm.b.m_x, bm.b.m_y))
+    return fFalse;
+  pbVar = BitmapGetMask(dr.nWallVar);
+  if (!pbVar->FBitmapSizeSet(bm.b.m_x, bm.b.m_y))
+    return fFalse;
+  pbVar->BitmapOn();
+
+  // Generate two random height maps, like in FGroundVariable().
+  cs.fGraphNumber = fTrue;
+  for (n = 0; n < 2; n++) {
+    if (n <= 0) {
+      c = &c1; z = dr.nMarkElevY1; d = dr.nMarkElevX1;
+    } else {
+      c = &c2; z = dr.nMarkElevY2; d = dr.nMarkElevX2;
+    }
+    xmax = bm.b.m_x / d + 1; ymax = bm.b.m_y / d + 1;
+    if (!c->FBitmapSizeSet(xmax, ymax))
+      return fFalse;
+    for (y = 0; y < ymax; y++)
+      for (x = 0; x < xmax; x++)
+        c->Set(x, y, Rnd(0, z));
+    c->FBitmapZoomTo(bm.b.m_x + bm.b.m_x / (xmax-1),
+      bm.b.m_y + bm.b.m_y / (ymax-1), fTrue);
+  }
+  cs.fGraphNumber = fSav;
+
+  // Compose final elevation bitmap using both height maps.
+  for (y = 0; y < bm.b.m_y; y++)
+    for (x = 0; x < bm.b.m_x; x++) {
+      z = c1.Get(x, y) + c2.Get(x, y) + (bm.fColor ? bm.k.Get(x, y) : 0);
+      if (bm.fColor && !bm.k2.FNull()) {
+        // If forced height bitmap present, use values from it instead.
+        n = bm.k2.Get(x, y);
+        if (n > 0) {
+          // If forced height present, use that value.
+          z = n;
+        } else {
+          // If near a forced height, blend current height with it.
+          for (k = 1; k <= 6; k++)
+            for (d = 0; d < DIRS; d++) {
+              xT = x + k*xoff2[d + DIRS]/2; yT = y + k*yoff2[d + DIRS]/2;
+              for (i = 0; i < k*2; i++) {
+                n2 = bm.k2.Get(xT, yT);
+                if (n2 > 0) {
+                  z = n2 + (z - n2) * k / 7;
+                  goto LFound;
+                }
+                xT -= xoff[d]; yT -= yoff[d];
+              }
+            }
+        }
+      }
+LFound:
+      pcElev->Set(x, y, NMin(z, 4095));
+    }
+
+  // Set variable height walls on top of the hills.
+  for (y = 0; y < bm.b.m_y; y++)
+    for (x = 0; x < bm.b.m_x; x++) {
+      z = pcElev->Get(x, y);
+      n = pcVar->Get(x, y);
+      n2 = UdD(n); n = UdU(n);
+      pcVar->Set(x, y, UD(Min(z + n, 4095), Min(z + n2, 4095)));
+    }
+  return fTrue;
+}
+
+
 // Convert a formatted range of characters to a string ready to display,
 // translating character sequences as appropriate. This is used by the
 // various Message and SetString operations.
@@ -1967,7 +2059,8 @@ flag FHitWall(int x, int y, int z, int *pzElev)
 
   // Check the wall's height, and if dot can step on top of or under it.
   if (FGetWallVar(x, y, z, &zEl, &zLo, &zHi)) {
-    if ((dr.zElev + dr.zWall) >> 1 < zLo - zEl && dr.zElev < zHi - dr.zElev)
+    // If dot can pass under the wall, the wall effectively doesn't exist.
+    if (dr.zElev + (dr.zWall >> 1) < zLo)
       zHi = zEl;
   } else
     zHi = 0;
@@ -2087,7 +2180,7 @@ void DotMove(int wCmd)
   CVector v;
   int nInside = dr.nInside, xold, yold, zold, dold, eold, dnew,
     xsav, ysav, zsav, xcur, ycur, zcur, dcur, din, xinold, yinold, zinold,
-    xmax, ymax, dmov, nDot, cMove, zEl, zLo, zHi, i;
+    zElevOld = dr.zElev, xmax, ymax, dmov, nDot, cMove, zEl, zLo, zHi, i;
   long xin, yin;
   flag fMove, fBreak, fT;
 
@@ -2511,9 +2604,10 @@ LNormal:
     // Update the screen.
     if (dr.fInside && nInside == nInsideSmooth &&
       NDistance(dr.x, xold, xmax) + NDistance(dr.y, yold, ymax) +
-      NDistance(dr.z, zold, bm.b.m_z3) <= 2)
+      NDistance(dr.z, zold, bm.b.m_z3) <= 2) {
+      dr.zElev = zElevOld;
       DotSmoothAnimate(wCmd, xold, yold, zold, dold);
-    else if (ws.fNoDirty)
+    } else if (ws.fNoDirty)
       SystemHook(hosRedraw);
 
     // If Follow Passages set, keep moving forward until the next junction.

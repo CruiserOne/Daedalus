@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: command.cpp
+** Daedalus (Version 3.5) File: command.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** execute macros and script files.
 **
 ** Created: 11/26/2001.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 #include <stdio.h>
@@ -447,6 +447,7 @@ CONST CMD rgcmd[ccmd] = {
 {cmdScript28,              "Script28",        "ac8",  0},
 {cmdScript29,              "Script29",        "ac9",  0},
 {cmdScript30,              "Script30",        "ac0",  0},
+{cmdScript31,              "Script31",        "ac!",  0},
 {cmdScrollDown,            "ScrollDown",      "aPgDn",R2},
 {cmdScrollEnd,             "ScrollEnd",       "aEnd", R2},
 {cmdScrollHome,            "ScrollHome",      "aHome",R2},
@@ -554,6 +555,7 @@ enum _operationindex {
   oprOpen3D,
   oprOpenDB,
   oprOpenScript,
+  oprOpenScript2,
   oprOpenTarga,
   oprOpenPaint,
   oprOpenWire,
@@ -723,6 +725,7 @@ enum _operationindex {
   oprMandelbrot,
   oprMandelbrotG,
   oprContrast,
+  oprGroundVar,
   oprHunger,
   oprSystem,
   oprSetup,
@@ -741,6 +744,7 @@ CONST OPR rgopr[copr] = {
 {oprOpen3D,      "Open3D",        1, SZ | R2 |      B2 | M3},
 {oprOpenDB,      "OpenDB",        1, SZ | R2},
 {oprOpenScript,  "OpenScript",    1, SZ},
+{oprOpenScript2, "OpenScript2",   1, SZ},
 {oprOpenTarga,   "OpenTarga",     1, SZ | R2 |      C2},
 {oprOpenPaint,   "OpenPaint",     1, SZ | R2 |      C2},
 {oprOpenWire,    "OpenWire",      1, SZ},
@@ -910,6 +914,7 @@ CONST OPR rgopr[copr] = {
 {oprMandelbrot,  "Mandelbrot",    5, R2 | HG | C2},
 {oprMandelbrotG, "MandelbrotGet", 0, 0},
 {oprContrast,    "Contrast",      0, R2 | HG},
+{oprGroundVar,   "GroundVar2",    0, R2 | HG | C2},
 {oprHunger,      "Hunger",        1, 0},
 {oprSystem,      "System",        1, 0},
 {oprSetup,       "Setup",         0, 0},
@@ -2808,7 +2813,7 @@ long EvalFunction(int ifun, char *rgsz[], CONST int *rgcch, CONST long *rgl)
     PchGetParameter(sz, NULL, NULL, (long *)&n, 1);
     break;
   case funEvent:  n = NGetVariableW(n1 ? vosEventMouse : vosEventKey); break;
-  case funVer:    n = 3400;                           break;  // Daedalus 3.4
+  case funVer:    n = 3500;                           break;  // Daedalus 3.5
 
   case funFileOpen:
     CopyRgchToSz(rgsz[0], rgcch[0], sz, cchSzMax);
@@ -3072,6 +3077,10 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
     break;
   case oprOpenScript:
     FFileOpen(cmdOpenScript, sz, NULL);
+    break;
+  case oprOpenScript2:
+    FFileOpen(cmdOpenScript, sz, NULL);
+    nRet = nRetHalt;
     break;
   case oprOpenTarga:
     FFileOpen(cmdOpenColmapTarga, sz, NULL);
@@ -4078,6 +4087,9 @@ int DoOperation(int iopr, char **rgsz, CONST int *rgcch, CONST long *rgl,
       bm.b.FBitmapAccentContrast(!dr.fNoCorner);
     else
       bm.k.FColmapAccentContrast(!dr.fNoCorner);
+    break;
+  case oprGroundVar:
+    FGroundVariable2();
     break;
   case oprHunger:
     FHungerGame(n1);
@@ -6167,7 +6179,7 @@ long ParseExpression(char *sz)
 
 int RunCommandLine(char *szLine, FILE *file)
 {
-  char szCmd[cchSzDef], szT[cchSzDef*2];
+  char szCmd[cchSzDef], szT[cchSzMax];
   char *pchCur, *pchCmd, ch;
   int cchCmd, icmd, iopr, ivar;
   char *rgsz[7], *sz;

@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: labyrnth.cpp
+** Daedalus (Version 3.5) File: labyrnth.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains unicursal Labyrinth creation algorithms.
 **
 ** Created: 7/12/2009.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 #include <stdio.h>
@@ -922,6 +922,7 @@ flag CMaz::CreateLabyrinthChartres()
 
 
 CONST char *szClassical = "3214765";
+CONST char *szPerfect = "349852167";
 
 // Copy a range of characters to a string that's valid for the Custom Paths
 // Labyrinth field, translating if needed.
@@ -943,6 +944,7 @@ flag FCopyRgchToSzCustom(CONST char *pch, int cch, char *sz)
   loop {
 
     // Translate "=Classical" to the classical 7 circuit Labyrinth
+    // Translate "=Perfect" to the perfect 9 circuit Labyrinth
     // Translate "'X" to simple circuit sequence (offset to current position)
     // Translate "=X" to "123...X" for the first/simplest X circuit Labyrinth
     // Translate "=-X" to "X...321" for the last X circuit Labyrinth
@@ -952,6 +954,10 @@ flag FCopyRgchToSzCustom(CONST char *pch, int cch, char *sz)
       nMode = 3;
       n = 7;
       pch += 9;
+    } else if (FCompareSzRgchI("Perfect", pch, 7)) {
+      nMode = 4;
+      n = 9;
+      pch += 7;
     } else if (*pch == '\'') {
       nMode = 2;
       for (n = 0, pch++; FDigitCh(*pch); n++, pch++)
@@ -971,7 +977,9 @@ flag FCopyRgchToSzCustom(CONST char *pch, int cch, char *sz)
     if ((n <= 0 && *pch != '0') || iBase + n > iCircuitMax)
       return fFalse;
     for (ich = 0; ich < n; ich++) {
-      if (nMode == 3)
+      if (nMode == 4)
+        nT = szPerfect[ich] - '1';
+      else if (nMode == 3)
         nT = szClassical[ich] - '1';
       else if (nMode == 2)
         nT = pch[ich-n] - '1';

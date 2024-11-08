@@ -66,6 +66,8 @@ BEGIN
             MENUITEM "&Mandelbrot Set Fractal\tAlt+Ctrl+8", cmdScript28
             MENUITEM "P&entris Game\tAlt+Ctrl+9",   cmdScript29
             MENUITEM "Gr&ippy Socks\tAlt+Ctrl+0",   cmdScript30
+            MENUITEM SEPARATOR
+            MENUITEM "&Jareth's Labyrinth\tAlt+Ctrl+!", cmdScript31
         END
         MENUITEM SEPARATOR
         MENUITEM "Open &Bitmap...\tAlt+o",      cmdOpenBitmap
@@ -819,13 +821,13 @@ BEGIN
     ICON            icon2,IDC_STATIC,172,4,20,20
     ICON            icon3,IDC_STATIC,196,4,20,20
     LTEXT           "",ds1,4,4,135,8
-    LTEXT           "Created November 1993 - August 2023",IDC_STATIC,4,12,139,8
+    LTEXT           "Created November 1993 - October 2024",IDC_STATIC,4,12,139,8
     LTEXT           "By Walter D. Pullen (Astara@msn.com)",IDC_STATIC,4,20,135,8
     LTEXT           "Daedalus Website: http://www.astrolog.org/labyrnth.htm",IDC_STATIC,4,28,211,8
     LTEXT           "Website mirror: http://www.magitech.com/astrolog/labyrnth.htm",IDC_STATIC,4,36,211,8
     LTEXT           "IMPORTANT NOTICE: Daedalus and all Maze generation and",IDC_STATIC,4,52,212,8
     LTEXT           "general graphics routines used in this program are Copyright (C)",IDC_STATIC,4,60,212,8
-    LTEXT           "1998-2023 by Walter D. Pullen. Permission is granted to freely",IDC_STATIC,4,68,212,8
+    LTEXT           "1998-2024 by Walter D. Pullen. Permission is granted to freely",IDC_STATIC,4,68,212,8
     LTEXT           "use, modify, and distribute these routines provided these credits",IDC_STATIC,4,76,212,8
     LTEXT           "and notices remain with any altered or distributed versions of the",IDC_STATIC,4,84,212,8
     LTEXT           "program. The user does have all rights to Mazes and other output",IDC_STATIC,4,92,215,8
@@ -1612,6 +1614,7 @@ BEGIN
     "1",            cmdJump1,               VIRTKEY, SHIFT, NOINVERT
     "1",            cmdSize16,              VIRTKEY, SHIFT, CONTROL, NOINVERT
     "1",            cmdScript11,            VIRTKEY, SHIFT, ALT, NOINVERT
+    "1",            cmdScript31,            VIRTKEY, SHIFT, CONTROL, ALT, NOINVERT
     "2",            cmdMove2,               VIRTKEY, NOINVERT
     "2",            cmdGoOut,               VIRTKEY, CONTROL, NOINVERT
     "2",            cmdScript02,            VIRTKEY, ALT, NOINVERT
@@ -1923,8 +1926,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,4,0,0
- PRODUCTVERSION 3,4,0,0
+ FILEVERSION 3,5,0,0
+ PRODUCTVERSION 3,5,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1940,13 +1943,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "astrolog.org"
-            VALUE "FileDescription", "Daedalus 3.4 for Windows"
-            VALUE "FileVersion", "3, 4, 0, 0"
+            VALUE "FileDescription", "Daedalus 3.5 for Windows"
+            VALUE "FileVersion", "3, 5, 0, 0"
             VALUE "InternalName", "Daedalus"
-            VALUE "LegalCopyright", "Copyright (c) 2023"
+            VALUE "LegalCopyright", "Copyright (c) 2024"
             VALUE "OriginalFilename", "daedalus.exe"
             VALUE "ProductName", "Daedalus"
-            VALUE "ProductVersion", "3, 4, 0, 0"
+            VALUE "ProductVersion", "3, 5, 0, 0"
         END
     END
     BLOCK "VarFileInfo"

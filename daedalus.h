@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: daedalus.h
+** Daedalus (Version 3.5) File: daedalus.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains system independent definitions for Daedalus as a whole.
 **
 ** Created: 11/22/1993.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 
@@ -34,7 +34,7 @@
 */
 
 #define szDaedalus "Daedalus"
-#define szVersion "3.4"
+#define szVersion "3.5"
 #define cchSzMaxFile 128
 #define cchSzOpr (cchSzMax*4)
 #define cMacro 48
@@ -45,11 +45,11 @@
 #define szFileTempCore "daedalus.tmp"
 
 #define icmdBase 1001
-#define cmdScriptLast cmdScript30
+#define cmdScriptLast cmdScript31
 #define cmdSizeLast cmdSize19
 #define iActionMax ccmd
-#define ccmd 469
-#define copr 181
+#define ccmd 470
+#define copr 183
 #define cvar 328
 #define cfun 125
 
@@ -634,6 +634,7 @@ flag FTextureGround(flag, int, bit);
 flag FTextureCeiling(void);
 flag FWallVariable(int);
 flag FGroundVariable(void);
+flag FGroundVariable2(void);
 void FormatRgchToSz(CONST char *, int, char *, int);
 void DotTemp(int, int, int);
 void DotZap(int, int);

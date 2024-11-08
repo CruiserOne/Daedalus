@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: draw.cpp
+** Daedalus (Version 3.5) File: draw.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** Mazes.
 **
 ** Created: 6/15/1990.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 #include <stdio.h>
@@ -1273,7 +1273,7 @@ void WriteWireframeMetafile(FILE *file, CONST COOR *coor, long ccoor)
   MetaLong(14);                           // Bytes in string
   MetaLong(LFromBB('D', 'a', 'e', 'd'));  // "Daed"
   MetaLong(LFromBB('a', 'l', 'u', 's'));  // "alus"
-  MetaLong(LFromBB(' ', '3', '.', '4'));  // " 3.4"
+  MetaLong(LFromBB(' ', '3', '.', '5'));  // " 3.5"
   MetaWord(WFromBB('0', 0));              // "0"
   MetaSaveDc();
   MetaWindowOrg(xmin, ymin);

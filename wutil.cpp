@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: wutil.cpp
+** Daedalus (Version 3.5) File: wutil.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -23,7 +23,7 @@
 ** This file contains Windows specific utilities and operations for Daedalus.
 **
 ** Created: 11/16/2002.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 #include <windows.h>
@@ -569,6 +569,7 @@ flag FCreateProgramGroup(flag fAll)
   DeleteShortcut(szDir, "Daedalus 3.1");
   DeleteShortcut(szDir, "Daedalus 3.2");
   DeleteShortcut(szDir, "Daedalus 3.3");
+  DeleteShortcut(szDir, "Daedalus 3.4");
   DeleteShortcut(szDir, "Daedalus homepage");   // Now Daedalus website
   DeleteShortcut(szDir, "Carleton Farm Maze");  // Now Carleton Farm Maze #1
 

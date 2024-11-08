@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: graphics.h
+** Daedalus (Version 3.5) File: graphics.h
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** on a monochrome bitmap, unrelated to Mazes.
 **
 ** Created: 7/1/1993.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 /*

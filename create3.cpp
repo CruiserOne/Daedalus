@@ -1,9 +1,9 @@
 /*
-** Daedalus (Version 3.4) File: create3.cpp
+** Daedalus (Version 3.5) File: create3.cpp
 ** By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 **
 ** IMPORTANT NOTICE: Daedalus and all Maze generation and general
-** graphics routines used in this program are Copyright (C) 1998-2023 by
+** graphics routines used in this program are Copyright (C) 1998-2024 by
 ** Walter D. Pullen. Permission is granted to freely use, modify, and
 ** distribute these routines provided these credits and notices remain
 ** unmodified with any altered or distributed versions of the program.
@@ -24,7 +24,7 @@
 ** produce non-orthogonal Mazes.
 **
 ** Created: 9/4/2000.
-** Last code change: 8/29/2023.
+** Last code change: 10/30/2024.
 */
 
 #include <stdio.h>
@@ -197,7 +197,7 @@ void Generic::CreateMazeGeneral()
   // Use the Hunt and Kill algorithm to create the generic Maze.
   } else {
     loop {
-  LNext:
+LNext:
       count = NCount(area);
       dir = Rnd(0, count-1);
       for (d = ms.fRiver || fHunt ? count : 1; d > 0; d--) {
@@ -251,9 +251,9 @@ void Generic::GenerateWireframe()
   for (area = 0; !FIsOnMaze(area) || !FIsRoom(area); area = LNext(area))
     ;
   hunt = area;
-  loop {
+  do {
     if (!FIsOnMaze(area) || !FIsRoom(area))
-      continue;
+      goto LNext;
     count = NCount(area);
     for (d = 0; d < count; d++) {
       test = LEnum(area, d);
@@ -264,10 +264,9 @@ void Generic::GenerateWireframe()
         WireframeLine(x1, y1, x2, y2);
       }
     }
+LNext:
     area = LNext(area);
-    if (area == hunt)
-      break;
-  }
+  } while (area != hunt);
   WireframeOpening();
   PrintSzN("Total number of edges generated: %d",
     InitCoorPatch(ms.nOmegaDraw == 2, 0));
