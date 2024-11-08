@@ -1,4 +1,4 @@
-# Daedalus 3.4
+# Daedalus 3.5
 This is a copy of the "official" version of Daedalus 3.5 (released Oct 31, 2024) described at: http://www.astrolog.org/labyrnth/daedalus.htm
 
 The files here were copied from: http://www.astrolog.org/labyrnth/daedalus/dae35zip.zip
