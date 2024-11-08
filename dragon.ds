@@ -1,5 +1,5 @@
 DS
-// Dragonslayer - A script file for Daedalus 3.4
+// Dragonslayer - A script file for Daedalus 3.5
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 // Documentation for this script: http://www.astrolog.org/labyrnth/daedalus/dragon.htm
 
@@ -99,7 +99,7 @@ DefineMacro 24 "$0 'You die...' Macro45 If And Gt @r 0 Equ Var Add 450 Var Add 2
 DefineMacro 25 "Spc fPauseTimer True @w nMoveCount @z Timer @x Div @z 60 @y Mod @z 60" "End Game"
 DefineMacro 26 "fRedrawWhenBitmapEdited False @k Inc @k @z Add 100 @v SetString 0 'You kill the $z!' Macro45 @p Add @p Pow Var Add 230 @v 2 While (Gte @p @n) {Macro27} Macro32 fRedrawWhenBitmapEdited True If Equ @v 4 {Macro28}" "Kill Monster"
 DefineMacro 27 "@l Inc @l @j Min Inc @j 20 @m Add @m 5 @h Add @h 5 @n Pow 2 Mod Dec @l 4 If Equ @n 8 {@n Dec @n} @n Mul @n Pow 10 Inc Div Dec @l 4 SetString 0 'Welcome to experience level @l!' Macro45" "Gain Level"
-DefineMacro 28 "$0 'Congratulations, you have finished Dragonslayer!' Macro45 Macro25 Message 'Congratulations, you slayed the Dragon! :-)\nYou won after @w moves, in @x minutes, @y seconds.\n\nYou are hailed as a hero throughout the land. The king makes you\nCaptain of the Guard, and gives you more gold than you know what\nto do with. It's just cool being you!'" "Win Game"
+DefineMacro 28 "$0 'Congratulations, you have finished Dragonslayer!' Macro45 Macro25 Message 'Congratulations, you slayed the Dragon! :-)\nYou won after @w moves, in @x minutes, @y seconds.\n\nYou are hailed as a hero throughout the land. The king makes you Captain of the Guard, and gives you more gold than you know what to do with. It's just cool being you!'" "Win Game"
 
 // Dungeon creation and editing
 DefineMacro 29 "@t 0 fShowColorBitmap False f3D True fSealedEntrances Gt @e 1 IfElse And Gt @e 10 Lt @e 20 {IfElse Gt @e 15 'nFogDistance 75 k3DCeiling2 Black kGround2 Black' 'nFogDistance 125 k3DCeiling2 Dark k3DCeiling kGround2 Dark kGround'} {nFogDistance 175 k3DCeiling2 -1 kGround2 -1} AllClear = \ Quo Dungeon ?: Or Equ @e 10 Equ @e 20 1 ?: Equ @e 15 0 10 3 8 ?: Lte @e 1 0 45 Add Mul Lte @e 1 10 Gte @e 20 @x nX @y nY nX 0 nY Mul 32 Gt @e 1 CopyTexture -1 39 CopyTexture -1 40 nX2 31 nY2 Add nY 31 ag Replace Gray LtGray 0 _ SetC @x @y Blue CopyTexture -1 41 + nX @x nY @y g @z ?: And Neq @e 5 Neq @e 20 1 3 Replace Red NWSE @z @z @z @z 0 @z ?: Neq @e 5 2 4 @53 @z Replace LtGray NWSE @z @z @z @z 0 Replace Green NWSE 5 5 5 5 0 CopyTexture -1 0 + Replace Red ?: And Neq @e 5 Neq @e 20 Var Add 54 Mod @e 5 Light Cyan 0 Replace LtGray ?: Neq @e 5 Gray DkGreen 0 Replace Green Light Brown 0 = Macro30 Macro36" "New Dungeon"

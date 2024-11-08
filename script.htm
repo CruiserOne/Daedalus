@@ -2,7 +2,7 @@
 
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<title>Daedalus 3.4 Scripting</title>
+<title>Daedalus 3.5 Scripting</title>
 
 <style>
 <!--
@@ -16,9 +16,8 @@
  /* Style Definitions */
  p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{margin:0in;
-	margin-bottom:.0001pt;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 h1
 	{margin-top:12.0pt;
 	margin-right:0in;
@@ -26,7 +25,7 @@ h1
 	margin-left:0in;
 	page-break-after:avoid;
 	font-size:16.0pt;
-	font-family:"Arial","sans-serif";}
+	font-family:"Arial",sans-serif;}
 a:link, span.MsoHyperlink
 	{color:blue;
 	text-decoration:underline;}
@@ -35,7 +34,6 @@ a:visited, span.MsoHyperlinkFollowed
 	text-decoration:underline;}
 p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
 	{margin:0in;
-	margin-bottom:.0001pt;
 	font-size:10.0pt;
 	font-family:"Courier New";}
 p.A, li.A, div.A
@@ -46,14 +44,13 @@ p.A, li.A, div.A
 	margin-bottom:10.0pt;
 	margin-left:0in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.ACharChar
 	{mso-style-name:"A Char Char";
 	mso-style-link:A;}
 p.Fixed, li.Fixed, div.Fixed
 	{mso-style-name:Fixed;
 	margin:0in;
-	margin-bottom:.0001pt;
 	font-size:12.0pt;
 	font-family:"Courier New";}
 p.Section, li.Section, div.Section
@@ -67,7 +64,7 @@ p.Section, li.Section, div.Section
 	border:none;
 	padding:0in;
 	font-size:16.0pt;
-	font-family:"Arial","sans-serif";
+	font-family:"Arial",sans-serif;
 	font-weight:bold;}
 p.Item, li.Item, div.Item
 	{mso-style-name:Item;
@@ -75,10 +72,9 @@ p.Item, li.Item, div.Item
 	margin-right:0in;
 	margin-bottom:0in;
 	margin-left:.5in;
-	margin-bottom:.0001pt;
 	text-indent:-.25in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 p.B, li.B, div.B
 	{mso-style-name:B;
 	mso-style-link:"B Char Char";
@@ -87,7 +83,7 @@ p.B, li.B, div.B
 	margin-bottom:10.0pt;
 	margin-left:.5in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.BCharChar
 	{mso-style-name:"B Char Char";
 	mso-style-link:B;}
@@ -132,7 +128,7 @@ ul
 
 </head>
 
-<body lang=EN-US link=blue vlink=purple>
+<body lang=EN-US link=blue vlink=purple style='word-wrap:break-word'>
 
 <div class=WordSection1>
 
@@ -163,7 +159,7 @@ style='background:silver'>D</span>  <span style='background:silver'>A</span>    
 style='background:silver'>D</span>  <span style='background:silver'>AAAAAAA</span> 
 <span style='background:silver'>EEEEEE</span>   <span style='background:silver'>D</span>    
 <span style='background:silver'>D</span>  <span style='background:silver'>AAAAAAA</span> 
-<span style='background:silver'>L</span>        <span style='background:silver'>U</span>    
+<span style='background:silver'>L</span>        <span style='background:silver'>U</span>    
 <span style='background:silver'>U</span>   <span style='background:silver'>SSSSS</span></p>
 
 <p class=Fixed><span style='background:silver'>D</span>     <span
@@ -192,7 +188,7 @@ style='background:silver'>A</span>     <span style='background:silver'>A</span> 
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>                         **  VERSION  3.4  **</p>
+<p class=Fixed>                         **  VERSION  3.5  **</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -327,13 +323,14 @@ Subtract(4, 3))” or “(1 + 2) x (4 - 3)”.</p>
 or variable. All parameters or variables contain either numbers or strings.
 Numbers are signed 32 bit integers. Boolean values are no different from
 numbers, where False is represented by 0, and True is represented by 1 or any
-non-zero number. Colors are simply 24 bit numbers that represent the RGB parts of the color, where the high 8 bits contain the red part, the middle 8 bits contain the
-green part, and the low 8 bits contain the blue part. File handles are stored
-in numbers as well. There are no floating point numbers, where dialog variables
-that take floating point numbers are covered by integers with an assumed
-decimal point, where the low digits represent the fractional part, e.g. “1.25”
-in the dialog translates to 125, “2.5” in the dialog translates to 250, and so
-on.</p>
+non-zero number. Colors are simply 24 bit numbers that represent the RGB
+parts of the color, where the high 8 bits contain the red part, the middle 8
+bits contain the green part, and the low 8 bits contain the blue part. File
+handles are stored in numbers as well. There are no floating point numbers,
+where dialog variables that take floating point numbers are covered by integers
+with an assumed decimal point, where the low digits represent the fractional
+part, e.g. “1.25” in the dialog translates to 125, “2.5” in the dialog
+translates to 250, and so on.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -368,7 +365,8 @@ DlgOpen               o</p>
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>File / Run Script / Demos                    Script1               a1</p>
+<p class=Fixed>File / Run Script / Demos                   
+Script1               a1</p>
 
 <p class=Fixed>File / Run Script / Word Mazes              
 Script2               a2</p>
@@ -379,8 +377,8 @@ Script3               a3</p>
 <p class=Fixed>File / Run Script / 4D Mazes                
 Script4               a4</p>
 
-<p class=Fixed>File / Run Script / 5D Mazes                 Script5              
-a5</p>
+<p class=Fixed>File / Run Script / 5D Mazes                
+Script5               a5</p>
 
 <p class=Fixed>File / Run Script / Dragonslayer Game       
 Script6               a6</p>
@@ -400,7 +398,8 @@ Script11              a!</p>
 <p class=Fixed>File / Run Script / Survivor Maze #2        
 Script12              a@</p>
 
-<p class=Fixed>File / Run Script / Survivor Maze #3         Script13              a#</p>
+<p class=Fixed>File / Run Script / Survivor Maze #3        
+Script13              a#</p>
 
 <p class=Fixed>File / Run Script / Survivor Maze #4        
 Script14              a$</p>
@@ -432,7 +431,8 @@ ac2</p>
 <p class=Fixed>File / Run Script / Stocker Farms Maze       Script23             
 ac3</p>
 
-<p class=Fixed>File / Run Script / Glacier Maze             Script24              ac4</p>
+<p class=Fixed>File / Run Script / Glacier Maze             Script24             
+ac4</p>
 
 <p class=Fixed>File / Run Script / Safari Maze              Script25             
 ac5</p>
@@ -451,6 +451,9 @@ ac9</p>
 
 <p class=Fixed>File / Run Script / Grippy Socks             Script30             
 ac0</p>
+
+<p class=Fixed>File / Run Script / Jareth's Labyrinth       Script31             
+ac!</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -511,8 +514,8 @@ DlgSaveBitmap         w</p>
 <p class=Fixed>File / File Settings...                     
 DlgFile               af</p>
 
-<p class=Fixed>File / Open Documentation                    Documentation        
-)</p>
+<p class=Fixed>File / Open Documentation                   
+Documentation         )</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -523,7 +526,7 @@ Documentation         )</p>
 
 <p class=Fixed>File / More Help / Open Changes              HelpChange</p>
 
-<p class=Fixed>File / More Help / Open License              HelpLicense</p>
+<p class=Fixed>File / More Help / Open License              HelpLicense</p>
 
 <p class=Fixed>File / More Help / Open Website              Web</p>
 
@@ -546,8 +549,8 @@ Documentation         )</p>
 <p class=Fixed>File / About Daedalus...                    
 About                 a0</p>
 
-<p class=Fixed>File / Exit                                  Exit                 
-Esc</p>
+<p class=Fixed>File / Exit                                 
+Exit                  Esc</p>
 
 <p class=Section2>********************  Edit Menu  ********************</p>
 
@@ -582,8 +585,8 @@ Macro4                F4</p>
 <p class=Fixed>Edit / Macros / Run Macro / Macro 5         
 Macro5                F5</p>
 
-<p class=Fixed>Edit / Macros / Run Macro / Macro 6          Macro6               
-F6</p>
+<p class=Fixed>Edit / Macros / Run Macro / Macro 6         
+Macro6                F6</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 7         
 Macro7                F7</p>
@@ -604,7 +607,7 @@ Macro11               F11</p>
 Macro12               F12</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 13        
-Macro13               sF1</p>
+Macro13               sF1</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 14        
 Macro14               sF2</p>
@@ -615,8 +618,8 @@ Macro15               sF3</p>
 <p class=Fixed>Edit / Macros / Run Macro / Macro 16        
 Macro16               sF4</p>
 
-<p class=Fixed>Edit / Macros / Run Macro / Macro 17         Macro17              
-sF5</p>
+<p class=Fixed>Edit / Macros / Run Macro / Macro 17        
+Macro17               sF5</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 18        
 Macro18               sF6</p>
@@ -636,8 +639,8 @@ Macro22               sF10</p>
 <p class=Fixed>Edit / Macros / Run Macro / Macro 23        
 Macro23               sF11</p>
 
-<p class=Fixed>Edit / Macros / Run Macro / Macro 24         Macro24              
-sF12</p>
+<p class=Fixed>Edit / Macros / Run Macro / Macro 24        
+Macro24               sF12</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 25        
 Macro25               cF1</p>
@@ -657,8 +660,8 @@ Macro29               cF5</p>
 <p class=Fixed>Edit / Macros / Run Macro / Macro 30        
 Macro30               cF6</p>
 
-<p class=Fixed>Edit / Macros / Run Macro / Macro 31         Macro31            
-  cF7</p>
+<p class=Fixed>Edit / Macros / Run Macro / Macro 31        
+Macro31               cF7</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 32        
 Macro32               cF8</p>
@@ -690,8 +693,8 @@ Macro40               aF4</p>
 <p class=Fixed>Edit / Macros / Run Macro / Macro 41        
 Macro41               aF5</p>
 
-<p class=Fixed>Edit / Macros / Run Macro / Macro 42         Macro42              
-aF6</p>
+<p class=Fixed>Edit / Macros / Run Macro / Macro 42        
+Macro42               aF6</p>
 
 <p class=Fixed>Edit / Macros / Run Macro / Macro 43        
 Macro43               aF7</p>
@@ -739,8 +742,8 @@ Viewport+1            }</p>
 <p class=Fixed>Edit / Cell Viewport Span / Decrease By 10  
 Viewport-10           [</p>
 
-<p class=Fixed>Edit / Cell Viewport Span / Increase By 10   Viewport+10          
-]</p>
+<p class=Fixed>Edit / Cell Viewport Span / Increase By 10  
+Viewport+10           ]</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -751,8 +754,8 @@ WindowFull            sTab</p>
 
 <p class=Fixed>Edit / Window / Size Bitmap To Window        SizeWindow</p>
 
-<p class=Fixed>Edit / Window / Update Window                Update               
-n</p>
+<p class=Fixed>Edit / Window / Update Window               
+Update                n</p>
 
 <p class=Fixed>Edit / Window / Redraw Window               
 Redraw                Spc</p>
@@ -774,8 +777,8 @@ aEnd</p>
 <p class=Fixed>Edit / Set Colors...                        
 DlgColors             ck</p>
 
-<p class=Fixed>Edit / Ignore Messages                       IgnoreMessage        
-?</p>
+<p class=Fixed>Edit / Ignore Messages                      
+IgnoreMessage         ?</p>
 
 <p class=Fixed>Edit / Query Timer                          
 TimerQuery            t</p>
@@ -786,8 +789,8 @@ TimerReset            ct</p>
 <p class=Fixed>Edit / Pause Timer                          
 TimerPause            p</p>
 
-<p class=Fixed>Edit / Random Settings...                    DlgRandom            
-ar</p>
+<p class=Fixed>Edit / Random Settings...                   
+DlgRandom             ar</p>
 
 <p class=Fixed>Edit / Randomize Seed                       
 Randomize             cr</p>
@@ -820,7 +823,8 @@ MoveUL                7</p>
 <p class=Fixed>Dot / Move Dot / Up                         
 MoveU                 8</p>
 
-<p class=Fixed>Dot / Move Dot / Up Right                    MoveUR                9</p>
+<p class=Fixed>Dot / Move Dot / Up Right                   
+MoveUR                9</p>
 
 <p class=Fixed>Dot / Move Dot / Raise                      
 MoveRaise             u</p>
@@ -833,8 +837,8 @@ d</p>
 <p class=Fixed>Dot / Move Relative / Forward               
 MoveForward           cf</p>
 
-<p class=Fixed>Dot / Move Relative / Back                   MoveBack             
-cb</p>
+<p class=Fixed>Dot / Move Relative / Back                  
+MoveBack              cb</p>
 
 <p class=Fixed>Dot / Move Relative / Turn Around           
 Around                ca</p>
@@ -854,7 +858,8 @@ cn</p>
 <p class=Fixed>Dot / Move Relative / South                  MoveSouth            
 cs</p>
 
-<p class=Fixed>Dot / Move Relative / West                   MoveWest              cw</p>
+<p class=Fixed>Dot / Move Relative / West                   MoveWest             
+cw</p>
 
 <p class=Fixed>Dot / Move Relative / East                   MoveEast             
 ce</p>
@@ -867,8 +872,8 @@ JumpDL                !</p>
 <p class=Fixed>Dot / Jump Dot / Down                       
 JumpD                 @</p>
 
-<p class=Fixed>Dot / Jump Dot / Down Right                  JumpDR               
-#</p>
+<p class=Fixed>Dot / Jump Dot / Down Right                 
+JumpDR                #</p>
 
 <p class=Fixed>Dot / Jump Dot / Left                       
 JumpL                 $</p>
@@ -890,7 +895,8 @@ JumpUR                (</p>
 <p class=Fixed>Dot / Teleport Dot / UL Corner              
 GoUL                  c7</p>
 
-<p class=Fixed>Dot / Teleport Dot / UR Corner               GoUR                  c9</p>
+<p class=Fixed>Dot / Teleport Dot / UR Corner              
+GoUR                  c9</p>
 
 <p class=Fixed>Dot / Teleport Dot / LL Corner              
 GoLL                  c1</p>
@@ -901,8 +907,8 @@ GoLR                  c3</p>
 <p class=Fixed>Dot / Teleport Dot / Entrance               
 GoEntrance            c8</p>
 
-<p class=Fixed>Dot / Teleport Dot / Exit                    GoExit               
-c2</p>
+<p class=Fixed>Dot / Teleport Dot / Exit                   
+GoExit                c2</p>
 
 <p class=Fixed>Dot / Teleport Dot / Left Entrance          
 GoEntrance2           c4</p>
@@ -924,7 +930,8 @@ Go2nd                 cg</p>
 <p class=Fixed>Dot / Show Dot                              
 DotShow               .</p>
 
-<p class=Fixed>Dot / Walls Impassable                       DotWall               ,</p>
+<p class=Fixed>Dot / Walls Impassable                      
+DotWall               ,</p>
 
 <p class=Fixed>Dot / Move By Two                           
 DotTwo                e</p>
@@ -935,8 +942,8 @@ DotDrag               a</p>
 <p class=Fixed>Dot / Drag Is Erase                         
 DotErase              c</p>
 
-<p class=Fixed>Dot / Drag Big Dot                           DotBig               
-b</p>
+<p class=Fixed>Dot / Drag Big Dot                          
+DotBig                b</p>
 
 <p class=Fixed>Dot / Drag By Two                           
 DotDragTwo            f</p>
@@ -970,7 +977,8 @@ ZapUntrans            cy</p>
 
 <p class=Fixed>Dot / 2nd Dot / Draw Circle                  2ndCircle</p>
 
-<p class=Fixed>Dot / 2nd Dot / Get Section                  2ndGet                ag</p>
+<p class=Fixed>Dot / 2nd Dot / Get Section                 
+2ndGet                ag</p>
 
 <p class=Fixed>Dot / 2nd Dot / Put At Dot                  
 2ndPut                aG</p>
@@ -992,7 +1000,8 @@ InsideMap             :</p>
 <p class=Fixed>Dot / Mark 'X' At Dot                       
 MarkX                 x</p>
 
-<p class=Fixed>Dot / Erase 'X' At Dot                       EraseX                y</p>
+<p class=Fixed>Dot / Erase 'X' At Dot                      
+EraseX                y</p>
 
 <p class=Fixed>Dot / Inside Settings...                    
 DlgInside             q</p>
@@ -1004,7 +1013,8 @@ DlgSize               s</p>
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>Bitmap / Common Sizes / 32 x 16              SizeA                 cA</p>
+<p class=Fixed>Bitmap / Common Sizes / 32 x 16             
+SizeA                 cA</p>
 
 <p class=Fixed>Bitmap / Common Sizes / 32 x 32             
 SizeB                 cB</p>
@@ -1036,7 +1046,8 @@ SizeT                 cT</p>
 <p class=Fixed>Bitmap / Common Sizes / 256 x 192           
 SizeX                 cX</p>
 
-<p class=Fixed>Bitmap / Common Sizes / 256 x 384            SizeY                 cY</p>
+<p class=Fixed>Bitmap / Common Sizes / 256 x 384           
+SizeY                 cY</p>
 
 <p class=Fixed>Bitmap / Common Sizes / 512 x 384           
 SizeZ                 cZ</p>
@@ -1070,7 +1081,7 @@ AllSet                sDel</p>
 <p class=Fixed>Bitmap / All / Invert All                   
 AllInvert             cDel</p>
 
-<p class=Fixed>Bitmap / All / Random All                    AllRandom</p>
+<p class=Fixed>Bitmap / All / Random All                    AllRandom</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -1095,8 +1106,8 @@ DlgZoom               z</p>
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>Bitmap / Temp Bitmap / Get                   TempGet              
-=</p>
+<p class=Fixed>Bitmap / Temp Bitmap / Get                  
+TempGet               =</p>
 
 <p class=Fixed>Bitmap / Temp Bitmap / Put                  
 TempPut               +</p>
@@ -1106,7 +1117,7 @@ TempSwap              _</p>
 
 <p class=Fixed>Bitmap / Temp Bitmap / Or                    TempOr</p>
 
-<p class=Fixed>Bitmap / Temp Bitmap / And                   TempAnd</p>
+<p class=Fixed>Bitmap / Temp Bitmap / And                   TempAnd</p>
 
 <p class=Fixed>Bitmap / Temp Bitmap / Xor                   TempXor</p>
 
@@ -1139,7 +1150,7 @@ ExtraSwap             -</p>
 
 <p class=Fixed>Bitmap / Thicken                             Thicken</p>
 
-<p class=Fixed>Bitmap / Make Thinner                        Thinner</p>
+<p class=Fixed>Bitmap / Make Thinner                        Thinner</p>
 
 <p class=Fixed>Bitmap / Accent Boundaries                   Accent</p>
 
@@ -1171,8 +1182,8 @@ Flood                 ~</p>
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>Bitmap / Bitmap Is 3D                        3DBitmap             
-j</p>
+<p class=Fixed>Bitmap / Bitmap Is 3D                       
+3DBitmap              j</p>
 
 <p class=Fixed>Bitmap / Count Pixels                       
 CountPixels           ac</p>
@@ -1384,7 +1395,7 @@ TweakPassage          H</p>
 
 <p class=Fixed>Maze / Clarify 4D                            Clarify4D</p>
 
-<p class=Fixed>Maze / Count Possible                        CountPossible</p>
+<p class=Fixed>Maze / Count Possible                        CountPossible</p>
 
 <p class=Fixed>Maze / Analyze Passages                     
 AnalyzePassage        ap</p>
@@ -1429,8 +1440,8 @@ Wilson                aw</p>
 <p class=Fixed>Create / More Perfect / Eller's Algorithm   
 Eller                 ae</p>
 
-<p class=Fixed>Create / More Perfect / Growing Tree         Tree                 
-T</p>
+<p class=Fixed>Create / More Perfect / Growing Tree        
+Tree                  T</p>
 
 <p class=Fixed>Create / More Perfect / Growing Forest       Forest               
 aT</p>
@@ -1453,7 +1464,7 @@ Random                an</p>
 <p class=Fixed>&nbsp;</p>
 
 <p class=Fixed>Create / Pattern / Spiral                   
-Spiral                S</p>
+Spiral                S</p>
 
 <p class=Fixed>Create / Pattern / Diagonal                 
 Diagonal              D</p>
@@ -1464,8 +1475,8 @@ Segment               L</p>
 <p class=Fixed>Create / Pattern / Nested Fractal           
 Fractal               O</p>
 
-<p class=Fixed>Create / Pattern / Hilbert Curve             Hilbert              
-aH</p>
+<p class=Fixed>Create / Pattern / Hilbert Curve            
+Hilbert               aH</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -1478,8 +1489,8 @@ Weave                 V</p>
 <p class=Fixed>Create / 3D / 4D                            
 4D                    R</p>
 
-<p class=Fixed>Create / 3D / Planair                        Planair              
-J</p>
+<p class=Fixed>Create / 3D / Planair                       
+Planair               J</p>
 
 <p class=Fixed>Create / 3D / Hyper                         
 Hyper                 ah</p>
@@ -1503,8 +1514,8 @@ Fractal2              ax</p>
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>Create / Infinite / Start                    InfiniteStart        
-ai</p>
+<p class=Fixed>Create / Infinite / Start                   
+InfiniteStart         ai</p>
 
 <p class=Fixed>Create / Infinite / Continue                
 Infinite              I</p>
@@ -1579,7 +1590,8 @@ PartialUnicursal      cU</p>
 
 <p class=Fixed>Create / Partial Create / Tree At Dot        PartialTree</p>
 
-<p class=Fixed>Create / Partial Create / Weave At Dot       PartialWeave          cV</p>
+<p class=Fixed>Create / Partial Create / Weave At Dot      
+PartialWeave          cV</p>
 
 <p class=Fixed>Create / Partial Create / Crack Add Walls   
 PartialCrack          cK</p>
@@ -1590,7 +1602,8 @@ PartialCrack          cK</p>
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>Create / Polished Mazes                      Polish                /</p>
+<p class=Fixed>Create / Polished Mazes                     
+Polish                /</p>
 
 <p class=Fixed>Create / Create Settings...                 
 DlgCreate             M</p>
@@ -1610,7 +1623,7 @@ DeadEnd               F</p>
 
 <p class=Fixed>Solve / Find Shortest Path                   Shortest</p>
 
-<p class=Fixed>Solve / Find Shortest Paths                  Shortests</p>
+<p class=Fixed>Solve / Find Shortest Paths                  Shortests</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -1632,7 +1645,7 @@ DeadEnd               F</p>
 
 <p class=Fixed>Solve / 3D / Fill Hyper Dead Ends            SolveHyper</p>
 
-<p class=Fixed>Solve / 3D / Find Recursive Fractal          SolveFractal2</p>
+<p class=Fixed>Solve / 3D / Find Recursive Fractal          SolveFractal2</p>
 
 <p class=Fixed>&nbsp;</p>
 
@@ -1662,8 +1675,8 @@ MarkDeadEnd           G</p>
 <p class=Fixed>Draw / Draw Settings...                     
 DlgDraw               ad</p>
 
-<p class=Fixed>Draw / Obscure Draw Settings...              DlgDraw2             
-aD</p>
+<p class=Fixed>Draw / Obscure Draw Settings...             
+DlgDraw2              aD</p>
 
 <p class=Fixed>Draw / Render Bitmap Overview                Overview</p>
 
@@ -1694,7 +1707,7 @@ Life                  aL</p>
 
 <p class=Fixed>Draw / Open Patches...                       DlgOpenPatch</p>
 
-<p class=Fixed>Draw / Save Patches...                       DlgSavePatch</p>
+<p class=Fixed>Draw / Save Patches...                       DlgSavePatch</p>
 
 <p class=Fixed>Draw / Make Patch Bitmap Overview            MakePatch</p>
 
@@ -1755,6 +1768,13 @@ operation.</p>
 Daedalus script in the string &lt;file&gt;. This accesses the functionality of
 the “Open Script...” command without bringing up a dialog.</p>
 
+<p class=A><span class=N>OpenScript2 &lt;file&gt;:</span> Opens and runs the
+Daedalus script in the string &lt;file&gt;, and stops executing any command
+lines in progress. This accesses the functionality of the “Open Script...”
+command without bringing up a dialog, but allows opening a new script that may
+replace macros within an existing script, in a way that prevents the state of
+the old script interfering.</p>
+
 <p class=A><span class=N>OpenTarga &lt;file&gt;:</span> Opens the Targa bitmap
 in the string &lt;file&gt; into the color bitmap. This accesses the
 functionality of the “Color Targa File / Open...” command without bringing up a
@@ -1812,9 +1832,9 @@ monochrome bitmap to a text file in the string &lt;file&gt;. This accesses the
 functionality of the “Save Text...” command without bringing up a dialog.</p>
 
 <p class=A><span class=N>SaveDOSBlock &lt;file&gt;:</span> Saves the main
-monochrome bitmap to a DOS block character text file in the string &lt;file&gt;.
-This accesses the functionality of the “DOS Text / Save Blocks...” command
-without bringing up a dialog.</p>
+monochrome bitmap to a DOS block character text file in the string
+&lt;file&gt;. This accesses the functionality of the “DOS Text / Save Blocks...”
+command without bringing up a dialog.</p>
 
 <p class=A><span class=N>SaveDOSLine &lt;file&gt;:</span> Saves the main
 monochrome bitmap to a DOS line character text file in the string &lt;file&gt;.
@@ -1883,10 +1903,10 @@ data in memory to a Scalable Vector Graphics (SVG) format file in the string
 &lt;file&gt;. This accesses the functionality of the “Draw / Wireframe File / Save
 Vector...” command without bringing up a dialog.</p>
 
-<p class=A><span class=N>SaveSolids &lt;file&gt;:</span> Generates the “solids.dp”
-file that’s part of the Daedalus distribution, and saves it to a file. This
-doesn’t ever need to be run in a standard install, because that file has
-already been generated.</p>
+<p class=A><span class=N>SaveSolids &lt;file&gt;:</span> Generates the
+“solids.dp” file that’s part of the Daedalus distribution, and saves it to a
+file. This doesn’t ever need to be run in a standard install, because that file
+has already been generated.</p>
 
 <p class=A><span class=N>Size &lt;x&gt; &lt;y&gt; &lt;flag1&gt; &lt;flag2&gt;:</span>
 Resizes the main monochrome bitmap. This accesses the functionality of the “Size...”
@@ -1903,9 +1923,9 @@ Bound”, and if true this does “Shift Down And Right By”. If &lt;flag2&gt; is
 true, the bitmap is set to black after being resized.</p>
 
 <p class=A><span class=N>Zoom &lt;x&gt; &lt;y&gt; &lt;flag&gt; &lt;num&gt;:</span>
-Zooms the active bitmap. This accesses the functionality of the “Zoom...” command
-without bringing up the dialog. If &lt;flag&gt; is false, this does “Zoom By
-Factor”, if true this does “Zoom To Size”. If &lt;num&gt; is 0 this does “Drop
+Zooms the active bitmap. This accesses the functionality of the “Zoom...”
+command without bringing up the dialog. If &lt;flag&gt; is false, this does “Zoom
+By Factor”, if true this does “Zoom To Size”. If &lt;num&gt; is 0 this does “Drop
 Lines When Shrinking”, if 1 this does “Preserve On When Shrinking”, if 2 this
 does “Tessellate Instead Of Zoom”.</p>
 
@@ -2004,9 +2024,9 @@ incremented. The loop exits when the variable is no longer between &lt;num1&gt;
 and &lt;num2&gt;.</p>
 
 <p class=A><span class=N>//:</span> Comment. Stops executing the current
-command line. Since the rest of the command line always gets skipped, this causes
-the rest of the command line to act as a comment. Like the “//” comment token
-in C.</p>
+command line. Since the rest of the command line always gets skipped, this
+causes the rest of the command line to act as a comment. Like the “//” comment
+token in C.</p>
 
 <p class=A><span class=N>Continue:</span> Stops executing the current command
 line, and also stops executing the surrounding command line. If the surrounding
@@ -2042,7 +2062,8 @@ custom string instead of a macro.</p>
 except the mouse pointer will be set to the wait or hourglass icon until the
 command line finishes. Useful for indicating slow operations within a script.</p>
 
-<p class=Section2>********************  Daedalus specific operations  ********************</p>
+<p class=Section2>********************  Daedalus specific operations 
+********************</p>
 
 <p class=A><span class=N>DefineMacro &lt;num&gt; &lt;string1&gt;
 &lt;string2&gt;:</span> Sets macro number &lt;num&gt; to be &lt;string1&gt;. If
@@ -2167,9 +2188,9 @@ indicates the index of the custom string, else if &lt;var&gt; is a string (e.g.
 “a”) it corresponds to a custom string directly.</p>
 
 <p class=A><span class=N>CopyMask &lt;num1&gt; &lt;num2&gt;:</span> Copies
-monochrome bitmap &lt;num1&gt; to bitmap &lt;num2&gt;. Bitmaps 0 and beyond indicate
-custom texture mask bitmaps. Also bitmap -1 is the main bitmap, bitmap -2 is
-the temporary bitmap, and bitmap -3 is the extra bitmap.</p>
+monochrome bitmap &lt;num1&gt; to bitmap &lt;num2&gt;. Bitmaps 0 and beyond
+indicate custom texture mask bitmaps. Also bitmap -1 is the main bitmap, bitmap
+-2 is the temporary bitmap, and bitmap -3 is the extra bitmap.</p>
 
 <p class=A><span class=N>SwapMask &lt;num1&gt; &lt;num2&gt;:</span> Swaps
 monochrome bitmaps &lt;num1&gt; and &lt;num2&gt;. Note the main bitmap always
@@ -2200,8 +2221,8 @@ one or more clouds horizontally in the perspective inside view. The
 offset to move the cloud(s) to the right. Clouds can have 16384 different
 positions, where the offset may range from -16383 to 16383. If the distance is
 invalid (i.e. a large positive or negative number) then the cloud(s) will be
-moved proportionally based on their index, with farther or lower index clouds moving
-slower.</p>
+moved proportionally based on their index, with farther or lower index clouds
+moving slower.</p>
 
 <p class=A><span class=N>Message &lt;format&gt;:</span> Displays a message box
 containing formatted string &lt;format&gt;, and pauses until the user clicks
@@ -2305,7 +2326,7 @@ of stars, mountains, and clouds in the perspective inside view.</p>
 
 <p class=A><span class=N>WindowTitle &lt;format&gt; &lt;flag&gt;:</span> Sets
 the formatted string &lt;format&gt; to be the title of the Daedalus window. If
-&lt;flag&gt; is true, the window title will have the default title “Daedalus 3.4”
+&lt;flag&gt; is true, the window title will have the default title “Daedalus 3.5”
 prepended to it.</p>
 
 <p class=A><span class=N>Beep:</span> Sounds a simple system beep.</p>
@@ -2419,9 +2440,9 @@ texture on the block at the given coordinates facing the given direction. This
 means setting the appropriate bits of a pixel on the 3D custom color bitmap
 indicated by nTextureWall to &lt;num&gt;.</p>
 
-<p class=A><span class=N>ZapTexture &lt;num&gt;:</span> This will find the first
-set pixel along the direction the dot is facing, and set the texture on the
-side of the block facing the dot to &lt;num&gt;. This is similar to the
+<p class=A><span class=N>ZapTexture &lt;num&gt;:</span> This will find the
+first set pixel along the direction the dot is facing, and set the texture on
+the side of the block facing the dot to &lt;num&gt;. This is similar to the
 commands on the Zap Dot submenu, and is like shooting a paintball at a wall to
 change its texture. </p>
 
@@ -2533,10 +2554,10 @@ Corner Hopping is off, then pixels connected only by corners will be considered
 the same shape, in which the counting will include both.</p>
 
 <p class=A><span class=N>Thicken2 &lt;pixels&gt;:</span> Like the Thicken
-command except thickens each on pixel in the main monochrome bitmap by the specified
-number of pixels. If No Corner Hopping in Dot Settings is off, then each pixel
-will become a &lt;pixels&gt; by &lt;pixels&gt; square instead of a circle of
-&lt;pixels&gt; diameter.</p>
+command except thickens each on pixel in the main monochrome bitmap by the
+specified number of pixels. If No Corner Hopping in Dot Settings is off, then
+each pixel will become a &lt;pixels&gt; by &lt;pixels&gt; square instead of a
+circle of &lt;pixels&gt; diameter.</p>
 
 <p class=A><span class=N>BlendN:</span> Sets the color bitmap to an equal
 blending together of N other color bitmaps. The other bitmaps are assumed to be
@@ -2663,10 +2684,10 @@ whole thing, allowing viewing of Mazes too large to fit in a bitmap. This
 creates the section at coordinates &lt;x&gt;, &lt;y&gt;, &lt;z&gt; at depth
 &lt;w&gt;, with the fractal Maze itself defined by random number seed
 &lt;num&gt;. This actually creates a 2x2x2 grid of sections surrounding the
-coordinates. Afterward @x will be set to the horizontal cell location of the
-entrance, and @y the horizontal location of the exit. This is used by the
-“World’s Largest Maze” script to create the section of the giant 3D virtual
-Maze nearest your location.</p>
+coordinates. Afterward @x will be set to the horizontal cell location of the entrance,
+and @y the horizontal location of the exit. This is used by the “World’s
+Largest Maze” script to create the section of the giant 3D virtual Maze nearest
+your location.</p>
 
 <p class=A><span class=N>VirtualPerfect &lt;edges&gt;:</span> Creates or adds
 on to part of a Maze in memory using the hunt and kill algorithm, in which only
@@ -2857,8 +2878,8 @@ the left right axis.</p>
 except modifies the current Maze to be symmetric around the center, with one
 quadrant duplicated and rotated four times. Note this Maze can only be
 symmetric when it has an odd number of passages, in which case the solution
-path must pass through the center cell. Mazes with an even number of passages will
-have a single asymmetry in them.</p>
+path must pass through the center cell. Mazes with an even number of passages
+will have a single asymmetry in them.</p>
 
 <p class=A><span class=N>ZoomBiasPic:</span> Zooms the monochrome bitmap, such
 that each 2x2 pixel area becomes a 3x3 pixel area. The middle column areas of
@@ -2918,8 +2939,8 @@ number &lt;num&gt; in the patch scene in memory with the 19 custom variables
 starting with index &lt;var&gt;. The 19 custom variables define the three or
 four vertexes, the number of vertexes in use, the color, and transparency, in
 the same layout as GetPatch. This does nothing if &lt;num&gt; is outside the
-limit of the number of patches in the scene, so set nPatchSize if you want to change
-the number of patches in memory.</p>
+limit of the number of patches in the scene, so set nPatchSize if you want to
+change the number of patches in memory.</p>
 
 <p class=A><span class=N>GetStar &lt;num1&gt; &lt;num2&gt; &lt;num3&gt;:</span>
 Fetches the horizontal and vertical coordinates, along with the RGB color, of
@@ -2950,10 +2971,11 @@ the Life Generate command. The &lt;string&gt; must be two strings of digits
 ranging from 0-8 separated by a slash. The first sequence indicates neighbor
 counts which keep a cell alive, and the second neighbor counts which cause a
 new cell to be born. The default for Conway’s Life is “23/3” which indicates
-cells live if they have 2 or 3 neighbors, and cells are born if they have 3 neighbors.
-Interesting values for &lt;string&gt; related to Mazes are “12345/3” (called “Maze”)
-and “1234/3” (called “Mazectric”), which produce Mazelike patterns filled with
-one pixel wide passages and walls, and the occasional room.</p>
+cells live if they have 2 or 3 neighbors, and cells are born if they have 3
+neighbors. Interesting values for &lt;string&gt; related to Mazes are “12345/3”
+(called “Maze”) and “1234/3” (called “Mazectric”), which produce Mazelike
+patterns filled with one pixel wide passages and walls, and the occasional
+room.</p>
 
 <p class=A><span class=N>Evolution &lt;num&gt; &lt;flag&gt;:</span> Creates a
 type of cyclic cellular automaton in the color bitmap. The pattern will have
@@ -2994,18 +3016,28 @@ the color bitmap this compares the three RGB channels separately. This
 operation can be used to detect and highlight sharp edges in a picture, which
 can convert an imported Maze image into something that Daedalus can solve.</p>
 
+<p class=A><span class=N>GroundVar2:</span> Like the Ground Variable command,
+but also allows for areas to be based on a particular height, and areas to be forced
+to be a particular height. If the main color bitmap exists, then pixels in it
+are base heights to add random values to. If the temporary color bitmap exists,
+then non-zero pixels in it are heights that will be guaranteed within the
+result (and nearby pixels will gradually fade to those heights). This is used
+by the “Jareth’s Labyrinth” script, to make the overall Labyrinth have higher
+heights in the middle areas, and also to make certain areas like the floor of
+the castle be a particular height.</p>
+
 <p class=A><span class=N>Hunger &lt;num&gt;:</span> Implements the computer AI
 in the “Hunger Games” script, and isn’t useful outside of it. The low 12 bits
 of &lt;num&gt; indicates the tribute to determine the best move for, normally ranging
 from 0-23. If the high 12 bits of &lt;num&gt; are set, they indicate the light
 radius in squares normal tributes should be able to see at that time of day. Afterward
 custom variable @z will indicate the action to take, @y will indicate the
-inventory slot item to operate upon (if applicable), and @x will indicate the
-direction to move or throw an item in (if applicable). The values for @z are as
-follows. 0: Do nothing and wait, 1: Use item, 2: Pick up whatever standing over,
-3: Move or melee attack in direction, 4: Throw item in direction, 5: Drop item,
-6: Climb down, 7: Climb up, 8: Give item, 9: Dig down, 10: Fire launcher, 11:
-Free tribute from Net, 12: Propose alliance, 13: Claim leadership.</p>
+inventory slot item to operate upon (if applicable), and @x will indicate the direction
+to move or throw an item in (if applicable). The values for @z are as follows.
+0: Do nothing and wait, 1: Use item, 2: Pick up whatever standing over, 3: Move
+or melee attack in direction, 4: Throw item in direction, 5: Drop item, 6:
+Climb down, 7: Climb up, 8: Give item, 9: Dig down, 10: Fire launcher, 11: Free
+tribute from Net, 12: Propose alliance, 13: Claim leadership.</p>
 
 <p class=A><span class=N>System &lt;num&gt;:</span> Runs system menu commands.
 If &lt;num&gt; is negative, minimizes the window. If positive, maximizes the
@@ -3027,8 +3059,8 @@ as a formatted string.</p>
 byte &lt;num2&gt; to the file in handle &lt;num1&gt;.</p>
 
 <p class=A><span class=N>FileReadStr &lt;num&gt; &lt;var&gt;:</span> Reads the
-next string from the file in handle &lt;num&gt; and stores it in custom string indicated
-by &lt;var&gt;.</p>
+next string from the file in handle &lt;num&gt; and stores it in custom string
+indicated by &lt;var&gt;.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -3052,7 +3084,8 @@ standard number, “f” means a number storing a boolean flag, “r” means a number
 storing a floating point real number, “k” means a number storing a color, and “s”
 means a string.</p>
 
-<p class=Section2>********************  File Settings dialog  ********************</p>
+<p class=Section2>********************  File Settings dialog 
+********************</p>
 
 <p class=Fixed>nCurrentGeneration</p>
 
@@ -3621,9 +3654,9 @@ used.</p>
 <p class=A><span class=O>fMessageCopy:</span> If this is set, then whenever
 Daedalus shows a message box, the text of it will be automatically copied to
 the Windows clipboard, where it may then be pasted into another program. This
-is designed for older versions of Windows such as 9x, since on later versions of
-Windows such as XP, pressing Control+c will copy the text of any message box to
-the clipboard.</p>
+is designed for older versions of Windows such as 9x, since on later versions
+of Windows such as XP, pressing Control+c will copy the text of any message box
+to the clipboard.</p>
 
 <p class=A><span class=O>nSkipMessage:</span> Determines the types of message
 boxes that are suppressed when the Skip Message Display setting is on. Setting
@@ -3691,7 +3724,8 @@ between the two colors. If this value is negative, it has no effect on the
 display.</p>
 
 <p class=A><span class=O>kMountain2:</span> The color of the top of mountains
-in perspective inside view. If this is different from the standard Inside Mountain color, mountains will be a gradient or gradually fade between the two
+in perspective inside view. If this is different from the standard Inside
+ Mountain color, mountains will be a gradient or gradually fade between the two
 colors. If this value is negative, it has no effect on the display.</p>
 
 <p class=A><span class=O>kCloud2:</span> The color of the bottom of clouds in
@@ -3704,15 +3738,15 @@ the perspective inside view, which will be positioned opposite the sun. The
 rainbow will be generated once and placed in custom bitmap -5, and regenerated
 whenever the window is resized.</p>
 
-<p class=A><span class=O>nRainbow:</span> Defines how the rainbow is drawn in the
-perspective inside view. The 1000000’s place and above indicate the height of
-the rainbow or its diameter in proportion to the window height, ranging from 0
-(miniscule) to 99 (touching the top of the screen) and beyond. The 100000’s and
-10000’s place indicate the vertical offset of the rainbow, ranging from 0 (as
-high as possible) to 99 (completely submerged below the horizon). The 1000’s
-and 100’s place indicate the width of the rainbow arc as a proportion of its
-radius, ranging from 0 (hairline) to 99 (a solid semicircle). The 10’s and 1’s
-place indicate the transparency of the rainbow, ranging from 0 (completely
+<p class=A><span class=O>nRainbow:</span> Defines how the rainbow is drawn in
+the perspective inside view. The 1000000’s place and above indicate the height
+of the rainbow or its diameter in proportion to the window height, ranging from
+0 (miniscule) to 99 (touching the top of the screen) and beyond. The 100000’s
+and 10000’s place indicate the vertical offset of the rainbow, ranging from 0
+(as high as possible) to 99 (completely submerged below the horizon). The
+1000’s and 100’s place indicate the width of the rainbow arc as a proportion of
+its radius, ranging from 0 (hairline) to 99 (a solid semicircle). The 10’s and
+1’s place indicate the transparency of the rainbow, ranging from 0 (completely
 opaque) to 99 (completely invisible). If nRainbow is negative, the digit
 placements will be interpreted the same, however a rainbow won’t be drawn, but
 rather the existing contents of custom bitmap -5 will be stretched across the
@@ -3842,8 +3876,8 @@ smooth movement combined with background animation.</p>
 <p class=A><span class=O>fMarkColor:</span> Makes the color of floor and
 ceiling markings in perspective inside view be taken from the temporary color
 bitmap instead of the main color bitmap as normal. Semitransparent or variable
-height walls allow both a wall and floor marking to be visible at the same spot,
-in which case one may want them to have separate colors.</p>
+height walls allow both a wall and floor marking to be visible at the same
+spot, in which case one may want them to have separate colors.</p>
 
 <p class=A><span class=O>fMarkAll:</span> Makes every cell in the perspective
 inside view have a ground marking. This is a quick way to have ground markings
@@ -3937,8 +3971,8 @@ faces. If set, then the low 12 bits of a texture index indicate the texture
 bitmap for the north and south faces, and the high 12 bits of the texture index
 indicate the texture for the west and east faces. This setting allows more
 texture possibilities (12 bits instead of just 6 bits when each face has its
-own texture) however it does mean that textures on opposite sides of a block
-have to be the same.</p>
+own texture) however it does mean that textures on opposite sides of a block have
+to be the same.</p>
 
 <p class=A><span class=O>fTextureDual2:</span> This only plays a role when
 fTextureDual is set. This causes the two textures to be duplicated on the
@@ -3997,8 +4031,9 @@ pressing F10 to set the algorithm.</p>
 display setting. When set to 0, some rows will simply be skipped. When set to
 1, then if any row in the range mapping to the displayed pixel is on the pixel
 will be on. When set to 2, then if any row is off the pixel will be off. This
-is basically a wrapper around the SetStretchBltMode Windows API. Note on some machines, values 1 and 2 will display slower. Other machines don’t support this
-at all, where changing the variable will have no visible effect.</p>
+is basically a wrapper around the SetStretchBltMode Windows API.
+Note on some machines, values 1 and 2 will display slower. Other machines don’t
+support this at all, where changing the variable will have no visible effect.</p>
 
 <p class=A><span class=O>fGraphNumber:</span> This flag affects the Graph
 Distance and Graph Walls commands, the various “With Color” commands on the Dot
@@ -4009,12 +4044,13 @@ raw distance numbers. This can for example be used by a script to determine the
 number of moves you are from the entrance or exit of a Maze as you move around.</p>
 
 <p class=A><span class=O>nGrayscale:</span> This value affects the Make
-Grayscale command, and indicates the brightness to give to each of the RGB channels. The first three digits indicate the red brightness, the second three the green
-brightness, and the last three the blue brightness. Each three digit number is
-a fraction ranging from 0 (minimum) to 999 (maximum), where all three shouldn’t
-add to over 1000. The default value is 299587114, which indicates brightness
-factors of 0.299, 0.587, 0.114 for the RGB channels. If this value is negative,
-each channel will be given an equal 1/3 brightness factor.</p>
+Grayscale command, and indicates the brightness to give to each of the RGB
+channels. The first three digits indicate the red brightness, the second three
+the green brightness, and the last three the blue brightness. Each three digit
+number is a fraction ranging from 0 (minimum) to 999 (maximum), where all three
+shouldn’t add to over 1000. The default value is 299587114, which indicates
+brightness factors of 0.299, 0.587, 0.114 for the RGB channels. If this value
+is negative, each channel will be given an equal 1/3 brightness factor.</p>
 
 <p class=A><span class=O>fArrowKeysFree:</span> This setting only plays a role
 when Move With Arrow Keys in Draw Settings is on. It causes movement in the
@@ -4022,9 +4058,9 @@ wireframe and patch renderings to feel more fluid, like playing a video game.
 You don’t have to wait for key repeat to kick in, which means holding down a
 key immediately continuously moves, and you can also hold down two keys at once
 (e.g. move forward plus rotate) and have them both take effect. The speed at
-which continuous movement happens is controlled by the Repeat Delay In Msec
-field in Display Settings. This is like the Very Free Movement Inside Display
-Mode, but applied to the wireframe and patch renderings.</p>
+which continuous movement happens is controlled by the Repeat Delay In Msec field
+in Display Settings. This is like the Very Free Movement Inside Display Mode,
+but applied to the wireframe and patch renderings.</p>
 
 <p class=A><span class=O>rTransparency:</span> Daedalus supports
 semitransparency in perspective patch renderings. This sets the default
@@ -4066,12 +4102,12 @@ before they’re displayed in the next narrower category.</p>
 <p class=A><span class=O>nDrawFaceOrigin:</span> Determines whether the
 wireframe and patch displays force the rendering to face the origin, pointing
 at X, Y, Z coordinate 0, 0, 0. Setting this to 0 doesn’t face the origin at
-all. Setting 1 makes the rendering face the origin, but doesn’t affect the
-actual direction one is moving in Draw Settings, which allows one to move along
-one trajectory while continually facing the origin. Setting 2 makes the
-rendering face the origin, and also updates the actual direction one is facing
-in Draw Settings, which allows one to sidestep in order to continually circle
-around the origin.</p>
+all. Setting 1 makes the rendering face the origin, but doesn’t affect the actual
+direction one is moving in Draw Settings, which allows one to move along one
+trajectory while continually facing the origin. Setting 2 makes the rendering
+face the origin, and also updates the actual direction one is facing in Draw
+Settings, which allows one to sidestep in order to continually circle around
+the origin.</p>
 
 <p class=MsoNormal><span class=O>fStereo3D:</span> This only plays a role when
 nStereo is non-zero, and stereoscopic graphics are being displayed. When this
@@ -4102,11 +4138,11 @@ and the program will pause until the sound finishes. Otherwise, sounds are
 played asynchronously, and the program will continue running while the sound
 plays. If a sound is already playing when the Sound operation is called again,
 then the old sound will be interrupted and stopped when the new sound begins.
-If positive, this variable indicates how long in milliseconds the old sound
-should be allowed to play before the new sound interrupts it. For example, if
-set to 3000, and a sound was started one second ago, then the program will
-pause for two seconds before interrupting the old sound. This ensures a sound
-can play for a minimum length of time before the next sound starts.</p>
+If positive, this variable indicates how long in milliseconds the old sound should
+be allowed to play before the new sound interrupts it. For example, if set to
+3000, and a sound was started one second ago, then the program will pause for
+two seconds before interrupting the old sound. This ensures a sound can play
+for a minimum length of time before the next sound starts.</p>
 
 <p class=A><span class=O>nFileLock:</span> Points to a custom string variable
 naming a mutex to use when reading files. A mutex is an operating system
@@ -4505,9 +4541,9 @@ the 3D bitmap within custom monochrome bitmap &lt;num&gt;.</p>
 color pixel. Returns the color of the pixel at the given coordinates of the 3D
 bitmap within the color bitmap.</p>
 
-<p class=A><span class=O>Get3CT &lt;x&gt; &lt;y&gt; &lt;z&gt;:</span> Get temporary
-3D color pixel. Returns the color of the pixel at the given coordinates on the
-temporary 3D color bitmap.</p>
+<p class=A><span class=O>Get3CT &lt;x&gt; &lt;y&gt; &lt;z&gt;:</span> Get
+temporary 3D color pixel. Returns the color of the pixel at the given
+coordinates on the temporary 3D color bitmap.</p>
 
 <p class=A><span class=O>Get3CE &lt;x&gt; &lt;y&gt; &lt;z&gt;:</span> Get extra
 3D color pixel. Returns the color of the pixel at the given coordinates on the
@@ -4627,7 +4663,7 @@ button has been clicked.</p>
 
 <p class=A><span class=O>Version:</span> Constant. Returns the version of
 Daedalus, with the major version in the 1000’s place and the minor version in
-the 100’s place, e.g. 3400 for version 3.4.</p>
+the 100’s place, e.g. 3500 for version 3.5.</p>
 
 <p class=A><span class=O>FileOpen &lt;file&gt; &lt;num&gt;:</span> Opens the
 string &lt;file&gt;. If &lt;num&gt; is 0 opens the file for reading, if 1
@@ -4755,8 +4791,8 @@ special set of bitmaps. Just as there’s a list of custom variables and strings,
 there’s a special list of custom monochrome bitmaps and custom color bitmaps,
 beyond the standard main, temporary, and extra bitmaps. The commands on the
 Apply Texture submenu work by automatically changing these bitmaps
-appropriately. Custom bitmaps don’t have to be used for textures, where they
-also define ceiling markings and variable height walls, and can even just used
+appropriately. Custom bitmaps don’t have to be used for textures, in which they
+also define ceiling markings and variable height walls, and can even just be used
 as a place for scripts to store extra bitmaps. For purposes of texture mapping,
 a custom color bitmap is called a texture, and a custom monochrome bitmap is
 called a mask. Custom bitmaps are accessed through the CopyMask, CopyTexture,
@@ -4764,37 +4800,39 @@ SwapMask, SwapTexture, DeleteMask, and DeleteTexture operations.</p>
 
 <p class=A>Texture 0 (or the texture indicated by nTextureWall) determines
 which texture bitmaps are displayed where. For each block in the inside view,
-the corresponding pixel in texture 0 determines the texture for each of the block’s
-four walls. In the 24 bit color value in each pixel of texture 0, the low 6
-bits 0-5 determine the texture of the wall facing direction 0 or North, bits
-6-11 the texture of direction 1 or West, bits 12-17 direction 2 or South, and
-the high 6 bits 18-23 the texture of direction 3 or East. The number contained
-in each set of bits determines the index of the texture and mask bitmaps to
-apply to that wall. If this number is zero, or the desired pixel is outside the
-bounds of texture 0, then the wall has no texture. Note 6 bits can store
-numbers from 0-63, and since value 0 is special indicating no texture, that
-means the maximum number of different wall textures that can be displayed at a
-time is 63.</p>
+the corresponding pixel in texture 0 determines the texture for each of the
+block’s four walls. In the 24 bit color value in each pixel of texture 0, the
+low 6 bits 0-5 determine the texture of the wall facing direction 0 or North,
+bits 6-11 the texture of direction 1 or West, bits 12-17 direction 2 or South,
+and the high 6 bits 18-23 the texture of direction 3 or East. The number
+contained in each set of bits determines the index of the texture and mask
+bitmaps to apply to that wall. If this number is zero, or the desired pixel is
+outside the bounds of texture 0, then the wall has no texture. Note 6 bits can
+store numbers from 0-63, and since value 0 is special indicating no texture,
+that means the maximum number of different wall textures that can be displayed
+at a time is 63.</p>
 
 <p class=B>If variable fTextureDual is set, then texture bits are interpreted
 differently. When set, the low 12 bits 0-11 of a texture index indicate the
 texture bitmap for the north and south faces, and the high 12 bits 12-23 of the
 texture index indicate the texture for the west and east faces. That means
-walls will have the same north/south and west/east faces. 12 bits can store
-numbers from 0-4095, which means this option allows 4095 different wall
+walls will have the same north/south and west/east face textures. 12 bits can
+store numbers from 0-4095, which means this option allows 4095 different wall
 textures to be displayed at a time, with the limitation of opposite sides of
-walls having the same texture.</p>
+walls having the same texture. If variable fTextureDual2 is set, then the fTextureDual
+variable will instead cause the two textures to be duplicated on the north/west
+faces of blocks for bits 0-11, and south/east faces for bits 12-23.</p>
 
 <p class=A>The texture and mask bitmaps at a non-zero index together determine
 the texture mapping to display on a wall. If the texture bitmap exists, and the
 mask bitmap doesn’t, then the wall will be solidly covered by the color
 texture, same as the result produced by the Color Walls apply texture command.
 If the mask bitmap exists, and the texture bitmap doesn’t, then the wall will
-have the mask bitmap overlaying it, i.e. a black or white etching, same as the
-result produced by the Overlay Walls command. If both bitmaps exist, then the
-wall will have the color texture overlaying it, same as the results produced by
-the Color Overlay Walls command. If neither bitmap exists, then the wall will
-have no texture.</p>
+have the mask bitmap overlaying it, i.e. a black or white etching on the normal
+wall color, same as the result produced by the Overlay Walls command. If both
+bitmaps exist, then the wall will have the color texture overlaying it, same as
+the results produced by the Color Overlay Walls command. If neither bitmap
+exists, then the wall will have no texture.</p>
 
 <p class=A>Mask 0 (or the mask indicated by nTextureWall) determines how to use
 the mask bitmap at a particular index, if present. If a pixel in mask 0
@@ -4807,6 +4845,19 @@ in the actual mask are given focus. That means either on pixels in the mask
 will overlay the wall as white pixels, or off pixels in the mask will appear as
 pixels from the color texture and on pixels will be the wall’s color.</p>
 
+<p class=A>Other parts of the perspective inside view can be texture mapped
+too. Variable nTexture points to the texture bitmap to use for the background
+area, for 2D Mazes and the top level of 3D Mazes. Variable nTexture3 points to
+the texture bitmap to use for the background area for all levels in 3D Mazes
+except the top level. Variable nTextureGround points to the textures to use for
+floor and ceiling textures, in which the low 12 bits of each pixel indicate the
+floor texture, and the high 12 bits the ceiling, where 0 means no texture.
+Variable nTextureBlock points to the textures to use for the top and bottom
+surfaces of walls, in which the low 12 bits indicate the top texture, and the
+high 12 bits the bottom, where 0 means no texture. Variable nTextureElev points
+to the textures to use for the sides of elevated ground markings, in which the
+bits are divided the same as for block sides.</p>
+
 <p class=A>&nbsp;</p>
 
 <div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
@@ -4816,7 +4867,7 @@ pixels from the color texture and on pixels will be the wall’s color.</p>
 </div>
 
 <p class=A>IMPORTANT NOTICE: Daedalus and all Maze generation and general
-graphics routines used in this program are Copyright (C) 1998-2023 by Walter D.
+graphics routines used in this program are Copyright (C) 1998-2024 by Walter D.
 Pullen. Permission is granted to freely use, modify, and distribute these
 routines provided these credits and notices remain unmodified with any altered
 or distributed versions of the program. The user does have all rights to Mazes
@@ -4827,9 +4878,9 @@ processor.</p>
 it and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version. This program is distributed in the hope
-that it will be useful and inspiring, but WITHOUT ANY WARRANTY; without even the
-implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
-the GNU General Public License for more details, a copy of which is in the
+that it will be useful and inspiring, but WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details, a copy of which is in the
 LICENSE.HTM included with Daedalus, and at <a href="http://www.gnu.org/">http://www.gnu.org</a></p>
 
 <p class=Fixed><span style='background:silver'>O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O*O</span></p>

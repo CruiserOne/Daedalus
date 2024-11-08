@@ -1,5 +1,5 @@
 DS
-// The Hunger Games Simulation - A script file for Daedalus 3.4
+// The Hunger Games Simulation - A script file for Daedalus 3.5
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 // Inspired by "The Hunger Games" series, as seen in the novels by Suzanne Collins and the movies by Lionsgate Films
 // Documentation for this script: http://www.astrolog.org/labyrnth/daedalus/hunger.htm
@@ -807,7 +807,7 @@ SwitchSgn Add Neg Lte @w 100 Gt @w 150
 *Next
 @z True
 
-EmbedMacro %FBehave "Set behavior"
+EmbedMacro %FBehave "Set Behavior"
 @x @SAllow SetString 0 '@x'
 @y @SLead SetString 1 '@y'
 @z nStereoWidth SetString 2 '@z'
@@ -1018,12 +1018,12 @@ SetVar Add %PZ @q @v
 @v False *Next
 @z True
 
-EmbedMacro %FLookU "Look Down"
+EmbedMacro %FLookU "Look Up"
 @z True
 If Lte nHorizon -7000 {Return}
 nHorizon Max Sub nHorizon 500 -7000
 
-EmbedMacro %FLookD "Look Up"
+EmbedMacro %FLookD "Look Down"
 @z True
 If Gte nHorizon 7000 {Return}
 nHorizon Min Add nHorizon 500 7000
@@ -1058,12 +1058,12 @@ If Not @a {Return}
 @v GetM nX nY *View
 nViewHeight Max Sub nViewHeight Mul nUpDownVelocity 10 @v
 
-EmbedMacro %FLookU2 "Look Down"
+EmbedMacro %FLookU2 "Look Up"
 @z True
 If Lte nHorizon -7000 {Return}
 nHorizon Max Sub nHorizon 10 -7000
 
-EmbedMacro %FLookD2 "Look Up"
+EmbedMacro %FLookD2 "Look Down"
 @z True
 If Gte nHorizon 7000 {Return}
 nHorizon Min Add nHorizon 10 7000

@@ -2,7 +2,7 @@
 
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<title>Daedalus 3.4 Changes</title>
+<title>Daedalus 3.5 Changes</title>
 <style>
 <!--
  /* Font Definitions */
@@ -13,30 +13,9 @@
 	{font-family:"Cambria Math";
 	panose-1:2 4 5 3 5 4 6 3 2 4;}
  /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
-h1
-	{margin-top:12.0pt;
-	margin-right:0in;
-	margin-bottom:3.0pt;
-	margin-left:0in;
-	page-break-after:avoid;
-	font-size:16.0pt;
-	font-family:"Arial","sans-serif";}
-a:link, span.MsoHyperlink
+ a:link, span.MsoHyperlink
 	{color:blue;
 	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:10.0pt;
-	font-family:"Courier New";}
 p.A, li.A, div.A
 	{mso-style-name:A;
 	mso-style-link:"A Char Char";
@@ -45,14 +24,13 @@ p.A, li.A, div.A
 	margin-bottom:10.0pt;
 	margin-left:0in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.ACharChar
 	{mso-style-name:"A Char Char";
 	mso-style-link:A;}
 p.Fixed, li.Fixed, div.Fixed
 	{mso-style-name:Fixed;
 	margin:0in;
-	margin-bottom:.0001pt;
 	font-size:12.0pt;
 	font-family:"Courier New";}
 p.Section, li.Section, div.Section
@@ -66,7 +44,7 @@ p.Section, li.Section, div.Section
 	border:none;
 	padding:0in;
 	font-size:16.0pt;
-	font-family:"Arial","sans-serif";
+	font-family:"Arial",sans-serif;
 	font-weight:bold;}
 p.Item, li.Item, div.Item
 	{mso-style-name:Item;
@@ -76,19 +54,7 @@ p.Item, li.Item, div.Item
 	margin-left:.5in;
 	text-indent:-.25in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
-p.B, li.B, div.B
-	{mso-style-name:B;
-	mso-style-link:"B Char Char";
-	margin-top:10.0pt;
-	margin-right:0in;
-	margin-bottom:10.0pt;
-	margin-left:.5in;
-	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
-span.BCharChar
-	{mso-style-name:"B Char Char";
-	mso-style-link:B;}
+	font-family:"Times New Roman",serif;}
 span.N
 	{mso-style-name:N;
 	color:blue;
@@ -126,7 +92,7 @@ ul
 
 </head>
 
-<body lang=EN-US link=blue vlink=purple>
+<body lang=EN-US link=blue vlink="#96607D" style='word-wrap:break-word'>
 
 <div class=WordSection1>
 
@@ -171,7 +137,7 @@ style='background:silver'>AAAAAAA</span>  <span style='background:silver'>EEEEEE
 </span><span style='background:silver'>D</span><span lang=ES-CR>     </span><span
 style='background:silver'>D</span><span lang=ES-CR>  </span><span
 style='background:silver'>AAAAAAA</span><span lang=ES-CR>  </span><span
-style='background:silver'>L</span><span lang=ES-CR>        </span><span
+style='background:silver'>L</span><span lang=ES-CR>        </span><span
 style='background:silver'>U</span><span lang=ES-CR>     </span><span
 style='background:silver'>U</span><span lang=ES-CR>   </span><span
 style='background:silver'>SSSSS</span></p>
@@ -214,40 +180,36 @@ style='background:silver'>A</span>     <span style='background:silver'>A</span> 
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>                         **  VERSION  3.4  **</p>
+<p class=Fixed>                         **  VERSION  3.5  **</p>
 
 <p class=Fixed>&nbsp;</p>
 
 <p class=A>This file describes the new features, changes, and bug fixes in
-Daedalus 3.4, that weren’t in the previous version. It is only useful if you’re
-already familiar with Daedalus 3.3 or before and want to know what the newest
-version offers. The file is divided into four sections:</p>
+Daedalus 3.4 and 3.5, that weren’t in the previous two versions. It is only
+useful if you’re already familiar with Daedalus 3.3 or before and want to know
+what the newest versions offer. The file is divided into four sections:</p>
 
 <p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
-margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+margin-left:.5in'><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span><b>1) <a href="#feature">New Features</a>:</b> A list of new
 features.</p>
 
 <p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
-margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+margin-left:.5in'><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span><b>2) <a href="#extend">Extended &amp; Improved Features</a>:</b>
 A list of improvements or changes to existing features.</p>
 
 <p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
-margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+margin-left:.5in'><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span><b>3) <a href="#bug">Bug Fixes</a>:</b> Bugs and other problems
 that have been fixed.</p>
 
 <p class=Item style='margin-top:0in;margin-right:0in;margin-bottom:0in;
-margin-left:.5in;margin-bottom:.0001pt'><span style='font-family:Symbol'>·<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+margin-left:.5in'><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span><b>4) <a href="#script">Scripting Additions</a>:</b> New keywords
 added to the Daedalus scripting language.</p>
 
-<p class=A>For a quick demonstration of some things Daedalus 3.4 can do, start
+<p class=A>For a quick demonstration of some things Daedalus 3.5 can do, start
 the program, press Alt+1 to start the “Daedalus demos” script, then press F2 to
 animate yourself running through a Maze.</p>
 
@@ -259,8 +221,8 @@ animate yourself running through a Maze.</p>
 
 </div>
 
-<p class=A>A list of new features in Daedalus 3.4, which means new commands and
-settings that weren’t present in the previous version:</p>
+<p class=A>A list of new features in Daedalus 3.4 and 3.5, which means new
+commands and settings that weren’t present in previous versions:</p>
 
 <p class=A><span class=N>1. Sphere Mazes:</span> The new “Create / Omega
 (Shapes) / Omicron (Sphere)” menu command will create a Maze on the surface of
@@ -280,14 +242,22 @@ will apply a transpose operation along the axis specified.</p>
 new script called “Grippy Socks”, which is a mental health psych ward
 simulation. You experience a hospital environment, in which your objective is
 to find the right medication and other treatments, and then use them so that
-you can get released. This is the second most extensive script that comes with
-Daedalus, in which only the Hunger Games script is larger. The new “File / Run
-Script / Grippy Socks” menu command will run it. For more details about this
-script see <a href="http://www.astrolog.org/labyrnth/daedalus/gripsox.htm">http://www.astrolog.org/labyrnth/daedalus/gripsox.htm</a>.</p>
+you can get released. The new “File / Run Script / Grippy Socks” menu command
+will run it. For more details about this script see <a
+href="http://www.astrolog.org/labyrnth/daedalus/gripsox.htm">http://www.astrolog.org/labyrnth/daedalus/gripsox.htm</a>.</p>
 
-<p class=A><span class=N>4. Makefiles:</span> Compiling Daedalus’ source code
-is easier, since the downloads now come with Visual Studio project/solution files
-for Windows, and a Makefile file for Unix systems.</p>
+<p class=A><span class=N>4. Jareth’s Labyrinth script:</span> Daedalus comes
+with a new script called “Jareth’s Labyrinth”, in which you have 13 hours to
+solve a giant Maze, and face Jareth at its center. The random Maze contains
+brick, hedge, and forest sections, and various creatures. This is the second
+most extensive script that comes with Daedalus, in which only the Hunger Games
+script is larger. The new “File / Run Script / Jareth's Labyrinth” menu command
+will run it. For more details about this script see <a
+href="http://www.astrolog.org/labyrnth/daedalus/jareth.htm">http://www.astrolog.org/labyrnth/daedalus/jareth.htm</a>.</p>
+
+<p class=A><span class=N>5. Makefiles:</span> Compiling Daedalus’ source code
+is easier, since the downloads now come with Visual Studio project/solution
+files for Windows, and a Makefile file for Unix systems.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -333,8 +303,8 @@ memory, if “Create / Create Settings / Omega (Shapes) / Make Wireframe Also” is
 set, and also if the Planair creation string is set to generate a Maze on the
 surface of a cube (specifically set to “e2d3f0b1 e7a3f3c1 e4b3f6d1 e1c3f5a1
 c4d0a0b4 a2d6c6b2”). This wireframe will depict a cube, in which each face is a
-different color, and with arrows pointing to the middle of opposite faces to
-indicate entrance and exit points.</p>
+different color, and with arrows pointing to the middle of opposite faces to indicate
+entrance and exit points.</p>
 
 <p class=A><span class=O>5. Wilson/Aldous start:</span> The Wilson’s and
 Aldous-Broder Maze creation commands will pick a specific point to start
@@ -363,7 +333,7 @@ Hunger Games (e.g. “Lucy Gray”).</p>
 </div>
 
 <p class=A>A list of bugs and other problems in Daedalus 3.3, all of which have
-been fixed in Daedalus 3.4:</p>
+been fixed in Daedalus 3.5:</p>
 
 <p class=A><span class=P>1. Inside ceiling display:</span> In the perspective
 inside view, tall variable height walls in the distance would be drawn on top
@@ -374,8 +344,8 @@ different from other blocks.</p>
 sometimes display garbage pixels in the rightmost column.</p>
 
 <p class=A><span class=P>3. X11 bitmap error:</span> Saving to X11 bitmap
-format would leave off the filename within the file produced, which could produce
-an invalid file that the Unix xsetroot command wouldn’t understand.</p>
+format would leave off the filename within the file produced, which could
+produce an invalid file that the Unix xsetroot command wouldn’t understand.</p>
 
 <p class=A><span class=P>4. Unix editing bugs:</span> When compiling Daedalus
 on some Unix systems (e.g. with the g++ compiler) some bitmap operations would
@@ -411,6 +381,13 @@ Daedalus scripting language. This only affects those who write their own macros
 or scripts, and should be ignored by everybody else:</p>
 
 <p class=Section2>********************  Operations  ********************</p>
+
+<p class=A><span class=N>OpenScript2 &lt;file&gt;:</span> Opens and runs the
+Daedalus script in the string &lt;file&gt;, and stops executing any command
+lines in progress. This accesses the functionality of the “Open Script...”
+command without bringing up a dialog, but allows opening a new script that may
+replace macros within an existing script, in a way that prevents the state of
+the old script interfering.</p>
 
 <p class=A><span class=N>DlgOpenDB:</span> Brings up a dialog allowing one to
 select a file, and then loads that file as a Daedalus bitmap.</p>
@@ -458,6 +435,16 @@ starting with index &lt;num3&gt;.</p>
 coordinates, along with the color, of star number &lt;num2&gt; displayed in the
 perspective view. If &lt;num1&gt; is 0, sets the star in the perspective inside
 view, otherwise sets the star in the wireframe or patch view.</p>
+
+<p class=A><span class=N>GroundVar2:</span> Like the Ground Variable command,
+but also allows for areas to be based on a particular height, and areas to be
+forced to be a particular height. If the main color bitmap exists, then pixels
+in it are base heights to add random values to. If the temporary color bitmap
+exists, then non-zero pixels in it are heights that will be guaranteed within
+the result (and nearby pixels will gradually fade to those heights). This is
+used by the “Jareth’s Labyrinth” script, to make the overall Labyrinth have higher
+heights in the middle areas, and also to make certain areas like the floor of
+the castle be a particular height.</p>
 
 <p class=Section2>********************  Variables  ********************</p>
 
@@ -508,7 +495,7 @@ Returns &lt;num1&gt; times the natural or base “e” logarithm of &lt;num2&gt;.</p
 </div>
 
 <p class=A>IMPORTANT NOTICE: Daedalus and all Maze generation and general
-graphics routines used in this program are Copyright (C) 1998-2023 by Walter D.
+graphics routines used in this program are Copyright (C) 1998-2024 by Walter D.
 Pullen. Permission is granted to freely use, modify, and distribute these
 routines provided these credits and notices remain unmodified with any altered
 or distributed versions of the program. The user does have all rights to Mazes

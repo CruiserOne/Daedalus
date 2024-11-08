@@ -1,18 +1,19 @@
 DS
-// Grippy Socks - A script file for Daedalus 3.4
+// Grippy Socks - A script file for Daedalus 3.5
 // By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
 // Created: April 20, 2023 - August 29, 2023
+// Documentation for this script: http://www.astrolog.org/labyrnth/daedalus/gripsox.htm
 
 // Variable usage:
 // d: If it's dark out
-// e: Energy level
-// f: Number of friends
+// e: Energy level (0-1000)
+// f: Number of friends (0-10)
 // h: Hour and minute of day (0-1439)
 // i-j: Temporary indexes
 // m-n: Coordinates facing
 // p: Wellness level (0-10)
 // r: Room staying in (0-9)
-// t: Time in hospital
+// t: Time in hospital (minutes)
 // w-z: Temporary variables
 
 // Custom variable prefixes:
@@ -37,11 +38,11 @@ If Lt Version 3400 {Message 'This script requires Daedalus 3.4 or later to run.'
 
 fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Grippy Socks" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True
 
-SetString 0 "1 FHelp FStart FName FUse FRest FRest2 FRest3 FUp FDown FLeft FRight FLeft2 FRight2 VInside VMove VMoved Wait Next Well Catch Facing Energy Look LookS Hear Door DoorP Dress Shelf John Sink Shower Wash Poster Tree Bush Study Chat Chat0 Chat1 Chat2 Chat3 Chat4 Chat5 Chat6 Chat7 Chat8 ChatP ChatN ChatM ChatF ChatG ChatR ChatO Done IRandom IRoom ISchedH ISchedR IChar IMove IPeople Move0 Move1 MoveOne MoveBed Day0 Day1 Day2 Day3 Day4 Day5 Day6 " // Macros
+SetString 0 "1 FHelp FStart FName FUse FRest FRest2 FRest3 FUp FDown FLeft FRight FLeft2 FRight2 VInside VMove VMoved VMouse Wait Next Well Catch Facing Energy Look LookS Hear Door DoorP Dress Shelf John Sink Shower Wash Poster Tree Bush Study Chat Chat0 Chat1 Chat2 Chat3 Chat4 Chat5 Chat6 Chat7 Chat8 ChatP ChatN ChatM ChatF ChatG ChatR ChatO Done IRandom IRoom ISchedH ISchedR IChar IMove IPeople Move0 Move1 MoveOne MoveBed Day0 Day1 Day2 Day3 Day4 Day5 Day6 " // Macros
 AppendString 0 "10 BID MTree MBush MBush2 MBed MTable MTable0 MDoor MDoor2 MDoor0 MDoorP MDoorP2 MPad +3 MPad0 +3 MDress MShelf MJohn MJohnP MSink MShower MWash MSwitch0 MSwitch1 MFire +2 MTele +2 MPic +2 MChain MRoom +10 MSignL +13 MSignR +9 MSignO +2 MQuote +19 MSched +2 MSchedR +10 MBody +40 " // Bitmaps
 AppendString 0 "13 SignL 9 SignR 19 Quote 12 Sched 21 Name 7 Role 10 Room " // Constants
 AppendString 0 "10 ZYou ZSignL +26 ZSignR +18 ZQuote +38 ZSched +12 ZSched2 +12 ZSchedR +10 ZName +10 ZNameF +21 ZNameM +21 ZRole +7 ZHair +20 ZMed +7 " // Strings
-AppendString 0 "27 KSky +6 KGrd +6 KMtn +6 KCld +6 KFog +6 KFloor KCeil KWall KDoor YCoor +32 YBody +16 YTall +16 YColor +16 YName +16 YID +16 Day Gend SGend SMist QDone QOne QNaked QPsych QMed QMedNew QCBT QStudy QBrea QLunc QDinn QHunger QGrp1 QGrp2 QJohn QJohn2 QHands QShower QStink TChat0 TChat1 TChat2 TChat3 TChat4 TChat5 TChat6 TChat7 TChat8 TPsych TNurse TRecep TOne A0 A1 A2 A3 A4 A4Data A4Num A5 A6 A6Data A7 A7Data A7Num A8 A8Chat A8X A8Y A9 A9Data MedTim MedNam Fire Pad Echo1 Echo2 Echo3 XPrev YPrev" // Variables 
+AppendString 0 "27 KSky +6 KGrd +6 KMtn +6 KCld +6 KFog +6 KFloor KCeil KWall KDoor YCoor +32 YBody +16 YTall +16 YColor +16 YName +16 YID +16 Day Gend SGend SMist QDone QOne QNaked QPsych QMed QMedNew QCBT QStudy QBrea QLunc QDinn QHunger QGrp1 QGrp2 QJohn QJohn2 QHands QShower QStink TChat0 TChat1 TChat2 TChat3 TChat4 TChat5 TChat6 TChat7 TChat8 TPsych TNurse TRecep TOne A0 A1 A2 A3 A4 A4Data A4Num A5 A6 A6Data A7 A7Data A7Num A8 A8Chat A8X A8Y A9 A9Data MedTim MedNam Fire Pad Echo1 Echo2 Echo3 XPrev YPrev" // Variables
 DefineConst $0 If @z {Message 'Initialization failed!' Halt}
 
 // ///////////// //
@@ -62,8 +63,9 @@ fRedrawWhenBitmapEdited False
 @A0 0 @A1 0 @A2 0 @A3 0 @A4 0 @A4Data 0 @A4Num 0 @A5 0 @A6 0 @A6Data 0 @A7 0 @A7Data 0 @A7Num 0 @A8 0 @A8Chat 0 @A8X 0 @A8Y 0 @A9 0 @A9Data 0
 @MedTim 0 @Fire 0 @Pad 0 @Echo1 0 @Echo2 0 @Echo3 0 @XPrev 0 @YPrev 0
 @MedNam Rnd 0 6
+$8 ""
 *IChar *IRandom *IRoom *ISchedH *ISchedR
-SetY 3 14 0 %MFire
+SetY 3 14 0 %MFire SetY 23 22 0 %MTele
 CopyMask 7 -1
 k
 For (i) 0 Sub %Quote 2 {@z Rnd @i Dec %Quote SwapMask Add %MQuote @i Add %MQuote @z}
@@ -73,6 +75,7 @@ nY Add Add 23 Mul @z 2 Mul Div @r 2 4
 nDir ?: @z 0 2 g
 @t 0 *Day0
 fRedrawWhenBitmapEdited True n
+ct fPauseTimer False
 *FHelp
 @z True
 
@@ -170,6 +173,9 @@ If And And @QOne Not GetE @XPrev @YPrev Neq GetCE @XPrev @YPrev Olive {*MoveOne}
 *Wait
 @z -1 *Energy
 fRedrawWhenBitmapEdited True Spc
+
+EmbedMacro %VMouse "Right Mouse Click"
+@z True
 
 // ////////////// //
 // Other Routines //
@@ -388,6 +394,7 @@ IfElse Equ @z %MJohn
 @QJohn 1 @QJohn2 0
 
 EmbedMacro %Sink "Use Sink"
+If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to use the sink. Try eating or resting first." return}
 If And And Equ @A9 1 Not And @A9Data 4 Equ nY 7 {$8 "You scrub the sink, cleaning it nicely!" @A9Data Or @A9Data #4 return}
 If And And Equ @A9 1 Not And @A9Data 8 Equ nY 9 {$8 "You scrub the sink, cleaning it nicely!" @A9Data Or @A9Data #8 return}
 $8 "Your hands are nice and clean now."
@@ -455,6 +462,7 @@ EmbedMacro %Study "Use Desk"
 If And Lte @e 0 Not @QDone {$8 "You don't have enough energy to study. Try eating or resting first." return}
 If And Equ @A1 1 Equ @n 7 {@x Add %ZName Var Add %YID 1 SetString 8 "You pick up $x's care package." @A1 2 return}
 If Not @QCBT {$8 "You haven't been given any advanced materials to study yet." return} 
+If @QStudy {$8 "You study Cognitive Behavioral Therapy (CBT) again." return}
 $8 "You study Cognitive Behavioral Therapy (CBT)."
 @QStudy 1
 
@@ -606,7 +614,7 @@ If Equ @TChat5 8 {@x Add %ZName Var Add %YID 4 SetString 8 "$z says: Would you t
 If Equ @TChat5 9 {SetString 8 "$z says: I'm almost up to 100 pounds now. That's nearly in the triple digits, yuck!"}
 If Equ @TChat5 10 {
   IfElse Lt @A5 3
-    (SetString 8 "$z says: One thing I can eat is tofu, but they're not serving it today. I wish someone could get some from the kitchen..." If Not @A5 "@A5 1")
+    (SetString 8 "$z says: One thing I can eat is tofu, but they're not serving it today. I wish someone could get me some from the kitchen..." If Not @A5 "@A5 1")
     (SetString 8 "$z says: I was at least able to eat some tofu, which helped a lot.")
 }
 @TChat5 Inc @TChat5
@@ -622,7 +630,7 @@ If Equ @TChat6 4 {SetString 8 "$z says: I'm sure I have the most scars as well a
 If Equ @TChat6 5 {SetString 8 "$z says: If I want to unalive, I'll just eat the food in the cafeteria to poison myself, heh!"}
 If Equ @TChat6 6 {SetString 8 "$z says: They took out my shoelaces, and the string from my hoodie, because of ligature risk."}
 If Equ @TChat6 7 {SetString 8 "$z says: I don't need to hurt myself. These group therapies are painful enough, heh!"}
-If Equ @TChat6 8 {SetString 8 "$z says: If I want to hurt myself I'll just take my meds. Their side effects should do the trick."}
+If Equ @TChat6 8 {SetString 8 "$z says: If I want to hurt myself I'll just take my meds. Their nasty side effects should do the trick."}
 If Equ @TChat6 9 {@x Add %ZName Var Add %YID 7 SetString 8 "$z says: I'm actually impressed by $x. Their mental attitude must feel like continuous self-harm."}
 If Equ @TChat6 10 {
   IfElse Lt @A6 3
@@ -791,9 +799,10 @@ If Equ @TOne 9 {SetString 8 "$z says: Of course mental illness is 'all in your h
 If Gte @TOne 10 {@TOne 0}
 
 EmbedMacro %Done "Finish Simulation"
+fPauseTimer True
 $1 "That means you struck a balance between getting to know your fellow patients and working on yourself."
-If Equ @f 0 {$1 "Not making any friends isn't a bad thing, as it shows you were totally focused on getting better yourself."}
-If Equ @f 10 {$1 "Wow, you made friends with every person possible! That means you accomplished everything it's possible to do in this simulation. :-)"}
+If Lte @f 0 {$1 "Not making any friends isn't a bad thing, as it shows you were totally focused on getting better yourself."}
+If Gte @f 10 {$1 "Wow, you made friends with every person possible! That means you accomplished everything it's possible to do in this simulation. :-)"}
 Message "Congratulations, you've completed the Grippy Socks simulation! :-) You successfully reached wellness level 10, got discharged from the hospital, and then exited the hospital grounds.\n\nYou finished the simulation with @f out of 10 possible friends. $1\n\nYour journey here is complete, however for many people it's a much longer ordeal, and can involve multiple hospitalizations over time. Mental health is a gift, so let's take care of ourselves, and be patient with the struggles of others! <3"
 @QDone 1
 
@@ -1218,6 +1227,7 @@ Embed // Sink
 Size 300 500 0 1
 Turtle "C1BM90,120R120D120L120U120BF`BHBD180OD40R40OB40L120BU35BR30OC5OE5OG5OA5BR25D20R10U20L10BR35OC5OE5OG5OA5"
 DoCount 4 {Thicken} cDel
+Turtle "BU50NE20BU60G50BH20E30"
 CopyMask -1 %MSink
 
 Embed // Shower
@@ -1345,11 +1355,11 @@ For (i) 0 3 {
       "Turtle 'L4GD6FLDNR5BUL5G2D9NR4D2RDR2URNU8FD6NR7DGL2GDR11U11BU3NL8BU11LHRNDRNDBULEBHUL2DRNUR'"
       "Turtle 'L2OF3D2OD3LODNR3BHL4OF5D6NR4D2RODOBRNU8OCD7NR6OEOF2R9U10OABU3NL8BU11LHRNDRBULEBHOHOFRNUR'"
     IfElse Gte @i 2
-      "Turtle 'BM110,2S9BD10LD2L2D2R2D2RBD16BL3U'"
-      "Turtle 'BM110,2S9BD31BL2D0BLD0BLD0BLD0BLD0BLD0BLD0BUBR2D0BRD0BRD0BRD0BRD0'"
+      "Turtle 'BM110,2BD10LD2L2D2R2D2RBD16BL3U'"
+      "Turtle 'BM110,2BD31BL2D0BLD0BLD0BLD0BLD0BLD0BLD0BUBR2D0BRD0BRD0BRD0BRD0'"
     If Equ @i 1
       "Turtle 'BFD0BUD0BUD0BLD0BLD0BLD0BLD0BLD0BGD0BDBL2D0BLD0'"
-    Turtle "BM110,2S9"
+    Turtle "BM110,2"
     @z Add Add %ZHair Mul Odd @i 10 @j Turtle $z
     Thicken2 6
     = FlipHorizontal TempOr cDel
@@ -1545,6 +1555,7 @@ fFogGround True fMarkColor True fMarkBlock True fTextureDual True fTextureDual2 
 nAfterRedrawInside %VInside
 nOnMoveToNewCell %VMove
 nAfterMoveToNewCell %VMoved
+nOnRightClick %VMouse
 fRedrawWhenBitmapEdited True
 
 *FStart

@@ -1,0 +1,1810 @@
+DS
+// Jareth's Labyrinth - A script file for Daedalus 3.5
+// By Walter D. Pullen, Astara@msn.com, http://www.astrolog.org/labyrnth.htm
+// This is fanfiction: Labyrinth and all Labyrinth characters are Copyright (c) Jim Henson Company
+// Created: December 20, 2023 - September 11, 2024
+
+// Variable usage:
+// a: Ralph leads to the castle? (0-1)
+// b: Stepped in bog? (0-1)
+// c: Cleaners horizontal coordinate
+// d: Dead? (0-1)
+// e: In endless passageway? (0-1)
+// f: Map mode (0-1)
+// g: Goblins tormenting Ludo (0-4)
+// h: Humongous status (0-5)
+// i: Temporary index
+// j: Jareth status (0-3)
+// k: Right knocker turns held breath (0-3)
+// l: Temporary for walls impassable (0-1)
+// m-n: Coordinates
+// o: Helping Hands status (0-4)
+// p: Worm & endless passage column part 1 (1-255)
+// q: Worm & endless passage column part 2 (135-137)
+// r: Temporary for Escher room availability
+// s: Secret wall panel strength (0-3)
+// t: Time left in seconds (0-46800)
+// u: Debug mode (0-1)
+// v-z: Temporary variables
+
+// Custom variable prefixes:
+// F: Macro (function for user command)
+// K: Color
+// M: Bitmap (texture that gets displayed)
+// S: Setting (user visible)
+// T: Setting (chat timing)
+// V: Macro (event)
+
+// Bitmap usage:
+// -1: Mono = Where objects are, Color = Color of objects
+// -2: Color = Color of ground marking
+// -3: Mono = Where semitransparency is, Color = Map index
+// 0: Color = Wall side textures
+// 1: Mono = Where variable height walls are, Color = Variable wall heights
+// 2: Color = Ground elevations
+// 3: Color = Wall top textures
+// 4: Color = Ground textures
+// 5: Color = Ground elevation textures
+// 6: Color = Map
+
+// Sections: outside (Hoggle/Worm), brick (Alph & Ralph/Oubliette), hedge (Ludo/Knockers), forest (Fireys/Bog), plains (Junk Lady), city (Humongous/Goblins), castle (Escher/Jareth)
+
+If Lt Version 3500 {Message 'This script requires Daedalus 3.5 or later to run.' Halt}
+
+fRedrawWhenBitmapEdited False ResetProgram WindowTitle "- Jareth's Labyrinth" True nHorizontalScroll 8 nVerticalScroll 8 fHideMenu True fHideScrollbars True fSkipMessageDisplay True
+
+SetString 0 "1 FHelp FStart FChat FAction FClimbU FClimbD FRest FMap FMark FUnmark FLookU FLookD FLook FUp FDown FLeft FRight FUp2 FDown2 FLeft2 FRight2 FRise FLower VInside VEdge VMove VMoved VFollow VMouseL VMouseR VMouseV Wait Wait1 Wait2 Facing Climb Clean Switch Tunnel Humo EschW EschW2 EschC ChatH ChatW ChatA ChatHH ChatB IntP ChatWM ChatN ChatL ChatKL ChatKR ChatKR2 IntKR ChatF ChatD ChatHU IntHU ChatJL ChatJ Day0 Day1 Day2 Day3 Day4 Day5 Day6 " // Macros
+AppendString 0 "20 MBrick MBrick2 MBrickX MBrickY MBrickZ MObel MObel2 MHedge MHedgeX MHedgeY MHedgeZ MArch MWood MWoodX MWoodY MWoodZ MDoor MDoor2 MTree MTree2 MWall MWall2 MWallX MWallY MHogg MFairy MWorm MAlph MRalph MHand MDeath MBench MBench2 MWarn +8 MBegg MBegg2 MClean MPanel MBars MWise MNipp MLudo MLudo1 MKnockL MKnockR MKnockR2 MFire MDidy MJunk MJunk2 MSlee MHumo +3 MHumo2 +3 MHumo3 +3 MGobl MJare MLadder MLadder2 MBog MArrow +4 MEsch +16 MEschX MEschY MEschW +16 MEschW2 +12 MEschE +2" // Bitmaps
+AppendString 0 "10 ZWarn +8" // Strings
+AppendString 0 "27 KSky +6 KGrd +6 KMtn +6 KCld +6 KFog +6 Day SMist XPrev YPrev TChatH TChatW TChatA TChatHH TChatB TChatWM TChatN TChatL TChatKL TChatKR TChatKR2 TIntKR TChatF TChatD TChatJL TChatJ" // Variables
+DefineConst $0 If @z {Message 'Initialization failed!' Halt}
+
+// ///////////// //
+// Main Commands //
+// ///////////// //
+
+EmbedMacro %FHelp "Help Text"
+Message "Welcome to Jareth's Labyrinth! :-)\n\nBefore you is a giant Maze. You have 13 hours in which to solve the Labyrinth, and face Jareth at its center.\n\nF1: Display this help text (shortcut: '?')\nF2: Restart Labyrinth from beginning (shortcut: '~')\nF3: Chat with whoever's in front of you (shortcut: 'q')\nF4: Physically interact with what's in front of you (shortcut: 'e')\n\nF5: Climb up (shortcut: 'u')\nF6: Climb down (shortcut 'j')\nF7: Rest in place (shortcut: 'z')\nF8: Toggle map view (shortcut: 'i')\n\nF9: Mark your path (shortcut: 'f')\nF10: Unmark your path (shortcut: 'v')\nF11: Tilt view down (shortcut: '[')\nF12: Tilt view up (shortcut: ']')\n\nUse arrow keys or 'w/a/s/d' keys to move and rotate.\nUse Shift+left/right arrow or 'x/c' keys to sidestep."
+
+EmbedMacro %FStart "Restart Maze"
+OpenScript2 "jareth.ds"
+
+EmbedMacro %FChat "Chat"
+If @d {$9 "You are dead and can't chat anymore." Spc @z True Return}
+fRedrawWhenBitmapEdited False
+$9 "There is nobody here to chat with."
+*Facing
+If Equ @z %MHogg {*ChatH}
+If Equ @z %MFairy {$9 "Ouch, the fairy bites you!"}
+If Equ @w %MWorm {*ChatW}
+If Tween @w %MAlph %MRalph {*ChatA}
+If And And Equ nX Sub 129 Mul @a 2 Equ nY 29 Gte @o 1 {*ChatHH}
+If And Equ @v %MHand Lte nViewHeight 0 {$9 "The Helping Hands say: Would you like us to take you back up the shaft?"}
+If Tween @v %MWarn Add %MWarn 7 {@v Add %ZWarn Sub @v %MWarn SetString 9 "The face in the wall says: $v"}
+If Tween @v %MBegg %MBegg2 {*ChatB}
+If Equ @z %MWise {*ChatWM}
+If Equ @z %MNipp {*ChatN}
+If Equ @z %MLudo1 {$9 "Ludo is tied hanging upside down from a tree and is too distracted to chat."}
+If Equ @z %MLudo {*ChatL}
+If Equ @w %MKnockL {*ChatKL}
+If Equ @w %MKnockR {*ChatKR}
+If Equ @w %MKnockR2 {*ChatKR2}
+If Equ @z %MFire {*ChatF}
+If And Equ @z %MDidy GetE @m @n {*ChatD}
+If Equ @z %MJunk {*ChatJL}
+If Equ @z %MSlee {$9 "The Goblin Guard is asleep and snoring, so doesn't notice you."}
+If And Tween @w %MHumo Add %MHumo3 2 Get nX Dec nY {*ChatHU}
+If Equ @z %MGobl {$9 "Goblin Guard says: Now we have you!"}
+If And Equ @z %MJare Equ @j 1 {*ChatJ}
+*Wait
+If Equ @j 2 {@x 129 @y 127 SetCA 2 @x @y 2800 SetCA 1 @x @y UD 3850 3880 SetC @x @y Gray SetE @x @y Off}
+fRedrawWhenBitmapEdited True n
+If Equ @j 2 {fPauseTimer True @j 3 @z Mod @t 60 @y Mod Div @t 60 60 @x Mod Div @t 3600 60 Message "Congratulations, you defeated Jareth! :-) He turns into an owl and flies away. You solved Jareth's Labyrinth with @x hours, @y minutes, and @z seconds left."}
+@z True
+
+EmbedMacro %FAction "Take Action"
+If @d {$9 "You are dead and can't interact anymore." Spc @z True Return}
+fRedrawWhenBitmapEdited False
+$9 "There is nothing here to interact with."
+*Facing
+If Equ @z %MHogg {$9 "Hoggle says: Hands off me jewels!"}
+If Equ @z %MFairy {$9 "You shoo the fairy away." SetE @m @n Off SetY @m @n -1 0}
+If Equ @w %MWorm {$9 "You have a nice cup of tea with the Worm. The teacup is quite small though!"}
+If And Tween @w %MAlph %MRalph Get @x @y {IfElse Lt @TChatA 10 ($9 "You should chat with the guards first before opening a door.") ($9 "You open the door behind the guard." Set @x @y Off SetCE @x @y Black Set 127 24 Off SetCE 127 24 Black)}
+If And And Equ nX Sub 129 Mul @a 2 Equ nY 29 Gte @o 1 {$9 "You can't do anything because you're being held by numerous hands!"}
+If And Equ @v %MHand Lte nViewHeight 0 {$9 "The Helping Hands give you a high five."}
+If Equ @v %MBench {$9 "You lift the bench up so it's against the wall. Underneath the bench is a doorknob." SetCA 5 126 33 UD 0 %MBench2}
+If Equ @v %MBench2 {$9 "You open the door formed by the bench. Behind is a passageway!" SetCT 126 33 DkGray SetCA 1 126 33 UD 512 256 SetCA 2 126 33 0 SetC 125 33 LtGray}
+If Tween @v %MWarn Add %MWarn 7 {$9 "The face in the wall is made out of rock, so can't be harmed."}
+If Equ @v %MBegg {$9 "The beggar chuckles as you try to give him something."}
+If Equ @w %MBars {$9 "The bars are firm and can't be bent or broken."}
+If Equ @v %MPanel {*IntP}
+If Equ @z %MWise {$9 "The Wiseman's Hat says: Talk to us if you want any help!"}
+If Equ @z %MNipp {$9 "You knock the goblin's helmet visor down, and he runs off in confusion." SetE @m @n Off SetY @m @n -1 0 @g Dec @g}
+If Equ @z %MLudo1 {IfElse Gt @g 0 ($9 "You can't help Ludo yet because goblins are still present.") ($9 "You untie the rope hanging Ludo from the tree, and he falls to the ground." SetY @m @n -1 %MLudo @x GetCA 1 @m @n SetCA 1 @m @n UD Sub UdU @x 50 Sub UdD @x 50)}
+If Equ @z %MLudo {$9 "You give Ludo a hug, and he hugs you back so hard he almost squishes you!"}
+If Equ @w %MKnockL {$9 "You use the knocker to knock on the door. It opens!" Set @x @y Off SetCE @x @y Black}
+If Or Equ @w %MKnockR Equ @w %MKnockR2 {*IntKR}
+If Equ @z %MFire {$9 "You grab the Firey's head and throw it! The Firey runs off to retrieve it." SetE @m @n Off SetY @m @n -1 0 If Lt @TChatF 10 (@TChatF 10)}
+If And Equ @z %MDidy GetE @m @n {$9 "Sir Didymus expertly parries your clumsy attempt to attack him!"}
+If Equ @z %MJunk {$9 "The Junk Lady looks happy that she's distracting you from proceeding to the castle."}
+If Equ @z %MJunk2 {$9 "You clear away the pile of junk." SetE @m @n Off SetY @m @n -1 0}
+If Equ @z %MSlee {$9 "You should be quiet so as to not awake the guard."}
+If And And Equ nY 151 Tween nX 127 129 Equ nDir 0 {$9 "You open the gate to Goblin City." For (x) 127 129 (Set @x 150 Off SetCE @x 150 Black)}
+If And And Equ nY 149 Tween nX 127 129 Equ nDir 2 {$9 "The outer gate to Goblin City is locked and can't be opened yet."}
+If Tween @w %MHumo Add %MHumo3 2 {*IntHU}
+If Equ @z %MGobl {$9 "Your attack bounces off the goblin guard's armor."}
+If Equ @w %MDoor {$9 "You open the door to the castle." For (x) 127 129 (SetCA 1 @x 134 UD UdU GetCA 1 @x 134 3200 SetY @x 134 -1 0)}
+If Or And Equ @z %MJare Equ @j 1 Equ @v %MBegg2 {$9 "Jareth raises one elegant eyebrow at your feeble attempt to attack him."}
+*Wait
+fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FClimbU "Climb Up"
+@w 98 $9 "" @z True
+If And Equ nX 129 Equ nY 81 {nDir 3 8 *Wait @z True Return}
+If And Equ nX 163 Equ nY 173 {nDir 2 8 *Wait @z True Return}
+If And Equ nX 127 Equ nY 145 {nDir 1 8 *Wait @z True Return}
+If And Equ nX 129 Equ nY 145 {nDir 3 8 *Wait @z True Return}
+If And And @e Equ nX Sub 129 Mul @a 2 Equ nY 29 {*Switch @o 2}
+If Equ @o 2 {$9 "You tell the Helping Hands to take you up. The trap door closes when you reach the top." SetCA 2 nX nY 900 @o 0 @w Sub 351 nViewHeight @z False}
+If And And Equ nX 129 Equ nY 51 Equ nViewHeight 0 {$9 "You climb up the ladder." While (And @e Tween @c 72 142) (*Clean) If @e (*Switch) @w 449 @z False}
+If And And Tween nX 127 129 Equ nY 147 Equ nViewHeight 984 {$9 "You climb up Humongous' body to his head." @z False}
+If And And Equ nX 125 Equ nY 123 Equ nViewHeight 1387 {@w 128 @z False}
+*EschC If Gte @v 0 {@v Mod Div @v 10 10 If Equ @v 0 ($9 "There is no ladder above you. You fall to the floor." @w Sub 1093 nViewHeight fRedrawWhenBitmapEdited False *Climb *Wait fRedrawWhenBitmapEdited True @z True Return) If Equ @v 1 (@z False)}
+If @z {$9 "You can't climb up here." Spc Return}
+fRedrawWhenBitmapEdited False
+*Climb
+If And Equ @w 128 Equ @j 0 {@j 1 @x 129 @y 127 SetCA 2 @x @y 3880 SetCA 1 @x @y UD 4095 3880 SetC @x @y Blue SetE @x @y On SetCA 4 @x @y 0 nClippingPlane 300 Spc}
+*Wait
+fRedrawWhenBitmapEdited True
+@z True
+
+EmbedMacro %FClimbD "Climb Down"
+@w 98 $9 "" @z True
+If And Equ nX 131 Equ nY 81 {nDir 1 8 *Wait @z True Return}
+If And Equ nX 163 Equ nY 175 {nDir 0 8 *Wait @z True Return}
+If And Equ nX 125 Equ nY 145 {nDir 3 8 *Wait @z True Return}
+If And Equ nX 131 Equ nY 145 {nDir 1 8 *Wait @z True Return}
+If And Equ @o 2 Gt nViewHeight 0 {$9 "You tell the Helping Hands to take you down." @o 3 @w nViewHeight @z False}
+If Equ @o 1 {$9 "A trap door opens beneath you, containing a shaft of hands." @o 2 @w Sub nViewHeight 175 @z False}
+If Equ @o 4 {$9 "A trap door opens beneath you, containing a pit of deadly spikes." @o 5 @d True @w nViewHeight @z False}
+If And And Equ nX 129 Equ nY 51 Equ nViewHeight 449 {$9 "You climb down the ladder." @w nViewHeight @z False}
+If And And Tween nX 127 129 Equ nY 147 Equ nViewHeight 1082 {$9 "You climb down Humongous' body to his feet." @z False}
+If And And Equ nX 125 Equ nY 123 Equ nViewHeight 1515 {@w 128 @z False}
+*EschC If Gte @v 0 {@v Mod @v 10 If Equ @v 0 ($9 "There is no ladder below you. You fall to the floor." @w Sub nViewHeight 1093 @z False) If Equ @v 1 (@z False)}
+If @z {$9 "You can't climb down here." Spc Return}
+fRedrawWhenBitmapEdited False
+If And Equ @w 128 Equ @j 1 {@j 0 @x 129 @y 127 SetCA 2 @x @y 2800 SetCA 1 @x @y UD 3850 3880 SetC @x @y Gray SetE @x @y Off SetCA 4 @x @y Add %MEsch 15 nClippingPlane 150 Spc}
+@w Neg @w *Climb
+If And And Equ nViewHeight 0 Equ nX 129 Equ nY 51 {*Switch Spc}
+If Equ @o 3 {*Switch @o 0 Spc}
+*Wait
+fRedrawWhenBitmapEdited True
+@z True
+
+EmbedMacro %FRest "Rest in Place"
+$9 "You rest in place."
+*Wait
+@z True
+
+EmbedMacro %FMap "Toggle Map"
+If @e {$9 "This part of the Labyrinth isn't on any map." Spc @z True Return}
+@f Not @f
+fRedrawWhenBitmapEdited False
+SwapTexture -1 6
+i
+fRedrawWhenBitmapEdited True n
+@z True
+
+EmbedMacro %FMark "Mark Path"
+@z GetCE nX nY If Or Equ @z Blue Equ @z Brown {$9 "You can't mark while on liquid." *Wait @z True Return}
+@w Or Or Or Equ GetCE nX Dec nY Red Equ GetCE Dec nX nY Red Equ GetCE nX Inc nY Red Equ GetCE Inc nX nY Red
+If And @w Rnd 0 1 {$9 "You try to mark your path with an arrow, but the brick gets flipped over." *Wait @z True Return}
+@z nDir
+IfElse @w
+  {$9 "You try to mark your path with an arrow, but the brick gets rotated." @z And Add @z Dec Mul Rnd 0 1 2 3}
+  {$9 "You mark your path with an arrow."}
+@z Add %MArrow @z
+SetCA 3 nX nY UD @z UdD GetCA 3 nX nY
+SetCA 4 nX nY @z
+*Wait
+@z True
+
+EmbedMacro %FUnmark "Unmark Path"
+@z GetCE nX nY If Or Equ @z Blue Equ @z Brown {$9 "There are no marks on liquid." *Wait @z True Return}
+$9 "You rub out any marks on your path."
+SetCA 3 nX nY UD 0 UdD GetCA 3 nX nY
+SetCA 4 nX nY 0
+*Wait
+@z True
+
+EmbedMacro %FLookU "Look Up"
+@z True
+If Lte nHorizon -7000 {Return}
+nHorizon Max Sub nHorizon 500 -7000
+
+EmbedMacro %FLookD "Look Down"
+@z True
+If Gte nHorizon 7000 {Return}
+nHorizon Min Add nHorizon 500 7000
+
+EmbedMacro %FLook "Look Center"
+$9 ""
+nHorizon 0
+@z True
+
+DefineMacro %FUp     "8 @z True" "Move Forward"
+DefineMacro %FDown   "2 @z True" "Move Backward"
+DefineMacro %FLeft   "4 @z True" "Rotate Left"
+DefineMacro %FRight  "6 @z True" "Rotate Right"
+DefineMacro %FUp2    "If Or Not @f @u {*} @z True" "Follow Forward"
+DefineMacro %FDown2  "If Or Not @f @u {@} @z True" "Follow Backward"
+DefineMacro %FLeft2  "If Or Not @f @u {$} @z True" "Sidestep Left"
+DefineMacro %FRight2 "If Or Not @f @u {^} @z True" "Sidestep Right"
+DefineMacro %FRise   "If @u {u} @z True" "Rise Up"
+DefineMacro %FLower  "If @u {d} @z True" "Lower Down"
+
+// ////// //
+// Events //
+// ////// //
+
+EmbedMacro %VInside "Inside Event"
+Local 'vwxyz'
+If NeqStr $9 "" {MessageInside $9 0}
+If @b {MessageInside "You SMELL BAD!" -2}
+If @d {MessageInside "Time Left: YOU ARE DEAD" -1 Return}
+If Gte @j 2 {MessageInside "Time Left: IT'S ONLY FOREVER" -1 Return}
+If Lte @t 0 {MessageInside "Time Left: NONE" -1 Return}
+@v Div @t 3600 @w Mod Div @t 60 60 @y Mod @t 60
+@x Mod @w 10 @w Div @w 10
+@z Mod @y 10 @y Div @y 10
+MessageInside "Time Left: @v:@w@x:@y@z" -1
+
+EmbedMacro %VEdge "Edge Event"
+@z True
+
+EmbedMacro %VMove "Move Event"
+If And And And And @e Equ Mod nX 20 Mod @p 20 Equ nY 235 Equ @y 233 Equ nDir 0 {nX @q *Switch 8 nEdgeBehavior 0 @z True Return}
+If Or Or Equ GetCE @x @y Cyan GetE @x @y Equ @o 2 {@z True Return}
+@z GetCE Div Add nX @x 2 Div Add nY @y 2
+If And fWallsImpassable Or Or Or Or Or Or Equ @z Red Equ @z Green Equ @z Yellow Equ @z Maize Equ @z LtGray Equ @z Magenta Equ @z Purple {@z True Return}
+If @d {$9 "You are dead and can't move anymore." Spc @z True Return}
+If And And @e Equ GetC nX nY LtGray Neq GetC @x @y LtGray {@z True Return}
+If And And And @e Equ nX 91 Equ nY 47 Gt GetCA 5 91 48 0 {IfElse Lt @TChatB 2 ($0 "The beggar") ($0 "Jareth") SetString 9 "$0's compelling presence holds you in place." Spc @z True Return}
+If Or Or Or
+  And Or And Tween @x 125 131 Or Equ @y 123 Equ @y 129 And Tween @y 123 129 Or Equ @x 125 Equ @x 131 Neq nViewHeight 1402
+  And Equ nViewHeight 1387 Neq @x 133
+  And Equ @x 129 Equ @y 51
+  And And Equ nX 129 Equ nY 51 Equ nViewHeight 449
+  {@l fWallsImpassable fWallsImpassable False}
+If And And And And Not @e Tween nX 127 129 Equ nY 237 Tween @x 127 129 Equ @y 235 {*Switch}
+*EschC @r @v @XPrev nX @YPrev nY
+$9 ""
+*Wait1
+@z False
+
+EmbedMacro %VMoved "After Move Event"
+fRedrawWhenBitmapEdited False
+If And And @e Tween nX 127 129 Equ nY 237 {*Switch Spc}
+If And And @e Or Equ nX 123 Equ nX 133 Equ nY 235 {nEdgeBehavior 0}
+If And And @e Or Equ nX 121 Equ nX 135 Equ nY 235 {nEdgeBehavior 2}
+If And And @e Equ nX @p Equ nY 235 {$9 "You hear a voice say: 'Allo!'" Spc}
+If And And @e Lte nX 1 Equ nY 235 {nX 93 Spc}
+If And And @e Gte nX 255 Equ nY 235 {nX 159 Spc}
+If And And Not @e Equ nX @q Equ nY 235 {nX @p *Switch nEdgeBehavior 2 Spc}
+@m Sub 129 Mul @a 2 @n 29 If And And Not @e Equ nX @m Equ nY @n {@o 1 SetCA 2 @m @n 0 *FClimbD}
+@m Add 127 Mul @a 2 @n 29 If And And Not @e Equ nX @m Equ nY @n {@o 4 SetCA 2 @m @n 0 *FClimbD}
+@z False
+If And And @e Equ nX 123 Equ nY 33 {@z Add %ZWarn 0}
+If And And @e Equ nX 119 Equ nY 33 {@z Add %ZWarn 1}
+If And And @e Equ nX 115 Equ nY 35 {@z Add %ZWarn 2}
+If And And @e Equ nX 111 Equ nY 37 {@z Add %ZWarn 3}
+If And And @e Equ nX 107 Equ nY 37 {@z Add %ZWarn 4}
+If And And @e Equ nX 103 Equ nY 39 {@z Add %ZWarn 5}
+If And And @e Equ nX 99 Equ nY 41 {@z Add %ZWarn 6}
+If And And @e Equ nX 95 Equ nY 41 {@z Add %ZWarn 7}
+If @z {SetString 9 "A face in the wall says: $z" Spc}
+If And Not @d Equ GetCA 5 Dec nX nY UD %MClean %MClean {$9 "You walk into the deadly Cleaners, which chop you into pieces!" @d True Spc}
+@z False
+If And And And Equ nX 125 Equ nY 45 Not @e Neq nDir 3 {nX 131 nY 53 Spc @z True}
+If And And And Equ nX 123 Equ nY 51 Not @e Neq nDir 0 {nX 131 nY 45 Spc @z True}
+If And And And Equ nX 129 Equ nY 53 Not @e Neq nDir 1 {nX 123 nY 45 Spc @z True}
+If And And And Equ nX 131 Equ nY 47 Not @e Neq nDir 2 {nX 123 nY 53 Spc @z True}
+If @z {$9 "You feel like you've been here before." Spc}
+If Equ GetCE nX nY Brown {$9 "Oh no! You step in the Bog of Eternal Stench!" @b True Spc}
+If And Neq GetCE nX nY Brown Or Or Or Equ GetCE nX Sub nY 2 Brown Equ GetCE Sub nX 2 nY Brown Equ GetCE nX Add nY 2 Brown Equ GetCE Add nX 2 nY Brown {$9 "Something nearby smells absolutely horrible!" Spc}
+If And Lte @h 0 And Tween nX 127 129 Equ nY 149 {$9 "The outer gate slams shut behind you and locks itself!" For (x) 127 129 (Set @x 150 On SetCE @x 150 LtGray) Spc @h 1}
+If And Equ @h 1 And Tween nX 125 131 Equ nY 147 {$9 "The inner gate closes in front of you, revealing a humongous guard!" For (x) 127 129 (Set @x 146 On SetCE @x 146 Maize) Spc @h 2}
+If Equ GetCE nX nY Blue {$9 "Splash! You step in a pool of water." Spc}
+@z Add ?: Gte nY @YPrev 2 0 Sgn Sub nX @XPrev
+@v @r If Gte @v 0 {@v Mod Div @v Pow 10 Sub 5 @z 10 If Equ @v 0 ($9 "There is no ladder next to you. You fall to the floor." @w Sub 1093 nViewHeight *Climb)}
+*Wait2
+fWallsImpassable @l
+fRedrawWhenBitmapEdited True
+
+EmbedMacro %VFollow "Follow Event"
+*Wait
+@z Or Or Or Or Equ GetCE nX Dec nY DkGreen Equ GetCE Dec nX nY DkGreen Equ GetCE nX Inc nY DkGreen Equ GetCE Inc nX nY DkGreen Lte nViewHeight 0
+
+EmbedMacro %VMouseL "Left Mouse Click"
+@z Not @u
+
+EmbedMacro %VMouseR "Right Mouse Click"
+@z True
+
+EmbedMacro %VMouseV "On Mouse Move"
+@z True
+
+// ////////////// //
+// Other Routines //
+// ////////////// //
+
+EmbedMacro %Wait "Advance Time"
+*Wait1
+*Wait2
+
+EmbedMacro %Wait1 "Advance Time Part 1"
+fRedrawWhenBitmapEdited False
+@t Sub @t 10
+*Day0
+MoveCloud -1 30000
+fRedrawWhenBitmapEdited True
+
+EmbedMacro %Wait2 "Advance Time Part 2"
+fRedrawWhenBitmapEdited False
+If And Not @d Tween @c 72 142 {*Clean}
+If And Not @d Equ GetCA 5 Dec nX nY UD %MClean %MClean {$9 "The deadly Cleaners advance and chop you into pieces!" @d True}
+fRedrawWhenBitmapEdited True Spc
+If And And Not @d Equ @t 0 Lt @j 2 {Message "You're out of time! :-( 13 hours have passed, and you failed to solve Jareth's Labyrinth!"}
+
+EmbedMacro %Facing "Facing Textures"
+@x Add nX ?: Odd nDir Sub nDir 2 0
+@y Add nY ?: Odd nDir 0 Dec nDir
+@w GetCA 0 @x @y
+@w ?: Lt nDir 2 UdD @w UdU @w
+@m Add nX Mul Sub @x nX 2
+@n Add nY Mul Sub @y nY 2
+@z GetCA 0 @m @n
+@z ?: Lt nDir 2 UdD @z UdU @z
+@v GetCA 5 @x @y
+@v ?: Lt nDir 2 UdD @v UdU @v
+
+EmbedMacro %Climb "Climb Animation"
+@v nViewHeight
+For (y) 1 nUpDownFrames {nViewHeight Add @v Div Mul @y @w nUpDownFrames Spc}
+
+EmbedMacro %Clean "Advance Cleaners"
+fRedrawWhenBitmapEdited False
+If EquStr $9 "" ($9 "You hear the deadly Cleaners advance!") 
+If Gt @c 72 (SetCA 2 @c 47 0)
+SetCA 5 @c 47 0 @c Add @c 2 SetCA 2 @c 47 512
+If Lt @c 144 (SetCA 5 @c 47 UD %MClean %MClean)
+If GetE @c 47 (SetE @c 47 Off SetCA 1 @c 47 UD 512 256 SetC Inc @c 47 LtGray)
+fRedrawWhenBitmapEdited True
+
+EmbedMacro %Switch "Switch Environment"
+If And @f Not @e {*FMap}
+@z fRedrawWhenBitmapEdited fRedrawWhenBitmapEdited False
+@e Not @e
+For (i) 0 5 {SwapTexture Add 10 @i @i SwapMask Add 10 @i @i}
+For (i) -3 -1 {SwapTexture Add 19 @i @i SwapMask Add 19 @i @i}
+fRedrawWhenBitmapEdited @z
+
+EmbedMacro %Tunnel "Make Tunnel"
+Set @x @y On SetE @x @y Off SetC @x @y LtGray SetCT @x @y DkGray SetCE @x @y Black
+SetCA 1 @x @y UD 512 256 SetCA 2 @x @y 0
+SetCA 3 @x @y 0
+
+EmbedMacro %Humo "Make Humongous"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM37,12S3T_HUMONGOUS_" Thicken Thicken cDel TempAnd
+= Size 99 SizeY 0 0 CopyMask -1 @w
++ Size -99 0 1 0 Size 33 SizeY 0 0 CopyMask -1 Inc @w
++ Size -132 0 1 0 CopyMask -1 Add @w 2
+
+EmbedMacro %EschW "Make Escher Wall"
+Size 18 90 0 1 sDel
+nX 0
+ForStep (y) 72 0 -24 {CopyMask Add %MEsch Mod @w 100 -2 nY @y aG @w Div @w 100}
+CopyMask %MEschX -2
+ForStep (y) 66 18 -24 {If Mod @v 10 (nY @y aG) @v Div @v 10}
+cDel Size 0 3 1 0 cDel
+CopyMask -1 Add %MEschW @x
+
+EmbedMacro %EschW2 "Make Escher Wall Between"
+Size 6 90 0 1 sDel
+CopyMask %MEschY -2 nX 0
+ForStep (y) 72 0 -24 {If Mod @v 10 (nY @y aG) @v Div @v 10}
+cDel Size 0 7 1 0 cDel
+CopyMask -1 Add %MEschW2 @x
+
+EmbedMacro %EschC "Escher Coordinates"
+Local "xyz"
+@x Div Sub nX 125 2
+@y Div Sub nY 123 2
+@z Sub 3 Div Sub nViewHeight 1093 98
+IfElse And And Tween @x 0 3 Tween @y 0 3 Tween @z 0 3
+  {@v Var Add 27 Add Add Mul @z 16 Mul @y 4 @x}
+  {@v -1}
+
+// ///////////// //
+// Chat Routines //
+// ///////////// //
+
+EmbedMacro %ChatH "Chat Hoggle"
+If Equ @TChatH 0 {$9 "Hoggle says: I'm Hoggle. Who are you?"}
+If Equ @TChatH 1 {$9 "Hoggle says: The fairies breed as fast as I spray!"}
+If Equ @TChatH 2 {$9 "Hoggle says: Do I know where the door to the Labyrinth is? Oh, maybe."}
+If Equ @TChatH 3 {$9 "Hoggle says: How do you get into the Labyrinth? You gets in there... *points*" For (x) 127 129 (Set @x 236 Off SetCE @x 236 Black) For (y) 237 238 (Set 126 @y On Set 130 @y On SetCE 126 @y LtGray SetCE 130 @y LtGray)}
+If Equ @TChatH 4 {$9 "Hoggle says: Now, would you go left or right? Me, I wouldn't go either way."}
+If Equ @TChatH 5 {$9 "Hoggle says: Get through the Labyrinth? One thing for sure, you'll never get through the Labyrinth!"}
+@TChatH Inc @TChatH
+If Gte @TChatH 6 {@TChatH 4}
+
+EmbedMacro %ChatW "Chat Worm"
+If Equ @TChatW 0 {$9 "The Worm says: 'Allo!"}
+If Equ @TChatW 1 {$9 "The Worm says: No, I didn't say 'Hello'. I said 'Allo', but that's close enough."}
+If Equ @TChatW 2 {$9 "The Worm says: Yeah, I'm a worm, that's right."}
+If Equ @TChatW 3 {$9 "The Worm says: No, I don't know the way through this Labyrinth. Who, me? No, I'm just a worm."}
+If Equ @TChatW 4 {$9 "The Worm says: Come inside and meet the missus."}
+If Equ @TChatW 5 {$9 "The Worm says: This passage isn't endless. It's full of openings. It's just you ain't seeing them."}
+If Equ @TChatW 6 {$9 "The Worm says: There's an opening just across there. It's right in front of you."}
+If Equ @TChatW 7 {$9 "The Worm says: You try walking through it, you'll see what I mean. Go on, go on, then."}
+If Equ @TChatW 8 {$9 "The Worm says: Come inside and have a nice cup of tea."}
+If Equ @TChatW 9 {$9 "The Worm says: Things are not always what they seem in this place. So, you can't take anything for granted."}
+@TChatW Inc @TChatW
+If Gte @TChatW 10 {@TChatW 5}
+
+EmbedMacro %ChatA "Chat Alph & Ralph"
+@x Equ @w %MRalph
+IfElse @x {$0 "Ralph"} {$0 "Alph"}
+If Equ @TChatA 0 {SetString 9 "$0 says: No, it's not fair. But that's only half of it!"}
+If Equ @TChatA 1 {SetString 9 "$0 says: That's the dead end, behind you! Ah ha ha ha!" Set 127 24 On SetCE 127 24 Red}
+If Equ @TChatA 2 {SetString 9 "$0 says: The only way out of here is to try one of these doors."}
+If Equ @TChatA 3 {SetString 9 "$0 says: One of these doors leads to the castle at the center of the Labyrinth..."}
+If Equ @TChatA 4 {SetString 9 "$0 says: And the other door leads to (ba ba ba bum) certain death! Ooooh!"}
+If Equ @TChatA 5 {SetString 9 "$0 says: No, you can't ask us which door, you can only ask one of us. It's in the rules!"}
+If Equ @TChatA 6 {SetString 9 "$0 says: I should warn you that one of us always tells the truth, and one of us always lies!"}
+If Equ @TChatA 7 {SetString 9 "$0 says: That's a rule too. The other guard always lies!"}
+If Equ @TChatA 8 {SetString 9 "$0 says: I do not lie! I tell the truth!"}
+If Equ @TChatA 9 {SetString 9 "$0 says: Ooh, what a lie! He's the liar!"}
+If Equ @TChatA 10 {IfElse Neq @x @a ($1 "Yes") ($1 "No") SetString 9 "You ask $0: Would the other guard tell me that this door behind you leads to the castle? $0 answers: $1."}
+@TChatA Inc @TChatA
+If Gte @TChatA 11 {@TChatA 10}
+
+EmbedMacro %ChatHH "Chat Helping Hands"
+If Equ @TChatHH 0 {$9 "Helping Hands say: What do you mean 'help'? We are helping! We're the Helping Hands."}
+If Equ @TChatHH 1 {$9 "Helping Hands say: Would you like us to let go? Ha ha ha!"}
+If Equ @TChatHH 2 {$9 "Helping Hands say: Well then, come on, which way? Up or down."}
+If Equ @TChatHH 3 {$9 "Helping Hands say: Come on, we haven't got all day."}
+If Equ @TChatHH 4 {$9 "Helping Hands say: Which way do you want to go, hmm? Yes, which way?"}
+@TChatHH Inc @TChatHH
+If Gte @TChatHH 5 {@TChatHH 2}
+
+EmbedMacro %ChatB "Chat Beggar"
+If Equ @TChatB 0 {$9 "Beggar says: Ah, what have we here?"}
+If Equ @TChatB 1 {$9 "The beggar suddenly rises! It's Jareth in disguise!" SetCA 5 91 48 UD %MBegg2 0}
+If Equ @TChatB 2 {$9 "Jareth says: And you, how are you enjoying my Labyrinth?"}
+If Equ @TChatB 3 {$9 "You say: The Labyrinth is a 'piece of cake'."}
+If Equ @TChatB 4 {$9 "Jareth says: Really, then how about upping the stakes?"}
+If Equ @TChatB 5 {$9 "Jareth advances the clock by three hours. Hey, that's not fair!" @t Sub @t 10800}
+If Equ @TChatB 6 {$9 "Jareth says: So the Labyrinth's a 'piece of cake'? Well let's see how you deal with this little 'slice'."}
+If Equ @TChatB 7 {$9 "Jareth throws a crystal ball down the passage, then he disappears!" nDir 1 SetCA 5 91 48 0 @c 72 SetCA 5 @c 47 UD %MClean %MClean SetCA 2 91 46 256 SetC 91 45 Gray}
+@TChatB Inc @TChatB
+
+EmbedMacro %IntP "Interact Panel"
+If Lte @s 0 {$9 "This wall panel seems to give a little when you press upon it." @s 1 Return}
+If Equ @s 1 {$9 "This wall panel gives a lot when you push upon it." @s 2 Return}
+If Equ @s 2 {$9 "The wall panel falls away when you push on it as hard as you can!" @s 3 SetCA 2 129 48 0 SetC 129 49 LtGray SetCA 2 91 46 0 SetC 91 45 LtGray}
+
+EmbedMacro %ChatWM "Chat Wiseman"
+If Equ @TChatWM 0 {$9 "Wiseman says: What can I do for you?"}
+If Equ @TChatWM 1 {$9 "Wiseman says: So, you want to get to the castle?"}
+If Equ @TChatWM 2 {$9 "Wiseman's Hat says: How's that for brainpower?"}
+If Equ @TChatWM 3 {$9 "Wiseman says to his hat: Be quiet!"}
+If Equ @TChatWM 4 {$9 "Wiseman's Hat says: Ah, nuts."}
+If Equ @TChatWM 5 {$9 "Wiseman says: The way forward is sometimes the way back, and sometimes the way back is the way forward."}
+If Equ @TChatWM 6 {$9 "Wiseman's Hat says: That means walk backwards down the passage to get out of this area."}
+If Equ @TChatWM 7 {$9 "Wiseman's Hat says: Please leave a contribution in the little box."}
+@TChatWM Inc @TChatWM
+If Gte @TChatWM 8 {@TChatWM 5}
+
+EmbedMacro %ChatN "Chat Nipper"
+If Equ @TChatN 0 {$9 "The goblin with a nipper stick sadistically jabs at Ludo!"}
+If Equ @TChatN 1 {$9 "The goblin with a nipper stick says: Try this for size you big hippie!"}
+If Equ @TChatN 2 {$9 "The goblin with a nipper stick says: We got you now, fatso!"}
+If Equ @TChatN 3 {$9 "The goblin with a nipper stick says: All together now, nippie nippie nip nip!"}
+@TChatN Inc @TChatN
+If Gte @TChatN 4 {@TChatN 0}
+
+EmbedMacro %ChatL "Chat Ludo"
+If Equ @TChatL 0 {$9 "Ludo says: Ludo friend!"}
+If Equ @TChatL 1 {$9 "You ask Ludo if he knows how to get through the Labyrinth. Ludo says: No."}
+If Equ @TChatL 2 {$9 "You wonder if anyone knows how to get through this Labyrinth... Hey, where did they come from?" SetC 127 198 LtGray SetC 129 198 LtGray SetY 127 198 1 %MKnockL SetY 129 198 1 %MKnockR}
+@TChatL Inc @TChatL
+If Gte @TChatL 3 {@TChatL 0}
+
+EmbedMacro %ChatKL "Chat Knocker Left"
+If Equ @TChatKL 0 {$9 "The door knocker with a ring in its ears says: What?"}
+If Equ @TChatKL 1 {$9 "The door knocker with a ring in its ears says: Huh?"}
+If Equ @TChatKL 2 {$9 "The door knocker with a ring in its ears says: No good, can't hear you."}
+@TChatKL Inc @TChatKL
+If Gte @TChatKL 3 {@TChatKL 0}
+
+EmbedMacro %ChatKR "Chat Knocker Right"
+If Equ @TChatKR 0 {$9 "The door knocker with a ring in his mouth says: Mmf!"}
+If Equ @TChatKR 1 {$9 "The door knocker with a ring in his mouth mumbles incomprehensably."}
+If Equ @TChatKR 2 {$9 "The door knocker can't speak since he has a ring in his mouth."}
+@TChatKR Inc @TChatKR
+If Gte @TChatKR 3 {@TChatKR 0}
+
+EmbedMacro %ChatKR2 "Chat Knocker Right"
+If Gt @k 0 {$9 "The door knocker takes a deep breath the moment you stop pinching his nose shut!" @k 0 Return}
+If Equ @TChatKR2 0 {$9 "The door knocker says: Oh, it is so good to get that thing out!"}
+If Equ @TChatKR2 1 {$9 "The door knocker says: Don't mind the other knocker, he's deaf as a post!"}
+If Equ @TChatKR2 2 {$9 "The door knocker says: I'm definitely the correct door to the castle, no doubt about it!"}
+If Equ @TChatKR2 3 {$9 "The door knocker says: To get through the door, knock and the door will open!"}
+If Equ @TChatKR2 4 {$9 "The door knocker says: No, I don't want that ring back in my mouth!"}
+If Equ @TChatKR2 5 {$9 "The door knocker closes his mouth tightly when you try to put the ring back in his mouth!"}
+If Equ @TChatKR2 6 {$9 "The door knocker keeps his mouth closed tightly while breathing heavily through his nose."}
+@TChatKR2 Inc @TChatKR2
+If Gte @TChatKR2 7 {@TChatKR2 5}
+
+EmbedMacro %IntKR "Interact Knocker Right"
+If And Equ @w %MKnockR Lt @k 3 {$9 "You pull the ring out of the knocker's mouth." SetY 129 198 1 %MKnockR2 Return}
+If And Equ @w %MKnockR2 Lte @TChatKR2 4 {$9 "You should talk with the knocker since he can speak now." Return}
+If Lte @k 0 {$9 "You pinch the knocker's nose shut. He can't breathe anymore since he's keeping his mouth shut!" @k 1 Return}
+If Equ @k 1 {$9 "You keep pinching the knocker's nose shut. He scowls deeply while trying to hold his breath!" @k 2 Return}
+If Equ @k 2 {$9 "The knocker can't hold his breath any longer. He opens his mouth and you stuff the ring back in!" @k 3 SetY 129 198 1 %MKnockR Return}
+$9 "You use the knocker to knock on the door. It opens!" Set @x @y Off SetCE @x @y Black
+
+EmbedMacro %ChatF "Chat Firey"
+If Equ @TChatF 0 {$9 "Firey lifts his head off his shoulders and says: We just have to have a good time!"}
+If Equ @TChatF 1 {$9 "Firey says: We can show you a good time, and we don't charge nothing!"}
+If Equ @TChatF 2 {$9 "Firey says: Get the town talking fire gang, chilly down with the fire gang!"}
+If Equ @TChatF 10 {$9 "Firey says: It's against the rules to throw other people's heads! You're only allowed to throw your own head."}
+If Equ @TChatF 11 {$9 "Firey says: Now we take your head off! Get a saw, it won't hurt!"}
+If Equ @TChatF 12 {$9 "Firey says: Stop them somebody, stop them!"}
+@TChatF Inc @TChatF
+If Equ @TChatF 3 {@TChatF 0}
+If Gte @TChatF 13 {@TChatF 10}
+
+EmbedMacro %ChatD "Chat Didymus"
+If Equ @TChatD 0 {$9 "Sir Didymus says: Stop! Stop, I say!"}
+If Equ @TChatD 1 {$9 "Sir Didymus says: Without my permission no one may cross."}
+If Equ @TChatD 2 {$9 "Sir Didymus says: Stench? Of what speaketh thou?"}
+If Equ @TChatD 3 {$9 "Sir Didymus says: The air is sweet, and fragrant. And none may pass without my permission!"}
+If Equ @TChatD 4 {$9 "Sir Didymus says: May you have my permission? Well, I uh... Yes."}
+If Equ @TChatD 5 {$9 "Sir Didymus says: Have no fear. This bridge has lasted for a thousand years!" SetE 119 173 Off SetE 119 165 On}
+If Equ @TChatD 6 {$9 "Sir Didymus says: Let us fight for the right as one!"}
+If Equ @TChatD 7 {$9 "Sir Didymus says: I say, does anybody want to play a game of Scrabble?"}
+@TChatD Inc @TChatD
+If Gte @TChatD 8 {@TChatD 6}
+
+EmbedMacro %ChatHU "Chat Humongous"
+If Gte @h 5 {$9 "Humongous is silent because it's been deactivated." Return}
+IfElse Lte nViewHeight 1023 ($9 "Humongous says in a deep booming voice from above you: WHO GOES?") ($9 "Humongous says in a deep booming voice next to you: WHO GOES?")
+
+EmbedMacro %IntHU "Interact Humongous"
+If Not Get nX Dec nY {Return}
+If And Lte nViewHeight 1023 Lt @h 5 {$9 "From down here you can't do anything except tap on Humongous' knees." Return}
+If Equ @h 2 {$9 "You grab Humongous' helmet and open it like a lid. Inside is a small goblin at Humongous' controls." For (x) 0 2 (SetY Add 127 @x 146 1 Add %MHumo2 @x) @h 3 Return}
+If Equ @h 3 {$9 "You grab the small goblin and throw him away from Humongous' controls." For (x) 0 2 (SetY Add 127 @x 146 1 Add %MHumo3 @x) @h 4 Return}
+If Equ @h 4 {$9 "You pull levers within Humongous' controls until it safely shuts down." For (x) 0 2 (SetY Add 127 @x 146 1 Add %MHumo @x) @h 5 Return}
+If And Equ @h 5 Gt nViewheight 1023 {$9 "With Humongous deactivated, you no longer need to be up here." Return}
+$9 "With Humongous deactivated, the gate to Goblin City opens!" For (x) 127 129 {Set @x 150 Off SetCE @x 150 Black Set @x 146 Off SetCE @x 146 Black}
+
+EmbedMacro %ChatJL "Chat Junk Lady"
+If Equ @TChatJL 0 {$9 "Junk Lady says: Why don't you look where you're going?"}
+If Equ @TChatJL 1 {$9 "Junk Lady says: You can't look where you're going if you don't know where you're going!"}
+If Equ @TChatJL 2 {$9 "Junk Lady says: Look here. That's what you were looking for, wasn't it my dear?"}
+If Equ @TChatJL 3 {$9 "Junk Lady says: Why don't you stay here and see if there's anything else you'd like, hmm?"}
+If Equ @TChatJL 4 {$9 "Junk Lady says: It's all here, everything in the world you've ever cared about is all right here!"}
+If Equ @TChatJL 5 {$9 "Junk Lady says: What's a matter my dear, don't you like your toys?"}
+@TChatJL Inc @TChatJL
+If Gte @TChatJL 6 {@TChatJL 3}
+
+EmbedMacro %ChatJ "Chat Jareth"
+If Lte @t 0 {IfElse @b ($9 "Jareth laughs at you, that you fell in the Bog and also failed to solve his Labyrinth.") ($9 "Jareth laughs at you, that you failed to solve his Labyrinth in time.") Return}
+If Equ @TChatJ 0 {$9 "Jareth says: Beware, I have been generous up until now, but I can be cruel."}
+If Equ @TChatJ 1 {$9 "Jareth says: I have reordered time. I have turned the world upside down. And I have done it all for you!"}
+If Equ @TChatJ 2 {$9 "You say: Through dangers untold and hardships unnumbered, I have fought my way here to the castle."}
+If Equ @TChatJ 3 {$9 "Jareth says: Stop! Wait, look what I'm offering you. Your dreams!"}
+If Equ @TChatJ 4 {$9 "You say: For my will is as strong as yours, and my kingdom as great!"}
+If Equ @TChatJ 5 {$9 "Jareth says: Just let me rule you, and you can have everything that you want."}
+If Equ @TChatJ 6 {$9 "Jareth says: Just fear me, love me, do as I say, and I will be your slave."}
+If Equ @TChatJ 7 {$9 "You say: You have no power over me!" @j 2}
+@TChatJ Inc @TChatJ
+
+// ///////////// //
+// Day and Night //
+// ///////////// //
+
+EmbedMacro %Day0 "Day and Night"
+Local 'iz'
+@i Mod Add Sub 46800 @t Mul @Day 5 Mul @Day 6
+@z Mod @i @Day
+Macro Add %Day1 Div @i @Day
+
+EmbedMacro %Day1 "Midday"
+fStars False
+kSky       @KSky
+kSky2      Var Add %KSky 3
+kGround    @KGrd
+kGround2   Var Add %KGrd 3
+kMountain  @KMtn
+kMountain2 Var Add %KMtn 3
+kCloud     @KCld
+kCloud2    Var Add %KCld 3
+kFog Var Add %KFog 3
+nFogDistance @SMist
+nSunMoonY 333
+
+EmbedMacro %Day2 "Late Day"
+fStars False
+kSky       Blend2 @KSky           Var Inc %KSky   @z @Day
+kSky2      Blend2 Var Add %KSky 3 Var Add %KSky 4 @z @Day
+kGround    Blend2 @KGrd           Var Inc %KGrd   @z @Day
+kGround2   Blend2 Var Add %KGrd 3 Var Add %KGrd 4 @z @Day
+kMountain  Blend2 @KMtn           Var Inc %KMtn   @z @Day
+kMountain2 Blend2 Var Add %KMtn 3 Var Add %KMtn 4 @z @Day
+kCloud     Blend2 @KCld           Var Inc %KCld   @z @Day
+kCloud2    Blend2 Var Add %KCld 3 Var Add %KCld 4 @z @Day
+kFog Blend2 Var Add %KFog 3 Var Add %KFog 4 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Add @KFog Div Mul Sub Var Inc %KFog @KFog @z @Day
+nSunMoonY Add 333 Div Mul @z 767 @Day
+
+EmbedMacro %Day3 "Early Night"
+fStars Equ @SMist 0
+kSky       Blend2 Var Inc %KSky   Var Add %KSky 2 @z @Day
+kSky2      Blend2 Var Add %KSky 4 Var Add %KSky 5 @z @Day
+kGround    Blend2 Var Inc %KGrd   Var Add %KGrd 2 @z @Day
+kGround2   Blend2 Var Add %KGrd 4 Var Add %KGrd 5 @z @Day
+kMountain  Blend2 Var Inc %KMtn   Var Add %KMtn 2 @z @Day
+kMountain2 Blend2 Var Add %KMtn 4 Var Add %KMtn 5 @z @Day
+kCloud  Blend2 Var Inc %KCld   Var Add %KCld 2 @z @Day
+kCloud2 Blend2 Var Add %KCld 4 Var Add %KCld 5 @z @Day
+kFog Blend2 Var Add %KFog 4 Var Add %KFog 5 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Blend2 Var Inc %KFog Var Add %KFog 2 @z @Day
+nSunMoonY Sub 1100 Div Mul @z 767 @Day
+nStarCount Div Mul @z 768 @Day
+
+EmbedMacro %Day4 "Midnight"
+fStars Equ @SMist 0
+kSky       Var Add %KSky 2
+kSky2      Var Add %KSky 5
+kGround    Var Add %KGrd 2
+kGround2   Var Add %KGrd 5
+kMountain  Var Add %KMtn 2
+kMountain2 Var Add %KMtn 5
+kCloud     Var Add %KCld 2
+kCloud2    Var Add %KCld 5
+kFog Var Add %KFog 5
+nFogDistance Min ?: Not @SMist 9999 @SMist Var Add %KFog 2
+nSunMoonY 333
+nStarCount 768
+
+EmbedMacro %Day5 "Late Night"
+fStars Equ @SMist 0
+kSky       Blend2 Var Add %KSky 2 Var Inc %KSky   @z @Day
+kSky2      Blend2 Var Add %KSky 5 Var Add %KSky 4 @z @Day
+kGround    Blend2 Var Add %KGrd 2 Var Inc %KGrd   @z @Day
+kGround2   Blend2 Var Add %KGrd 5 Var Add %KGrd 4 @z @Day
+kMountain  Blend2 Var Add %KMtn 2 Var Inc %KMtn   @z @Day
+kMountain2 Blend2 Var Add %KMtn 5 Var Add %KMtn 4 @z @Day
+kCloud     Blend2 Var Add %KCld 2 Var Inc %KCld   @z @Day
+kCloud2    Blend2 Var Add %KCld 5 Var Add %KCld 4 @z @Day
+kFog Blend2 Var Add %KFog 5 Var Add %KFog 4 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Blend2 Var Add %KFog 2 Var Inc %KFog @z @Day
+nSunMoonY Add 333 Div Mul @z 767 @Day
+nStarCount Sub 768 Div Mul @z 768 @Day
+
+EmbedMacro %Day6 "Early Day"
+fStars False
+kSky       Blend2 Var Inc %KSky   @KSky           @z @Day
+kSky2      Blend2 Var Add %KSky 4 Var Add %KSky 3 @z @Day
+kGround    Blend2 Var Inc %KGrd   @KGrd           @z @Day
+kGround2   Blend2 Var Add %KGrd 4 Var Add %KGrd 3 @z @Day
+kMountain  Blend2 Var Inc %KMtn   @KMtn           @z @Day
+kMountain2 Blend2 Var Add %KMtn 4 Var Add %KMtn 3 @z @Day
+kCloud     Blend2 Var Inc %KCld   @KCld           @z @Day
+kCloud2    Blend2 Var Add %KCld 4 Var Add %KCld 3 @z @Day
+kFog Blend2 Var Add %KFog 4 Var Add %KFog 3 @z @Day
+nFogDistance Min ?: Not @SMist 9999 @SMist Add Var Inc %KFog Div Mul Sub @KFog Var Inc %KFog @z @Day
+nSunMoonY Sub 1100 Div Mul @z 767 @Day
+
+// //////////////////////// //
+// Initial Setup (Textures) //
+// //////////////////////// //
+
+Embed // Bricks
+Size 16 32 0 1
+Turtle "BM0,0R15D15L15DNR15D15R15"
+= FlipHorizontal _
+Zoom 2 1 0 2
+nX 16 nY 0 aG
+Zoom 6 9 0 2
+Size SizeX Dec SizeY 0 0 Size 0 -1 1 0
+cDel CopyMask -1 %MBrick =
+Size 64 SizeY 0 0
+CopyMask -1 %MBrick2
+cDel Size 0 179 1 0
+Turtle "BM0,178M+16,-163E16LF16M+16,+163L62M+16,-163E15LF15M+16,+163UL63"
+cDel CopyMask -1 %MObel
+Size 64 64 0 1
+Turtle "BM31,0D31NL31NR32D32" Thicken
+cDel CopyMask -1 %MObel2
++ Size SizeX 78 0 0
+CopyMask -1 %MBrickX
+Transpose
+CopyMask -1 %MBrickY
+Size SizeX 64 0 0 Transpose
+CopyMask -1 %MBrickZ
+
+Embed // Hedges
+Size 300 412 0 1
+For (i) 1 1375 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 2
+  SetString 0 "BM@x,@yD" Turtle $0
+}
+cDel
+= Size 300 300 0 0 CopyMask -1 %MHedge
++ Size 100 300 0 0 CopyMask -1 %MHedgeY
++ Size 300 100 0 0 CopyMask -1 %MHedgeX
++ Size 100 100 0 0 CopyMask -1 %MHedgeZ
++ Size 100 412 0 0 CopyMask -1 %MArch
+
+Embed // Wood walls
+Size 50 300 0 1
+Turtle "BM0,0D299BR49U299"
+Zoom 6 1 0 2
+For (i) 1 1000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 5
+  SetString 0 "BM@x,@yD5" Turtle $0
+}
+cDel
+Size 300 300 0 0 CopyMask -1 %MWood
+Size 100 300 0 0 CopyMask -1 %MWoodY
+= Transpose CopyMask -1 %MWoodX
++ Size 100 100 0 0 CopyMask -1 %MWoodZ
+
+Embed // Wood door
+CopyMask %MWood -1
+Size 150 149 0 0 Size 0 1 1 0 cDel Size 0 150 1 0 cDel
+CopyMask -1 %MDoor
+CopyMask %MWoodY -1
+Size 50 149 0 0 Size 0 1 1 0 cDel Size 0 169 1 0 cDel
+CopyMask -1 %MDoor2
+
+Embed // Tree side
+Size 100 300 0 1
+nX 45 nY 0 nX2 52 nY2 299 2ndBlock
+For (i) 0 9 {
+  nX 0 nY Add 45 Mul @i 20
+  nX2 45 nY2 Mul @i 20
+  2ndLine
+  nX 97 nX2 53
+  nY2 Inc nY2
+  2ndLine
+}
+Thicken Thicken cDel
+For (i) 1 200 {
+  @x Rnd 46 53 @y Rnd 0 Dec SizeY
+  SetString 0 "BM@x,@yS1D" Turtle $0
+}
+@y SizeY @j 1
+For (i) 1 7 {
+  @x Add 37 @i
+  SetString 0 "C0BM@x,@yU@j" Turtle $0
+  @x Sub 62 @i
+  SetString 0 "BM@x,@yU@jC1" Turtle $0
+  @j Mul @j 2
+}
+For (i) 1 5000 {
+  @x Rnd 0 Dec SizeX @y Rnd 0 Sub SizeY 3
+  If Neq Get @x @y Get @x Add @y 2
+    (SetString 0 "C0BM@x,@yD2" Turtle $0)
+}
+CopyMask -1 %MTree
+
+Embed // Tree top
+Size 100 100 0 1
+nX 45 nY 0 nX2 52 nY2 99 2ndBlock
+nX 0 nY 45 nX2 99 nY2 52 2ndBlock
+nY 0 nX2 97 nY2 97 2ndLine
+nX 97 nX2 0 2ndLine
+Thicken Thicken cDel
+For (i) 1 33 {
+  @x Rnd 46 53 @y Rnd 0 Dec SizeY
+  SetString 0 "C1BM@x,@yS1D" Turtle $0
+  @x Rnd 0 Dec SizeX @y Rnd 46 53
+  SetString 0 "BM@x,@yR" Turtle $0
+}
+CopyMask -1 %MTree2
+
+EmbedDB // Stone wall
+DB
+192 192 1
+
+e@Ag"_e"_c0Q
+e0i]f]c(A
+e'i9f9c$
+|12
+e(i]fYc$
+e(Ag"_e"Yc$
+e(zpYc$
+|
+e(Aa`h0Qa"Yc$
+e(b?h(AbYc$
+e'b-h$c9c$
+|
+e0b=h$c=c(A
+e@Aa]h$c?c0Q
+v]h$c@r
+|
+b`e]h$c?b@A
+b?e=h$c=b0
+b-e-h$c9b'
+|17
+b-e/h(Ab]b/
+b-e0h0Qa"_b?
+b-e0zp_
+|
+b-e0c(Yc$]e?
+b-e/c$Qc"Ye/
+b-e-c"AdQe'
+|2
+b-e/c$AdQe'
+b-e0c(AdQe'
+b-e0qAdQe'
+|
+b-e0c(AdQe'
+b-e/c$AdQe'
+b-e-c"AdQe'
+|7
+b?e=c"AdQe(
+b`e]c"AdQe(A
+v]c"AdQe(n
+|
+a`f]c"AdQe(A
+a?f=c"AdQe(
+a-f-c"AdQe'
+|7
+a-f-c"Qc"Qe'
+a-f-c"Yc$Qe'
+a-f-c"rQe'
+|
+a-f-c"Yc$Qe'
+a-f-c"Qc"Qe'
+a-f-c"AdQe'
+|6
+a/f?c$AdQe'
+a0f`c(AdQe'
+a0yAdQe'
+|
+a0b"_f(AdQe'
+a/c]f$AdQe'
+a-c9f"AdQe'
+|
+a=c9f"AdYe0
+a]c9f"Ad]e@A
+n]c9f"Adv
+|
+a]c9f"Ad]
+a=c9f"AdY
+a-c9f"AdQ
+|18
+a=c9f"Qc"Y
+a]c9f"Yc$]
+n]c9f"zn
+|
+a]c9f"Y!(Ye0Q
+a=c9f"Q!$Qe(A
+a-c9f"A!"Ae$
+|17
+a?c]f$Q!$Ae$A
+a`b"_f(Y!(Ae$Q
+zqAe$q
+|
+c0Qd"_d(Ae$Q!@A
+c(Ae]d$Ae$A!0
+c$f9d"Ae$a'
+|9
+c$f9d"Qe(A!/
+c$f9d"Ye0Q!?
+c$f9d"v_
+|
+c$f9d"Yc`c?
+c$f9d"Qc?c/
+c$f9d"Ac-c'
+|13
+c(Ae]d$Qc?c0
+c0Qd"_d(Yc`c@A
+
+Embed // Stone wall
+cDel fNoCornerHopping False SmoothZoom SmoothZoom
+= Size 576 SizeY 0 0 CopyMask -1 %MWall
++ Size -576 0 1 0 CopyMask -1 %MWall2
++ Size 576 58 0 0 = FlipVertical Size 0 58 1 0 nX 0 nY 0 aG CopyMask -1 %MWallX
+Transpose CopyMask -1 %MWallY
+
+Embed // Hoggle
+Size 222 294 0 1
+Turtle "BM110,2S9BD5OF4NU2NDOD4BU7BLLBFD0BRGDODBDL2BF2L4G4D3RNR2DNDRNDRNDURNU2DNR4D3FD2R2U2NEBD2D2NL2D3L4UOAOBU2"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM59,12S3T1T_HOGGLE_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MHogg
+
+Embed // Fairy
+Size 222 294 0 1
+Turtle "BM110,2S9BD7NHOFODOFDND6H6OFDF7G5DODE4DNODD7L2"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM68,12S3T_FAIRY_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MFairy
+
+Embed // Worm
+Size 222 294 0 1
+Turtle "BM110,2S9BR3BD16NM-1,-4NM+1,-4OF2NH3NG3D4R2NR2ND3BL2OE2L4OF2OD2R6OB4U6NF3NE3OH2BD4NOGOBBUD0BL2D0"
+Thicken2 6 cDel
+= Del Turtle "BM77,12S3T_WORM_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MWorm
+
+Embed // Alph
+Size 222 294 0 1
+Turtle "BM110,2S9BD5D2G2NR2DND2M-2,+1M+2,+1DR2BUNLBUD0BHD0BRBD3L3GHOFODRD2NRDNRD3LG2R3DR4BL2DND2M-2,+1M+2,+1DNF2R2BHD0BED0BUNLBUBL3G2D6L3OARU5E2"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM77,12S3T_ALPH_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MAlph
+
+Embed // Ralph
+Del Turtle "BM68,12S3T_RALPH_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MRalph
+
+Embed // Helping Hands
+Size 222 50 0 1
+Turtle "BM110,29S4BL2ND3L2HL5DNR2L4DNR4LDRNR4DR2NR3DR7ER2"
+Thicken Thicken = FlipHorizontal TempOr cDel
+= Del Turtle "BM68,0S3T_HANDS_" Thicken Thicken cDel TempAnd
+Zoom 1 8 0 2
+CopyMask -1 %MHand
+
+Embed // Certain Death
+Size 222 50 0 1
+Turtle "BM110,25S9G2H2G2H2G2H2BR12F2E2F2E2F2E2"
+Thicken2 6 cDel
+= Del Turtle "BM68,0S3T_DEATH_" Thicken Thicken cDel TempAnd
+Zoom 1 8 0 2
+CopyMask -1 %MDeath
+
+Embed // Oubliette bench
+Size 222 294 0 1
+Turtle "BM110,2S9BD32L12U12R12"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM68,12S3T_BENCH_" Thicken Thicken cDel TempAnd
+Size 0 293 1 0
+CopyMask -1 %MBench
+
+Embed // Oubliette door
+Size 222 294 0 1
+Turtle "BM110,2S9BD12L6D20R12U10BL2OHOFODOBBR2U10L6"
+Thicken2 6 cDel
+= Del Turtle "BM77,12S3T_DOOR_" Thicken Thicken cDel TempAnd
+Size 0 293 1 0
+CopyMask -1 %MBench2
+
+Embed // Phony Warning
+Size 222 294 0 1
+Turtle "BM110,2S9BD5L6G2D20F2R6BU4L4E2R2BU3L3M+1,-5BU2L2NUL2U3R4D3"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM50,12S3T_WARNING_" Thicken Thicken cDel TempAnd
+Size 0 293 1 0
+For (i) 0 7 {CopyMask -1 Add %MWarn @i}
+
+Embed // Beggar
+Size 222 294 0 1
+Turtle "BM110,2S9BD12L2G4R4NR2DNR2DNR2M+2,+3BU2D0BL2BUD3G3DNDRNDE2D5OFR3ULU2RBG3G3U12E4"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM59,12S3T_BEGGAR_" Thicken Thicken cDel TempAnd
+Size 0 293 1 0
+CopyMask -1 %MBegg
+
+Embed // Cleaners
+Size 222 294 0 1
+Turtle "BM110,2S9BD5M-2,+8M-7,-5M+5,+7M-8,+2M+8,+2M-5,+7M+7,-5M+2,+8"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM41,12S3T_CLEANERS_" Thicken Thicken cDel TempAnd
+Size 0 293 1 0
+CopyMask -1 %MClean
+
+Embed // Panel
+Size 222 294 0 1
+Turtle "BM110,2S9BD6L10D24R10"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM68,12S3T_PANEL_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MPanel
+
+Embed // Bars
+Size 222 294 0 1
+Turtle "BM110,2S9BD6D26BL4U26BL4D26BL4U26"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM77,12S3T_BARS_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MBars
+
+Embed // Wiseman
+Size 222 294 0 1
+Turtle "BM110,2S9BD5GRD4NOF3BDLNDLBRBD2D0BRGRGNRD5M-1,-5EBUBL2D2OF3D5NDRNDRNU5D8R2DL2BR2BUR2U7"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM50,12S3T_WISEMAN_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MWise
+
+Embed // Nipping goblin
+Size 222 294 0 1
+Turtle "BM110,2S9BD7NOG2OF3OD3BU2NLBUD0BHD0BD4L3G2D7NDRNDRNU6DNR4FD5NR2DGHD2R4U8E"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM59,12S3T_NIPPER_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MNipp
+
+Embed // Ludo
+Size 222 294 0 1
+Turtle "BM110,2S9BD5OF4OD4BU2L2NUHBR3BUD0BHD0BL3L3NDM+4,-1BD2BLOF4D10RNU2RNU2RNU9D7LOF2R7U8E"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM77,12S3T_LUDO_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MLudo
+RotateAcross CopyMask -1 %MLudo1
+
+Embed // Left Knocker
+Size 222 294 0 1
+Turtle "BM110,2S9BD8L3NUGH2D3RNEBLDOD6BU5NOFBUD0BHD0BUBL4LGD4OD7NUD"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM23,12S3T_L. KNOCKER_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MKnockL
+
+Embed // Right Knocker
+Size 222 294 0 1
+Turtle "BM110,2S9BD6OF6OD6BU3L3BU2BR3OGHE2BL2D0BL2M-3,+2M+3,+2BF2G4DOD6NUD"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM23,12S3T_R. KNOCKER_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MKnockR
+Del
+Turtle "BM110,2S9BD6OF6OD6BU3L3BU2BR3OGHE2BL2D0BL2M-3,+2M+3,+2"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM23,12S3T_R. KNOCKER_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MKnockR2
+
+Embed // Firey
+Size 222 294 0 1
+Turtle "BM110,2S9BD6L6NM+4,+1BR6OF4BR2NM+2,+1M+2,+3BU5BLD0BD2BL3DODL3M-4,-2NU2NH2DNH2M+4,+2R3OCNR2D4NR2OFDOD3BH2M-2,+5D5LGR3U6M+2,-5"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM68,12S3T_FIREY_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MFire
+
+Embed // Sir Didymus
+Size 222 294 0 1
+Turtle "BM110,2S9BD5L2DL2FNDER2BGD0BFL4G2DER5ULEBD2BL2DRNURUBL3OD2RBL2G3D3NRDRU3E2D5G2D9GLGR4U8NLE3H2"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM14,12S3T_SIR DIDYMUS_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MDidy
+
+Embed // Junk Lady
+Size 222 294 0 1
+Turtle "BM110,2S9BD12OF3OD3BU2NOFBUD0BHD0BRBU2U2OF5D5R2U5BL2OF3D13R8BL3DL2BL3BU11OD3R2NRUNRUNRL2BL4BU12U5R5D5L5"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM32,12S3T_JUNK LADY_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MJunk
+
+Embed // Junk pile
+Size 222 294 0 1
+Turtle "BM110,2S9BD7BL3M+6,-1D6L6U5BD8D7L6U8M+6,+1BR4R7M-1,+8L6U8BD9BR4R7D8L6M-1,-8BL4BDM+1,+7L6U7R5BL7BUD8L6U7M+6,-1"
+Thicken2 6 cDel
+= Del Turtle "BM32,12S3T_JUNK PILE_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MJunk2
+
+Embed // Sleeping goblin
+Size 222 294 0 1
+Turtle "BM110,2S9BD7NOG2OF3OD3BU2NLBUD0BHNLBD4L3G2D7NDRNDRNU6DNR4FD5NR2DGHD2R4U8E"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM6,12S3T_SLEEPY GUARD_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MSlee
+
+Embed // Humongous
+Size 231 294 0 1
+Turtle "BM115,2S9BD6OF4BRNR3DRNURNURUBU2BLD0BHM-1,-3BD6BLLNUOF4NLD8NLNR4D3RNU2RNU2RNU2RNU9D4GLGDR7U6E"
+@w %MHumo *Humo
+Size 231 294 0 1
+Turtle "BM115,2S9BD6BG4DR4U3NL2OGOABG4LNUOF4NLD8NLNR4D3RNU2RNU2RNU2RNU9D4GLGDR7U6E"
+@w %MHumo2 *Humo
+Size 231 294 0 1
+Turtle "BM115,2S9BD6BG4DNR4BULNUOF4NLD8NLNR4D3RNU2RNU2RNU2RNU9D4GLGDR7U6E"
+@w %MHumo3 *Humo
+
+Embed // Goblin guard
+Size 222 294 0 1
+Turtle "BM110,2S9BD7NOG2OF3OD3BU2NLBUD0BHD0BD4L3G2D7NDRNDRNU6DNR4FD5NR2DGHD2R4U8E"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM6,12S3T_GOBLIN GUARD_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MGobl
+
+Embed // Jareth
+Size 222 294 0 1
+Turtle "BM110,2S9BD5NOF3BDOF3OD3BUNLBUD0BHD0BUHBD2BLD3R3BDHBL2GD7NDRUNU5NR3D3M+1,+7DGLGR3ENDU2NLM+1,-7OGBM-5,+11U27F3"
+Thicken2 6 = FlipHorizontal TempOr cDel
+= Del Turtle "BM59,12S3T_JARETH_" Thicken Thicken cDel TempAnd
+CopyMask -1 %MJare
+Size 0 293 1 0
+CopyMask -1 %MBegg2
+
+Embed // Ladders
+Size 23 6 0 1
+Turtle "BM5,0S1D5RNU5R10U5RD5"
+= Zoom 1 5 0 2 Size SizeX Sub SizeY 2 0 0
+cDel
+CopyMask -1 %MLadder
++ Zoom 1 20 0 2 Size SizeX Sub SizeY 2 0 0
+cDel
+CopyMask -1 %MLadder2
+
+Embed // Bog
+Size 100 100 0 1
+Turtle "BM60,10OC7OE7OG7OA7BM10,80OC7OE7OG7OA7BM80,50OC7OE7OG7OA7"
+Thicken2 6 cDel
+CopyMask -1 %MBog
+
+Embed // Arrow
+Size 101 101 0 1
+Turtle "BM50,10G30R20D50R20U50R20H30BD`"
+cDel
+For (i) 0 3 {CopyMask -1 Add %MArrow @i RotateLeft}
+
+Embed // Escher
+Size 18 18 0 1
+Turtle "BM5,0ND12RNR5D5NR5DNR5D5NR5DR5U12RD12" cDel
+CopyMask -1 Add %MEsch 1
+RotateLeft
+CopyMask -1 Add %MEsch 2
+RotateLeft
+CopyMask -1 Add %MEsch 4
+RotateLeft
+CopyMask -1 Add %MEsch 8
+RotateLeft = FlipVertical TempAnd
+CopyMask -1 Add %MEsch 5
+Transpose
+CopyMask -1 Add %MEsch 10
++ RotateLeft TempAnd
+CopyMask -1 Add %MEsch 3
+RotateLeft
+CopyMask -1 Add %MEsch 6
+RotateLeft
+CopyMask -1 Add %MEsch 12
+RotateLeft
+CopyMask -1 Add %MEsch 9
+_ RotateLeft TempAnd
+CopyMask -1 Add %MEsch 11
+RotateLeft
+CopyMask -1 Add %MEsch 7
+RotateLeft
+CopyMask -1 Add %MEsch 14
+RotateLeft
+CopyMask -1 Add %MEsch 13
++ Transpose TempAnd
+CopyMask -1 Add %MEsch 15
+CopyMask Add %MEsch 1 -1 Size 18 6 0 0
+CopyMask -1 %MEschX
+Transpose
+CopyMask -1 %MEschY
+SetVars 27 32 "03140314 010 13131315 111 13030415 101 03040715 011 03040515 011 13031014 100 13131315 111 07111415 101  11121114 010 15000715 111 09060914 010 03040515 011 05090415 101 09120515 011 07070715 111 15111215 101"
+For (i) 0 15 {@w Var Add 27 Mul @i 2 @v Var Add 28 Mul @i 2 @x @i *EschW}
+SetVars 27 12 "0101 0001 1001 1011 0001 0111  1011 1001 0101 0001 0001 1101"
+For (i) 0 11 {@v Var Add 27 @i @x @i *EschW2}
+CopyMask Add %MEschW 9 -1 Size SizeX 28 0 0
+CopyMask -1 %MEschE
+CopyMask Add %MEschW 9 -1 Size 0 -50 1 0 Size SizeX 285 0 0
+CopyMask -1 Inc %MEschE
+
+// ///////////// //
+// Initial Setup //
+// ///////////// //
+
+EmbedDB
+DB
+256 256 24
+
+
+zazazazazazazazaha{ifa{ila{i
+
+zazazazazazazama{ipa{ida{iha{i
+
+zazazazazazazaya{ita{iba{ida{iba{i
+
+labczazazazazazazaea{ija{ida{ida{i
+labc
+jafczazazazazazazaia{iha{ina{iba{i
+jafc
+jafczazazazazazazama{ija{iba{iba{ifa{iba{i
+jafczazazadazy
+halczazaza{a{yxs{yzazazapa{i
+halczazaaazyxs{yzazalaty
+halczazaaa{yzsws{yzazala{yrs{yea{iha{i{a{iha{ida{i
+jajczahatyzswsnytazyeyrs{y
+jajczaha{yzszsos{ams{yta{yzsws{yga{ila{iba{i
+lafczaja{yzszsos{amsvyzsws{y
+lafczaja{yzszsos{azszszsfs{yma{ila{iba{i
+pabccazygyzszszszszswsry
+pabcca{yzszszszszszszsus{yqa{i
+wa{yzszszszszszszsus{y
+wa{yzszszsts{azszszszs{yca{i{a{ida{i
+wa{yzszszszszszszsus{y
+wa{yzszszsrsfbzszszsvs{yga{ifa{i
+wa{yzszszsrsfbzszszsvs{y
+|
+wa{yzszszszszszszsus{y
+wa{yzszszsts{b{s{bzszszsxs{yaa{i
+sadyzszszsts{a{s{azszszsxsdy
+sa{yzszszsxs{a{sbazszszszs{yca{ida{i
+sa{yzszszsxs{azszszszscs{y
+sa{yzszszsxsbazszszszsas{y
+mafyzszszszszszszszsbs{y
+ma{yzszszszsas{azszszszses{yia{i
+ma{yzszszsgstyzszszszsfs{y
+ma{yzszszsgs{yrg{yzszszszsfs{yga{i
+ma{yzszspsryrg{ytszyzszsls{y
+ma{yzszsps{yzgig{yts{yxg{yzszsls{y
+ma{yzsusvyzgigvyxg{yfsryzsms{y
+ma{yzsus{yzgzgqg{azgfg{yfs{ypg{yzsms{y
+ma{yzsgsnyzgzgqg{azgfghypghyzses{y
+ma{yzsgs{yzgzgyg{bdg{azgzgmg{yzses{y
+ma{yzsasfyzgzgyg{bdg{azgzgmg{yzses{y
+ma{yzsas{yzgzgugfbbg{bdgbazgzgkg{yzses{y
+ma{yzsas{yzgzgzg{g{bbg{bfg{azgzgkg{yzses{y
+ma{yzsas{yzgzgygdb{g{bfg{azgzgkg{yzses{yea{i
+ma{yxsdyzgzgygdb{g{bfg{azgzgkgfyzsby
+ma{yxs{yzgzgzg{ghbfg{azgzgqg{yzsas{y
+mabyvs{yzgzgzg{g{b{gdbhg{azgzgqg{yzsas{y
+oa{yvs{yzgzgzg{g{b{gdbfgbazgzgqg{yzsas{y
+oa{yvs{yzgzgzg{g{bbg{bhg{azgzgsgdyxs{y
+oa{yvs{yzgzgzg{g{bbgfbbg{azgzgwg{yxs{y
+oa{yvs{yzgzgzg{g{blg{azgzgwg{yxs{y
+|
+oa{yvs{yzgzgzgggzyzgzgdgdyts{y
+oa{yvs{yzgzgzggg{yga{ida{ifa{iaa{yzgzghg{yts{y
+oa{ytsbyzgzglgvyxa{yvgjyzgag{yts{y
+oa{yts{yzgzgng{yga{ifa{ida{ida{ida{ika{yvg{yaa{ida{i{yzgag{yts{y
+oa{yts{yxglyjgtyzasaxyha{yzgag{yts{y
+oa{yts{yxg{yja{yjg{yaa{ipa{ita{ipa{ida{ida{ila{iha{ica{yzgag{yts{y
+oa{yts{yxg{yjalyzazazasa{yzgag{yts{y
+oa{yts{yxg{yea{iba{ipa{ida{ifa{iba{iha{ida{ida{ifa{ija{ifa{ida{ida{ioa{yzgag{yts{y
+oa{yts{ytgdyzazazazapahytg{yts{y
+oa{yts{ytg{yca{ina{ida{ifa{izaga{ida{ida{ida{ida{ifa{ifa{ifa{iba{ida{iga{ytg{yts{y
+oa{yts{ytg{yzazazazazaaa{ytg{yts{y
+oa{yts{ytg{yea{ipa{ipa{i{a{iha{iba{iha{ina{ida{ida{ida{ifa{iba{ija{ida{ica{ytg{yts{y
+oa{yts{ytg{yzazazazazaaadypg{yts{y
+oa{yts{ytg{yka{ida{iba{iha{ifa{ida{ida{iba{iba{ida{ipa{iha{ida{ifa{ifa{i{a{ida{ioa{ypg{yts{y
+oa{ytsbyrg{yzazazazazaea{ypg{yts{y
+oa{yvs{yrg{yua{ija{ila{i{a{ipa{ija{ida{ida{ila{iba{iha{ifa{ika{ypg{yts{y
+oabyts{ypgbyzazazazazaea{yngbyts{y
+qa{yts{ypg{yaa{iba{iba{ifa{ifa{i{a{ina{ixa{ina{iha{ida{iba{ipa{iba{ifa{iea{yng{yvs{y
+qa{yts{ypg{yzazazazazaga{yng{yvsby
+qa{yts{ypg{yka{ina{iha{iha{ifa{ifa{iba{ina{ifa{ida{iha{ifa{ida{ida{ila{i{yng{yxs{y
+qa{yts{ypg{yzazazazazaga{yng{yxs{y
+qa{yts{ypg{yca{iha{iba{i{a{i{a{ifa{ija{ija{ija{ipa{ida{ifa{ifa{ifa{ida{ida{ida{iba{iea{yng{yxs{y
+qa{yts{ypg{yzacavypaxylajyva{yng{yxs{y
+qa{yts{ypg{yia{ida{ifa{iea{ytv{yga{ida{iaa{yvv{yea{iea{yhv{yva{yng{yxs{y
+qa{yts{ypg{yzaca{y{vry{v{ypa{y{vty{vny{vfy{v{yva{yng{yxs{y
+qa{yts{ypg{y{ifa{iua{y{v{yia{iea{y{v{yaa{ija{iaaav{yaa{iba{ifa{ica{ypv{yda{y{v{yea{ila{iaa{yng{yxs{y
+qa{yts{ypg{yzaca{y{v{ypa{y{vry{v{yraryda{y{v{ytabyng{yxs{y
+qa{yts{ypg{yma{ila{iaa{y{v{yma{i{a{i{ytv{yea{iba{ifa{ida{ida{iha{iaa{y{v{yca{ida{ida{ica{ypg{yxs{y
+qa{yts{ypg{yzaca{y{v{ypavyzaoa{y{v{yta{ypg{yxs{y
+qa{yts{ypg{yia{ija{iga{y{v{yca{i{a{iba{i{a{ida{ina{ifa{i{a{iha{ifa{ila{iea{y{v{yka{iga{ypg{yxs{y
+qa{yts{ypgdyza{y{v{yzazazaby{v{yta{ypg{yxs{y
+qa{yts{ytg{yka{i{a{ida{iea{y{v{yaa{ida{i{a{ija{i{a{iba{i{a{i{a{ifa{i{a{ida{iha{iha{ida{iea{ybv{yea{ija{iaa{ypg{yxs{y
+qa{yts{ytg{ypajy{v{yzazaza{y{vbyta{ypg{yxs{y
+qa{yts{ytg{yia{iea{yjv{yga{ida{i{a{iba{ina{i{a{ija{i{a{ija{ioa{y{v{yaa{ifa{ika{ypg{yxs{y
+qa{yts{ytg{ypa{y{vjyzazaza{y{v{yva{ypgbyvs{y
+qa{yts{ytg{y{i{a{ida{ida{iaa{y{v{yga{iba{i{a{ina{iba{i{a{i{a{i{a{ija{i{a{i{a{i{a{ida{i{a{i{a{iba{iha{ida{iaa{y{v{yca{ila{ica{yrg{yvs{y
+oabyrsbytg{ypa{y{v{yzazazaia{y{v{yradyrg{yvs{y
+oa{yts{yvg{yca{i{a{iia{y{v{y{ida{ida{iba{i{a{iba{i{a{iba{i{a{i{a{iha{i{a{ida{ila{ida{ida{i{a{i{a{iia{y{v{yca{iha{ica{yvg{yvs{y
+oa{yts{yvg{ypa{y{v{yzazazaia{y{v{yra{yvg{yvs{y
+oa{yts{yvg{yga{ida{i{a{i{y{v{yca{ifa{ifa{ida{iha{ifa{i{a{i{a{ija{ija{i{a{iha{iba{iaa{y{v{yaa{iba{ida{iea{yvg{yvs{y
+oa{yts{yvg{ypa{y{v{yzazazaia{y{v{yra{yvg{yvs{y
+oa{yts{yvg{yka{ica{y{v{yaa{ifa{izazaha{iba{iba{iga{y{v{yga{iia{yvg{yvs{y
+oa{yts{yvg{ypa{y{v{yzazazagaby{v{yra{yvg{yvs{y
+oa{yts{yvg{yca{ika{y{v{yea{i{a{izazana{ida{ica{ybv{yia{iga{yvg{yvs{y
+kadyts{ytgbypa{y{v{yzazazaga{y{vbyra{yvg{yvs{y
+ka{yxs{ytg{yaa{iha{iea{y{v{yca{ida{izazana{iga{y{v{yaa{iba{ida{ifa{i{yvg{yvs{y
+ka{yxs{ytg{yra{y{v{yzazazaga{y{v{yta{yvg{yvs{y
+ka{yxs{ytg{yca{i{a{iha{iaa{y{v{yca{iba{izazara{iba{iaa{y{v{yea{ifa{i{a{ica{yvg{yvs{y
+ka{yxsbyrg{yra{y{vbyzazazaea{y{v{yta{yvg{yvs{y
+ka{yzs{yrg{yga{iia{ybv{yaa{iba{izazara{iba{iaa{y{v{y{ifa{iha{iaa{yvg{yvs{y
+ka{yzs{yrg{yraby{v{yzazazaea{y{v{yta{ytgbyvs{y
+ka{yzs{yrg{yma{i{a{i{a{iaa{y{v{yea{izazara{iea{y{v{yia{iba{iea{ytg{yxs{y
+ka{yzs{yrg{yta{y{v{yzazazaea{y{v{yta{ytg{yxs{y
+ka{yzs{yrg{yca{ifa{iga{y{v{y{iba{i{a{izazaya{y{v{yea{iba{iia{ytg{yxs{y
+ka{yzs{yrg{yta{y{v{yxazyiyxa{y{v{yta{ytg{yxs{y
+ka{yzs{yrg{y{iha{ifa{iaa{y{v{yca{isa{yzvgv{yqa{iea{y{v{yca{ifa{i{a{iea{ytg{yxs{y
+ka{yzs{yrg{yta{y{v{yxa{y{vzyey{v{yxa{y{v{yta{ytg{yxs{y
+ka{yzs{yrg{yga{ida{iea{y{v{y{ida{iqa{y{v{yzaca{y{v{ysa{iba{i{y{v{yoa{ica{ytg{yxs{y
+ka{yzs{yrg{yta{y{v{yxa{y{v{y{adP\_`fabP\_`jabP\_`{a{y{v{yxa{y{v{ytabyrg{yvsby
+ka{yzs{yrg{yaa{ina{iaa{y{v{yaa{iba{iqa{y{v{y{aP\_`b0T]`P\_`faP\_`0T]`P\_`jaP\_`a0T]`{a{y{v{yxa{y{v{yaa{ifa{ifa{i{a{iaa{yrg{yvs{y
+ka{yzs{yrg{yta{y{v{yxa{y{v{y{aP\_`b0T]`P\_`{adP\_`{aP\_`0T]`P\_`{adP\_`{abP\_`{abP\_`{a{y{v{yxa{y{v{yva{ypgbyvs{y
+ka{yzs{yrg{yca{i{a{ida{iga{y{v{yaa{ida{ioa{y{v{y{aP\_`c0T]`{ac0T]`P\_`{aP\_`0T]`P\_`{aP\_`c0T]`{aP\_`0T]`P\_`da{y{v{ysa{ica{y{v{yca{iqa{ypg{yxs{y
+ka{yzs{yrg{yta{y{v{yxa{y{v{y{adP\_`{aP\_`b0T]`P\_`{aP\_`0T]`P\_`{aP\_`b0T]`P\_`{aP\_`0T]`bP\_`ba{y{v{yxa{y{v{yva{ypg{yxs{y
+ka{yzs{yrg{yga{ifa{ica{y{v{yea{iqa{y{v{yfaP\_`b0T]`P\_`daP\_`b0T]`P\_`{ac0T]`P\_`ba{y{v{yqa{iea{y{v{y{ifa{ifa{iea{ypg{yxs{y
+ka{yzs{yrg{yta{y{v{yxa{y{v{y{adP\_`{adP\_`dadP\_`{adP\_`ba{y{v{yxa{y{v{yva{ypg{yxs{y
+ka{yzs{yrg{yia{i{a{ifa{i{y{v{yca{i{a{iqa{y{v{y{aP\_`b0T]`P\_`xa{y{v{yqa{iba{iaa{y{v{yea{iba{iha{iaa{ypg{yxs{y
+ka{yvsdyrg{yta{y{v{yxa{y{v{y{aP\_`b0T]`P\_`baauhkaubadP\_`{a{y{v{yxa{y{v{yvabyng{yxs{y
+ka{yvs{yvg{yca{iba{ida{iea{y{v{y{ida{iqa{y{v{y{aP\_`c0T]`ba{u{b{khb{ubaP\_`b0T]`P\_`{a{y{v{ywa{i{y{v{yaa{i{a{ifa{iha{iaa{yng{yxs{y
+ka{yvs{yvg{yta{y{v{yxa{y{v{y{adP\_`ba{u{b{kfb{k{b{ubaP\_`b0T]`P\_`{a{y{v{yxa{y{vbyva{yng{yxs{y
+ka{yvs{yvg{yia{ida{ica{y{v{yca{iba{ioa{y{v{yha{u{b{kfb{k{b{ubac0T]`P\_`{a{y{v{yqa{iea{ybv{yka{iia{yng{yxs{y
+kabyts{ytgbypady{v{yxa{y{v{y{aP\_`0T]`P\_`{abP\_`{a{u{b{kfb{k{b{ubadP\_`{a{y{v{yxaby{v{yva{yng{yxs{y
+ma{yts{ytg{yaa{ifa{iga{ydv{yca{isa{y{v{y{aP\_`0T]`P\_`{aP\_`0T]`P\_`{a{u{b{kfb{k{b{uha{y{v{ysa{iea{y{v{y{ija{iha{i{yng{yxs{y
+ma{yts{ytg{yra{y{vdyxa{y{v{y{aP\_`0T]`P\_`{aP\_`0T]`P\_`{a{u{b{kfb{k{b{u{adP\_`ba{y{v{yza{y{v{yva{yng{yxs{y
+ma{yts{ytg{yca{ifa{iea{y{v{yaa{iba{ida{ioa{y{v{y{aP\_`0T]`P\_`{aP\_`0T]`P\_`{a{u{b{kfb{k{b{u{aP\_`c0T]`ba{y{v{ysa{ida{i{y{v{yca{iha{iba{ica{yng{yxs{y
+ma{yts{ytg{yra{y{v{yzaaa{y{v{y{abP\_`{aP\_`0T]`P\_`{a{u{bhk{b{u{adP\_`ba{y{v{yza{y{v{yva{yngdyts{y
+ma{yts{ytg{yia{ifa{i{y{v{yga{i{a{iqa{y{v{yha{ujb{uha{y{v{yua{ica{y{v{yga{ima{yrg{yts{y
+ma{yts{ytg{yra{y{v{yzaaa{y{v{ybadP\_`{a{u{bfubb{ubadP\_`{a{y{v{yza{y{v{yva{yrg{yts{y
+ma{yts{ytg{y{ifa{ida{ica{y{v{yga{isa{y{v{ybaP\_`b0T]`P\_`{a{ufb{ubb{ubaP\_`b0T]`P\_`{a{y{v{yua{ica{y{v{yea{ida{iba{iea{yrg{yts{y
+ma{yts{ytg{yra{y{v{yzaaa{y{v{ybaP\_`b0T]`P\_`{adubadubaP\_`b0T]`P\_`{a{y{v{yza{y{v{yva{yrg{yts{y
+ma{yts{ytg{yea{ika{y{v{yaa{i{a{iba{isa{y{v{ybaP\_`b0T]`P\_`paP\_`b0T]`P\_`{a{y{v{yya{i{y{v{yva{yrg{yts{y
+ma{yts{ytg{yra{y{v{yzaaa{y{v{ybabP\_`0T]`P\_`jadP\_`{abP\_`0T]`P\_`{a{y{v{yza{y{v{yva{yrg{yts{y
+ma{yts{ytg{yaa{iba{ida{iea{y{v{yea{iba{iqa{y{v{yraP\_`b0T]`P\_`fa{y{v{ysa{iea{y{v{yca{ina{iaa{yrg{yts{y
+mabyrs{ytg{yra{y{v{yzaaa{y{v{y{adP\_`{adP\_`{adP\_`{aP\_`b0T]`P\_`{aP\_`0T]`bP\_`{a{y{v{yza{y{v{ytabyngdypsdy
+oa{yrs{ytg{yga{ifa{iaa{y{v{y{ida{iua{y{v{y{aP\_`c0T]`{aP\_`b0T]`P\_`{ac0T]`P\_`{aP\_`b0T]`P\_`{aP\_`b0T]`P\_`{a{y{v{yua{ica{y{v{yaa{ifa{iba{iba{iaa{ypg{yts{y
+oa{yrs{ytg{yra{y{v{yzaaa{y{v{y{aP\_`b0T]`P\_`{aP\_`b0T]`P\_`{adP\_`{aP\_`0T]`bP\_`{aP\_`b0T]`P\_`{a{y{v{yza{y{v{yta{ypg{yts{y
+oa{yrs{ytg{yca{ida{i{a{iea{y{v{yga{isa{y{v{y{aP\_`b0T]`P\_`{aP\_`b0T]`P\_`laP\_`b0T]`P\_`{a{y{v{ywa{iaa{y{v{yga{ifa{ica{ypg{yts{y
+oa{yrsbyrgbypa{y{v{yzaaa{y{v{y{adP\_`{aP\_`0T]`bP\_`ladP\_`{a{y{v{yza{y{v{yta{ypg{yts{y
+oa{yts{ytg{yka{ica{y{v{yca{iba{i{a{iqa{y{v{yzaca{y{v{ysa{i{a{ica{y{v{y{ina{ica{ypg{yts{y
+oa{yts{ytg{ypa{y{v{yzaaa{y{vnybany{v{yza{y{v{yta{ypg{yts{y
+ja{ica{yts{ytg{y{ida{iia{y{v{yaa{ida{isa{yovbbov{yya{i{y{v{yma{iba{iaa{ypg{yts{y
+oa{yts{ytg{ypa{y{v{yzaaapybmpyza{y{v{yta{ypg{yts{y
+ja{ica{yts{ytg{yka{ica{y{v{yea{ida{izaba{yfb{yzada{iba{ica{y{v{yca{ida{i{a{iga{ypg{yts{yeabc
+oa{yts{ytg{ypa{y{vdyzaka{yfb{yzama{y{v{yta{ypg{yts{yeabc
+oa{yts{ytg{yia{iea{ydv{yaa{iba{izada{yfb{yzafa{iea{y{v{yga{ija{i{ypg{yts{yeadc
+oa{yts{ytg{ypady{v{yzakabybP\_`byzama{y{v{yta{ypg{yts{yeadc
+ja{ica{yts{ytg{yaa{ida{ifa{ica{y{v{yca{izazaza{iaa{y{v{yea{ifa{iea{ypg{yts{yeadc
+oa{yts{ytgbyra{y{v{yzazazaga{y{vdypa{ypg{yts{ygabc
+oa{yts{yvg{yaa{ioa{y{v{yca{i{a{izazara{i{a{iea{ydv{ypa{ypg{yts{ygabc
+oa{yrsbyvg{yra{y{v{yzazazagady{v{ypa{ypg{yts{y
+oa{yrs{yxg{yca{ida{ida{iaa{y{v{yea{iba{izazala{ifa{i{a{i{ab!$^`{y{v{yea{iha{i{ypg{yts{y
+oa{yrs{yxg{yra{y{v{yzazazahab!$^`{y{v{ypa{ypg{yts{y
+oa{yrs{yxg{yea{i{a{iia{y{v{y{ida{i{a{izaaa{ita{ifa{ifa{ifa{idab!$^`{y{v{yaa{ifa{iea{ypg{yts{y
+oa{yrs{yxg{yra{y{v{yzazazahab!$^`{y{v{ypa{ypgbyrs{y
+oa{yrs{yxg{yaa{ija{ica{y{v{yga{iba{iba{ida{iba{iba{ida{iha{i{a{i{a{iba{i{a{ida{iha{ida{i{a{iba{ibad!$^`{y{v{y{ifa{ida{iaa{yrg{yrs{y
+mabyrs{yxg{yra{y{v{yzazazafab!$^`aa{y{v{ynabyrg{yrs{y
+ma{yts{yxg{yga{i{a{ifa{i{y{v{yea{iba{iba{i{a{i{a{i{a{ifa{i{a{i{a{i{a{ida{i{a{i{a{i{a{iba{i{a{iba{i{a{iba{iba{i{a{ida{i{a{ida{i{af!$^`aa{y{v{yca{iia{ytg{yrs{y
+ma{yts{yxg{yra{y{v{yzazazabad!$^`ca{y{v{yna{ytg{yrs{y
+ma{yts{yxg{yea{ida{iea{y{v{yaa{ida{i{a{i{a{iha{i{a{i{a{ifa{i{a{i{a{ita{iba{ida{i{a{ibal!$^`ca{y{v{yia{ica{ytg{yrs{y
+ma{yts{yxg{yra{y{v{yzazauaj!$^`ea{y{v{yna{ytg{yrsby
+ma{yts{yxg{yca{iha{ica{y{v{yd!$^`da{ida{i{a{ixal!$^`baz!$^`ba{iaa{y{v{y{ida{i{a{iea{ytg{yts{y
+ma{yts{yxg{ypaby{v{yd!$^`zakal!$^`bat!$^`ka{y{v{yna{ytg{yts{y
+ma{yts{yxg{y{ija{ica{ybv{yf!$^`fap!$^`faz!$^`o!$^`ka{y{v{yca{iia{ytg{yts{y
+ma{yts{yxg{ypa{y{vbyaad!$^`fap!$^`ba{wbaf!$^`haj!$^`faf!$^`cajy{v{yna{ytg{yts{y
+ma{yts{yxg{yia{iea{y{v{ycaz!$^`d!$^`{wi!$^`{a{ifaj!$^`da{i{af!$^`{a{iaa{yjv{yia{ica{ytg{yts{y
+ma{yts{yxg{ypa{y{v{yeal!$^`dab!$^`bae!$^`{we!$^`zana{y{vjyna{ytg{yts{y
+ma{yts{yxg{yca{ika{y{v{yaa{ibal!$^`{a{ibab!$^`{a{i{ae!$^`{we!$^`ha{izada{y{v{yia{ija{iaa{ytg{yts{y
+ma{ytsbyvg{ypa{y{v{yzabab!$^`ba{w{ab!$^`cazycyha{y{v{yxa{ytg{yts{y
+ma{yvs{yvg{ypa{y{v{yzabab!$^`{a{ibab!$^`ca{yzvav{yea{iaa{y{v{yga{iba{ida{iea{ytg{yts{y
+ma{yvs{yvg{ypa{y{vzyra{y{vzy{vdy{vdy{v{yxa{ypgdyts{y
+ma{yvs{yvg{yca{ifa{ica{yzv{yra{y{v{yka{ika{ylv{yca{iha{i{a{iga{ypg{yxs{y
+ma{yvs{yvg{ypazy{vty{v{yxanyxabyng{yxs{y
+ma{yvs{yvg{y{ida{iha{iha{iha{iea{yvv{ywa{ina{iha{ifa{iga{yng{yxs{y
+ma{yvs{ytgbyzaoaxyzazala{yng{yxs{y
+ma{yvs{ytg{yia{ida{iba{iha{ida{ifa{iha{iha{ida{ida{ifa{ifa{iha{ida{iba{ipa{i{a{ica{yng{yxs{y
+ma{yvs{ytg{yzazazazazaaa{yng{yxs{y
+ma{yvs{ytg{yga{iba{i{a{iha{ipa{iha{ida{ija{ira{ida{iha{ina{ida{ifa{i{yng{yxs{y
+ma{yvs{ytg{yzazazazazaaa{yng{yxs{y
+ma{yvs{ytg{yea{ila{iha{ija{ida{ida{iha{iba{iha{iza{ifa{i{a{ifa{ika{yng{yxs{y
+ma{yvs{ytg{yzazazazazaaa{yng{yxs{y
+ma{yvs{ytg{yoa{ija{ifa{iba{ija{ida{ija{ida{ifa{i{a{ija{i{a{ifa{iha{ida{ifa{ica{yng{yxs{y
+ma{yvs{ytg{yzazazazazaaa{yng{yxsby
+ma{yvs{ytg{yaa{ifa{i{a{ija{ila{ida{iha{ifa{iha{iha{ida{i{a{ina{iba{ija{ija{iaa{yng{yzs{y
+ma{yvs{ytg{yzazazazazaaa{yngbyxs{y
+ma{yvs{ytg{yga{iha{iba{ila{ida{ida{ina{ida{iha{ipa{ida{iva{iga{ypg{yxs{y
+ma{yvs{ytg{yzazazazazaaa{ypg{yxs{y
+ma{yvs{ytg{yca{ida{i{a{ifa{iha{i{a{ida{iba{ila{iba{ifa{ina{ifa{iba{ida{iha{ifa{iha{iea{ypg{yxs{y
+ma{yvs{ytgdyzazazazaxa{ypg{yxs{y
+ma{yvs{yxg{yca{ija{ida{iha{ifa{ifa{iha{ifa{ida{ida{ina{ina{ija{iba{iea{ypg{yxs{y
+mabyts{yxg{yzazapavyzaka{ypg{yxs{y
+oa{yts{yxg{yma{iha{ida{ida{ida{ija{iba{ida{ida{i{ytg{yea{ija{ina{ica{ypg{yxs{y
+oa{ytsbyvg{yzazaha{yfa{ytgzyhadypg{yxs{y
+oa{yvs{yvg{yga{iba{ira{ija{ina{iaa{yfa{yzgsg{yha{ytg{yxs{y
+oa{yvs{yvglyzaeazyzgsg{yfabytg{yxs{y
+oa{yvs{yzggg{yga{ifa{iha{iea{ykg{igbzgxg{yca{iaa{yvg{yxs{y
+oa{yvs{yzgggzygykghbzgxghyvg{yxs{y
+oa{yvs{yzgzgzg{ghbzgzgzgbg{yxs{y
+oa{yvsbyzgzgyghbzgzgzgbg{yxs{y
+oa{yxs{yzgzgug{abghbzgzgzgbg{yxs{y
+oa{yxs{yzgzgug{azgzgzglgbyxs{y
+oa{yxs{yzgzgsgbazgzgzglg{yzs{y
+oa{yxs{yzgzgsg{azgzgzgng{yzs{y
+|
+oa{yxshyzgzgkg{azgzgzgng{yzs{y
+oa{yzses{yzgzgkgbazgzgzglg{yzs{y
+oa{yzses{yzgzgmg{azgzgzglg{yzs{y
+|
+oa{yzses{yzgzgmg{azgzgzghgdyzsby
+oa{yzses{yzgzgmg{azgzgzghg{yzses{y
+oa{yzses{yzgqgxyzgogvyvg{yzses{y
+oa{yzses{yzgqg{yvs{yzgog{yts{yvg{yzses{y
+oa{yzsesbylgzycyvsfyzgig{ytsxyzses{y
+oa{yzsgs{ylg{yzszsds{yzgig{yzszsxs{y
+oa{yzsgsnyzszsdszykyzszsxs{y
+oa{yzszszszsks{azszszsxs{y
+oadyzszszszsgs{azszszsxs{y
+sa{yzszszszsgs{azszszsxs{y
+|
+sa{yzszszszsesbazszszsxs{y
+sa{yzszszszses{azszszszs{y
+|
+sa{yzszszszses{azszszstsfy
+sa{yzszszszses{azszszsts{y
+|
+sa{yzszszszsesbazszszsrs{y
+sanyzszszsts{azszszsdsny
+zafa{yzszszspsba{sbazszszsbs{y
+zafa{yzszszsps{ads{azszszsbs{y
+zafa{yzszszspsfazszszsbs{y
+zafa{yzswszycydstyzszszs{y
+zafa{yzsws{yzaaa{yesrbzszszs{s{y
+zafanyzsis{yzaaazycyzseszyqy
+zata{yzsis{yzakaP\_`bbP\_`na{yzses{y
+zatazykyzakaP\_`baP\_`nazygy
+
+|3
+zazazazababc
+
+|11
+
+= \
+
+// Create brick and hedge Mazes
+nTreeRiverValue 3
+kDot Red nX 24 nY 20 ` nX 44 nY 44 ` nX 123 nY 234 ` ColorDotXor ColorPut cDel nX 25 nY 23 PartialTree Set 135 226 Off c7 ` c5 ` k | ColorAnd \
+kDot Green nX 44 nY 44 ` nX 64 nY 60 ` ColorDotXor ColorPut cDel nX 45 nY 45 PartialTree Set 138 49 Off c7 ` c5 ` k | ColorAnd SetC 123 199 Cyan
+kDot DkBlue nX 125 nY 25 ` nX 125 nY 45 ` nX 127 nY 235 ` nX 125 nY 199 ` SetC 127 29 DkBlue SetC 129 29 DkBlue \
+
+// Create brick obelisks and hedge arches
+kDot Red nX 24 nY 20 ` nX 44 nY 44 ` ColorDotXor ColorPut cDel NoCell nX 24 nY 20 ` nX 44 nY 44 ` Turtle "S1C1BM126,24R2C0`C1BM120,232R14C0`C1" = nRandomBias 45 AllRandom TempAnd TempXor k | ColorOr Replace White Maroon 0 \
+kDot Green nX 44 nY 44 ` nX 64 nY 60 ` ColorDotXor ColorPut = nX 45 nY 45 ` TempXor = Size 2 2 0 1 Turtle "BM1,0G" Zoom 256 256 1 2 TempAnd _ nRandomBias -45 AllRandom TempAnd k | ColorOr Replace White DkGreen 0 \
+k = nX 0 nY 0 nX2 1 nY2 1 DelRow TempOr InsRows TempOr DelRow DelCol TempOr InsCols TempOr DelCol _ ColorDotXor ColorPut cDel TempAnd k | ColorOr Replace White DkCyan 0 \
+
+// Create wall crenellations
+kDot White nX 24 nY 20 ` ColorDotXor ColorPut cDel =
+Size 4 4 0 1 Turtle "BM2,0D0BG2D0" Zoom 256 256 1 2 TempAnd
+k | ColorOr Replace White Maize 0 \
+nX 90 nY 78 ` nX 92 nY 80 ` nX 110 nY 110 ` nX 112 nY 112 ` nX 123 nY 234 ` ColorDotXor ColorPut cDel =
+Size 4 4 0 1 Turtle "BM0,0D0BF2D0" Zoom 256 256 1 2 TempAnd
+k | ColorOr Replace White Maize 0 \
+
+// Create wall openings
+SetC 122 201 Black SetC 116 207 Black
+SetC 134 227 Black
+SetC 127 22 Black SetC 132 31 Black SetC 130 33 Black SetC 125 34 Black SetC 128 19 Black
+SetC 121 44 Black SetC 122 55 Black SetC 133 54 Black SetC 132 43 Black \
+
+// Set wall side textures
+| Replace Red UD %MBrick %MBrick 0 Replace Maroon UD %MObel %MObel 0 Replace Green UD %MHedge %MHedge 0 Replace DkGreen UD %MHedgeX %MHedgeX 0 Replace DkCyan UD %MArch %MArch 0 Replace Yellow UD %MWall %MWall 0 Replace Maize Black 0 Replace Orange Black 0 Replace LtGray UD %MWood %MWood 0 Replace DkGray UD %MWoodX %MWoodX 0 Replace Magenta Black 0 Replace Purple Black 0 Replace Cyan UD %MTree %MTree 0 Replace Brown Black 0 Replace Pink Black 0 Replace Blue Black 0 Replace DkBlue Black 0
+kDot Red = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MBrick2 %MBrick2 0
+kDot Green = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MHedgeY %MHedgeY 0
+kDot Yellow = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MWall2 %MWall2 0
+kDot LtGray = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MWoodY %MWoodY 0
+CopyTexture -1 0
+SetCA 0 129 28 UD %MAlph %MWood SetCA 0 127 28 UD %MRalph %MWood
+For (x) 0 2 {SetY Add 127 @x 146 1 Add %MHumo @x}
+SetY 130 81 0 %MLadder SetY 163 174 0 %MLadder
+SetY 126 145 1 %MLadder SetY 130 145 0 %MLadder
+
+// Set wall top textures
+nTextureBlock 3 |
+Replace Red %MBrickX 0 Replace Maroon UD %MObel2 %MObel2 0 Replace Green UD %MHedgeX %MHedgeX 0 Replace DkGreen UD %MHedgeX %MHedgeX 0 Replace DkCyan %MHedgeZ 0 Replace Yellow Black 0 Replace Maize Black 0 Replace Orange Black 0 Replace LtGray UD %MWoodX %MWoodX 0 Replace DkGray UD %MWood %MWood 0 Replace Magenta Black 0 Replace Purple Black 0 Replace Cyan %MTree2 0 Replace Brown Black 0 Replace Pink Black 0 Replace Blue Black 0 Replace DkBlue Black 0
+kDot Red = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MBrickZ %MBrickZ 0
+k Del NormalizeWall Size 0 1 1 0 TempAnd ColorOr Replace White UD %MBrickY %MBrickY 0
+kDot Green = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MHedgeZ %MHedgeZ 0
+k Del NormalizeWall Size 0 1 1 0 TempAnd ColorOr Replace White UD %MHedgeY %MHedgeY 0
+kDot DkGreen = | ColorDotXor ColorPut cDel = Del NormalizeWall Size 0 1 1 0 TempAnd k _ ColorOr Replace White UD %MHedgeY %MHedgeY 0
+kDot LtGray = | ColorDotXor ColorPut cDel = Del NormalizeWall TempAnd k _ ColorOr Replace White UD %MWoodZ %MWoodZ 0
+k Del NormalizeWall Size 0 1 1 0 TempAnd ColorOr Replace White UD %MWoodY %MWoodY 0
+kDot Yellow = | ColorDotXor ColorPut cDel = Del NormalizeWall Size 0 1 1 0 TempAnd k _ ColorOr Replace White UD %MWallY %MWallY 0
+= | ColorDotXor ColorPut cDel = Del NormalizeWall Size 1 0 1 0 TempAnd k _ ColorOr Replace White UD %MWallX %MWallX 0
+SetC 131 81 %MArrow SetC 163 175 %MArrow
+CopyTexture -1 3
+SetCA 3 129 28 %MWoodX SetCA 3 127 28 %MWoodX
+
+// Set variable wall heights
+nWallVariable 1 |
+kDot Cyan ColorDotXor ColorPut cDel Quo fGraphNumber True kBlend1 350 kBlend2 700 Replace White -16 0 fGraphNumber False _ | Replace Cyan Black 0 TempOr
+Replace Red 200 0 Replace Maroon 325 0 Replace Green 200 0 Replace DkGreen UD 275 225 0 Replace DkCyan 275 0 Replace Yellow 300 0 Replace Maize 400 0 Replace Orange 200 0 Replace LtGray 300 0 Replace DkGray UD 325 275 0 Replace Magenta 805 0 Replace Purple 1095 0 Replace Brown Black 0 Replace Pink UD 65 50 0 SetC 119 168 65 SetC 119 172 65 Replace Blue Black 0 Replace DkBlue Black 0
+SetC 115 243 150
+SetC 115 235 UD 200 50 SetC 137 237 UD 200 50 SetC 95 235 UD 200 50 SetC 151 239 UD 200 50
+SetC 17 77 UD 200 50 SetC 15 63 UD 200 50 SetC 145 17 UD 200 50 SetC 171 15 UD 200 50
+SetC 125 47 250
+SetC 125 199 200 SetC 123 201 200 SetC 127 201 200 SetC 125 203 200
+SetC 125 201 UD 300 50
+SetC 129 77 200 SetC 133 77 200 SetC 131 75 200 SetC 137 75 200 SetC 133 71 200
+SetC 119 173 150 SetC 119 165 150
+SetC 153 141 200
+SetC 153 143 250 SetC 151 139 250 SetC 155 137 250
+SetC 125 151 200
+SetC 125 137 200 SetC 131 139 200 SetC 121 137 200 SetC 113 139 200 SetC 121 133 200 SetC 137 139 200 SetC 143 141 200 SetC 113 121 200 SetC 119 115 200 SetC 123 121 200 SetC 127 113 200 SetC 135 121 200 SetC 143 117 200 SetC 143 125 200 SetC 135 129 200 SetC 137 131 200
+CopyTexture -1 1 ColorPut CopyMask -1 1 k
+
+// Set ground elevations
+nMarkElev 2
+Del CopyTexture -1 2
+| Replace Red Black 0 Replace Maroon Black 0 Replace Green Black 0 Replace DkGreen Black 0 Replace DkCyan Black 0 Replace Yellow Black 0 Replace Maize Black 0 Replace Orange Black 0 Replace LtGray Black 0 Replace DkGray Black 0 Replace Magenta Black 0 Replace Purple Black 0 Replace Cyan Black 0 Replace Brown 1955 0 Replace Pink 1955 0 Replace Blue 290 0
+kDot DkBlue ColorDotXor ColorPut cDel fNoCornerHopping False Thicken2 3 ColorOr ColorDotXor
+nX 125 nY 25 kDot 900 ` nX 125 nY 45 kDot 1150 ` nX 123 nY 123 kDot 2800 ` nX 125 nY 147 kDot 2520 ` nX 125 nY 199 kDot 1400 ` nX 127 nY 235 kDot 690 ` Replace DkBlue Black 0 SetC 127 255 2190 =
+Del fGraphNumber True kBlend1 2800 kBlend2 1 fRainbowBlend False Replace Black -8 0 fGraphNumber False
+nMarkElevY1 300 nMarkElevY2 30 GroundVar2
+SetCA 2 129 51 0
+
+// Set castle
+SwapTexture -1 1 nX 123 nY 123 kDot UD 3590 3560 ` SwapTexture -1 1
+For (y) 123 129 {For (x) 125 131 (SetCA 1 @x @y UD 3880 3850 Set @x @y On)}
+For (x) 127 129 {SetCA 1 @x 134 UD 3600 2800 SetCE @x 134 Gray SetY @x 134 -1 %MDoor}
+SetY 128 134 -1 %MDoor2
+SetCA 1 132 123 UD 3895 3560
+For (i) 0 1 {@x Sub 125 Mul @i 2 @z Add 2850 Mul @i 50 SetCA 2 @x 133 @z SetCA 2 Inc @x 133 @z}
+For (y) 124 132 {SetCA 2 123 @y 2900}
+For (i) 0 3 {@x Add 124 Mul @i 2 @z Add 2950 Mul @i 50 SetCA 2 @x 131 @z SetCA 2 Inc @x 131 @z}
+For (y) 131 133 {For (x) 131 133 (SetCA 2 @x @y 3100)}
+For (i) 0 3 {@y Sub 129 Mul @i 2 @z Add 3150 Mul @i 50 SetCA 2 133 @y @z SetCA 2 133 Inc @y @z}
+SetCA 2 123 123 2980
+SetCA 2 132 123 3300
+SetCA 2 133 133 3180
+ForStep (y) 122 132 2 {ForStep (x) 122 134 12 (SetCA 1 @x @y Add GetCA 1 @x @y 50)}
+ForStep (x) 122 134 2 {SetCA 1 @x 134 Add GetCA 1 @x 134 50}
+ForStep (y) 122 130 2 {ForStep (x) 124 132 8 (SetCA 1 @x @y Add GetCA 1 @x @y 50)}
+ForStep (x) 126 130 2 {ForStep (y) 122 130 8 (SetCA 1 @x @y Add GetCA 1 @x @y 50)}
+| kDot Gray `
+
+// Set wall and ground mark colors
+= Replace Black Gray 0 Replace Red Gray 0 Replace Maroon Gray 0 Replace Green Gray 0 Replace DkGreen Gray 0 Replace DkCyan Gray 0 Replace Yellow Gray 0 Replace Maize Gray 0 Replace Orange Gray 0 Replace Cyan Gray 0 Replace LtGray Gray 0 Replace Pink Brown 0 Replace DkBlue Gray 0 _
+Replace Green DkGreen 1 Replace DkCyan Green 0 kBlend1 Green kBlend2 DkGreen Replace Cyan -16 0 Replace Brown Black 0 Replace Blue Black 0 Replace DkBlue Black 0 ColorPut
+Set 125 123 Off
+\ Del
+@x 115 @y 243 Set @x @y On SetC @x @y Orange SetY @x @y -1 %MHogg
+@x 115 @y 235 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 137 @y 237 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 95 @y 235 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 151 @y 239 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 17 @y 77 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 15 @y 63 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 145 @y 17 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 171 @y 15 Set @x @y On SetC @x @y Pink SetY @x @y -1 %MFairy
+@x 125 @y 47 Set @x @y On SetC @x @y LtGray SetY @x @y -1 %MWise
+@x 125 @y 199 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MNipp
+@x 123 @y 201 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MNipp
+@x 127 @y 201 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MNipp
+@x 125 @y 203 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MNipp
+@x 125 @y 201 Set @x @y On SetC @x @y Brown SetY @x @y -1 %MLudo1
+@x 129 @y 77 Set @x @y On SetC @x @y Orange SetY @x @y -1 %MFire
+@x 133 @y 77 Set @x @y On SetC @x @y Orange SetY @x @y -1 %MFire
+@x 131 @y 75 Set @x @y On SetC @x @y Orange SetY @x @y -1 %MFire
+@x 137 @y 75 Set @x @y On SetC @x @y Orange SetY @x @y -1 %MFire
+@x 133 @y 71 Set @x @y On SetC @x @y Orange SetY @x @y -1 %MFire
+@x 119 @y 173 Set @x @y On SetC @x @y Red SetY @x @y -1 %MDidy
+@x 119 @y 165 SetC @x @y Red SetY @x @y -1 %MDidy
+@x 153 @y 141 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MJunk
+@x 153 @y 143 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MJunk2
+@x 151 @y 139 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MJunk2
+@x 155 @y 137 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MJunk2
+@x 125 @y 151 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MSlee
+@x 125 @y 137 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 131 @y 139 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 121 @y 137 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 113 @y 139 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 121 @y 133 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 137 @y 139 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 143 @y 141 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 113 @y 121 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 119 @y 115 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 123 @y 121 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 127 @y 113 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 135 @y 121 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 143 @y 117 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 143 @y 125 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 135 @y 129 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 137 @y 131 Set @x @y On SetC @x @y Dark Brown SetY @x @y -1 %MGobl
+@x 129 @y 127 SetY @x @y -1 %MJare
+- TempDelete k
+For (y) 237 238 {Set 126 @y Off Set 130 @y Off SetCE 126 @y Black SetCE 130 @y Black}
+Set 127 24 Off SetCE 127 24 Black
+For (x) 127 129 {Set @x 146 Off SetCE @x 146 Black} 
+
+// Ground textures
+nTextureGround 4
+CopyTexture -1 4
++ Replace Brown %MBog 0
+SwapTexture -1 4
+
+// Ground elevation textures
+nTextureElev 5
+CopyTexture 4 5
+@m 129 @n 51 @z UD %MLadder2 %MLadder2
+SetCA 5 @m Dec @n @z SetCA 5 Dec @m @n @z SetCA 5 @m Inc @n @z SetCA 5 Inc @m @n @z
+
+// Escher room roof
+ForStep (y) 123 129 2 {ForStep (x) 125 131 2 (SetCA 4 @x @y Add %MEsch 15)}
+ForStep (y) 123 129 2 {ForStep (x) 126 130 2 (SetCA 4 @x @y %MEschY)}
+ForStep (y) 124 128 2 {ForStep (x) 125 131 2 (SetCA 4 @x @y %MEschX)}
+SetVars 27 16 "0 7 9 7  11 9 4 3  10 12 5 6  12 7 13 7"
+For (y) 0 3 {For (x) 0 3 (SetCA 3 Add 125 Mul @x 2 Add 123 Mul @y 2 UD 0 Add %MEsch Var Add 27 Add Mul @y 4 @x)}
+SetVars 27 12 "0 1 0  1 0 0  1 0 0  0 1 0"
+For (y) 0 3 {For (x) 0 2 (If Var Add 27 Add Mul @y 3 @x "SetCA 3 Add 126 Mul @x 2 Add 123 Mul @y 2 UD 0 %MEschY")}
+SetVars 27 12 "1 1 0 1  0 0 1 0  0 1 1 1"
+For (y) 0 2 {For (x) 0 3 (If Var Add 27 Add Mul @y 4 @x "SetCA 3 Add 125 Mul @x 2 Add 124 Mul @y 2 UD 0 %MEschX")}
+
+// Escher room walls
+ForStep (x) 125 131 2 {SetY @x 122 1 %MEschW SetY @x 130 0 %MEschW}
+ForStep (x) 126 130 2 {SetY @x 122 1 %MEschW2 SetY @x 130 0 %MEschW2}
+ForStep (y) 123 129 2 {SetY 124 @y 1 %MEschW SetY 132 @y 0 %MEschW}
+ForStep (y) 124 128 2 {SetY 124 @y 1 %MEschW2 SetY 132 @y 0 %MEschW2}
+For (i) 0 7 {SetY Add 125 Mul Div @i 2 2 ?: Odd @i 130 122 Not Odd @i Add %MEschW @i}
+For (i) 0 5 {SetY Add 126 Mul Div @i 2 2 ?: Odd @i 130 122 Not Odd @i Add %MEschW2 @i}
+For (i) 0 7 {SetY ?: Odd @i 132 124 Add 123 Mul Div @i 2 2 Not Odd @i Add %MEschW Add @i 8}
+For (i) 0 5 {SetY ?: Odd @i 132 124 Add 124 Mul Div @i 2 2 Not Odd @i Add %MEschW2 Add @i 6}
+SetY 132 123 0 %MEschE
+SetCA 5 132 123 UD Inc %MEschE 0
+SetVars 27 64 "221010 201120 210020 201221  120120 110020 001020 100120  020121 011020 101020 001220  022021 102120 112021 102221   220101 210010 200001 200211  021001 0 0 000201  120010 0 0 001201  022011 002001 002110 112210   221010 200001 200011 200211  120010 0 0 000211  020001 0 0 000211  022011 002111 012100 012201   221102 211112 211112 211212  121102 111102 111102 111212  121112 111102 111102 111212  122112 112112 112102 112212"
+
+// Map
+CopyTexture -3 6 -
+Replace Green DkGreen 1 Replace Green Black 0 Replace DkCyan Green 0 Replace Cyan DkGreen 0 Replace DkGray Black 0 Replace DkBlue Black 0
+- SwapTexture -3 6
+For (x) 127 129 {SetC @x 134 Magenta}
+SetC 132 123 Purple SetCT 132 123 Purple
+
+// Endless passage
+For (i) 0 5 {CopyTexture @i Add 10 @i CopyMask @i Add 10 @i}
+For (i) -3 -1 {CopyTexture @i Add 19 @i CopyMask @i Add 19 @i}
+For (x) 0 Dec SizeCX {For (y) 234 236 (@z And Add @x 2 3 Set @x @y Not Odd @y SetE @x @y Off SetC @x @y Mul Not Odd @y ?: @z Yellow Maize SetCE @x @y Mul Not Odd @y Yellow SetCA 1 @x @y UD ?: @z 990 1090 690 SetCA 2 @x @y 690 SetY @x @y -1 ?: @z ?: And @x 3 %MWall %MWall2 0)}
+For (x) 127 129 {Set @x 236 Off SetCE @x 236 Black}
+@p Inc Mul Rnd 1 30 2 If Rnd 0 1 {@p Add 192 @p}
+@q Add 135 Mul Not Odd Div @p 2 2
+SetY @p 236 0 %MWorm
+For (x) 127 129 (Set @x 236 Off SetCE @x 236 Black) For (y) 237 238 (Set 126 @y On Set 130 @y On SetCE 126 @y LtGray SetCE 130 @y LtGray)
+@e True @f False *Switch
+SetY @q 236 0 %MWorm
+Set @q 234 Off SetCE @q 234 Black
+
+// Oubliette and Cleaners
+*Switch
+For (y) 28 52 {For (x) 72 144 (SetCA 2 @x @y 512)}
+For (y) 29 33 {For (x) 127 129 (*Tunnel)}
+@y 33 For (x) 116 126 {*Tunnel}
+@x 115 For (y) 33 37 {*Tunnel}
+@y 37 For (x) 104 114 {*Tunnel}
+@x 103 For (y) 37 41 {*Tunnel}
+@y 41 For (x) 92 102 {*Tunnel}
+@x 91 For (y) 41 46 {*Tunnel}
+@y 47 For (x) 73 143 {*Tunnel}
+@x 129 For (y) 48 50 {*Tunnel}
+SetC 129 51 LtGray SetCT 129 51 DkGray SetCA 2 129 51 0
+SetCT 126 33 Gray SetCA 2 126 33 512 SetCA 5 126 33 UD 0 %MBench
+SetC 125 33 Gray
+SetCA 1 128 29 UD 1280 256
+SetCA 2 127 28 1024 SetCA 2 126 29 1024 SetCA 2 129 28 1024 SetCA 2 130 29 1024
+SetCA 2 129 52 1024 SetCA 2 128 51 1024 SetCA 2 130 51 1024
+SetCA 2 129 48 256 SetC 129 49 Gray
+SetE 132 47 On SetCA 1 132 47 256 SetC 133 47 GrayN 192
+@z Add %MWarn 0 SetCA 5 123 34 UD @z @z
+@z Add %MWarn 1 SetCA 5 119 32 UD @z @z
+@z Add %MWarn 2 SetCA 5 114 35 UD @z @z
+@z Add %MWarn 3 SetCA 5 111 36 UD @z @z
+@z Add %MWarn 4 SetCA 5 107 38 UD @z @z
+@z Add %MWarn 5 SetCA 5 104 39 UD @z @z
+@z Add %MWarn 6 SetCA 5 99 40 UD @z @z
+@z Add %MWarn 7 SetCA 5 95 42 UD @z @z
+SetCA 5 91 48 UD %MBegg 0
+SetCA 5 129 48 UD %MPanel 0
+SetY 132 47 -1 UD %MBars %MBars
+*Switch
+
+// Day and Night settings
+kSky Cyan kSky2 kSky
+kGround Gray kGround2 kGround
+kMountain2 Brown kMountain kGround2
+kCloud White kCloud2 LtGray
+nCloudCount 16
+SetVar Add %KSky 0 kSky
+SetVar Add %KSky 1 Blue
+SetVar Add %KSky 2 Black
+SetVar Add %KSky 3 kSky2
+SetVar Add %KSky 4 Orange
+SetVar Add %KSky 5 Black
+SetVar Add %KGrd 0 kGround
+SetVar Add %KGrd 1 Dark kGround
+SetVar Add %KGrd 2 Dark Dark kGround
+SetVar Add %KGrd 3 kGround2
+SetVar Add %KGrd 4 Dark kGround2
+SetVar Add %KGrd 5 Dark Dark kGround2
+SetVar Add %KMtn 0 kMountain
+SetVar Add %KMtn 1 Dark kMountain
+SetVar Add %KMtn 2 Dark Dark kMountain
+SetVar Add %KMtn 3 kMountain2
+SetVar Add %KMtn 4 Dark kMountain2
+SetVar Add %KMtn 5 Dark Dark kMountain2
+SetVars %KFog 6 "1000 1000 1000 Gray DkGray Black" // Fog
+@x White @y Dark DkGray @KCld @x SetVar Add %KCld 2 @y SetVar Inc %KCld Blend @x @y // Cloud
+@x Light LtGray @y Dark Dark DkGray SetVar Add %KCld 3 @x SetVar Add %KCld 5 @y SetVar Add %KCld 4 Blend @x @y // Cloud2
+
+// Keyboard shortcuts
+DisableAll
+Enable 'Esc' Enable 't' Enable 'ca' Enable 'sTab' Enable 'Ent' Enable 'ac!'
+Enable (F1) Enable (F2) Enable (F3) Enable (F4) Enable (F5) Enable (F6) Enable (F7) Enable (F8) Enable (F9) Enable (F10) Enable (F11) Enable (F12)
+OnCommand (?) %FHelp
+OnCommand (~) %FStart
+OnCommand (q) %FChat
+OnCommand (e) %FAction
+OnCommand (u) %FClimbU
+OnCommand (j) %FClimbD
+OnCommand (z) %FRest
+OnCommand (i) %FMap
+OnCommand (f) %FMark
+OnCommand (v) %FUnmark
+OnCommand (]) %FLookD
+OnCommand ([) %FLookU
+OnCommand (Spc) %FLook
+OnCommand (8) %FUp
+OnCommand (2) %FDown
+OnCommand (4) %FLeft
+OnCommand (6) %FRight
+OnCommand (w) %FUp
+OnCommand (s) %FDown
+OnCommand (a) %FLeft
+OnCommand (d) %FRight
+OnCommand (x) %FLeft2
+OnCommand (c) %FRight2
+OnCommand (MoveU) %FUp
+OnCommand (MoveD) %FDown
+OnCommand (MoveL) %FLeft
+OnCommand (MoveR) %FRight
+OnCommand (JumpU) %FUp2
+OnCommand (JumpD) %FDown2
+OnCommand (JumpL) %FLeft2
+OnCommand (JumpR) %FRight2
+OnCommand (y) %FRise
+OnCommand (h) %FLower
+
+// Program settings
+nWhatToDraw 2 nHorizontalPixelValue 12 nVerticalPixelValue 12
+kDot White
+fShowDot True fDotIsCircle True fWallsImpassable True fMoveByTwo True fDragByTwo False
+nInside 2 fNarrowWalls True nCellSize 60 nNarrowCellSize 20 nWallHeight 100 nStepHeight 300 nFogDistance 1000 nClippingPlane 150
+fFogGround True fMarkColor True fMarkAll True fMarkBlock True fTextureDual True fTextureDual2 True
+nOnMoveOffBitmap %VEdge
+nOnMoveToNewCell %VMove
+nAfterMoveToNewCell %VMoved
+nOnFollowToNewCell %VFollow
+nAfterRedrawInside %VInside
+nOnLeftClick %VMouseL
+nOnRightClick %VMouseR
+nOnMouseMove %VMouseV
+nX 127 nY 255 g
+@Day 7800
+@SMist False
+SetStrings %ZWarn 8 ";Don't go on!;Go back while you still can!;This is not the way!;Take heed, and go no farther!;Beware, beware!;Soon it will be too late!;Sorry for the phony warnings, I'm just doing my job!;Beware, for the path you take will lead to certain destruction!"
+$9 ""
+
+// Script settings
+Embed
+@a Rnd 0 1 @b False @c 0 @d False @e False @f False @g 4 @h 0 @j 0 @k 0 @l True @o 0 @s 0 @t 46800 @u 0
+@TChatH 0 @TChatW 0 @TChatA 0 @TChatHH 0 @TChatB 0 @TChatWM 0 @TChatN 0 @TChatL 0 @TChatKL 0 @TChatKR 0 @TChatF 0 @TChatD 0 @TChatJL 0 @TChatJ 0
+*Day0
+For (i) 0 1 {
+  @m ?: @i Add 127 Mul @a 2 Sub 129 Mul @a 2 @n 29
+  @z ?: @i %MDeath %MHand @z UD @z @z
+  SetCA 5 @m Dec @n @z SetCA 5 Dec @m @n @z SetCA 5 @m Inc @n @z SetCA 5 Inc @m @n @z
+}
+SetCA 5 128 @n ?: @a UD %MHand %MDeath UD %MDeath %MHand
+*Switch
+@m Sub 129 Mul @a 2 @n 29 @z UD %MHand %MHand 
+Set @m 29 Off SetCA 2 @m 29 0 SetY 128 29 -1 %MHand
+SetCA 5 @m Dec @n @z SetCA 5 Dec @m @n @z SetCA 5 @m Inc @n @z SetCA 5 Inc @m @n @z
+*Switch
+cg nDir 0
+cr
+ct fPauseTimer False
+fRedrawWhenBitmapEdited True n
+
+*FHelp

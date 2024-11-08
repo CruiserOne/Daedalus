@@ -2,7 +2,7 @@
 
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<title>Daedalus 3.4 Documentation</title>
+<title>Daedalus 3.5 Documentation</title>
 
 <style>
 <!--
@@ -101,23 +101,41 @@
 	{font-family:"Cambria Math";
 	panose-1:2 4 5 3 5 4 6 3 2 4;}
 @font-face
-	{font-family:"Arial Unicode MS";
-	panose-1:2 11 6 4 2 2 2 2 2 4;}
+	{font-family:"Yu Gothic";
+	panose-1:2 11 4 0 0 0 0 0 0 0;}
 @font-face
-	{font-family:Cambria;
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
+	{font-family:DengXian;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
 @font-face
 	{font-family:Calibri;
 	panose-1:2 15 5 2 2 2 4 3 2 4;}
 @font-face
-	{font-family:Tahoma;
+	{font-family:"Calibri Light";
+	panose-1:2 15 3 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"Palatino Linotype";
+	panose-1:2 4 5 2 5 5 5 3 3 4;}
+@font-face
+	{font-family:Verdana;
 	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:"Arial Unicode MS";
+	panose-1:2 11 6 4 2 2 2 2 2 4;}
+@font-face
+	{font-family:"Aptos Display";}
+@font-face
+	{font-family:Aptos;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:"Segoe UI Emoji";
+	panose-1:2 11 5 2 4 2 4 2 2 3;}
  /* Style Definitions */
  p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{margin:0in;
-	margin-bottom:.0001pt;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 h1
 	{margin-top:12.0pt;
 	margin-right:0in;
@@ -125,7 +143,7 @@ h1
 	margin-left:0in;
 	page-break-after:avoid;
 	font-size:16.0pt;
-	font-family:"Arial","sans-serif";}
+	font-family:"Arial",sans-serif;}
 a:link, span.MsoHyperlink
 	{color:blue;
 	text-decoration:underline;}
@@ -140,14 +158,13 @@ p.A, li.A, div.A
 	margin-bottom:10.0pt;
 	margin-left:0in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.ACharChar
 	{mso-style-name:"A Char Char";
 	mso-style-link:A;}
 p.Fixed, li.Fixed, div.Fixed
 	{mso-style-name:Fixed;
 	margin:0in;
-	margin-bottom:.0001pt;
 	font-size:12.0pt;
 	font-family:"Courier New";}
 p.Section, li.Section, div.Section
@@ -161,7 +178,7 @@ p.Section, li.Section, div.Section
 	border:none;
 	padding:0in;
 	font-size:16.0pt;
-	font-family:"Arial","sans-serif";
+	font-family:"Arial",sans-serif;
 	font-weight:bold;}
 p.Item, li.Item, div.Item
 	{mso-style-name:Item;
@@ -169,10 +186,9 @@ p.Item, li.Item, div.Item
 	margin-right:0in;
 	margin-bottom:0in;
 	margin-left:.5in;
-	margin-bottom:.0001pt;
 	text-indent:-.25in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 p.B, li.B, div.B
 	{mso-style-name:B;
 	mso-style-link:"B Char Char";
@@ -181,7 +197,7 @@ p.B, li.B, div.B
 	margin-bottom:10.0pt;
 	margin-left:.5in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.BCharChar
 	{mso-style-name:"B Char Char";
 	mso-style-link:B;}
@@ -192,7 +208,7 @@ p.C, li.C, div.C
 	margin-bottom:10.0pt;
 	margin-left:1.0in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.O
 	{mso-style-name:O;
 	color:green;
@@ -222,7 +238,7 @@ p.D, li.D, div.D
 	margin-bottom:10.0pt;
 	margin-left:1.5in;
 	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-family:"Times New Roman",serif;}
 span.M
 	{mso-style-name:M;
 	color:red;
@@ -250,7 +266,7 @@ ul
 
 </head>
 
-<body lang=EN-US link=blue vlink=purple>
+<body lang=EN-US link=blue vlink=purple style='word-wrap:break-word'>
 
 <div class=WordSection1>
 
@@ -282,8 +298,8 @@ style='background:silver'>A</span>     <span style='background:silver'>A</span> 
 lang=ES-CR>     <span style='background:silver'>D</span>  <span
 style='background:silver'>AAAAAAA</span>  <span style='background:silver'>EEEEEE</span>  
 <span style='background:silver'>D</span>     <span style='background:silver'>D</span> 
-<span style='background:silver'>AAAAAAA</span>  <span style='background:silver'>L</span>   
-    <span style='background:silver'>U</span>     <span style='background:silver'>U</span>  
+<span style='background:silver'>AAAAAAA</span>  <span style='background:silver'>L</span>       
+<span style='background:silver'>U</span>     <span style='background:silver'>U</span>  
 <span style='background:silver'>SSSSS</span></span></p>
 
 <p class=Fixed><span lang=ES-CR style='background:silver'>D</span><span
@@ -313,7 +329,7 @@ style='background:silver'>A</span>     <span style='background:silver'>A</span> 
 
 <p class=Fixed>&nbsp;</p>
 
-<p class=Fixed>                         **  VERSION  3.4  **</p>
+<p class=Fixed>                         **  VERSION  3.5  **</p>
 
 <p class=A>&nbsp;</p>
 
@@ -463,7 +479,8 @@ versions of it).</p>
 </span></span>Standard Mazes generated with Eller’s algorithm.</p>
 
 <p class=Item><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span>Standard Mazes generated with the Growing Tree or Growing Forest algorithms.</p>
+</span></span>Standard Mazes generated with the Growing Tree or Growing
+ Forest algorithms.</p>
 
 <p class=Item><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span>Standard Mazes generated with the Sidewinder algorithm.</p>
@@ -535,7 +552,8 @@ textures.</p>
 inside.</p>
 
 <p class=Item><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span>Semitransparent walls you can see through in 3D first person view.</p>
+</span></span>Semitransparent walls you can see through in 3D first person
+view.</p>
 
 <p class=Item><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span>Fog effects where walls fade into the distance in 3D first person
@@ -700,6 +718,10 @@ of 5 and 6 squares.</p>
 <p class=Item><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span>Sample game: Grippy Socks - Mental health psych ward simulation.</p>
 
+<p class=Item><span style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Sample game: Jareth’s Labyrinth - Solve a giant Maze within 13
+hours.</p>
+
 <p class=A>For a quick demo of some of the cool things Daedalus can do, start
 the program, press the “Shift+V” key to create a Weave Maze, select “Weave To
 Inside” on the Maze menu to start exploring a first person perspective view of
@@ -714,8 +736,8 @@ you can climb over and go under.</p>
 
 </div>
 
-<p class=A>Daedalus can be considered a glorified bitmap editor. The content you
-work with in Daedalus are basically bitmaps, usually monochrome bitmaps of
+<p class=A>Daedalus can be considered a glorified bitmap editor. The content
+you work with in Daedalus are basically bitmaps, usually monochrome bitmaps of
 Mazes. What you see in the Daedalus window is always a view of a bitmap. This
 may be either the entire bitmap, a magnified subsection of it, or a special
 view of some part of it, such as a 3D first person perspective view from inside
@@ -765,7 +787,7 @@ the commands on the Create menu to draw various types of Mazes. You probably
 want to use the size changing menu commands to make the bitmap and hence the
 Mazes you create on it larger or smaller. Daedalus however is mainly designed
 to be an advanced Maze editing environment. All the various commands may seem
-confusing at first, and the program has 467 separate menu commands and 21
+confusing at first, and the program has 470 separate menu commands and 21
 dialogs. In general you can do anything in Daedalus, although it may take
 several steps and some thought about what steps to take to do what you want.</p>
 
@@ -834,7 +856,8 @@ displays of Mazes or other things.</p>
 
 <div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
 
-<p class=Section><a name=menufile>DAEDALUS MENU COMMANDS - </a>FILE MENU</p>
+<p class=Section><a name=menufile>DAEDALUS MENU COMMANDS - </a>FILE
+MENU</p>
 
 </div>
 
@@ -850,7 +873,7 @@ basically a union of the Open Bitmap, Open Text, Open X11 Bitmap, Open 3D
 Bitmap, Open Script, Open Targa, Open Wireframe, and Open Patches commands.</p>
 
 <p class=A><span class=M>Run Script:</span> This submenu allows automatically
-running any of the 28 scripts that come with the program. To run a script, you
+running any of the 30 scripts that come with the program. To run a script, you
 can also manually select the script file in the Open or Open Script dialogs, or
 double click the file for the script outside the program altogether. All
 scripts also have an icon in the Daedalus program group created by setup, that
@@ -877,7 +900,8 @@ on.<br>
 F6: Draws a rainbow colored Chartres Cathedral pattern Labyrinth. Press “i” to
 enter first person view in which you can walk through it.<br>
 Shift+F6: Draws a rainbow colored classical seven circuit Labyrinth.<br>
-F7: Animates you flying over a Maze with 3D walls, seen in perspective and color.<br>
+F7: Animates you flying over a Maze with 3D walls, seen in perspective and
+color.<br>
 Shift+F7: Animates you flying over a 2D Maze drawn on the ground, seen in
 perspective and monochrome.<br>
 F8: Draws an orthographic view of the Escher room in the ESCHER.D3 sample file.<br>
@@ -984,10 +1008,10 @@ episode 6 immunity challenge in the CBS TV show “Survivor IV: Marquesas”.</p>
 <p class=B><span class=N>Survivor Maze #3:</span> This script is another
 similar Maze game. You start in the center of a diamond shaped Maze, where you
 must visit four checkpoints in the four corners in any order, then return to
-the center when done. You have the option of trying to solve the Maze
-blindfolded, where you get messages when you move into or feel a wall next to
-you. This is a copy of the Maze from the final four immunity challenge in the
-CBS TV show “Survivor VI: Amazon”.</p>
+the center when done. You have the option of trying to solve the Maze blindfolded,
+where you get messages when you move into or feel a wall next to you. This is a
+copy of the Maze from the final four immunity challenge in the CBS TV show “Survivor
+VI: Amazon”.</p>
 
 <p class=B><span class=N>Survivor Maze #4:</span> This script is similar to the
 other Survivor Maze games. You start in the center of a star shaped Maze, where
@@ -1031,7 +1055,8 @@ similar to the other Survivor Maze games. You need to navigate your way through
 the Maze, finding four checkpoints within it in any other, before reaching the
 goal. You have the option of trying to solve the exact Maze the Survivors went
 through, or solving a randomly generated Maze. This is a copy of the Maze from
-the final four immunity challenge in the CBS TV show “Survivor XXII: Redemption Island”. A video of the Survivor contestants in the real life version of this
+the final four immunity challenge in the CBS TV show “Survivor XXII: Redemption
+ Island”. A video of the Survivor contestants in the real life version of this
 Maze can be seen at <a href="https://www.youtube.com/watch?v=_x6HVvdOq5g">https://www.youtube.com/watch?v=_x6HVvdOq5g</a>.</p>
 
 <p class=B><span class=N>Survivor Maze #10:</span> This is one final script
@@ -1064,7 +1089,7 @@ Checkpoints  3D   Random  Blind  Players  Winner</b></p>
 5            no   Yes     no     2        Rotu tribe</p>
 
 <p class=Fixed style='margin-left:1.0in'>3   6 Amazon              
-4            no   no      Yes    4        Jenna</p>
+4            no   no      Yes    4        Jenna</p>
 
 <p class=Fixed style='margin-left:1.0in'>4   8 All Stars           
 8            no   no      no     4        Amber</p>
@@ -1075,8 +1100,8 @@ Checkpoints  3D   Random  Blind  Players  Winner</b></p>
 <p class=Fixed style='margin-left:1.0in'>6   11 Guatemala          
 6            Yes  no      no     4        Rafe</p>
 
-<p class=Fixed style='margin-left:1.0in'>7   14 Fiji                5           
-no   no      Yes    5        Yau-Man</p>
+<p class=Fixed style='margin-left:1.0in'>7   14 Fiji               
+5            no   no      Yes    5        Yau-Man</p>
 
 <p class=Fixed style='margin-left:1.0in'>8   20 Heroes vs Villains 
 4            no   no      Yes    4        Russell</p>
@@ -1116,8 +1141,8 @@ fences and picnic tables, and so on.</p>
 Maze where you need to hunt down and visit the four checkpoints in any order
 and then find the exit. The Maze has several 3D aspects to it, specifically
 bridges to climb over and go under, and a high central tower you start on along
-with tunnels that go through that tower. A video of a playthrough of this game can
-be seen at <a href="https://www.youtube.com/watch?v=-oixyRd1hAc">https://www.youtube.com/watch?v=-oixyRd1hAc</a>.</p>
+with tunnels that go through that tower. A video of a playthrough of this game
+can be seen at <a href="https://www.youtube.com/watch?v=-oixyRd1hAc">https://www.youtube.com/watch?v=-oixyRd1hAc</a>.</p>
 
 <p class=B><span class=N>Mouse Maze:</span> This script plays a game where you
 move the mouse pointer through a mostly unicursal Maze as fast as possible,
@@ -1126,11 +1151,11 @@ while avoiding bumping into walls.</p>
 <p class=B><span class=N>Survivor Squares Game:</span> This script plays a
 non-Maze game where you move on a game board and try to run the other seven
 computer players out of room before running out of room yourself. Squared Off
-reproduces the episode 9 immunity challenge from the original CBS “Survivor”
-series. You can customize the board dimensions in squares, the number of
-players competing, whether players are allowed to move diagonally, and the
-difficulty. Higher difficulty means computer players will make more intelligent
-moves, and notice larger spaces with more available squares to move into.</p>
+reproduces the episode 9 immunity challenge from the original CBS “Survivor” series.
+You can customize the board dimensions in squares, the number of players
+competing, whether players are allowed to move diagonally, and the difficulty.
+Higher difficulty means computer players will make more intelligent moves, and
+notice larger spaces with more available squares to move into.</p>
 
 <p class=B><span class=N>Mandelbrot Set Fractal:</span> This non-Maze related
 script demonstrates the famous Mandelbrot set fractal. You can zoom in on parts
@@ -1148,6 +1173,12 @@ mental health psych ward simulation. You experience a hospital environment, in
 which your objective is to find the right medication and other treatments, and
 then use them so that you can get released. For more details about this script
 see <a href="http://www.astrolog.org/labyrnth/daedalus/gripsox.htm">http://www.astrolog.org/labyrnth/daedalus/gripsox.htm</a>.</p>
+
+<p class=B><span class=N>Jareth’s Labyrinth:</span> This script is inspired by
+the movie “Labyrinth”. You have 13 hours in which to solve a giant Maze, and
+face Jareth at its center. The random Maze contains brick, hedge, and forest
+sections, and various creatures. For more details about this script see <a
+href="http://www.astrolog.org/labyrnth/daedalus/jareth.htm">http://www.astrolog.org/labyrnth/daedalus/jareth.htm</a>.</p>
 
 <p class=A><span class=N>Open Bitmap...:</span> This loads a Windows bitmap
 file into either the main bitmap or color bitmap. If the file is a monochrome
@@ -1260,8 +1291,8 @@ desktop to be the current monochrome or color bitmap. One can make a Daedalus
 bitmap be their desktop background manually, by doing Save Bitmap to create a
 bitmap file, then going into the Display Properties Windows control panel, and
 pointing the background bitmap to the file created. This command however does
-all that automatically, where a bitmap file called “Daedalus.bmp” will be
-written to the Windows directory.</p>
+all that automatically, where a bitmap file called “Daedalus.bmp” will be written
+to the Windows directory.</p>
 
 <p class=B><span class=N>Center Bitmap:</span> This centers the active bitmap
 in the middle of the Windows desktop.</p>
@@ -1448,7 +1479,7 @@ displaying an error message.</p>
 
 <p class=B><span class=N>Create Desktop Icon:</span> Creates a shortcut on the
 Windows desktop pointing to the current location of the Daedalus executable.
-For the DAE34HGS.EXE “Hunger Games” download which includes an extra directory
+For the DAE35HGS.EXE “Hunger Games” download which includes an extra directory
 of bitmap and sound files for the “Hunger Games” script, this command will also
 produce a desktop icon pointing to that script.</p>
 
@@ -1836,10 +1867,10 @@ thing as the Autorepeat menu command on the Edit menu.</p>
 <p class=B><span class=O>Repeat Delay in Msec:</span> This value indicates the
 time interval in milliseconds that the program will try to automatically do
 certain operations. This includes commands repeated by the Autorepeat command,
-dot movement done when the Chase Mouse Point checkbox is set, and screen
-updates during the Very Free Movement perspective inside mode. If this is set
-to 1000 for example, then the Autorepeat command will generate no more than one
-Maze or whatever per second. Lowering this value can speed these things up.</p>
+dot movement done when the Chase Mouse Point checkbox is set, and screen updates
+during the Very Free Movement perspective inside mode. If this is set to 1000
+for example, then the Autorepeat command will generate no more than one Maze or
+whatever per second. Lowering this value can speed these things up.</p>
 
 <p class=C>This field may be set to zero, which will make the program not pause
 at all between successive iterations of the operation being autorepeated, and
@@ -1904,8 +1935,8 @@ screen. Most often this will have no visible effect, although it will trigger
 the After Redraw Inside macro event if set.</p>
 
 <p class=C>Pressing the space bar, i.e. running this Redraw Window command,
-will interrupt moving down a passage in Follow Passages mode. When moving down a
-passage to the next junction, that can sometimes take a while, say in a large
+will interrupt moving down a passage in Follow Passages mode. When moving down
+a passage to the next junction, that can sometimes take a while, say in a large
 Unicursal Maze. If you want to stop the animation and get control again, press
 space to stop the dot in its tracks. Pressing the space bar also affects the
 Show Individual Pixel Edits setting when the Pixel Display Delay is non-zero. A
@@ -1934,7 +1965,8 @@ remainder when the section of bitmap displayed doesn’t fill the entire window.</
 
 <p class=B><span class=O>Passage:</span> The passage color is the color of
 passages in Mazes, i.e. the general “off” pixel color for monochrome bitmaps.
-This is also the color of informational text displayed in perspective inside view.</p>
+This is also the color of informational text displayed in perspective inside
+view.</p>
 
 <p class=B><span class=O>Wall:</span> The wall color is the color of walls in
 Mazes, i.e. the general “on” pixel color for monochrome bitmaps. This is also
@@ -2126,10 +2158,10 @@ only, and off means diagonal connections are allowed too.</p>
 <p class=B><span class=O>Glancing Blows:</span> If this is set, then when
 moving diagonally, if the dot can’t move to the desired pixel (because it’s on
 when Walls Impassable is set, or is off the screen when Stop At Edge is set)
-the dot will move horizontally or vertically if possible. For example, if moving
-the dot diagonally down and to the right, and it runs into a horizontal wall,
-the diagonal movement commands will make the dot move to the right along the
-wall.</p>
+the dot will move horizontally or vertically if possible. For example, if
+moving the dot diagonally down and to the right, and it runs into a horizontal
+wall, the diagonal movement commands will make the dot move to the right along
+the wall.</p>
 
 <p class=C>In addition to the standard overhead view, this setting also affects
 the perspective inside view, where if you move into a wall, you’ll slide along
@@ -2163,9 +2195,9 @@ until the next junction, instead of just moving one pixel at a time. This only
 works for standard orthogonal 2D Mazes with passages one pixel wide. If when
 automatically following a passage a dead end is reached, the dot will turn
 around and go back the way it came. This allows you to move through Mazes much
-faster, where all you have to do is make choices at the junctions. Note the
-automatic moving down a passage will stop if the dot is ever over the location
-of the second dot.</p>
+faster, where all you have to do is make choices at the junctions. Note the automatic
+moving down a passage will stop if the dot is ever over the location of the
+second dot.</p>
 
 <p class=B><span class=O>Radar Length:</span> This value only plays a role when
 Follow Passages is set. With this, not only will the dot follow passages for
@@ -2223,9 +2255,9 @@ the four arrow keys will work too. The “5” key will do the same as the “2” key,
 and can be used to move down as well. The orthogonal move commands will update
 the Direction field in Dot Setting to be the direction moved in. The diagonal
 move commands can update the direction too, and if need be will rotate it 90
-degrees to ensure it’s one of the two compass directions adjacent to the diagonal.
-For example if the current direction is west, and the dot moves southeast, the
-direction will be set to south.</p>
+degrees to ensure it’s one of the two compass directions adjacent to the
+diagonal. For example if the current direction is west, and the dot moves
+southeast, the direction will be set to south.</p>
 
 <p class=C>In the 3D first person inside view, these commands will move the dot
 relative to the direction you’re currently facing. Specifically Up will move
@@ -2402,10 +2434,10 @@ over a set pixel, this will do the opposite, and scan for the first off pixel
 in front of the dot and turn it on.</p>
 
 <p class=B><span class=N>Make Wall Semitransparent:</span> This will make the
-first wall in front of the direction the dot is facing semitransparent. A semitransparent
-wall can make a Maze easier to solve because you can see what’s behind it. See
-the Semitransparent Walls section of the Inside Settings dialog for more
-information on semitransparent walls.</p>
+first wall in front of the direction the dot is facing semitransparent. A
+semitransparent wall can make a Maze easier to solve because you can see what’s
+behind it. See the Semitransparent Walls section of the Inside Settings dialog
+for more information on semitransparent walls.</p>
 
 <p class=B><span class=N>Make Unsemitransparent:</span> This will make the
 first semitransparent cell in front of the direction the dot is facing opaque.
@@ -2477,12 +2509,12 @@ unchecked, the window will contain the standard overhead view of the bitmap.
 The perspective inside view will be drawn as if you’re standing within the
 bitmap at the location of the dot, where on pixels are walls and off pixels are
 passages or open spaces. This view is designed to allow you to solve a Maze as
-if you were walking inside its passages. See the Inside Settings dialog for
-additional information about and settings related to this view. Many of the
-colors in this view can be changed in the Inside section of the Set Colors
-dialog. If the dot is on a set pixel, i.e. you’re inside of a wall, the screen
-will be filled with the color of the wall, which is like if the wall is a hedge
-and you’re forcing your way through it.</p>
+if you were walking inside its passages. See the Inside Settings dialog for additional
+information about and settings related to this view. Many of the colors in this
+view can be changed in the Inside section of the Set Colors dialog. If the dot
+is on a set pixel, i.e. you’re inside of a wall, the screen will be filled with
+the color of the wall, which is like if the wall is a hedge and you’re forcing
+your way through it.</p>
 
 <p class=B>If the Edge Behavior setting in the Dot Settings dialog is set to
 Torus Wrapping, then the inside view won’t stop at the edges of the bitmap, but
@@ -2507,11 +2539,11 @@ view. This will cause the floor section you’re over to be drawn in a different
 color, or in the Simple Perspective inside display mode this will cause there
 to be a large ‘X’ on the floor at your current location. Note you may not be
 able to see an ‘X’ that’s at your feet because you’re looking forward, however
-if you move and look back at the cell you were in you can see it. This is
-implemented by turning on the pixel in the temporary bitmap at the location of
-the dot. Basically every set pixel in the temporary bitmap that’s not set in
-the main bitmap, will cause there to be a marking at that location in the
-perspective inside view.</p>
+if you move and look back at the cell you were in you can see it. This is implemented
+by turning on the pixel in the temporary bitmap at the location of the dot.
+Basically every set pixel in the temporary bitmap that’s not set in the main
+bitmap, will cause there to be a marking at that location in the perspective
+inside view.</p>
 
 <p class=A><span class=N>Erase 'X' at Dot:</span> This is like Mark ‘X’ At Dot
 except it will erase any marking at your current location. In other words this
@@ -2563,9 +2595,9 @@ of Jumpy Movement, as it allows you to face in any direction instead of just
 the four main compass directions, and allows you to stand at any location,
 instead of only in the very middle of pixels. Because of this, the location and
 direction of the dot is no longer enough to determine exactly where you are,
-where the Offset fields in the Free Movement section of the dialog indicate where
-within the current pixel you are and how far away from the nearest compass
-direction you’re facing.</p>
+where the Offset fields in the Free Movement section of the dialog indicate
+where within the current pixel you are and how far away from the nearest
+compass direction you’re facing.</p>
 
 <p class=C><span class=O>Very Free Movement:</span> This is just like Free
 Movement, however moving around the Maze will feel more fluid, like playing a
@@ -2610,8 +2642,8 @@ coordinates will be divided by two, so the movement commands which move by two
 pixels when Narrow Walls is set, will still cause the location to change by one
 unit at a time.</p>
 
-<p class=B><span class=O>Map Overlay:</span> This does the same thing as the Map
-Inside menu command on the Dot menu, however the menu command also turns on
+<p class=B><span class=O>Map Overlay:</span> This does the same thing as the
+Map Inside menu command on the Dot menu, however the menu command also turns on
 View Inside if not on already.</p>
 
 <p class=B><span class=O>Sealed Entrances:</span> When this is set, looking out
@@ -2723,10 +2755,10 @@ this.</p>
 <p class=B><span class=O>Up Down Smooth Not Free:</span> This flag only has an
 effect when the inside display mode is set to Free Movement or Very Free
 Movement, and the Maze is 3D. It causes vertical movement between levels to be
-smoothly animated as in the Smooth Movement mode, while 2D movement is
-unchanged. In other words it allows fast switches between levels that ensure
-you never get stuck part way between them, while still allowing fine control of
-your location and direction within a level.</p>
+smoothly animated as in the Smooth Movement mode, while 2D movement is unchanged.
+In other words it allows fast switches between levels that ensure you never get
+stuck part way between them, while still allowing fine control of your location
+and direction within a level.</p>
 
 <p class=B><span class=O>Narrow Walls:</span> If this is set, walls will be
 narrower than passages in the perspective inside view, specifically they’ll be
@@ -2759,9 +2791,9 @@ to anywhere, even high enough to look over the tops of walls and see other
 passages. This field controls the viewing elevation. Positive values will
 increasingly make you seem to float higher in the air, while negative will make
 you seem underground or with the Maze floating in midair. A Viewing Height of
-half the Wall Height will make eye level even with the tops of walls. A non-zero
-wall height may seem to draw slower, since the visible set of passages can
-increase to include the entire Maze, so it works best on a faster computer.
+half the Wall Height will make eye level even with the tops of walls. A
+non-zero wall height may seem to draw slower, since the visible set of passages
+can increase to include the entire Maze, so it works best on a faster computer.
 Note ceiling markings become invisible if the View Height is positive, while
 floor markings become invisible if View Height is negative. Technically, eye
 level is always at the center of walls, where an alternate viewing height is
@@ -2820,19 +2852,19 @@ simulate a southern hemisphere location.</p>
 <p class=B><span class=O>Fog Distance:</span> Daedalus supports fog effects in
 the first person view. If this field is non-zero, the color of walls will
 increasingly fade the farther away they are. This gives better depth
-perception, where even walls of all the same base color will be shaded
-differently based on their distance from you. The larger the number, the
-greater the distance before the wall color will completely fade. Specifically
-it’s equal to one tenth the number of inside units before the fade limit is
-reached, e.g. a Fog Distance of 320 with a Cell Size of 160 means walls will
-completely fade after a distance of 20 cells. See the Fog field in the Set
-Colors dialog for the color things fade to.</p>
+perception, where even walls of all the same base color will be shaded differently
+based on their distance from you. The larger the number, the greater the
+distance before the wall color will completely fade. Specifically it’s equal to
+one tenth the number of inside units before the fade limit is reached, e.g. a
+Fog Distance of 320 with a Cell Size of 160 means walls will completely fade
+after a distance of 20 cells. See the Fog field in the Set Colors dialog for
+the color things fade to.</p>
 
 <p class=B><span class=O>Clipping Plane:</span> This contains the clipping
 plane distance or how many pixels to look in each direction for a wall. If
 objects seem to suddenly pop into view in the distance, you might want to
-increase this. If the screen is taking a long time to update while in open
-spaces, you might want to decrease this.</p>
+increase this. If the screen is taking a long time to update while in open spaces,
+you might want to decrease this.</p>
 
 <p class=B><span class=O>Viewing Span:</span> This sets how many degrees the
 inside view covers on either side of the direction being faced. For example, if
@@ -2857,13 +2889,12 @@ Perspective Patch commands too.</p>
 <p class=B><span class=M>Semitransparent Walls:</span> Walls in the perspective
 inside view can be semitransparent or translucent. They will look like large
 sections of colored class or forcefields where you can see what lies behind
-them, but tinted with the color of the wall. If you look through a blue
-semitransparent wall behind which is a red semitransparent wall, objects behind
-both walls will have a purplish tint. Passage cells can be displayed
-semitransparent too, and will look just like semitransparent walls, with the
-only difference being you can walk through them. Semitransparent walls or
-passages are indicated by having set pixels at that location in the extra
-bitmap.</p>
+them, but tinted with the color of the wall. If you look through a blue semitransparent
+wall behind which is a red semitransparent wall, objects behind both walls will
+have a purplish tint. Passage cells can be displayed semitransparent too, and
+will look just like semitransparent walls, with the only difference being you
+can walk through them. Semitransparent walls or passages are indicated by
+having set pixels at that location in the extra bitmap.</p>
 
 <p class=C><span class=O>None:</span> This radio button disables display of
 semitransparent walls. All walls will appear opaque regardless of the contents
@@ -2988,8 +3019,8 @@ in the bitmap, where all off pixels become on and vice versa.</p>
 the main bitmap, with a 50% chance of any pixel being on or off. This
 percentage is modified by the Random Bias setting, which is added to the
 percentage of pixels being on. For example, a Random Bias field of -10 means a
-40% chance each pixel will be on. When the color bitmap is being shown, this will
-instead set each pixel in the color bitmap to a random 24 bit color.</p>
+40% chance each pixel will be on. When the color bitmap is being shown, this
+will instead set each pixel in the color bitmap to a random 24 bit color.</p>
 
 <p class=A><span class=N>Zoom...:</span> This dialog is similar to the Size
 dialog in that it resizes the active bitmap, however here you’re zooming or
@@ -3006,8 +3037,8 @@ point numbers here to zoom by a non-integer percentage.</p>
 <p class=B><span class=O>Zoom to Size:</span> When this radio button is
 selected, you zoom the bitmap by specifying its new horizontal and vertical
 pixel size. The bitmap will be resized, and its contents will be stretched or
-shrunk to fit in the new size, with rows and columns being duplicated or
-dropped as needed.</p>
+shrunk to fit in the new size, with rows and columns being duplicated or dropped
+as needed.</p>
 
 <p class=B><span class=O>Horizontal &amp; Vertical:</span> Set these values to
 either the horizontal and vertical factor to zoom the bitmap by, or the new
@@ -3023,14 +3054,14 @@ dropped.</p>
 
 <p class=B><span class=O>Preserve On When Shrinking:</span> When set, in
 monochrome bitmaps priority will be given to any on pixels when zooming the
-bitmap down. This means in each section of pixels that will become a single pixel
-in the new smaller bitmap, if any pixel in that section is on, the new pixel
-will be on. Only if all pixels in a section are off, will the new pixel be off.
-Normally when shrinking, Zoom will just pick the first pixel from each section.
-For example, assume you have a solution to a very large Maze, consisting of a
-thin line of on pixels; with this checkbox set, you can shrink it to a smaller
-bitmap, and still see a continuous path without any part of it having been dropped
-or lost in the shrinking.</p>
+bitmap down. This means in each section of pixels that will become a single
+pixel in the new smaller bitmap, if any pixel in that section is on, the new
+pixel will be on. Only if all pixels in a section are off, will the new pixel
+be off. Normally when shrinking, Zoom will just pick the first pixel from each
+section. For example, assume you have a solution to a very large Maze,
+consisting of a thin line of on pixels; with this checkbox set, you can shrink
+it to a smaller bitmap, and still see a continuous path without any part of it
+having been dropped or lost in the shrinking.</p>
 
 <p class=C>When this is set in color bitmaps, pixels will be set to the blended
 mixture of all pixels mapping to it. When zooming a color bitmap to an equal or
@@ -3212,7 +3243,8 @@ carved into before.</p>
 map each pixel to the nearest color of the rainbow. If the Special To Pattern
 setting in the Replace Color dialog is set to Straight Color Blend, this will
 instead convert the image to a maximum contrast version of itself. All colors
-will be converted to the nearest of eight colors, i.e. all combinations of RGB values whose components are either 0 or 255.</p>
+will be converted to the nearest of eight colors, i.e. all combinations of RGB
+values whose components are either 0 or 255.</p>
 
 <p class=A><span class=N>Accent Boundaries:</span> This basically zooms the
 active bitmap by 200%, making it about twice the size of the old bitmap, but
@@ -3291,9 +3323,9 @@ and down, in addition to passages in the four compass directions. Creating a 3D
 Maze and other commands that operate on or have as their result a 3D Maze will
 automatically turn this setting on. Similarly creating a 2D Maze and other
 commands that treat the bitmap as a 2D plane will automatically turn this off.
-Note this should only be turned on for 3D Mazes. Trying to view a 2D Maze or any
-other bitmap as a 3D Maze will result in what looks like random garbage. This
-setting affects other features of the program too, such as mouse clicks.</p>
+Note this should only be turned on for 3D Mazes. Trying to view a 2D Maze or
+any other bitmap as a 3D Maze will result in what looks like random garbage.
+This setting affects other features of the program too, such as mouse clicks.</p>
 
 <p class=A><span class=N>Count Pixels:</span> This counts the number of set and
 reset pixels in the main bitmap. The total number of pixels will be printed,
@@ -3358,16 +3390,21 @@ based on the color’s brightness.</p>
 
 <p class=B><span class=N>Or from Bitmap:</span> This is like Get From Bitmap
 except the contents of the main bitmap will be copied on top of the color
-bitmap with a “logical or” operation, where the bits in the RGB values of the main and color bitmap pixel colors will be merged with a logical or.</p>
+bitmap with a “logical or” operation, where the bits in the RGB
+values of the main and color bitmap pixel colors will be merged with a logical
+or.</p>
 
 <p class=B><span class=N>And from Bitmap:</span> This is like Get From Bitmap
 except the contents of the main bitmap will be copied on top of the color
-bitmap with a “logical and” operation, where the bits in the RGB values of the main and color bitmap pixel colors will be merged with a logical and.</p>
+bitmap with a “logical and” operation, where the bits in the RGB
+values of the main and color bitmap pixel colors will be merged with a logical
+and.</p>
 
 <p class=B><span class=N>Xor from Bitmap:</span> This is like Get From Bitmap
 except the contents of the main bitmap will be copied on top of the color
-bitmap with a “logical exclusive or” operation, where the bits in the RGB values of the main and color bitmap pixel colors will be merged together with a logical
-exclusive or.</p>
+bitmap with a “logical exclusive or” operation, where the bits in the RGB
+values of the main and color bitmap pixel colors will be merged together with a
+logical exclusive or.</p>
 
 <p class=A><span class=N>Blend from 2 Bitmaps:</span> This sets the color
 bitmap to an overlay of the main and temporary bitmaps. Pixels that are on in
@@ -3380,11 +3417,11 @@ bitmap, solve it so its solution is in the main bitmap, then do Blend From 2
 Bitmaps, and see the Maze in the color bitmap with passages in one color and
 its solution in another.</p>
 
-<p class=A><span class=N>Blend from 3 Bitmaps:</span> This is an extended version
-of Blend From 2 Bitmaps. It will blend three bitmaps together into the color
-bitmap: the main bitmap, the temporary bitmap, and the extra bitmap. The pixels
-in the color bitmap will be set to RGB values, where the main bitmap is the red
-component, the temporary is the green component, and the extra the blue
+<p class=A><span class=N>Blend from 3 Bitmaps:</span> This is an extended
+version of Blend From 2 Bitmaps. It will blend three bitmaps together into the
+color bitmap: the main bitmap, the temporary bitmap, and the extra bitmap. The
+pixels in the color bitmap will be set to RGB values, where the main bitmap is
+the red component, the temporary is the green component, and the extra the blue
 component. For example, pixels set in only the main bitmap will be red, and
 pixels set in the main and temporary bitmaps but not the extra will be yellow
 (i.e. red + green). Note this command does the same thing as Blend From 2
@@ -3543,9 +3580,9 @@ ceiling half. A copy of the current contents of the color bitmap will be used
 as the background for 2D Mazes and for the top level in 3D Mazes, instead of
 the solid inside sky color. If the temporary color bitmap exists, it will be
 used as the background for all levels in 3D Mazes except the top level, instead
-of the inside 3D ceiling color. Decorations such as mountains and stars will
-still be drawn when appropriate, just on top of the background texture instead
-of whatever solid color. If the fSkyAll macro setting is on, the background
+of the inside 3D ceiling color. Decorations such as mountains and stars will still
+be drawn when appropriate, just on top of the background texture instead of
+whatever solid color. If the fSkyAll macro setting is on, the background
 texture will be applied over the whole background, covering the ground half in
 addition to the sky half. The default behavior is better, as it avoids an
 unchanging picture on the ground as you move forward or backward.</p>
@@ -3582,18 +3619,18 @@ color like Overlay Walls, but overlays with different colors instead of always
 in black or white. This uses a copy of the color bitmap (and temporary color
 bitmap if Narrow Walls is on) for the actual overlay, and uses the temporary
 monochrome bitmap (and extra monochrome bitmap if Narrow Walls is on) for the
-mask. If Drag Is Erase in Dot Settings is off, then on pixels in the mask
-bitmap will appear as pixels from the color texture, and off pixels will be the
-wall’s color. If Drag Is Erase is on, then off pixels in the mask will appear
-from the color texture, and on pixels will be the wall’s color.</p>
+mask. If Drag Is Erase in Dot Settings is off, then on pixels in the mask bitmap
+will appear as pixels from the color texture, and off pixels will be the wall’s
+color. If Drag Is Erase is on, then off pixels in the mask will appear from the
+color texture, and on pixels will be the wall’s color.</p>
 
 <p class=B><span class=N>Color Ground &amp; Overlay Ground &amp; Color Overlay
 Ground:</span> Daedalus supports texture mapped floors in the perspective
 inside view, where floor squares can be decorated with bitmap patterns. This
 ability can be demoed with these commands, which do the same thing as the Color
-Walls, Overlay Walls, and Color Overlay Walls commands, but affect the floor instead
-of walls. These commands take the bitmap and overlay from the color bitmap
-(using the main bitmap if the color bitmap doesn’t exist) and temporary
+Walls, Overlay Walls, and Color Overlay Walls commands, but affect the floor
+instead of walls. These commands take the bitmap and overlay from the color
+bitmap (using the main bitmap if the color bitmap doesn’t exist) and temporary
 monochrome bitmap (using the main bitmap if it doesn’t exist). If the Narrow
 Walls inside setting is set, cells that are thinner horizontally, vertically,
 or both will be textured with versions of the input bitmaps truncated or
@@ -3620,10 +3657,10 @@ markings on the ground. This command will completely cover the ceiling area of
 the bitmap. Any colors or textures on the ground will also appear on the
 ceiling, where the default ceiling color for places that have no ground marking
 will be the 3D Wall color. If the color bitmap exists when the command is run,
-the ceiling will contain and show a separate copy of those colors, and won’t
-change if ground colors later change. If the color bitmap doesn’t exist,
-ceiling colors will always be the same as corresponding ground colors, changing
-when they change.</p>
+the ceiling will contain and show a separate copy of those colors, and won’t change
+if ground colors later change. If the color bitmap doesn’t exist, ceiling
+colors will always be the same as corresponding ground colors, changing when
+they change.</p>
 
 <p class=B><span class=N>Variable Height Walls:</span> This command will apply
 an elevation to every pixel in the bitmap. This will make the Maze to appear to
@@ -3655,9 +3692,9 @@ appropriate elevations.</p>
 <p class=B><span class=N>Delete:</span> This deletes any texture bitmaps in
 memory, such that the background and all walls in the first person view will
 have no textures defined for them, and will display in solid colors. Texture
-bitmaps are stored separately from the main, temporary, and extra bitmaps, so changing
-the three standard bitmaps after running the commands above won’t affect the
-textures any.</p>
+bitmaps are stored separately from the main, temporary, and extra bitmaps, so
+changing the three standard bitmaps after running the commands above won’t
+affect the textures any.</p>
 
 <p class=A><span class=N>Brightness...:</span> This dialog allows one to
 brighten or darken all pixels in the color bitmap, along with additional
@@ -3677,16 +3714,19 @@ each pixel’s color, and ranges from -255 to 255.</p>
 pixels will have their components multiplied by the same factor. The Transform
 Amount field will indicate the factor to be multiplied to the red, green, and
 blue parts of each pixel’s color, with component numbers capping at 255. For
-example a Transform Amount of 1.5 will convert RGB 50 100 200 to RGB 75 150 255. A negative Transform Amount will do the same but with the differences of each
-component from 255. For example -0.5 will convert RGB 245 128 0 to RGB 250 192 128.</p>
+example a Transform Amount of 1.5 will convert RGB 50 100 200 to RGB
+75 150 255. A negative Transform Amount will do the same but with the
+differences of each component from 255. For example -0.5 will convert RGB
+245 128 0 to RGB 250 192 128.</p>
 
 <p class=B><span class=O>Limit Brightness to Value:</span> When selected, this
 will prevent the brightness of each pixel from being higher or lower than a
 limit, and will darken or brighten those pixels beyond the limit appropriately.
-The Transform Amount field if positive indicates the maximum allowed sum for
-the RGB values of a pixel, and ranges up to 765 (255 times three). If negative
-it indicates the minimum allowed sum for a pixel’s RGB values, e.g. an entry of
--100 will prevent any pixel from being darker than or having an RGB sum less than 100.</p>
+The Transform Amount field if positive indicates the maximum allowed sum for the
+ RGB values of a pixel, and ranges up to 765 (255 times three). If negative it
+indicates the minimum allowed sum for a pixel’s RGB values, e.g. an entry of
+-100 will prevent any pixel from being darker than or having an RGB
+sum less than 100.</p>
 
 <p class=B><span class=O>Rotate All by Degree:</span> When selected, all pixels
 in the bitmap will be rotated clockwise by the number of degrees specified in
@@ -3756,8 +3796,8 @@ by the distance of the dot from the center. If the dot is above the center,
 colors will spiral out counterclockwise, otherwise they will spiral clockwise.</p>
 
 <p class=C><span class=P>o:</span> The value “o” is like “O” except the rings
-of color start from the location of the dot and end in the farthest corner of the
-bitmap from the dot.</p>
+of color start from the location of the dot and end in the farthest corner of
+the bitmap from the dot.</p>
 
 <p class=C><span class=P>8: </span>The value “8” is like “o” except rings of
 color start from both the dot and second dot, each pixel taking its color based
@@ -3781,8 +3821,8 @@ Blend1 &amp; Blend2 fields.</p>
 <p class=B><span class=O>Swap Instead of Replace:</span> When this is set, the
 dialog will exchange instances of the colors in the From and To fields with
 each other, instead of just replacing instances of the To color with the From
-color. When set, the To field must be a solid color as opposed to one of the
-color patterns.</p>
+color. When set, the To field must be a solid color as opposed to one of the color
+patterns.</p>
 
 <p class=B><span class=O>Rainbow Blend:</span> This is a radio button in the
 Special To Pattern group. When selected, and when replacing a color with a
@@ -3885,11 +3925,11 @@ this value. For Planair Mazes this field is ignored.</p>
 <p class=C><span class=O>W:</span> For 3D and Planair Mazes this is half the
 number of sections per row. This allows the sections to be arranged in a grid
 instead of having to be in a single line. This affects the arrangement of
-sections when loading a 3D bitmap as well as when creating a 3D or Planair Maze.
-For 4D Mazes this contains the number of levels along the 4th axis or through
-the 4th dimension. This is the number of 4D passage levels, where the actual
-bitmap sections will be one less then twice this number. 4D Mazes are arranged
-as a 2D grid of 2D sections or levels.</p>
+sections when loading a 3D bitmap as well as when creating a 3D or Planair
+Maze. For 4D Mazes this contains the number of levels along the 4th axis or
+through the 4th dimension. This is the number of 4D passage levels, where the
+actual bitmap sections will be one less then twice this number. 4D Mazes are
+arranged as a 2D grid of 2D sections or levels.</p>
 
 <p class=A><span class=N>Zoom Bias...:</span> This dialog is like the Zoom
 dialog in that it zooms the active bitmap by a certain factor, however this
@@ -3960,9 +4000,9 @@ of the bitmap not covered by Maze passages.</p>
 <p class=B><span class=N>Crack Dead Ends:</span> This removes all dead ends
 from the Maze, turning it into a Braid Maze, by randomly removing a wall
 segment at the end of each dead end, so the dead end passage continues. Note
-this will cause many loops or detached walls to be added to the Maze. When
-picking which wall at the end of a dead end to remove, this will avoid creating
-a “pole” or single pixel wall segment in the Maze if possible.</p>
+this will cause many loops or detached walls to be added to the Maze. When picking
+which wall at the end of a dead end to remove, this will avoid creating a “pole”
+or single pixel wall segment in the Maze if possible.</p>
 
 <p class=B><span class=N>Seal Entrances:</span> This removes all entrances from
 the Maze, by adding wall segments to seal them off. An entrance is considered
@@ -3981,9 +4021,9 @@ connected with adjacent walls.</p>
 <p class=B><span class=N>Crack Cells:</span> This removes all internal walls
 from the Maze, leaving just a bunch of poles. This leaves boundary walls around
 the edge of the Maze alone. This can be used to create a Braid Maze with an
-irregular boundary. Start with a filled in area, run Crack Cells to carve out the
-interior, then Connect Poles to start adding wall segments, and finally Braid
-Add Walls to finish the Maze.</p>
+irregular boundary. Start with a filled in area, run Crack Cells to carve out
+the interior, then Connect Poles to start adding wall segments, and finally
+Braid Add Walls to finish the Maze.</p>
 
 <p class=B><span class=N>Crack Blind Alley Cells:</span> This edits the Maze
 such that all wall segments within the same blind alley have been removed. In
@@ -4103,11 +4143,11 @@ and vice-versa, like a real bridge.</p>
 <p class=A><span class=N>Weave to Inside:</span> This command should only be
 run with a Weave Maze in the bitmap. It will convert the Weave Maze into a
 scene readily explorable in the perspective inside view, automatically
-switching to that view and adjusting other settings appropriately. This is an
-improved version of the Weave To 3D command, since instead of implementing
-underpasses with pits that go underground, this creates overpasses with stairs
-that allow you to climb up and look out over the Maze. Stairs and bridges will
-be highlighted in the 3D Ceiling color, and handrails in the 3D Wall color.</p>
+switching to that view and adjusting other settings appropriately. This is an improved
+version of the Weave To 3D command, since instead of implementing underpasses
+with pits that go underground, this creates overpasses with stairs that allow
+you to climb up and look out over the Maze. Stairs and bridges will be highlighted
+in the 3D Ceiling color, and handrails in the 3D Wall color.</p>
 
 <p class=A><span class=N>Clarify Weave:</span> The command should only be run
 with a Weave Maze in the bitmap. It will convert the Weave Maze into an image
@@ -4269,13 +4309,13 @@ slower, but they will be able to handle non-standard Mazes, e.g. this needs to
 be set if you want to fill dead ends of Mazes created with the Cavern command.</p>
 
 <p class=B><span class=O>Solve Fillers Consider Dots as Exits:</span> This
-affects the Fill Dead Ends, Fill Cul-De-Sacs, Fill Blind Alleys, Fill Single Dead
-Ends, Mark Dead Ends, and Mark Cul-De-Sacs commands. Normally these commands
-fill in every dead end or blind alley, however in some cases you may not want
-everything the command considers a dead end or blind alley filled, e.g. it may
-indicate an entrance or exit. When this is set, the location of the dot and
-second dot will act as solutions. If a dot is at the end of a dead end, that
-dead end won’t get filled. If a dot is along the loop at the end of a
+affects the Fill Dead Ends, Fill Cul-De-Sacs, Fill Blind Alleys, Fill Single
+Dead Ends, Mark Dead Ends, and Mark Cul-De-Sacs commands. Normally these
+commands fill in every dead end or blind alley, however in some cases you may
+not want everything the command considers a dead end or blind alley filled,
+e.g. it may indicate an entrance or exit. When this is set, the location of the
+dot and second dot will act as solutions. If a dot is at the end of a dead end,
+that dead end won’t get filled. If a dot is along the loop at the end of a
 cul-de-sac, that cul-de-sac won’t get filled. If a dot is anywhere within a
 blind alley, that blind alley won’t get filled.</p>
 
@@ -4292,11 +4332,10 @@ total number of shortest solutions.</p>
 <p class=B><span class=O>Tweak Passages Chances:</span> The number here affects
 the Tweak Passages command, and indicates how often sections should be
 modified. The first digit indicates how often U-turn sections should be turned
-into straight sections, the second digit indicates how often corners should be
-toggled, and the third digit indicates how often straight sections should be
-turned into U-turns. For example, a 3 in the 10’s place means to give each
-corner a 1 in 3 chance of being toggled. A zero digit means to never modify
-that section type.</p>
+into straight sections, the second digit indicates how often corners should be toggled,
+and the third digit indicates how often straight sections should be turned into
+U-turns. For example, a 3 in the 10’s place means to give each corner a 1 in 3
+chance of being toggled. A zero digit means to never modify that section type.</p>
 
 <p class=B><span class=O>Total Mazes Created:</span> This field contains the
 number of Mazes that have been created since the program was started. This
@@ -4324,8 +4363,8 @@ of the intersection.</p>
 <p class=B><span class=M>Entrance Positioning:</span> This section of radio
 buttons controls where entrances and exits in created Mazes are placed. For
 most Daedalus Mazes the entrance is always on the top edge and the exit on the
-bottom, where this setting indicates where along those edges the openings
-should be.</p>
+bottom, where this setting indicates where along those edges the openings should
+be.</p>
 
 <p class=C><span class=O>Corners:</span> This puts the entrance in the upper
 left corner and the exit in the lower right.</p>
@@ -4374,16 +4413,16 @@ an even number of horizontal and vertical passages start and end at the same
 spot on the top row. Mazes with an even number of horizontal passages and an
 odd number of vertical go from upper left to upper right. Mazes with an odd
 number of horizontal passages and an even number of vertical go from upper left
-to lower left. If the Create With River checkbox in the Create Settings dialog is
-set, the path here will be more twisty. See the Labyrinth submenu for more ways
-of creating unicursal Mazes.</p>
+to lower left. If the Create With River checkbox in the Create Settings dialog
+is set, the path here will be more twisty. See the Labyrinth submenu for more
+ways of creating unicursal Mazes.</p>
 
 <p class=B>Unicursal Mazes are normally generated by bisecting the passages of
-a smaller Maze created with the Hunt and Kill algorithm. If Use Eller’s Algorithm
-in File Settings is on, and the Maze has odd horizontal and vertical cell
-dimensions, then the unicursal Maze will instead be based on the smaller Maze
-created with the Binary Tree algorithm. This runs much faster due to the quick
-speed of the Binary Tree algorithm.</p>
+a smaller Maze created with the Hunt and Kill algorithm. If Use Eller’s
+Algorithm in File Settings is on, and the Maze has odd horizontal and vertical
+cell dimensions, then the unicursal Maze will instead be based on the smaller
+Maze created with the Binary Tree algorithm. This runs much faster due to the
+quick speed of the Binary Tree algorithm.</p>
 
 <p class=A><span class=M>More Perfect:</span> This submenu contains additional
 ways to create perfect Mazes. Each command creates a Maze using a different
@@ -4430,9 +4469,9 @@ in equal probability. It carves passages by moving the carving point around
 totally randomly, relying on chance to finish the Maze, hence this is roughly
 seven times slower than most of the other creation commands. These Mazes have a
 low “river” factor, only slightly higher than Kruskal’s algorithm. Normally
-this Maze creation command starts carving from a randomly chosen location,
-however it will always start from the upper left corner if Value Is Random
-Chance in Create Settings is off.</p>
+this Maze creation command starts carving from a randomly chosen location, however
+it will always start from the upper left corner if Value Is Random Chance in
+Create Settings is off.</p>
 
 <p class=B><span class=N>Wilson's Algorithm:</span> This algorithm is an
 improved version of Aldous-Broder above, in that this also creates all Mazes
@@ -4468,10 +4507,10 @@ the Create Settings dialog, the Forest Initial field indicates the number of
 instances to begin with: If positive the field indicates the exact number of
 instances, and if negative the field indicates that one in X cells should start
 out as instances. The Forest Addition field indicates the number of instances
-to add each time a cell is added to the Maze: If positive the field indicates
-the exact number of instances to add, and if negative indicates that one
-instance should be added every X cells. If Forest Initial is one and Forest
-Addition is zero, then this behaves like the Growing Tree algorithm.</p>
+to add each time a cell is added to the Maze: If positive the field indicates the
+exact number of instances to add, and if negative indicates that one instance
+should be added every X cells. If Forest Initial is one and Forest Addition is
+zero, then this behaves like the Growing Tree algorithm.</p>
 
 <p class=B><span class=N>Recursive Division:</span> The algorithm creates a
 Maze by adding walls, where the area within the Maze is divided by a randomly
@@ -4501,9 +4540,9 @@ but never both or neither. This creates a biased texture, where one can always
 easily travel diagonally up and to the left without hitting barriers or having
 to make choices. Moving down and to the right is when the Maze becomes a
 challenge, so the Maze is hard to solve but easy to solve backwards. The Maze
-forms a binary tree, with the upper left corner the root, where each node or
-cell has one or two children, and one unique parent which is the cell above or
-to the left of it.</p>
+forms a binary tree, with the upper left corner the root, where each node or cell
+has one or two children, and one unique parent which is the cell above or to
+the left of it.</p>
 
 <p class=C>The Random Bias field in the Random Settings dialog will affect the
 Maze, and be the percentage that each cell will connect up or to the left,
@@ -4636,13 +4675,12 @@ the four compass directions. The size of the 3D Maze to create is specified in
 the Size or Maze Size dialogs, where the bitmap will be resized to fit those
 dimensions, instead of the Maze being created within the current size of the
 bitmap. Daedalus represents a 3D Maze as a list of levels or sections, where
-there are sections between each 3D level to indicate the up and down passages
-going between levels. When looking at a level in a 3D Maze, you need to look at
-the sections above and below it to see whether there are passages up or down
-from a cell. Therefore you may want to use the View Inside, Clarify 3D, or Save
-Text commands to get a more easily understood view of the Maze. The 3D Maze
-will be “perfect” and have a single solution. Note 3D Mazes are extremely
-difficult to solve.</p>
+there are sections between each 3D level to indicate the up and down passages going
+between levels. When looking at a level in a 3D Maze, you need to look at the
+sections above and below it to see whether there are passages up or down from a
+cell. Therefore you may want to use the View Inside, Clarify 3D, or Save Text
+commands to get a more easily understood view of the Maze. The 3D Maze will be “perfect”
+and have a single solution. Note 3D Mazes are extremely difficult to solve.</p>
 
 <p class=B><span class=N>4D:</span> This creates a four dimensional Maze! A 4D
 Maze is like a 3D Maze, except there can be passages through the 4th dimension
@@ -4709,8 +4747,8 @@ consistent grid, however the walls and passages are still orthogonal, where
 each passage or wall segment is a single pixel instead of two pixels. This Maze
 is created with the Growing Tree algorithm, where all the fields in the Growing
 Tree section of the Create Settings dialog apply here too. When the Maze is
-passage carved, passages will always be one pixel thick while walls can be one
-or two pixels thick. When the Maze is wall added, walls will be one pixel thick
+passage carved, passages will always be one pixel thick while walls can be one or
+two pixels thick. When the Maze is wall added, walls will be one pixel thick
 while passages can be one or two pixels thick.</p>
 
 <p class=A><span class=N>Arrow:</span> This creates a Maze where passages can
@@ -4724,17 +4762,17 @@ earlier point on it.</p>
 
 <p class=B>If the color bitmap is active, the solution to the generated arrow
 Maze will be placed in the color bitmap. The solution will be a copy of the
-Arrow Maze in color, with arrows in different colors indicating the solution. Red
-arrows mark the single solution path. Green arrows are false paths that can be
-recovered from, always going from somewhere on the solution path to somewhere
-earlier on it. Blue arrows are false paths that can’t be recovered from, always
-going from somewhere on the solution path into the void from which it’s never
-possible to get back to the solution. White arrows are paths within the void
-from which it’s never possible to reach the solution, where every white arrow
-can be followed backwards on a unique path of white arrows to reach a blue
-arrow, which ensures every cell within the Arrow Maze is reachable by some
-path. Gray arrows are the remaining paths within the void, where every gray
-arrow has at least one white or blue arrow on both ends of it.</p>
+Arrow Maze in color, with arrows in different colors indicating the solution.
+Red arrows mark the single solution path. Green arrows are false paths that can
+be recovered from, always going from somewhere on the solution path to
+somewhere earlier on it. Blue arrows are false paths that can’t be recovered
+from, always going from somewhere on the solution path into the void from which
+it’s never possible to get back to the solution. White arrows are paths within
+the void from which it’s never possible to reach the solution, where every
+white arrow can be followed backwards on a unique path of white arrows to reach
+a blue arrow, which ensures every cell within the Arrow Maze is reachable by
+some path. Gray arrows are the remaining paths within the void, where every
+gray arrow has at least one white or blue arrow on both ends of it.</p>
 
 <p class=A><span class=N>Tilt:</span> This creates a design that isn’t a real
 Maze, but is still an interesting pattern. This creates a grid of diagonal line
@@ -4744,8 +4782,8 @@ passage loops within the pattern.</p>
 
 <p class=A><span class=N>Recursive Fractal:</span> Daedalus can create Mazes
 that are truly infinite sized! This command will generate an infinite recursive
-fractal Maze, which is a Maze that contains copies of itself, hence having an infinite
-number of passages in a finite area. (Since the copies contain copies
+fractal Maze, which is a Maze that contains copies of itself, hence having an
+infinite number of passages in a finite area. (Since the copies contain copies
 themselves at deeper levels, you can enter copies forever.) The Maze looks like
 a microchip, with pins around the outside, and one or more numbered smaller
 chips in the middle. Your goal is find your way from the “minus” chip to the “plus”
@@ -4777,8 +4815,8 @@ inaccessible passages. If Weave Crossings May Corner in Create Settings is set,
 passages may turn a corner when crossing each other, as opposed to having to
 continue straight at such points. If Tilt Lines Make No Diamonds is set,
 junctions between wires won’t be highlighted with thick blocks as they normally
-are. If Find A Path Finds Random Path in Maze Settings is set, passages will make
-turnings more, although will still take a shortest path between pins. The
+are. If Find A Path Finds Random Path in Maze Settings is set, passages will
+make turnings more, although will still take a shortest path between pins. The
 Random Bias field in the Random Settings dialog will affect the difficulty of
 the Maze. A negative value makes the Maze easier, by increasing the probability
 of passages connecting outer pins, which gives more opportunities to leave
@@ -4820,8 +4858,7 @@ leaving the bottom section half created, it will finish creating both sections,
 and put an exit in the bottom edge. The smallest infinite Maze it’s possible to
 create will have three sections or be 1.5 times the size of the bitmap, which
 is created by running the Start command immediately followed by End. If an
-infinite Maze hasn’t been started yet, this will do the same as the Start
-command.</p>
+infinite Maze hasn’t been started yet, this will do the same as the Start command.</p>
 
 <p class=B><span class=N>Restart:</span> When creating an infinite Maze, you
 should not edit the bitmap between generations, because the program remembers
@@ -4865,9 +4902,10 @@ comes from the shape of the capital Greek letter Sigma, which has similar
 horizontal and diagonal angles seen in a hexagon.</p>
 
 <p class=B><span class=N>Delta (Triangle):</span> This creates a triangle
-shaped Maze that’s also formed of interlocking triangles. All cells are triangle
-shaped, and have up to three passages leading from them. The name of this style
-of Maze comes from the triangle shape of the capital Greek letter Delta.</p>
+shaped Maze that’s also formed of interlocking triangles. All cells are
+triangle shaped, and have up to three passages leading from them. The name of
+this style of Maze comes from the triangle shape of the capital Greek letter
+Delta.</p>
 
 <p class=B><span class=N>Upsilon (Octagon):</span> This creates a Maze formed
 of interlocking octagons and squares. All cells are either octagon or square
@@ -4900,12 +4938,12 @@ shape of the capital Greek letter Zeta.</p>
 <p class=A><span class=M>Labyrinth:</span> This submenu has commands to create
 various styles of unicursal Mazes. Unlike the random unicursal Mazes created
 with the Unicursal command, these always create the same fixed design.
-Unicursal Mazes are usually referred to today as Labyrinths, where these Labyrinths
-can be used as a tool for meditation and spiritual growth. As with the Omega
-Mazes above, these unicursal Mazes will be drawn within whatever size the
-bitmap is, where the larger the bitmap, the wider the Labyrinth’s passages. If
-the bitmap is too small to contain the specified Labyrinth, the bitmap will be
-automatically enlarged.</p>
+Unicursal Mazes are usually referred to today as Labyrinths, where these
+Labyrinths can be used as a tool for meditation and spiritual growth. As with
+the Omega Mazes above, these unicursal Mazes will be drawn within whatever size
+the bitmap is, where the larger the bitmap, the wider the Labyrinth’s passages.
+If the bitmap is too small to contain the specified Labyrinth, the bitmap will
+be automatically enlarged.</p>
 
 <p class=B><span class=N>Current Labyrinth:</span> This recreates whatever
 style of Labyrinth below was created most recently, i.e. whatever style is
@@ -4944,12 +4982,12 @@ in the default sized 7 circuit Labyrinth, 2 will result in 11 circuits, and so
 on with each later number increasing the number of rings by four.</p>
 
 <p class=C><span class=O>Classical Size is Circuits:</span> When this is set,
-the number in the Classical Size field will indicate the exact number of circuits
-to use in the Classical or Man in the Maze type Labyrinths. This value will be
-rounded up to the nearest number that’s one less than a multiple of four, e.g.
-3, 7, 11, and so on. On most Windows systems, classical Labyrinths can be
-created with up to 12003 circuits (size 3000 when this flag is off) before
-reaching memory allocation limits for bitmaps.</p>
+the number in the Classical Size field will indicate the exact number of
+circuits to use in the Classical or Man in the Maze type Labyrinths. This value
+will be rounded up to the nearest number that’s one less than a multiple of
+four, e.g. 3, 7, 11, and so on. On most Windows systems, classical Labyrinths
+can be created with up to 12003 circuits (size 3000 when this flag is off)
+before reaching memory allocation limits for bitmaps.</p>
 
 <p class=C><span class=O>Custom Paths:</span> This string indicates the custom
 sequence of circuits when drawing a custom Labyrinth. Circuits are specified in
@@ -4998,11 +5036,11 @@ passage is two adjacent circuits (e.g. ...34... or ...65...), surrounded on
 either side by circuits moving in the same direction (e.g. ...4567... or
 ...8541...). In such a case the middle adjacent circuits can be considered
 extraneous since they don’t add anything important to the structure of the Labyrinth,
-since they amount to a “hiccup” along the way of the traversal between the
-circuits on either side of it. If there’s a direction change (e.g. ...6547...
-or ...6125...) then you can’t delete the middle adjacent circuits since they’re
-an integral part of the Labyrinth’s structure (or at least every Labyrinth has
-at least one sequence like this). When this value is 2, all Labyrinths will be
+since they amount to a “hiccup” along the way of the traversal between the circuits
+on either side of it. If there’s a direction change (e.g. ...6547... or
+...6125...) then you can’t delete the middle adjacent circuits since they’re an
+integral part of the Labyrinth’s structure (or at least every Labyrinth has at
+least one sequence like this). When this value is 2, all Labyrinths will be
 shown regardless of fanfold circuits. When this value is 1, Labyrinths with
 obvious fanfolds involving 3 or more adjacent circuits (e.g. ...3458... or
 ...9654...) will be skipped. When this value is 0, only Labyrinths with no
@@ -5064,16 +5102,16 @@ entrance and exit will be centered and the radial wall offset to their right.</p
 
 <p class=C><span class=O>Merged:</span> This radio button in the “custom align”
 group allows custom Labyrinths to be generated so the entrance and exit to the
-center are aligned within the same column. If the entrance and exit are on opposite
-sides of the radial wall (which is always the case for odd number circuit
-Mazes) the radial wall will be bent so they can be aligned, leaving a small
-inaccessible area between the entrance and exit passages. If alignment already
-happens by default (which happens when the entrance and exit are on the same
-sides of the radial wall, always the case for even number circuit Mazes) then
-this behaves like Balanced. If alignment isn’t possible (which happens when the
-passages leading to the entrance and exit run parallel and would overlap) then
-this behaves like Exit, so at least the inner part of the Labyrinth looks the
-same regardless of whether merging is possible.</p>
+center are aligned within the same column. If the entrance and exit are on
+opposite sides of the radial wall (which is always the case for odd number
+circuit Mazes) the radial wall will be bent so they can be aligned, leaving a
+small inaccessible area between the entrance and exit passages. If alignment
+already happens by default (which happens when the entrance and exit are on the
+same sides of the radial wall, always the case for even number circuit Mazes)
+then this behaves like Balanced. If alignment isn’t possible (which happens
+when the passages leading to the entrance and exit run parallel and would
+overlap) then this behaves like Exit, so at least the inner part of the
+Labyrinth looks the same regardless of whether merging is possible.</p>
 
 <p class=D>Note that a special Labyrinth will be drawn, when the dialog fields
 are set to “Classical”, “Square”, and “Merged”. It will be a variation of the
@@ -5159,12 +5197,11 @@ bitmap first, but rather it carves passages into whatever’s already on the
 bitmap. This means filling whatever solid area the dot is over with passages.
 It will also take existing passages next to solid areas anywhere on the bitmap,
 and continue the passages into those areas. If the dot isn’t over a solid area,
-and there are no existing passages to start from, Perfect At Dot will do
-nothing. This command can be used to create Mazes of irregular shapes, where
-you define the outline, fill it in, then do Perfect At Dot within it. This is
-also the way to have the computer partially create or finish creating a Maze,
-where you define the solution and main dead ends, and the program fills in the
-rest.</p>
+and there are no existing passages to start from, Perfect At Dot will do nothing.
+This command can be used to create Mazes of irregular shapes, where you define
+the outline, fill it in, then do Perfect At Dot within it. This is also the way
+to have the computer partially create or finish creating a Maze, where you
+define the solution and main dead ends, and the program fills in the rest.</p>
 
 <p class=B><span class=N>Braid Add Walls:</span> This is related to the Braid
 command used to create Braid style Mazes without dead ends. This will add wall
@@ -5269,8 +5306,8 @@ the Clarify 3D or 4D commands applied to them). Polished Hypermazes are a 3D
 overview of the Hypermaze (i.e. they automatically have the Render Bitmap
 Overview command applied to them, using its settings). Non-orthogonal Mazes
 such as Crack, Cavern, and Zeta Mazes will have smoother walls (i.e. they
-automatically have the Smooth Zoomed command applied to them). The Chartres Replica
-Labyrinth will have filled in walls instead of hollow walls.</p>
+automatically have the Smooth Zoomed command applied to them). The Chartres
+Replica Labyrinth will have filled in walls instead of hollow walls.</p>
 
 <p class=A><span class=N>Create Settings...:</span> This dialog accesses all
 settings dealing with creating specific types of Mazes.</p>
@@ -5340,10 +5377,10 @@ left, 2 is bottom, and 3 is right. The last three digits indicate which wall
 segment on that side to have the entrance in. This is counted from top to
 bottom for sides 0 and 2, and from left to right for sides 1 and 3.</p>
 
-<p class=B><span class=O>Omega Finish Location:</span> This indicates the location
-to use for the exit in Omega style Mazes. The values here are treated the same
-as in Start Location. The only difference is for Theta Mazes the finish will be
-on the outer ring of the Maze instead of the inner.</p>
+<p class=B><span class=O>Omega Finish Location:</span> This indicates the
+location to use for the exit in Omega style Mazes. The values here are treated
+the same as in Start Location. The only difference is for Theta Mazes the
+finish will be on the outer ring of the Maze instead of the inner.</p>
 
 <p class=B><span class=O>Omega Wireframe:</span> This radio button group allows
 creating Omega Mazes to also automatically generate Daedalus wireframe and
@@ -5357,9 +5394,9 @@ commands on the Draw menu.</p>
 
 <p class=B><span class=O>Planair:</span> The string here controls the
 arrangement of Planair Mazes, and indicates both how many sections there are in
-it, and how the sections connect with each other, i.e. where you end up when you
-move off each of the four edges of each section. The string here must consist
-of groups of eight characters separated by spaces. The number of groups
+it, and how the sections connect with each other, i.e. where you end up when
+you move off each of the four edges of each section. The string here must
+consist of groups of eight characters separated by spaces. The number of groups
 indicates the number of sections in the Maze. Each group of eight characters
 has two characters for each of the four edges of that section. The edges are in
 the order: top, left, bottom, and right. The two characters indicate the
@@ -5367,15 +5404,15 @@ section and edge within that section you go to when moving off that edge. The
 first character is a lower case letter, where “a” is the first section in the
 string, “b” the second section, and so on. The second character is a number
 from 0 to 7. The numbers 0 to 3 mean the top, left, bottom, and right edges in
-that order. The numbers 4 to 7 also mean those edges, but you go to the passages
-on that edge in reverse order (i.e. from right to left, or from bottom to top,
-instead of the other way around). Planair Mazes get the size of each of their
-sections from the same 3D bitmap dimensions fields 3D Mazes themselves use.
-Since Planair Maze sections can be rectangular, an error will be displayed if
-you try to link up an edge with an edge of a different length. A warning will
-be displayed if you define or create a Planair Maze with a one way edge link, in
-which a passage is set to flow from edge #1 to edge #2, but flowing back from
-edge #2 doesn’t return to the same spot on edge #1.</p>
+that order. The numbers 4 to 7 also mean those edges, but you go to the
+passages on that edge in reverse order (i.e. from right to left, or from bottom
+to top, instead of the other way around). Planair Mazes get the size of each of
+their sections from the same 3D bitmap dimensions fields 3D Mazes themselves
+use. Since Planair Maze sections can be rectangular, an error will be displayed
+if you try to link up an edge with an edge of a different length. A warning
+will be displayed if you define or create a Planair Maze with a one way edge
+link, in which a passage is set to flow from edge #1 to edge #2, but flowing
+back from edge #2 doesn’t return to the same spot on edge #1.</p>
 
 <p class=C>For example, to have a Maze on the surface of a torus where the left
 and right edges wrap, along with the top and bottom, enter “a2a3a0a1” (this is
@@ -5433,10 +5470,10 @@ Eller’s, and Cavern Maze creation commands.</p>
 <p class=C>Wall added Perfect Mazes are made by adding onto the most recently
 created wall whenever possible, and usually only creating other walls when
 forced to. The Maze here will have a lower “river” factor than when Create With
-Wall Adding is off. Wall added Prim’s Algorithm Mazes have walls grow inward from
-the boundary wall, instead of having passages grow outward from some point in
-the middle. Wall added Kruskal’s Algorithm Mazes add wall segments instead of
-passages throughout the Maze at random. Wall added Aldous-Broder and Wilson’s
+Wall Adding is off. Wall added Prim’s Algorithm Mazes have walls grow inward
+from the boundary wall, instead of having passages grow outward from some point
+in the middle. Wall added Kruskal’s Algorithm Mazes add wall segments instead
+of passages throughout the Maze at random. Wall added Aldous-Broder and Wilson’s
 Algorithm Mazes also have walls grow inward from the boundary wall, where they
 not only still have the property where all possible Mazes are created with
 equal probability, but wall added versions are generated nearly twice as fast
@@ -5473,10 +5510,10 @@ short direct solution, and also few but long dead ends.</p>
 
 <p class=C>Note if Value Is Random Chance is off, River Value may be negative,
 in which case it means how many of the earliest created sections to choose
-among instead. This will give the Maze a unique look, with about as many dead ends
-as it’s physically possible to have in a Maze, even more than Prim’s Algorithm,
-where there will be many “pipe cleaner” passages, with many one unit dead ends
-hanging off the main passages like short hairs.</p>
+among instead. This will give the Maze a unique look, with about as many dead
+ends as it’s physically possible to have in a Maze, even more than Prim’s
+Algorithm, where there will be many “pipe cleaner” passages, with many one unit
+dead ends hanging off the main passages like short hairs.</p>
 
 <p class=B><span class=O>Max Spirals:</span> This sets the maximum number of
 spirals that can be drawn at once during creation of a Spiral Maze. Larger
@@ -5508,8 +5545,8 @@ Y Maze should be nested within each cell of the Maze while creating it. The
 total size of a fractal Maze is determined by this nesting level and the X and
 Y fields. For example, if X is 5, Y is 4, and the nesting level is 3, then the
 complete Maze is 5^3 by 4^3 or 125 by 64 passages. In other words it’s a 5x4
-Maze, with each cell containing another 5x4 Maze, with each cell of that
-containing a third 5x4 Maze.</p>
+Maze, with each cell containing another 5x4 Maze, with each cell of that containing
+a third 5x4 Maze.</p>
 
 <p class=B><span class=O>Allow Isolations in Fractal:</span> This affects Mazes
 created with the Recursive Fractal command. When this is set, creation won’t
@@ -5521,11 +5558,11 @@ inaccessible passages.</p>
 <p class=B><span class=O>Crack Lines May Head Off:</span> This affects Mazes
 created with the Crack command. When unset, random lines will always be drawn
 with both the starting and ending points within the bitmap. This means lines
-near the corners of the Maze will tend to point toward the center, since the
-endpoint of a line that starts in a corner has to be still on the bitmap and so
-is likely in the direction of the center. When set, the desired ending point
-may be off the edge of the bitmap, which means the texture of the corner areas
-is the same as everywhere else.</p>
+near the corners of the Maze will tend to point toward the center, since the endpoint
+of a line that starts in a corner has to be still on the bitmap and so is
+likely in the direction of the center. When set, the desired ending point may
+be off the edge of the bitmap, which means the texture of the corner areas is
+the same as everywhere else.</p>
 
 <p class=B><span class=O>Crack Line Length:</span> This value sets the maximum
 length lines in a Crack Maze can have. No line will ever be longer than half
@@ -5543,8 +5580,8 @@ Crack Mazes so that all random lines are restricted to certain angles. A value
 of 1 forces all lines to be in the horizontal plane, a value of 2 forces all
 lines to be horizontal or vertical, 3 forces all lines to be in a triangular
 grid, and so on. Negative numbers rotate the angles by half a sector, e.g. a
-value of 1 forces all lines to be in the vertical plane, 2 forces all lines to be
-diagonal, and so on. The default value of zero allows all angles.</p>
+value of 1 forces all lines to be in the vertical plane, 2 forces all lines to
+be diagonal, and so on. The default value of zero allows all angles.</p>
 
 <p class=B><span class=M>Braid Creation Method:</span> This radio button group
 determines how Mazes without dead ends are created when the Braid command is
@@ -5755,13 +5792,13 @@ Follow Wall Right and then do Follow Wall Left.</p>
 <p class=B><span class=N>Pledge Algorithm Left:</span> This tries to solve a
 Maze using the Pledge algorithm. Pledge algorithm is similar to wall following,
 hence it has a version that follows the left wall and another following the
-right. Solving works by always moving in the direction specified by the
-Direction field in Dot Settings when possible, and wall following when not.
-Moving in the direction allows jumping between islands, so this can solve Mazes
-wall following can’t. Pledge algorithm is guaranteed to find a way to an exit
-on the outer edge of any Maze from any point in the middle, however it can’t do
-the reverse, namely find an arbitrary solution point within the Maze. The Maze
-is unsolvable if the turn total keeps increasing, meaning the solver is caught
+right. Solving works by always moving in the direction specified by the Direction
+field in Dot Settings when possible, and wall following when not. Moving in the
+direction allows jumping between islands, so this can solve Mazes wall
+following can’t. Pledge algorithm is guaranteed to find a way to an exit on the
+outer edge of any Maze from any point in the middle, however it can’t do the
+reverse, namely find an arbitrary solution point within the Maze. The Maze is
+unsolvable if the turn total keeps increasing, meaning the solver is caught
 going around inside an inaccessible area. The Pass Limit field in Create
 Settings specifies how high the turn total can get before giving up.</p>
 
@@ -5842,9 +5879,9 @@ the main “branch” passages are left.</p>
 <p class=A><span class=N>Mark Cul-De-Sacs:</span> This is similar to Fill
 Cul-De-Sacs, however instead of filling in all cul-de-sac passages, it will
 instead just convert each cul-de-sac into a long dead end by adding a wall
-segment at an appropriate point. For example running this on a Maze created
-with the Braid command will add some dead ends to the Maze resulting in a
-partially braid Maze with both loops and dead ends.</p>
+segment at an appropriate point. For example running this on a Maze created with
+the Braid command will add some dead ends to the Maze resulting in a partially
+braid Maze with both loops and dead ends.</p>
 
 <p class=A><span class=N>Mark Blind Alleys:</span> This is similar to Fill
 Blind Alleys, however this only seals off and fills in the blind alley passages
@@ -5853,10 +5890,10 @@ stem. This runs much faster than Fill Blind Alleys, however it will create
 inaccessible sections out of cul-de-sacs and other blind alleys that are more
 than just dead ends.</p>
 
-<p class=A><span class=N>Mark Collisions:</span> This is similar to Fill Collisions,
-however instead of filling in all passages not on a solution path, it will
-instead just add wall segments where the “collisions” happen, removing most of
-the passage loops from the Maze.</p>
+<p class=A><span class=N>Mark Collisions:</span> This is similar to Fill
+Collisions, however instead of filling in all passages not on a solution path,
+it will instead just add wall segments where the “collisions” happen, removing
+most of the passage loops from the Maze.</p>
 
 <p class=A><span class=N>Fill Single Dead Ends:</span> This is like Fill Dead
 Ends, in that it fills in all dead ends, however it won’t fill in passages that
@@ -5875,8 +5912,8 @@ is basically flooding the passages. This basically does the same as the Fill At
 Dot command if the dot is in the bottom right corner. A simple yet useful way
 to get information about a Maze is to flood it, because it will touch all areas
 and only those areas reachable from the start point. Any parts not flooded
-indicate areas inaccessible from the start. If you flood the passage at the
-start, and the end isn’t filled, the Maze has no solution.</p>
+indicate areas inaccessible from the start. If you flood the passage at the start,
+and the end isn’t filled, the Maze has no solution.</p>
 
 <p class=A><span class=N>Flood Walls Left:</span> This will flood the bitmap
 starting from the top left corner. Since that’s usually an on pixel, this is
@@ -5963,8 +6000,8 @@ within the bounds of the bitmap Render Pyramid creates.</p>
 <p class=B><span class=O>Viewing Angle Theta:</span> This affects the render
 perspective commands. It indicates the angle to look at the scene from the
 starting location coordinates. A value of 0 means to look along the increasing
-Y axis, a value of 90 means to look along the increasing X axis, and so on
-around the 360 degree circle.</p>
+Y axis, a value of 90 means to look along the increasing X axis, and so on around
+the 360 degree circle.</p>
 
 <p class=B><span class=O>Vertical Pitch Phi:</span> This affects the render
 perspective commands. It indicates the amount to look up or down along the
@@ -5996,10 +6033,10 @@ patches in memory. This makes adjacent individual blocks appear to be a single
 large object. When set the edges between blocks won’t be indicated in an
 overview on the screen, the blocks in Render Pyramid will appear solid, and
 edges between blocks in the created wireframe or patch scene will not be shown
-when that scene is rendered. When unset an overview will appear composed of
-individual blocks placed next to each other, the blocks in Render Pyramid will
-appear transparent, and all edges around blocks in a scene will be drawn when
-that scene is rendered.</p>
+when that scene is rendered. When unset an overview will appear composed of individual
+blocks placed next to each other, the blocks in Render Pyramid will appear
+transparent, and all edges around blocks in a scene will be drawn when that
+scene is rendered.</p>
 
 <p class=A><span class=N>Obscure Draw Settings...:</span> This dialog contains
 additional minor or less fundamental settings used by the perspective rendering
@@ -6011,8 +6048,8 @@ range of Y coordinates covered won’t change, e.g. if coordinates range from Y=0
 to y=100, the scene will be flipped across the plane Y=50. It’s recommended to
 have this set for scenes created by the make wireframe and patch commands, to
 prevent objects in the scene from being a mirror image of what you expect,
-because the rendering assumes a right-handed coordinate system, while the
-bitmaps are in a left-handed coordinate system with X increasing to the east, Y
+because the rendering assumes a right-handed coordinate system, while the bitmaps
+are in a left-handed coordinate system with X increasing to the east, Y
 increasing to the south, and Z increasing up.</p>
 
 <p class=B><span class=O>Shade Sky:</span> This only plays a role in the
@@ -6109,8 +6146,8 @@ composed of only orthogonal and 45 degree angle lines. The view will be looking
 down on and looking across the bitmap with its bottom edge closest to you. Each
 on pixel will become a block in the scene. In the Draw Settings dialog, the
 Horizontal Size value will be the width of the block in pixels. The Vertical
-Size value will be the depth of the block in pixels, i.e. the number of pixels
-along the 45 degree angle line. It’s recommended to have this value be slightly
+Size value will be the depth of the block in pixels, i.e. the number of pixels along
+the 45 degree angle line. It’s recommended to have this value be slightly
 smaller than Horizontal Size to make each block seem to have a square top. The
 Depth Size value will be the height of the block in pixels. The pixel size of
 the rendered bitmap is determined by the dimensions of the main bitmap along
@@ -6211,8 +6248,8 @@ Color life is like monochrome life except each cell is displayed in a color of
 the rainbow. When a new cell is born, its color is the midpoint among the
 colors of its three parent cells. For example a red cell and two green cells
 will produce a yellowish green cell. Note Color life makes use of the temporary
-color bitmap to determine which cells are actually alive and what color they should
-be, where if the temporary color bitmap doesn’t exist, each cell will be
+color bitmap to determine which cells are actually alive and what color they
+should be, where if the temporary color bitmap doesn’t exist, each cell will be
 initialized to a random color of the rainbow.</p>
 
 <p class=B>Life Generate automatically increments the Current Generation field
@@ -6239,8 +6276,8 @@ lines instead of pixels. The Windows metafile format may be opened or pasted
 into programs such as Microsoft Word, in order to produce printouts that aren’t
 pixelated.</p>
 
-<p class=B><span class=N>Copy Metafile:</span> This copies the current wireframe
-scene in memory to the Windows clipboard in Windows metafile format.</p>
+<p class=B><span class=N>Copy Metafile:</span> This copies the current
+wireframe scene in memory to the Windows clipboard in Windows metafile format.</p>
 
 <p class=B><span class=N>Save Vector…:</span> This saves the current wireframe
 scene in memory to the Scalable Vector Graphics (SVG) format. SVG files are an
@@ -6249,8 +6286,8 @@ can be displayed in Web browsers.</p>
 
 <p class=A><span class=N>Make Wireframe Bitmap Overview:</span> This creates a
 wireframe scene in memory. It will contain the contents of the main bitmap,
-where each on pixel in the bitmap becomes a 3D block. The wireframe will contain
-two planes of edges along the top and bottom faces, with vertical lines
+where each on pixel in the bitmap becomes a 3D block. The wireframe will
+contain two planes of edges along the top and bottom faces, with vertical lines
 connecting the corners between them, and look like the graphic created by
 Render Bitmap Overview. In the Draw Settings dialog, the Horizontal Size and
 Vertical Size values indicate the number of draw units wide or long each line
@@ -6359,12 +6396,12 @@ Render Wireframe Perspective except it operates on the patch file in memory
 instead of the wireframe file. This draws a perspective view of the patch file
 in memory within the current size of the main bitmap. In the Draw Settings
 dialog, the X and Y and Z Starting Location fields, the Viewing Angle Theta and
-Vertical Pitch Phi fields, and the Move With Arrow Keys checkbox, mean the exact
-same thing here as they do in Render Wireframe Perspective. Because the main
-bitmap is monochrome, the colors of patches are ignored here, where all patches
-and the background are the wall color, and all edges and lines are the passage
-color. See the Obscure Draw Settings dialog for various other settings that
-affect the way this monochrome scene is drawn.</p>
+Vertical Pitch Phi fields, and the Move With Arrow Keys checkbox, mean the
+exact same thing here as they do in Render Wireframe Perspective. Because the
+main bitmap is monochrome, the colors of patches are ignored here, where all
+patches and the background are the wall color, and all edges and lines are the
+passage color. See the Obscure Draw Settings dialog for various other settings
+that affect the way this monochrome scene is drawn.</p>
 
 <p class=B>If Show Color Bitmap is set, this instead generates a color display
 of the patch file instead of just a black and white one, and draws a
@@ -6401,8 +6438,8 @@ and clicking in the bottom 1/4 of the bottom quadrant will move down. Clicking
 the right mouse button on the window at any time will toggle the Chase Mouse
 Point setting.</p>
 
-<p class=B><span class=P>Mouse drag:</span> When the Drag Move Dot setting is on,
-you can use the mouse to draw on the screen in addition to just setting the
+<p class=B><span class=P>Mouse drag:</span> When the Drag Move Dot setting is
+on, you can use the mouse to draw on the screen in addition to just setting the
 location of the dot when you click. Clicking and dragging the mouse will draw a
 line under the pointer, using the Drag Is Erase color. Shift+clicking will draw
 a line from the last location clicked to the current location. Control+clicking
@@ -6432,14 +6469,15 @@ as “DkBlue”), “Violet” (same as “Purple”), “Teal” (same as “DkCyan”), “Grey”
 (same as “Cyan”). The 28 colors mentioned above may also be entered as just the
 numbers from 0 to 27 respectively. If you enter “???” Daedalus will translate
 it into a random color of the rainbow, and if you enter “????” Daedalus will
-translate it into a random color period. You can also enter a color as an RGB value, e.g. “rgb 50 100 150”, where the three numbers are the red intensity, green intensity,
-and blue intensity, which can range from 0 to 255. Typing “grayn” followed by a
-number will indicate a grayscale of that intensity. For example, “grayn 100” is
-equivalent to “rgb 100 100 100”. Typing “hue” followed by a number from 0 to
-360 will result in a color of the rainbow, where 0 is red, 120 is green, and so
-on. This color can be modified by the pattern settings in the Replace Color
-dialog. Finally, entering “dlg” for the color will invoke the Windows Color
-picker dialog, where you can visually select among a palette of colors or
+translate it into a random color period. You can also enter a color as an RGB
+value, e.g. “rgb 50 100 150”, where the three numbers are the red intensity,
+green intensity, and blue intensity, which can range from 0 to 255. Typing “grayn”
+followed by a number will indicate a grayscale of that intensity. For example, “grayn
+100” is equivalent to “rgb 100 100 100”. Typing “hue” followed by a number from
+0 to 360 will result in a color of the rainbow, where 0 is red, 120 is green,
+and so on. This color can be modified by the pattern settings in the Replace
+Color dialog. Finally, entering “dlg” for the color will invoke the Windows
+Color picker dialog, where you can visually select among a palette of colors or
 specify a color in terms of red/green/blue or hue/saturation/luminosity. When
 you leave the Color dialog, its current color will be used for that field.</p>
 
@@ -6470,19 +6508,21 @@ shown by default.</p>
 Daedalus.scr, that script will be loaded on startup instead of the above
 behavior. You can’t set an unlock password when Daedalus is running as a screen
 saver, and the Settings button won’t do anything other than show the same
-animation in a window. However the script file allows the behavior to be arbitrarily
-customized. Daedalus knows to act as a screen saver when Windows invokes it with
-specific command switches, and exit immediately when a key is pressed or the
-mouse is moved. “DAEDALUS /s” (run screen saver) will run in full screen mode. “DAEDALUS
-/c” and “DAEDALUS /a” (configure screen saver) will run in windowed mode. “DAEDALUS
-/p” (preview screen saver) will do nothing. One can run DAEDALUS.EXE with these switches to test its screen saver functionality.</p>
+animation in a window. However the script file allows the behavior to be
+arbitrarily customized. Daedalus knows to act as a screen saver when Windows
+invokes it with specific command switches, and exit immediately when a key is
+pressed or the mouse is moved. “DAEDALUS /s” (run screen saver) will run in
+full screen mode. “DAEDALUS /c” and “DAEDALUS /a” (configure screen saver) will
+run in windowed mode. “DAEDALUS /p” (preview screen saver) will do nothing. One
+can run DAEDALUS.EXE with these switches to test its screen saver
+functionality.</p>
 
 <p class=B>If Daedalus is invoked as “DAEDALUS /w” it will run in windowless
 mode. It won’t show its main window, but will instead run the script “daedalus.ds”
 if present, then immediately exit. This allows Daedalus to be invoked from
-batch files without a window getting in the way. More generally, if “daedalus.ds”
-exists in the same directory as the Daedalus executable, it will be run as a
-script on startup.</p>
+batch files without a window getting in the way. More generally, if
+“daedalus.ds” exists in the same directory as the Daedalus executable, it will
+be run as a script on startup.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -6532,8 +6572,8 @@ Maze from scratch that fills the entire bitmap replacing what’s already
 present).</p>
 
 <p class=A>6: Add an entrance and exit: You can do this in another program, in
-Daedalus itself with direct pixel editing, or with the “Maze / Add / Add Entrance”
-and “Add Exit” commands.</p>
+Daedalus itself with direct pixel editing, or with the “Maze / Add / Add
+Entrance” and “Add Exit” commands.</p>
 
 <p class=A>7: Make other desired adjustments: Orthogonal Mazes in Daedalus are
 initially made such that passages and walls are just one pixel. Hence you first
@@ -6608,11 +6648,11 @@ to the clipboard using “Edit / Copy”, print it using “Print”, and so on.</p>
 
 </div>
 
-<p class=A><span class=P>DAE34ZIP.EXE:</span> This is the installation file for
-Daedalus 3.4. To install, just download this program and run it. Inside are all
+<p class=A><span class=P>DAE35ZIP.EXE:</span> This is the installation file for
+Daedalus 3.5. To install, just download this program and run it. Inside are all
 the files below, which will be extracted from this archive file and copied into
 a directory or folder you specify, or C:\DAEDALUS by default. After unpacking,
-DAE34ZIP.EXE is no longer needed to run the program, so you can delete it if
+DAE35ZIP.EXE is no longer needed to run the program, so you can delete it if
 you wish. To uninstall, you only need to delete the installation directory and
 the files within it, and the Daedalus program group setup added to the Windows
 Programs menu. Daedalus doesn’t add or change any system DLL’s or edit the
@@ -6621,28 +6661,28 @@ of four custom file extensions. These are .ds for Daedalus scripts, .d3 for
 Daedalus 3D bitmaps, .dw for Daedalus wireframe files, and .dp for Daedalus
 patch files.</p>
 
-<p class=B><span class=P>DAE34HGS.EXE:</span> This is an alternate installation
-file for Daedalus 3.4, designed for use with the “Hunger Games” script. It contains
-all the same files as DAE34ZIP.EXE above, along with a set of optional bitmap
+<p class=B><span class=P>DAE35HGS.EXE:</span> This is an alternate installation
+file for Daedalus 3.5, designed for use with the “Hunger Games” script. It contains
+all the same files as DAE35ZIP.EXE above, along with a set of optional bitmap
 and sound files to enhance that game, which are located in a “hunger”
 subdirectory. This file is much larger, which is why these extra files aren’t
 included by default.</p>
 
-<p class=B><span class=P>DAE34ZIP.ZIP:</span> This is an alternate installation
-file for Daedalus 3.4. It contains all the same files as DAE34ZIP.EXE above,
+<p class=B><span class=P>DAE35ZIP.ZIP:</span> This is an alternate installation
+file for Daedalus 3.5. It contains all the same files as DAE35ZIP.EXE above,
 except they’re in a simple .zip extension file. Unpacking and setup needs to be
 done manually. This file is recommended for compiling Daedalus on non-Windows
 systems.</p>
 
-<p class=B><span class=P>DAE34ZIP64.ZIP:</span> This is an alternate
-installation file for Daedalus 3.4, for 64 bit Windows systems. It contains all
-the same files as DAE34ZIP.ZIP above, except the Daedalus executable is 64 bit
+<p class=B><span class=P>DAE35ZIP64.ZIP:</span> This is an alternate
+installation file for Daedalus 3.5, for 64 bit Windows systems. It contains all
+the same files as DAE35ZIP.ZIP above, except the Daedalus executable is 64 bit
 instead of 32 bit.</p>
 
 <p class=A><span class=P>DAEDALUS.EXE:</span> This is the main Daedalus
 executable. Double click on this file’s icon or type “daedalus” from a command
 prompt to start the program. If you installed by running the setup program, you
-can also go to the Start menu and select All Programs / Daedalus / Daedalus 3.4
+can also go to the Start menu and select All Programs / Daedalus / Daedalus 3.5
 to start the program, as the unpacking program will create a “Daedalus” program
 group for you.</p>
 
@@ -6651,9 +6691,9 @@ you’re currently reading. The Open Documentation menu command in the program
 will display this file.</p>
 
 <p class=A><span class=P>CHANGES.HTM:</span> This is another HTML documentation
-file, and describes the new features, changes, and bug fixes in Daedalus 3.4,
+file, and describes the new features, changes, and bug fixes in Daedalus 3.5,
 that weren’t in the previous version. This file is only useful if you’re
-already familiar with Daedalus 3.2 or before and want to know what the newest
+already familiar with Daedalus 3.4 or before and want to know what the newest
 version offers.</p>
 
 <p class=A><span class=P>SCRIPT.HTM:</span> Another HTML documentation file,
@@ -6675,10 +6715,10 @@ program will invoke this file.</p>
 bitmap files, which may be loaded into Daedalus with the Open command on the 3D
 Bitmap submenu. They aren’t Mazes, but are still interesting. The first is of
 an Escher room with staircases at different angles, similar to that seen in M.
-C. Escher’s “Relativity”. The second is of a castle, with a tower at each corner
-and another tower in the middle. To better see these images, after loading use
-the Render Bitmap Overview command. To automatically view them, load the “demos.ds”
-script file and press F8 and Shift+F8.</p>
+C. Escher’s “Relativity”. The second is of a castle, with a tower at each
+corner and another tower in the middle. To better see these images, after
+loading use the Render Bitmap Overview command. To automatically view them,
+load the “demos.ds” script file and press F8 and Shift+F8.</p>
 
 <p class=A><span class=P>SOLIDS.DP:</span> This is a sample Daedalus patch
 file, which may be loaded into the program with the Open Patches command on the
@@ -6691,7 +6731,7 @@ rendering bring up the Draw Settings dialog and set Y Starting Location to 700,
 Z Starting Location to 300, Viewing Angle to 180, and Vertical Pitch to 20. To
 automatically view them, load the “demos.ds” script file and press F11.</p>
 
-<p class=A><span class=P>*.DS:</span> These 28 files are sample script files,
+<p class=A><span class=P>*.DS:</span> These 30 files are sample script files,
 which may be opened by Daedalus and executed by selecting the appropriate
 command on the Run Script submenu, by selecting the script’s file in the Open
 Script dialog on the Macros submenu, by double clicking the script’s file in
@@ -6755,6 +6795,10 @@ keyboard shortcut, as follows:</p>
 
 <p class=Fixed>28  PENTRIS.DS   Pentris Game           Alt+Ctrl+9</p>
 
+<p class=Fixed>29  GRIPSOX.DS   Grippy Socks           Alt+Ctrl+0</p>
+
+<p class=Fixed>30  JARETH.DS    Jareth's Labyrinth     Alt+Ctrl+Shift+1</p>
+
 <p class=A><span class=P>SOURCES:</span> This subdirectory contains a copy of
 the C++ source code and related files used to compile the Daedalus executable. Included
 are Visual Studio project/solution files for Windows, and a Makefile file for
@@ -6768,7 +6812,7 @@ does allow Daedalus Mazes to be generated on non-Windows systems.</p>
 <p class=A><span class=P>HUNGER:</span> This subdirectory contains the texture
 bitmaps and sound files used by the “Hunger Games” script. This directory isn’t
 present in the standard download, but comes preset with bitmaps and sounds in
-the DAE34HGS.EXE “Hunger Games” download.</p>
+the DAE35HGS.EXE “Hunger Games” download.</p>
 
 <p class=A>&nbsp;</p>
 
@@ -6795,16 +6839,20 @@ source files, and main things introduced.</p>
 <p class=Fixed>4   1.3   4/19/2003  384K  378   9   842K  Texture mapping,
 Hypermazes</p>
 
-<p class=Fixed>5   1.4  12/31/2003  412K  381  10  1025K  Source code included, polished Mazes</p>
+<p class=Fixed>5   1.4  12/31/2003 
+412K  381  10  1025K  Source code included, polished Mazes</p>
 
-<p class=Fixed>6   2.0   5/01/2005  510K  412  15  1144K  32 bit executable, recursive fractal Mazes</p>
+<p class=Fixed>6   2.0   5/01/2005 
+510K  412  15  1144K  32 bit executable, recursive fractal Mazes</p>
 
 <p class=Fixed>7   2.1  12/31/2005  534K  420  17  1205K  GNU license, C++
 source code</p>
 
-<p class=Fixed>8   2.2  12/31/2007  524K  430  20  1266K  Sidewinder Mazes, Trémaux’s &amp; chain solving</p>
+<p class=Fixed>8   2.2  12/31/2007 
+524K  430  20  1266K  Sidewinder Mazes, Trémaux’s &amp; chain solving</p>
 
-<p class=Fixed>9   2.3   5/17/2010  602K  440  22  1323K  Custom Labyrinths, improved setup</p>
+<p class=Fixed>9   2.3   5/17/2010 
+602K  440  22  1323K  Custom Labyrinths, improved setup</p>
 
 <p class=Fixed>10  2.4   3/11/2013  602K  444  26  1364K  Hunger Games and
 other new scripts</p>
@@ -6827,6 +6875,9 @@ color wireframes</p>
 <p class=Fixed>16  3.4   8/30/2023 1019K  469  29  1598K  Grippy Socks script,
 bug fixes</p>
 
+<p class=Fixed>17  3.5  10/31/2024 1021K  470  30  1602K  Jareth's Labyrinth
+script</p>
+
 <p class=A>&nbsp;</p>
 
 <div style='border:none;border-top:solid windowtext 4.5pt;padding:1.0pt 0in 0in 0in'>
@@ -6836,7 +6887,7 @@ bug fixes</p>
 </div>
 
 <p class=A>IMPORTANT NOTICE: Daedalus and all Maze generation and general
-graphics routines used in this program are Copyright (C) 1998-2023 by Walter D.
+graphics routines used in this program are Copyright (C) 1998-2024 by Walter D.
 Pullen. Permission is granted to freely use, modify, and distribute these
 routines provided these credits and notices remain unmodified with any altered
 or distributed versions of the program. The user does have all rights to Mazes
